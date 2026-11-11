@@ -13,12 +13,15 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- Library SheetJS untuk membaca dan membuat file Excel .XLSX asli -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
     :root {
       --primary-teal: #0f766e;
+      --primary-dark: #042f2e;
       --secondary-emerald: #059669;
+      --accent-gold: #f59e0b;
     }
     body {
       background-color: #f8fafc;
@@ -29,10 +32,10 @@
 
     /* HERO SECTION STYLES */
     .hero-wrapper {
-      background: linear-gradient(135deg, #042f2e 0%, #0f766e 50%, #115e59 100%);
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-teal) 50%, #115e59 100%);
       color: white;
       border-radius: 1.5rem;
-      padding: 3rem 2rem;
+      padding: 2.5rem 2rem;
       position: relative;
       overflow: hidden;
       box-shadow: 0 15px 30px -5px rgba(15, 118, 110, 0.3);
@@ -42,7 +45,7 @@
       right: -30px;
       bottom: -30px;
       font-size: 16rem;
-      color: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.04);
       pointer-events: none;
     }
     .stat-badge {
@@ -50,11 +53,63 @@
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 1rem;
-      padding: 1.25rem;
+      padding: 1rem;
       transition: transform 0.2s;
     }
     .stat-badge:hover {
       transform: translateY(-3px);
+    }
+
+    /* PRAYER TIMES WIDGET BAR */
+    .prayer-bar {
+      background: #ffffff;
+      border-radius: 1rem;
+      padding: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+    }
+    .prayer-pill {
+      background: #f1f5f9;
+      border-radius: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      text-align: center;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .prayer-pill.active {
+      background: #ccfbf1;
+      border-color: var(--primary-teal);
+      color: var(--primary-teal);
+      font-weight: bold;
+    }
+
+    /* AUTOCOMPLETE DROPDOWN SEARCH SISWA */
+    .autocomplete-box {
+      position: relative;
+    }
+    .autocomplete-items {
+      position: absolute;
+      border: 1px solid #cbd5e1;
+      border-top: none;
+      z-index: 99;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: #fff;
+      border-radius: 0 0 0.5rem 0.5rem;
+      max-height: 220px;
+      overflow-y: auto;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .autocomplete-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: left;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.15s;
+    }
+    .autocomplete-item:hover {
+      background-color: #f0fdfa;
     }
 
     /* KARTU CR80 STANDARD (85.6mm x 54mm) */
@@ -96,16 +151,16 @@
 </head>
 <body>
 
-  <!-- MODAL KONFIGURASI URL APPS SCRIPT -->
+  <!-- MODAL KONFIGURASI CADANGAN (OPTIONAL) -->
   <div class="modal fade" id="modalConfig" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold"><i class="fa-solid fa-gear me-2"></i>Konfigurasi URL Google Apps Script</h5>
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-gear me-2"></i>Konfigurasi Manual URL Backend</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="small text-muted">Masukkan Web App URL dari deployment Apps Script Anda (yang berakhiran <code>/exec</code>) agar data tersimpan di Spreadsheet:</p>
+          <p class="small text-muted">URL Apps Script saat ini tersimpan otomatis. Anda bisa memperbaruinya di sini jika diperlukan:</p>
           <input type="text" id="cfg-gas-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
           <button class="btn btn-primary w-100 mt-3" onclick="saveGasUrl()" style="background-color: var(--primary-teal); border:none;">Simpan URL</button>
         </div>
@@ -134,7 +189,7 @@
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('cetak-kartu')"><i class="fa-solid fa-id-card me-1"></i>Cetak Kartu</a></li>
           
           <li class="nav-item ms-lg-2">
-            <button class="btn btn-sm btn-outline-light" onclick="openConfigModal()" title="Pengaturan URL Spreadsheet"><i class="fa-solid fa-gear"></i></button>
+            <button class="btn btn-sm btn-outline-light" onclick="openConfigModal()" title="Pengaturan URL Backend"><i class="fa-solid fa-gear"></i></button>
           </li>
 
           <li class="nav-item auth-user d-none ms-lg-2">
@@ -148,6 +203,25 @@
 
   <div class="container py-4">
 
+    <!-- WIDGET REALTIME JAM & WAKTU SHOLAT -->
+    <div class="prayer-bar mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <div class="small text-muted"><i class="fa-solid fa-location-dot me-1 text-danger"></i>Ciawi, Bogor • WIB</div>
+          <div class="fs-4 fw-bold text-dark font-monospace" id="live-clock">00:00:00 WIB</div>
+          <div class="small fw-semibold text-secondary" id="live-date">-</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <div class="prayer-pill" id="pill-subuh"><div class="small text-muted">Subuh</div><strong id="time-subuh">04:38</strong></div>
+          <div class="prayer-pill" id="pill-dhuha"><div class="small text-muted">Dhuha</div><strong id="time-dhuha">06:20</strong></div>
+          <div class="prayer-pill" id="pill-dzuhur"><div class="small text-muted">Dzuhur</div><strong id="time-dzuhur">11:58</strong></div>
+          <div class="prayer-pill" id="pill-ashar"><div class="small text-muted">Ashar</div><strong id="time-ashar">15:15</strong></div>
+          <div class="prayer-pill" id="pill-maghrib"><div class="small text-muted">Maghrib</div><strong id="time-maghrib">18:04</strong></div>
+          <div class="prayer-pill" id="pill-isya"><div class="small text-muted">Isya</div><strong id="time-isya">19:15</strong></div>
+        </div>
+      </div>
+    </div>
+
     <!-- 1. VIEW HERO SECTION -->
     <div id="view-landing" class="view-section active">
       <div class="hero-wrapper mb-4">
@@ -158,7 +232,7 @@
               <i class="fa-solid fa-circle-check me-1"></i>Sistem Presensi Sholat Digital
             </div>
             <h1 class="display-5 fw-bold mb-3">Tegakkan Sholat, Disiplinkan Generasi Siswa.</h1>
-            <p class="lead opacity-75 mb-4">Aplikasi absensi ibadah berbasis kartu QR Code untuk SMK BK Ciawi. Dilengkapi pemindai kamera responsif, manajemen siswa, guru, serta laporan kehadiran harian, mingguan, dan bulanan.</p>
+            <p class="lead opacity-75 mb-4">Aplikasi absensi ibadah berbasis kartu QR Code untuk SMK BK Ciawi. Dilengkapi pemindai kamera responsif, live search nama jika kartu tertinggal, serta manajemen data Excel.</p>
             <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
               <button class="btn btn-warning btn-lg fw-bold px-4 shadow" onclick="switchView('login')">
                 <i class="fa-solid fa-qrcode me-2"></i>Mulai Absensi
@@ -226,7 +300,7 @@
       </div>
     </div>
 
-    <!-- 3. VIEW SCANNER PRESENSI -->
+    <!-- 3. VIEW SCANNER DENGAN AUTOCOMPLETE SEARCH SISWA -->
     <div id="view-scanner" class="view-section">
       <div class="row justify-content-center">
         <div class="col-md-8">
@@ -263,15 +337,19 @@
                 </div>
               </div>
 
-              <!-- Area Preview Kamera -->
+              <!-- Viewport Kamera -->
               <div id="reader"></div>
 
-              <!-- Input Manual atau Barcode Scanner USB -->
-              <div class="mt-3">
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fa-solid fa-barcode"></i></span>
-                  <input type="text" id="input-manual-nisn" class="form-control" placeholder="Arahkan Barcode Scanner USB atau ketik NISN..." onkeypress="if(event.key==='Enter') manualAbsen()">
-                  <button class="btn btn-primary" onclick="manualAbsen()" style="background-color: var(--primary-teal);"><i class="fa-solid fa-paper-plane"></i></button>
+              <!-- INPUT PENCARIAN SISWA AUTOCOMPLETE (JIKA LUPA BAWA KARTU) -->
+              <div class="mt-4 text-start">
+                <label class="small fw-bold text-muted"><i class="fa-solid fa-search me-1"></i>Siswa Lupa Bawa Kartu? Cari Nama / NISN:</label>
+                <div class="autocomplete-box">
+                  <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-user-tag"></i></span>
+                    <input type="text" id="input-search-siswa" class="form-control" placeholder="Ketik nama siswa (contoh: Ahmad, Fatih, Siti)..." autocomplete="off" oninput="handleSearchSiswa(this.value)">
+                    <button class="btn btn-outline-secondary" type="button" onclick="clearSearchSiswa()"><i class="fa-solid fa-xmark"></i></button>
+                  </div>
+                  <div id="search-results" class="autocomplete-items d-none"></div>
                 </div>
               </div>
 
@@ -295,7 +373,7 @@
         <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
           <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-clipboard-check me-2"></i>Laporan Rekapitulasi Presensi</h5>
           <div class="d-flex gap-2">
-            <button class="btn btn-outline-success btn-sm" onclick="exportExcel()"><i class="fa-solid fa-file-excel me-1"></i>Ekspor CSV</button>
+            <button class="btn btn-outline-success btn-sm" onclick="exportToExcel()"><i class="fa-solid fa-file-excel me-1"></i>Ekspor Excel (.xlsx)</button>
             <button class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="fa-solid fa-print me-1"></i>Cetak Laporan</button>
           </div>
         </div>
@@ -347,17 +425,17 @@
       </div>
     </div>
 
-    <!-- 5. VIEW DATA SISWA -->
+    <!-- 5. VIEW DATA SISWA (IMPORT EXCEL .XLSX ASLI) -->
     <div id="view-siswa" class="view-section">
       <div class="card shadow border-0 rounded-4">
         <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
           <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-graduation-cap me-2"></i>Data Siswa</h5>
           <div class="d-flex flex-wrap gap-2">
             <button class="btn btn-primary btn-sm" onclick="openSiswaModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Siswa</button>
-            <button class="btn btn-outline-primary btn-sm" onclick="downloadTemplateSiswa()"><i class="fa-solid fa-download me-1"></i>Template CSV</button>
+            <button class="btn btn-outline-success btn-sm" onclick="downloadTemplateSiswaXlsx()"><i class="fa-solid fa-file-excel me-1"></i>Unduh Template (.xlsx)</button>
             <label class="btn btn-success btn-sm mb-0">
-              <i class="fa-solid fa-file-import me-1"></i>Impor CSV Massal
-              <input type="file" id="file-import-siswa" accept=".csv" class="d-none" onchange="handleBulkImportSiswa(this)">
+              <i class="fa-solid fa-file-import me-1"></i>Impor Excel (.xlsx)
+              <input type="file" id="file-import-siswa" accept=".xlsx, .xls" class="d-none" onchange="handleBulkImportSiswaXlsx(this)">
             </label>
           </div>
         </div>
@@ -384,17 +462,17 @@
       </div>
     </div>
 
-    <!-- 6. VIEW DATA GURU -->
+    <!-- 6. VIEW DATA GURU (IMPORT EXCEL .XLSX ASLI) -->
     <div id="view-guru" class="view-section">
       <div class="card shadow border-0 rounded-4">
         <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
           <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-chalkboard-user me-2"></i>Daftar Guru & Petugas</h5>
           <div class="d-flex flex-wrap gap-2">
             <button class="btn btn-primary btn-sm" onclick="openGuruModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Guru</button>
-            <button class="btn btn-outline-primary btn-sm" onclick="downloadTemplateGuru()"><i class="fa-solid fa-download me-1"></i>Template CSV</button>
+            <button class="btn btn-outline-success btn-sm" onclick="downloadTemplateGuruXlsx()"><i class="fa-solid fa-file-excel me-1"></i>Unduh Template (.xlsx)</button>
             <label class="btn btn-success btn-sm mb-0">
-              <i class="fa-solid fa-file-import me-1"></i>Impor CSV Massal
-              <input type="file" id="file-import-guru" accept=".csv" class="d-none" onchange="handleBulkImportGuru(this)">
+              <i class="fa-solid fa-file-import me-1"></i>Impor Excel (.xlsx)
+              <input type="file" id="file-import-guru" accept=".xlsx, .xls" class="d-none" onchange="handleBulkImportGuruXlsx(this)">
             </label>
           </div>
         </div>
@@ -434,41 +512,18 @@
 
   </div>
 
-  <!-- ==================== MODAL FORMS ==================== -->
-
-  <!-- MODAL FORM SISWA -->
+  <!-- MODALS -->
   <div class="modal fade" id="modalSiswa" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold" id="modalSiswaTitle">Form Data Siswa</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
+        <div class="modal-header"><h5 class="modal-title fw-bold" id="modalSiswaTitle">Form Data Siswa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <form id="form-siswa" onsubmit="handleSaveSiswa(event)">
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">NISN</label>
-              <input type="text" id="m-nisn" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Nama Lengkap</label>
-              <input type="text" id="m-nama" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Kelas</label>
-              <input type="text" id="m-kelas" class="form-control" placeholder="Contoh: X-RPL" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Jenis Kelamin</label>
-              <select id="m-gender" class="form-select">
-                <option value="L">Laki-laki (L)</option>
-                <option value="P">Perempuan (P)</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">No HP Ortu / WhatsApp</label>
-              <input type="text" id="m-nohp" class="form-control" placeholder="08xxxxxxxxxx">
-            </div>
+            <div class="mb-3"><label class="form-label small fw-semibold">NISN</label><input type="text" id="m-nisn" class="form-control" required></div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Nama Lengkap</label><input type="text" id="m-nama" class="form-control" required></div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Kelas</label><input type="text" id="m-kelas" class="form-control" placeholder="Contoh: X-RPL" required></div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Jenis Kelamin</label><select id="m-gender" class="form-select"><option value="L">Laki-laki (L)</option><option value="P">Perempuan (P)</option></select></div>
+            <div class="mb-3"><label class="form-label small fw-semibold">No HP Ortu / WA</label><input type="text" id="m-nohp" class="form-control" placeholder="08xxxxxxxxxx"></div>
             <button type="submit" class="btn btn-primary w-100" style="background-color: var(--primary-teal);">Simpan Siswa</button>
           </form>
         </div>
@@ -476,36 +531,17 @@
     </div>
   </div>
 
-  <!-- MODAL FORM GURU -->
   <div class="modal fade" id="modalGuru" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold" id="modalGuruTitle">Form Data Guru</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
+        <div class="modal-header"><h5 class="modal-title fw-bold" id="modalGuruTitle">Form Data Guru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <form id="form-guru" onsubmit="handleSaveGuru(event)">
             <input type="hidden" id="g-userid">
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Username</label>
-              <input type="text" id="g-username" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Password</label>
-              <input type="text" id="g-password" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Nama Lengkap Guru / Gelar</label>
-              <input type="text" id="g-nama" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Role Hak Akses</label>
-              <select id="g-role" class="form-select">
-                <option value="GURU">GURU (Scanner & Monitoring)</option>
-                <option value="ADMIN">ADMIN (Akses Penuh)</option>
-              </select>
-            </div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Username</label><input type="text" id="g-username" class="form-control" required></div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Password</label><input type="text" id="g-password" class="form-control" required></div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Nama Lengkap Guru / Gelar</label><input type="text" id="g-nama" class="form-control" required></div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Role Hak Akses</label><select id="g-role" class="form-select"><option value="GURU">GURU (Scanner & Monitoring)</option><option value="ADMIN">ADMIN (Akses Penuh)</option></select></div>
             <button type="submit" class="btn btn-primary w-100" style="background-color: var(--primary-teal);">Simpan Guru</button>
           </form>
         </div>
@@ -513,31 +549,17 @@
     </div>
   </div>
 
-  <!-- MODAL EDIT CATATAN ABSEN -->
   <div class="modal fade" id="modalEditAbsen" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold">Koreksi Data Absensi</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
+        <div class="modal-header"><h5 class="modal-title fw-bold">Koreksi Data Absensi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <form id="form-edit-absen" onsubmit="handleSaveEditAbsen(event)">
             <input type="hidden" id="ea-id">
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Nama Siswa</label>
-              <input type="text" id="ea-nama" class="form-control" readonly disabled>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Jenis Sholat / Ibadah</label>
+            <div class="mb-3"><label class="form-label small fw-semibold">Nama Siswa</label><input type="text" id="ea-nama" class="form-control" readonly disabled></div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Jenis Sholat / Ibadah</label>
               <select id="ea-sholat" class="form-select">
-                <option value="Dzuhur">Dzuhur</option>
-                <option value="Ashar">Ashar</option>
-                <option value="Dhuha">Dhuha</option>
-                <option value="Jumat">Jumat</option>
-                <option value="Subuh">Subuh</option>
-                <option value="Maghrib">Maghrib</option>
-                <option value="Isya">Isya</option>
+                <option value="Dzuhur">Dzuhur</option><option value="Ashar">Ashar</option><option value="Dhuha">Dhuha</option><option value="Jumat">Jumat</option><option value="Subuh">Subuh</option><option value="Maghrib">Maghrib</option><option value="Isya">Isya</option>
               </select>
             </div>
             <button type="submit" class="btn btn-primary w-100" style="background-color: var(--primary-teal);">Simpan Koreksi</button>
@@ -547,18 +569,23 @@
     </div>
   </div>
 
-  <!-- Bootstrap Bundle JS -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- ==================== JAVASCRIPT CORE CLIENT ==================== -->
   <script>
+    // ==============================================================
+    // KONFIGURASI PERMANEN BACKEND GOOGLE APPS SCRIPT
+    // GANTI TULISAN DI DALAM KUTIP INI DENGAN URL WEB APP ANDA SEKALI SAJA:
+    // ==============================================================
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwXgQrU-8HGPnHQFkkf-3hO6ZDBQjDXMK2qc5gK-3RZnMoC4Wp5xCn20VoNHXwfxaMR/exec';
+    
+    let gasEndpoint = localStorage.getItem('esholat_gas_url') || (DEFAULT_GAS_URL !== 'PASTE_URL_APPS_SCRIPT_ANDA_DISINI' ? DEFAULT_GAS_URL : '');
+
     let currentUser = null;
     let html5QrCode = null;
     let isCameraRunning = false;
     let siswaCache = [], guruCache = [];
-
-    // Endpoint URL Apps Script
-    let gasEndpoint = localStorage.getItem('esholat_gas_url') || '';
 
     function openConfigModal() {
       document.getElementById('cfg-gas-url').value = gasEndpoint;
@@ -573,7 +600,7 @@
       loadStats();
     }
 
-    // ADAPTER API UNIVERSAL ANTI ERROR
+    // ADAPTER API UNIVERSAL
     async function callApi(action, payload = {}, params = {}) {
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         return new Promise((resolve, reject) => {
@@ -595,17 +622,13 @@
       } else {
         if (!gasEndpoint) {
           openConfigModal();
-          throw new Error('Konfigurasikan Web App URL Apps Script Anda terlebih dahulu.');
+          throw new Error('Masukkan URL Web App Apps Script Anda terlebih dahulu.');
         }
 
         try {
           if (action.startsWith('get')) {
             const q = new URLSearchParams({ action, ...params }).toString();
-            const res = await fetch(`${gasEndpoint}?${q}`, {
-              method: 'GET',
-              mode: 'cors',
-              redirect: 'follow'
-            });
+            const res = await fetch(`${gasEndpoint}?${q}`, { method: 'GET', mode: 'cors', redirect: 'follow' });
             return await res.json();
           } else {
             const bodyData = JSON.stringify({ action, payload, ...payload });
@@ -613,22 +636,243 @@
               method: 'POST',
               mode: 'cors',
               redirect: 'follow',
-              headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-              },
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: bodyData
             });
             return await res.json();
           }
         } catch (err) {
           console.error("Fetch API Error:", err);
-          throw new Error("Gagal terhubung ke database. Pastikan URL Apps Script benar dan izinnya Anyone.");
+          throw new Error("Gagal terhubung ke database. Pastikan URL benar.");
         }
       }
     }
 
-    // INISIALISASI HALAMAN
+    // ==========================================
+    // JAM REALTIME & KALKULASI WAKTU SHOLAT
+    // ==========================================
+    function updateClockAndPrayer() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('id-ID', { hour12: false }) + ' WIB';
+      const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+      document.getElementById('live-clock').innerText = timeStr;
+      document.getElementById('live-date').innerText = dateStr;
+
+      // Estimasi jadwal sholat Ciawi, Bogor
+      const hour = now.getHours();
+      const min = now.getMinutes();
+      const timeVal = hour * 60 + min;
+
+      document.querySelectorAll('.prayer-pill').forEach(el => el.classList.remove('active'));
+
+      // 04:38 = 278, 06:20 = 380, 11:58 = 718, 15:15 = 915, 18:04 = 1084, 19:15 = 1155
+      let currentSholat = 'Dzuhur';
+      if (timeVal >= 278 && timeVal < 380) {
+        document.getElementById('pill-subuh').classList.add('active');
+        currentSholat = 'Subuh';
+      } else if (timeVal >= 380 && timeVal < 718) {
+        document.getElementById('pill-dhuha').classList.add('active');
+        currentSholat = 'Dhuha';
+      } else if (timeVal >= 718 && timeVal < 915) {
+        document.getElementById('pill-dzuhur').classList.add('active');
+        currentSholat = now.getDay() === 5 ? 'Jumat' : 'Dzuhur';
+      } else if (timeVal >= 915 && timeVal < 1084) {
+        document.getElementById('pill-ashar').classList.add('active');
+        currentSholat = 'Ashar';
+      } else if (timeVal >= 1084 && timeVal < 1155) {
+        document.getElementById('pill-maghrib').classList.add('active');
+        currentSholat = 'Maghrib';
+      } else {
+        document.getElementById('pill-isya').classList.add('active');
+        currentSholat = 'Isya';
+      }
+
+      // Otomatis arahkan select box scanner ke waktu sholat terdekat jika user belum mengubahnya manual
+      const scanSelect = document.getElementById('scan-sholat');
+      if (scanSelect && !scanSelect.dataset.userChanged) {
+        scanSelect.value = currentSholat;
+      }
+    }
+
+    document.getElementById('scan-sholat').addEventListener('change', () => {
+      document.getElementById('scan-sholat').dataset.userChanged = 'true';
+    });
+
+    setInterval(updateClockAndPrayer, 1000);
+
+    // ==========================================
+    // AUTOCOMPLETE LIVE SEARCH NAMA SISWA
+    // ==========================================
+    async function ensureSiswaCacheLoaded() {
+      if (siswaCache.length === 0) {
+        try {
+          siswaCache = await callApi('getSiswa');
+        } catch(e) {}
+      }
+    }
+
+    function handleSearchSiswa(val) {
+      const resultsContainer = document.getElementById('search-results');
+      const query = val.trim().toLowerCase();
+
+      if (query.length < 2) {
+        resultsContainer.innerHTML = '';
+        resultsContainer.classList.add('d-none');
+        return;
+      }
+
+      ensureSiswaCacheLoaded();
+
+      const filtered = siswaCache.filter(s => 
+        String(s.nama_siswa || '').toLowerCase().includes(query) || 
+        String(s.nisn || '').toLowerCase().includes(query)
+      ).slice(0, 8); // Tampilkan maksimal 8 hasil agar ringan
+
+      if (filtered.length === 0) {
+        resultsContainer.innerHTML = '<div class="autocomplete-item text-muted text-center small py-3">Siswa tidak ditemukan</div>';
+        resultsContainer.classList.remove('d-none');
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(s => {
+        html += `
+          <div class="autocomplete-item" onclick="selectSiswaFromSearch('${s.nisn}', '${s.nama_siswa.replace(/'/g, "\\'")}')">
+            <div class="fw-bold text-dark">${s.nama_siswa}</div>
+            <div class="small text-muted">NISN: <span class="badge bg-light text-dark border">${s.nisn}</span> • Kelas: <strong class="text-primary">${s.kelas}</strong></div>
+          </div>
+        `;
+      });
+
+      resultsContainer.innerHTML = html;
+      resultsContainer.classList.remove('d-none');
+    }
+
+    function selectSiswaFromSearch(nisn, nama) {
+      document.getElementById('input-search-siswa').value = nama;
+      document.getElementById('search-results').classList.add('d-none');
+
+      Swal.fire({
+        title: 'Verifikasi Absensi?',
+        html: `Konfirmasi kehadiran sholat untuk:<br><b>${nama}</b> (NISN: ${nisn})?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Catat Hadir',
+        confirmButtonColor: '#0f766e',
+        cancelButtonText: 'Batal'
+      }).then(res => {
+        if (res.isConfirmed) {
+          processAbsensi(nisn);
+          clearSearchSiswa();
+        }
+      });
+    }
+
+    function clearSearchSiswa() {
+      document.getElementById('input-search-siswa').value = '';
+      document.getElementById('search-results').innerHTML = '';
+      document.getElementById('search-results').classList.add('d-none');
+    }
+
+    // ==========================================
+    // SHEETJS EXCEL .XLSX IMPORTER & EXPORTER
+    // ==========================================
+    function downloadTemplateSiswaXlsx() {
+      const data = [
+        ["nisn", "nama_siswa", "kelas", "jenis_kelamin", "no_hp_ortu"],
+        ["1001", "Ahmad Fatih Pratama", "X-RPL", "L", "081234567890"],
+        ["1002", "Aisyah Zahra Khairunnisa", "X-RPL", "P", "081298765432"],
+        ["1003", "Bilal Al-Habasyi", "X-TKJ", "L", "081345678901"]
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Data_Siswa");
+      XLSX.writeFile(wb, "Template_Siswa_SMKBK.xlsx");
+    }
+
+    function downloadTemplateGuruXlsx() {
+      const data = [
+        ["username", "password", "nama_lengkap", "role"],
+        ["ustadz_fahri", "pass123", "Ustadz Fahri S.Ag", "GURU"],
+        ["ustadzah_dewi", "pass123", "Ustadzah Dewi M.Pd", "GURU"],
+        ["admin_smkbk", "admin123", "Ustadz Farhan S.Kom", "ADMIN"]
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Data_Guru");
+      XLSX.writeFile(wb, "Template_Guru_SMKBK.xlsx");
+    }
+
+    function handleBulkImportSiswaXlsx(input) {
+      if (input.files.length === 0) return;
+      const file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+          if (jsonData.length === 0) {
+            Swal.fire('File Kosong', 'Tidak ada data siswa ditemukan di file Excel.', 'warning');
+            return;
+          }
+
+          Swal.fire({ title: 'Mengimpor ' + jsonData.length + ' Siswa...', didOpen: () => Swal.showLoading() });
+          const res = await callApi('bulkImportSiswa', { data: jsonData });
+          input.value = '';
+          Swal.fire('Selesai', res.message, 'success');
+          loadSiswaData();
+        } catch(err) {
+          Swal.fire('Gagal Membaca Excel', err.message, 'error');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function handleBulkImportGuruXlsx(input) {
+      if (input.files.length === 0) return;
+      const file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+          if (jsonData.length === 0) {
+            Swal.fire('File Kosong', 'Tidak ada data guru ditemukan di file Excel.', 'warning');
+            return;
+          }
+
+          Swal.fire({ title: 'Mengimpor ' + jsonData.length + ' Akun Guru...', didOpen: () => Swal.showLoading() });
+          const res = await callApi('bulkImportGuru', { data: jsonData });
+          input.value = '';
+          Swal.fire('Selesai', res.message, 'success');
+          loadGuruData();
+        } catch(err) {
+          Swal.fire('Gagal Membaca Excel', err.message, 'error');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function exportToExcel() {
+      const table = document.getElementById("table-rekap");
+      const wb = XLSX.utils.table_to_book(table, { sheet: "Rekap_Sholat" });
+      XLSX.writeFile(wb, "Rekap_Sholat_SMKBK_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+    }
+
+    // ==========================================
+    // INITIALIZATION & SWITCH VIEW
+    // ==========================================
     window.addEventListener('load', () => {
+      updateClockAndPrayer();
       try {
         const savedUser = localStorage.getItem('esholat_session');
         if (savedUser) {
@@ -642,6 +886,7 @@
         switchView('landing');
       }
       loadStats();
+      ensureSiswaCacheLoaded();
     });
 
     async function loadStats() {
@@ -653,12 +898,9 @@
           document.getElementById('stat-absen-hari-ini').innerText = stats.absenHariIni || 0;
           document.getElementById('stat-guru').innerText = stats.totalGuru || 0;
         }
-      } catch(e) {
-        console.warn("Gagal memuat statistik awal:", e.message);
-      }
+      } catch(e) {}
     }
 
-    // FUNGSI SWITCH VIEW AMAN (TIDAK AKAN MERUSAK URL DENGAN #)
     function switchView(viewName) {
       if (isCameraRunning && viewName !== 'scanner') stopCamera();
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -673,6 +915,7 @@
       if (viewName === 'guru') loadGuruData();
       if (viewName === 'cetak-kartu') generateCards();
       if (viewName === 'landing') loadStats();
+      if (viewName === 'scanner') ensureSiswaCacheLoaded();
     }
 
     function setupAuthUI() {
@@ -724,7 +967,9 @@
       Swal.fire('Logout', 'Sesi Anda telah berakhir.', 'info');
     }
 
-    // KAMERA SCANNER
+    // ==========================================
+    // SCANNER ENGINE
+    // ==========================================
     function startNativeCamera() {
       if (isCameraRunning) {
         stopCamera();
@@ -734,7 +979,6 @@
       navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
         .then(stream => {
           stream.getTracks().forEach(t => t.stop());
-          
           html5QrCode = new Html5Qrcode("reader");
           html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess)
             .then(() => {
@@ -743,11 +987,11 @@
               document.getElementById('btn-toggle-camera').classList.replace('btn-success', 'btn-danger');
             });
         })
-        .catch(err => {
+        .catch(() => {
           Swal.fire({
             icon: 'warning',
             title: 'Kamera Belum Diizinkan',
-            text: 'Klik ikon gembok / izin situs di browser Anda lalu pilih "Izinkan Kamera".'
+            text: 'Klik izin kamera di bilah alamat browser Anda lalu pilih "Izinkan".'
           });
         });
     }
@@ -768,7 +1012,7 @@
       Swal.fire({ title: 'Membaca Foto...', didOpen: () => Swal.showLoading() });
       scanner.scanFile(input.files[0], true)
         .then(decodedText => { Swal.close(); onScanSuccess(decodedText); })
-        .catch(() => Swal.fire('Gagal', 'QR Code tidak terbaca.', 'error'));
+        .catch(() => Swal.fire('Gagal', 'QR Code tidak terbaca dari foto.', 'error'));
     }
 
     let scanThrottle = false;
@@ -778,13 +1022,6 @@
       playBeep();
       processAbsensi(decodedText);
       setTimeout(() => { scanThrottle = false; }, 2500);
-    }
-
-    function manualAbsen() {
-      const nisn = document.getElementById('input-manual-nisn').value.trim();
-      if (!nisn) return;
-      processAbsensi(nisn);
-      document.getElementById('input-manual-nisn').value = '';
     }
 
     async function processAbsensi(nisn) {
@@ -825,7 +1062,9 @@
       } catch(e){}
     }
 
-    // CRUD SISWA
+    // ==========================================
+    // DATA SISWA (CRUD)
+    // ==========================================
     async function loadSiswaData() {
       try {
         siswaCache = await callApi('getSiswa');
@@ -895,7 +1134,9 @@
       });
     }
 
-    // CRUD GURU
+    // ==========================================
+    // DATA GURU (CRUD)
+    // ==========================================
     async function loadGuruData() {
       try {
         guruCache = await callApi('getGuru');
@@ -965,7 +1206,9 @@
       });
     }
 
-    // CRUD REKAP
+    // ==========================================
+    // DATA REKAP (CRUD)
+    // ==========================================
     async function loadRekapData() {
       try {
         const fType = document.getElementById('filter-type').value;
@@ -1018,53 +1261,9 @@
       });
     }
 
-    // CETAK & EKSPOR
-    function downloadTemplateSiswa() {
-      const csv = "nisn,nama_siswa,kelas,jenis_kelamin,no_hp_ortu\n1001,Ahmad Fatih,X-RPL,L,08123456789\n1002,Aisyah Zahra,X-RPL,P,08129876543";
-      downloadBlob(csv, "Template_Siswa.csv");
-    }
-    
-    function downloadTemplateGuru() {
-      const csv = "username,password,nama_lengkap,role\nustadz_fahri,pass123,Ustadz Fahri S.Ag,GURU\nadmin_sekolah,admin123,Ustadz Farhan,ADMIN";
-      downloadBlob(csv, "Template_Guru.csv");
-    }
-
-    function downloadBlob(content, filename) {
-      const blob = new Blob([content], { type: 'text/csv' });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
-    }
-
-    function handleBulkImportSiswa(input) {
-      if (input.files.length === 0) return;
-      Papa.parse(input.files[0], {
-        header: true, skipEmptyLines: true,
-        complete: async (res) => {
-          Swal.fire({ title: 'Mengimpor...', didOpen: () => Swal.showLoading() });
-          const r = await callApi('bulkImportSiswa', { data: res.data });
-          input.value = '';
-          Swal.fire('Selesai', r.message, 'success');
-          loadSiswaData();
-        }
-      });
-    }
-
-    function handleBulkImportGuru(input) {
-      if (input.files.length === 0) return;
-      Papa.parse(input.files[0], {
-        header: true, skipEmptyLines: true,
-        complete: async (res) => {
-          Swal.fire({ title: 'Mengimpor...', didOpen: () => Swal.showLoading() });
-          const r = await callApi('bulkImportGuru', { data: res.data });
-          input.value = '';
-          Swal.fire('Selesai', r.message, 'success');
-          loadGuruData();
-        }
-      });
-    }
-
+    // ==========================================
+    // KARTU SISWA CR80 GENERATOR
+    // ==========================================
     async function generateCards() {
       const container = document.getElementById('kartu-container');
       container.innerHTML = '<div class="text-center w-100 py-4">Membuat kartu siswa...</div>';
@@ -1099,17 +1298,6 @@
           new QRCode(document.getElementById('qrcode-' + s.nisn), { text: String(s.nisn), width: 62, height: 62 });
         });
       } catch(e){}
-    }
-
-    function exportExcel() {
-      const table = document.getElementById("table-rekap");
-      let csv = [];
-      for (let i = 0; i < table.rows.length; i++) {
-        let row = [], cols = table.rows[i].querySelectorAll("td:not(.no-print), th:not(.no-print)");
-        for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"');
-        csv.push(row.join(","));
-      }
-      downloadBlob(csv.join("\n"), "Rekap_Sholat.csv");
     }
   </script>
 </body>

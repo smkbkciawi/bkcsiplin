@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-Sholat Siswa - Absensi QR Code</title>
+  <title>E-Sholat Siswa - SMK BK Ciawi</title>
   
   <!-- CSS Bootstrap 5 & Font Awesome 6 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -57,7 +57,7 @@
       transform: translateY(-3px);
     }
 
-    /* KARTU PELAJAR CR80 STANDARD (85.6mm x 54mm) */
+    /* KARTU CR80 STANDARD (85.6mm x 54mm) */
     .id-card-wrapper {
       width: 85.6mm;
       height: 54mm;
@@ -77,7 +77,6 @@
       margin-bottom: 4px;
     }
 
-    /* VIEWPORT KAMERA */
     #reader {
       width: 100%;
       max-width: 420px;
@@ -106,7 +105,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="small text-muted">Jika aplikasi di-hosting di <strong>GitHub Pages</strong>, masukkan Web App URL dari deployment Apps Script Anda (yang berakhiran <code>/exec</code>) agar data tersimpan di Spreadsheet:</p>
+          <p class="small text-muted">Masukkan Web App URL dari deployment Apps Script Anda (yang berakhiran <code>/exec</code>) agar data tersimpan di Spreadsheet:</p>
           <input type="text" id="cfg-gas-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
           <button class="btn btn-primary w-100 mt-3" onclick="saveGasUrl()" style="background-color: var(--primary-teal); border:none;">Simpan URL</button>
         </div>
@@ -117,22 +116,22 @@
   <!-- NAVBAR UTAMA -->
   <nav class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top" style="background-color: var(--primary-teal);">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="#" onclick="switchView('landing')">
-        <i class="fa-solid fa-mosque me-2 text-warning"></i>E-Sholat Siswa
+      <a class="navbar-brand fw-bold" href="javascript:void(0)" onclick="switchView('landing')">
+        <i class="fa-solid fa-mosque me-2 text-warning"></i>E-Sholat SMK BK Ciawi
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navMenu">
         <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item auth-guest"><a class="nav-link" href="#" onclick="switchView('landing')">Beranda</a></li>
-          <li class="nav-item auth-guest"><a class="btn btn-warning btn-sm fw-semibold ms-2" href="#" onclick="switchView('login')"><i class="fa-solid fa-right-to-bracket me-1"></i>Login Petugas</a></li>
+          <li class="nav-item auth-guest"><a class="nav-link" href="javascript:void(0)" onclick="switchView('landing')">Beranda</a></li>
+          <li class="nav-item auth-guest"><a class="btn btn-warning btn-sm fw-semibold ms-2" href="javascript:void(0)" onclick="switchView('login')"><i class="fa-solid fa-right-to-bracket me-1"></i>Login Petugas</a></li>
           
-          <li class="nav-item auth-user d-none"><a class="nav-link" href="#" onclick="switchView('scanner')"><i class="fa-solid fa-qrcode me-1"></i>Scan Presensi</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="#" onclick="switchView('rekap')"><i class="fa-solid fa-chart-column me-1"></i>Laporan Sholat</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="#" onclick="switchView('siswa')"><i class="fa-solid fa-graduation-cap me-1"></i>Data Siswa</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="#" onclick="switchView('guru')"><i class="fa-solid fa-chalkboard-user me-1"></i>Data Guru</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="#" onclick="switchView('cetak-kartu')"><i class="fa-solid fa-id-card me-1"></i>Cetak Kartu</a></li>
+          <li class="nav-item auth-user d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('scanner')"><i class="fa-solid fa-qrcode me-1"></i>Scan Presensi</a></li>
+          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('rekap')"><i class="fa-solid fa-chart-column me-1"></i>Laporan Sholat</a></li>
+          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('siswa')"><i class="fa-solid fa-graduation-cap me-1"></i>Data Siswa</a></li>
+          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('guru')"><i class="fa-solid fa-chalkboard-user me-1"></i>Data Guru</a></li>
+          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('cetak-kartu')"><i class="fa-solid fa-id-card me-1"></i>Cetak Kartu</a></li>
           
           <li class="nav-item ms-lg-2">
             <button class="btn btn-sm btn-outline-light" onclick="openConfigModal()" title="Pengaturan URL Spreadsheet"><i class="fa-solid fa-gear"></i></button>
@@ -159,7 +158,7 @@
               <i class="fa-solid fa-circle-check me-1"></i>Sistem Presensi Sholat Digital
             </div>
             <h1 class="display-5 fw-bold mb-3">Tegakkan Sholat, Disiplinkan Generasi Siswa.</h1>
-            <p class="lead opacity-75 mb-4">Presensi cerdas dengan kartu pintar QR Code. Dilengkapi pemindai kamera responsif, manajemen data siswa, guru, serta rekapitulasi kehadiran harian, mingguan, dan bulanan.</p>
+            <p class="lead opacity-75 mb-4">Aplikasi absensi ibadah berbasis kartu QR Code untuk SMK BK Ciawi. Dilengkapi pemindai kamera responsif, manajemen siswa, guru, serta laporan kehadiran harian, mingguan, dan bulanan.</p>
             <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
               <button class="btn btn-warning btn-lg fw-bold px-4 shadow" onclick="switchView('login')">
                 <i class="fa-solid fa-qrcode me-2"></i>Mulai Absensi
@@ -171,21 +170,21 @@
               <div class="col-6">
                 <div class="stat-badge text-center">
                   <i class="fa-solid fa-user-graduate fa-2x mb-2 text-warning"></i>
-                  <div class="fs-4 fw-bold" id="stat-siswa">0</div>
+                  <div class="fs-4 fw-bold" id="stat-siswa">-</div>
                   <div class="small opacity-75">Siswa Terdaftar</div>
                 </div>
               </div>
               <div class="col-6">
                 <div class="stat-badge text-center">
                   <i class="fa-solid fa-hands-praying fa-2x mb-2 text-info"></i>
-                  <div class="fs-4 fw-bold" id="stat-absen-hari-ini">0</div>
+                  <div class="fs-4 fw-bold" id="stat-absen-hari-ini">-</div>
                   <div class="small opacity-75">Hadir Hari Ini</div>
                 </div>
               </div>
               <div class="col-12">
                 <div class="stat-badge text-center">
                   <i class="fa-solid fa-chalkboard-user fa-2x mb-2 text-white"></i>
-                  <div class="fs-4 fw-bold" id="stat-guru">0</div>
+                  <div class="fs-4 fw-bold" id="stat-guru">-</div>
                   <div class="small opacity-75">Guru & Pembina</div>
                 </div>
               </div>
@@ -315,12 +314,12 @@
               <label class="form-label small fw-semibold">Filter Kelas:</label>
               <select id="filter-kelas" class="form-select" onchange="loadRekapData()">
                 <option value="SEMUA">Semua Kelas</option>
-                <option value="VII-A">VII-A</option>
-                <option value="VII-B">VII-B</option>
-                <option value="VIII-A">VIII-A</option>
-                <option value="VIII-B">VIII-B</option>
-                <option value="IX-A">IX-A</option>
-                <option value="IX-B">IX-B</option>
+                <option value="X-RPL">X-RPL</option>
+                <option value="X-TKJ">X-TKJ</option>
+                <option value="XI-RPL">XI-RPL</option>
+                <option value="XI-TKJ">XI-TKJ</option>
+                <option value="XII-RPL">XII-RPL</option>
+                <option value="XII-TKJ">XII-TKJ</option>
               </select>
             </div>
           </div>
@@ -457,7 +456,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label small fw-semibold">Kelas</label>
-              <input type="text" id="m-kelas" class="form-control" placeholder="Contoh: VII-A" required>
+              <input type="text" id="m-kelas" class="form-control" placeholder="Contoh: X-RPL" required>
             </div>
             <div class="mb-3">
               <label class="form-label small fw-semibold">Jenis Kelamin</label>
@@ -558,8 +557,8 @@
     let isCameraRunning = false;
     let siswaCache = [], guruCache = [];
 
-    // Endpoint URL Apps Script untuk mode eksternal (GitHub Pages)
-    let gasEndpoint = localStorage.getItem('esholat_gas_url') || 'https://script.google.com/macros/s/AKfycbwYdYQbtlBT-IqD9ZqD3yYYav2e8-yi8l2XQL91jtB92JopNbcs2gvIBA9O9RwH9PovBA/exec';
+    // Endpoint URL Apps Script
+    let gasEndpoint = localStorage.getItem('esholat_gas_url') || '';
 
     function openConfigModal() {
       document.getElementById('cfg-gas-url').value = gasEndpoint;
@@ -570,13 +569,12 @@
       gasEndpoint = document.getElementById('cfg-gas-url').value.trim();
       localStorage.setItem('esholat_gas_url', gasEndpoint);
       bootstrap.Modal.getInstance(document.getElementById('modalConfig')).hide();
-      Swal.fire('Tersimpan', 'URL Google Apps Script telah berhasil dikonfigurasi.', 'success');
+      Swal.fire('Tersimpan', 'URL Apps Script telah berhasil dikonfigurasi.', 'success');
       loadStats();
     }
 
-    // ADAPTER API UNIVERSAL (ANTI-CORS & ANTI-FETCH ERROR)
+    // ADAPTER API UNIVERSAL ANTI ERROR
     async function callApi(action, payload = {}, params = {}) {
-      // 1. Jika dijalankan di dalam container Apps Script
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         return new Promise((resolve, reject) => {
           if (action === 'login') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).loginUser(payload.username, payload.password);
@@ -594,10 +592,7 @@
           else if (action === 'deleteAbsensi') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).deleteAbsensi(payload.idAbsen);
           else if (action === 'getStats') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getDashboardStats();
         });
-      } 
-      
-      // 2. Jika dijalankan dari Luar (GitHub Pages, Vercel, dll.)
-      else {
+      } else {
         if (!gasEndpoint) {
           openConfigModal();
           throw new Error('Konfigurasikan Web App URL Apps Script Anda terlebih dahulu.');
@@ -613,7 +608,6 @@
             });
             return await res.json();
           } else {
-            // Gunakan text/plain untuk melewati preflight OPTIONS CORS di Apps Script
             const bodyData = JSON.stringify({ action, payload, ...payload });
             const res = await fetch(gasEndpoint, {
               method: 'POST',
@@ -628,38 +622,51 @@
           }
         } catch (err) {
           console.error("Fetch API Error:", err);
-          throw new Error("Gagal terhubung ke backend: " + err.message);
+          throw new Error("Gagal terhubung ke database. Pastikan URL Apps Script benar dan izinnya Anyone.");
         }
       }
     }
 
-    // INISIALISASI SESI
+    // INISIALISASI HALAMAN
     window.addEventListener('load', () => {
-      loadStats();
-      const savedUser = localStorage.getItem('esholat_session');
-      if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        setupAuthUI();
-        switchView('scanner');
-      } else {
+      try {
+        const savedUser = localStorage.getItem('esholat_session');
+        if (savedUser) {
+          currentUser = JSON.parse(savedUser);
+          setupAuthUI();
+          switchView('scanner');
+        } else {
+          switchView('landing');
+        }
+      } catch(e) {
         switchView('landing');
       }
+      loadStats();
     });
 
     async function loadStats() {
+      if (!gasEndpoint) return;
       try {
         const stats = await callApi('getStats');
-        document.getElementById('stat-siswa').innerText = stats.totalSiswa || 0;
-        document.getElementById('stat-absen-hari-ini').innerText = stats.absenHariIni || 0;
-        document.getElementById('stat-guru').innerText = stats.totalGuru || 0;
-      } catch(e){}
+        if (stats) {
+          document.getElementById('stat-siswa').innerText = stats.totalSiswa || 0;
+          document.getElementById('stat-absen-hari-ini').innerText = stats.absenHariIni || 0;
+          document.getElementById('stat-guru').innerText = stats.totalGuru || 0;
+        }
+      } catch(e) {
+        console.warn("Gagal memuat statistik awal:", e.message);
+      }
     }
 
+    // FUNGSI SWITCH VIEW AMAN (TIDAK AKAN MERUSAK URL DENGAN #)
     function switchView(viewName) {
       if (isCameraRunning && viewName !== 'scanner') stopCamera();
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
       const target = document.getElementById('view-' + viewName);
-      if (target) target.classList.add('active');
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
 
       if (viewName === 'rekap') loadRekapData();
       if (viewName === 'siswa') loadSiswaData();
@@ -717,9 +724,7 @@
       Swal.fire('Logout', 'Sesi Anda telah berakhir.', 'info');
     }
 
-    // ==========================================
-    // SISTEM PEMINDAI KAMERA RESPONSIP
-    // ==========================================
+    // KAMERA SCANNER
     function startNativeCamera() {
       if (isCameraRunning) {
         stopCamera();
@@ -741,9 +746,8 @@
         .catch(err => {
           Swal.fire({
             icon: 'warning',
-            title: 'Kamera Terhalang',
-            html: `Pastikan browser Anda diberi izin akses kamera.<br><br>
-                   Jika dibuka dari dalam iframe Apps Script, gunakan <b>GitHub Pages</b> atau gunakan opsi <b>Upload Foto / Input NISN</b>.`
+            title: 'Kamera Belum Diizinkan',
+            text: 'Klik ikon gembok / izin situs di browser Anda lalu pilih "Izinkan Kamera".'
           });
         });
     }
@@ -764,7 +768,7 @@
       Swal.fire({ title: 'Membaca Foto...', didOpen: () => Swal.showLoading() });
       scanner.scanFile(input.files[0], true)
         .then(decodedText => { Swal.close(); onScanSuccess(decodedText); })
-        .catch(() => Swal.fire('Gagal', 'QR Code tidak terbaca dari gambar.', 'error'));
+        .catch(() => Swal.fire('Gagal', 'QR Code tidak terbaca.', 'error'));
     }
 
     let scanThrottle = false;
@@ -790,4 +794,323 @@
       try {
         const res = await callApi('submitAbsensi', { nisn, jenis_sholat: sholat, petugas });
         if (res.success) {
-          Swal.
+          Swal.fire({ icon: 'success', title: 'Hadir!', text: res.message, timer: 1800, showConfirmButton: false });
+          addRecentLog(res.siswa.nama, res.siswa.kelas, sholat, res.siswa.waktu, res.siswa.petugas);
+        } else {
+          Swal.fire({ icon: res.isDuplicate ? 'warning' : 'error', title: 'Perhatian', text: res.message });
+        }
+      } catch(err) {
+        Swal.fire('Error', err.toString(), 'error');
+      }
+    }
+
+    function addRecentLog(nama, kelas, sholat, waktu, petugas) {
+      const list = document.getElementById('recent-scan-list');
+      if (list.innerHTML.includes('Belum ada')) list.innerHTML = '';
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex justify-content-between align-items-center';
+      li.innerHTML = `<div><strong>${nama}</strong> <span class="badge bg-secondary ms-1">${kelas}</span> <small class="text-muted d-block">${petugas}</small></div>
+                      <span class="badge bg-success">${sholat} • ${waktu}</span>`;
+      list.prepend(li);
+    }
+
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.15);
+      } catch(e){}
+    }
+
+    // CRUD SISWA
+    async function loadSiswaData() {
+      try {
+        siswaCache = await callApi('getSiswa');
+        const tbody = document.getElementById('siswa-tbody');
+        if (!Array.isArray(siswaCache) || siswaCache.length === 0) { 
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Belum ada siswa terdaftar.</td></tr>'; 
+          return; 
+        }
+        let html = '';
+        siswaCache.forEach(s => {
+          html += `<tr>
+            <td><strong>${s.nisn}</strong></td><td>${s.nama_siswa}</td><td><span class="badge bg-secondary">${s.kelas}</span></td>
+            <td>${s.jenis_kelamin}</td><td>${s.no_hp_ortu || '-'}</td><td><span class="badge bg-success">${s.status}</span></td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="editSiswa('${s.nisn}')"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="hapusSiswa('${s.nisn}')"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+      } catch(e){}
+    }
+
+    function openSiswaModal() {
+      document.getElementById('form-siswa').reset();
+      document.getElementById('m-nisn').removeAttribute('readonly');
+      document.getElementById('modalSiswaTitle').innerText = 'Tambah Siswa Baru';
+      new bootstrap.Modal(document.getElementById('modalSiswa')).show();
+    }
+
+    function editSiswa(nisn) {
+      const s = siswaCache.find(x => String(x.nisn) === String(nisn));
+      if (!s) return;
+      document.getElementById('m-nisn').value = s.nisn;
+      document.getElementById('m-nisn').setAttribute('readonly', true);
+      document.getElementById('m-nama').value = s.nama_siswa;
+      document.getElementById('m-kelas').value = s.kelas;
+      document.getElementById('m-gender').value = s.jenis_kelamin;
+      document.getElementById('m-nohp').value = s.no_hp_ortu || '';
+      document.getElementById('modalSiswaTitle').innerText = 'Edit Siswa: ' + s.nisn;
+      new bootstrap.Modal(document.getElementById('modalSiswa')).show();
+    }
+
+    async function handleSaveSiswa(e) {
+      e.preventDefault();
+      const p = {
+        nisn: document.getElementById('m-nisn').value,
+        nama_siswa: document.getElementById('m-nama').value,
+        kelas: document.getElementById('m-kelas').value,
+        jenis_kelamin: document.getElementById('m-gender').value,
+        no_hp_ortu: document.getElementById('m-nohp').value
+      };
+      Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+      const res = await callApi('saveSiswa', p);
+      bootstrap.Modal.getInstance(document.getElementById('modalSiswa')).hide();
+      Swal.fire('Sukses', res.message, 'success');
+      loadSiswaData();
+    }
+
+    function hapusSiswa(nisn) {
+      Swal.fire({ title: 'Hapus data siswa ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
+        if (r.isConfirmed) {
+          const res = await callApi('deleteSiswa', { nisn });
+          Swal.fire('Dihapus', res.message, 'success');
+          loadSiswaData();
+        }
+      });
+    }
+
+    // CRUD GURU
+    async function loadGuruData() {
+      try {
+        guruCache = await callApi('getGuru');
+        const tbody = document.getElementById('guru-tbody');
+        if (!Array.isArray(guruCache) || guruCache.length === 0) { 
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Belum ada guru terdaftar.</td></tr>'; 
+          return; 
+        }
+        let html = '';
+        guruCache.forEach(g => {
+          html += `<tr>
+            <td><code>${g.user_id}</code></td><td><strong>${g.username}</strong></td><td>${g.nama_lengkap}</td>
+            <td><span class="badge ${g.role === 'ADMIN' ? 'bg-danger' : 'bg-info text-dark'}">${g.role}</span></td>
+            <td><span class="badge bg-success">${g.status}</span></td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="editGuru('${g.user_id}')"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="hapusGuru('${g.user_id}')"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+      } catch(e){}
+    }
+
+    function openGuruModal() {
+      document.getElementById('form-guru').reset();
+      document.getElementById('g-userid').value = '';
+      document.getElementById('modalGuruTitle').innerText = 'Tambah Guru Baru';
+      new bootstrap.Modal(document.getElementById('modalGuru')).show();
+    }
+
+    function editGuru(uid) {
+      const g = guruCache.find(x => String(x.user_id) === String(uid));
+      if (!g) return;
+      document.getElementById('g-userid').value = g.user_id;
+      document.getElementById('g-username').value = g.username;
+      document.getElementById('g-password').value = g.password;
+      document.getElementById('g-nama').value = g.nama_lengkap;
+      document.getElementById('g-role').value = g.role;
+      document.getElementById('modalGuruTitle').innerText = 'Edit Guru: ' + g.username;
+      new bootstrap.Modal(document.getElementById('modalGuru')).show();
+    }
+
+    async function handleSaveGuru(e) {
+      e.preventDefault();
+      const p = {
+        user_id: document.getElementById('g-userid').value,
+        username: document.getElementById('g-username').value,
+        password: document.getElementById('g-password').value,
+        nama_lengkap: document.getElementById('g-nama').value,
+        role: document.getElementById('g-role').value
+      };
+      Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+      const res = await callApi('saveGuru', p);
+      bootstrap.Modal.getInstance(document.getElementById('modalGuru')).hide();
+      Swal.fire('Sukses', res.message, 'success');
+      loadGuruData();
+    }
+
+    function hapusGuru(uid) {
+      Swal.fire({ title: 'Hapus pengguna ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
+        if (r.isConfirmed) {
+          const res = await callApi('deleteGuru', { userId: uid });
+          Swal.fire('Dihapus', res.message, 'success');
+          loadGuruData();
+        }
+      });
+    }
+
+    // CRUD REKAP
+    async function loadRekapData() {
+      try {
+        const fType = document.getElementById('filter-type').value;
+        const fKelas = document.getElementById('filter-kelas').value;
+        const records = await callApi('getRekap', {}, { filterType: fType, filterKelas: fKelas });
+        const tbody = document.getElementById('rekap-tbody');
+        if (!Array.isArray(records) || records.length === 0) { 
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada data kehadiran yang cocok dengan filter.</td></tr>'; 
+          return; 
+        }
+        let html = '';
+        records.forEach(r => {
+          html += `<tr>
+            <td>${r.tanggal}</td><td>${r.waktu}</td><td>${r.nisn}</td><td>${r.nama}</td><td><span class="badge bg-secondary">${r.kelas}</span></td>
+            <td><span class="badge bg-success">${r.sholat}</span></td><td>${r.petugas}</td>
+            <td class="no-print text-center">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditAbsen('${r.id}', '${r.nama}', '${r.sholat}')"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="hapusAbsen('${r.id}')"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+      } catch(e){}
+    }
+
+    function openEditAbsen(id, nama, sholat) {
+      document.getElementById('ea-id').value = id;
+      document.getElementById('ea-nama').value = nama;
+      document.getElementById('ea-sholat').value = sholat;
+      new bootstrap.Modal(document.getElementById('modalEditAbsen')).show();
+    }
+
+    async function handleSaveEditAbsen(e) {
+      e.preventDefault();
+      const id = document.getElementById('ea-id').value;
+      const sholat = document.getElementById('ea-sholat').value;
+      const res = await callApi('updateAbsensi', { idAbsen: id, sholat });
+      bootstrap.Modal.getInstance(document.getElementById('modalEditAbsen')).hide();
+      Swal.fire('Sukses', res.message, 'success');
+      loadRekapData();
+    }
+
+    function hapusAbsen(id) {
+      Swal.fire({ title: 'Hapus absensi ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
+        if (r.isConfirmed) {
+          const res = await callApi('deleteAbsensi', { idAbsen: id });
+          Swal.fire('Dihapus', res.message, 'success');
+          loadRekapData();
+        }
+      });
+    }
+
+    // CETAK & EKSPOR
+    function downloadTemplateSiswa() {
+      const csv = "nisn,nama_siswa,kelas,jenis_kelamin,no_hp_ortu\n1001,Ahmad Fatih,X-RPL,L,08123456789\n1002,Aisyah Zahra,X-RPL,P,08129876543";
+      downloadBlob(csv, "Template_Siswa.csv");
+    }
+    
+    function downloadTemplateGuru() {
+      const csv = "username,password,nama_lengkap,role\nustadz_fahri,pass123,Ustadz Fahri S.Ag,GURU\nadmin_sekolah,admin123,Ustadz Farhan,ADMIN";
+      downloadBlob(csv, "Template_Guru.csv");
+    }
+
+    function downloadBlob(content, filename) {
+      const blob = new Blob([content], { type: 'text/csv' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+
+    function handleBulkImportSiswa(input) {
+      if (input.files.length === 0) return;
+      Papa.parse(input.files[0], {
+        header: true, skipEmptyLines: true,
+        complete: async (res) => {
+          Swal.fire({ title: 'Mengimpor...', didOpen: () => Swal.showLoading() });
+          const r = await callApi('bulkImportSiswa', { data: res.data });
+          input.value = '';
+          Swal.fire('Selesai', r.message, 'success');
+          loadSiswaData();
+        }
+      });
+    }
+
+    function handleBulkImportGuru(input) {
+      if (input.files.length === 0) return;
+      Papa.parse(input.files[0], {
+        header: true, skipEmptyLines: true,
+        complete: async (res) => {
+          Swal.fire({ title: 'Mengimpor...', didOpen: () => Swal.showLoading() });
+          const r = await callApi('bulkImportGuru', { data: res.data });
+          input.value = '';
+          Swal.fire('Selesai', r.message, 'success');
+          loadGuruData();
+        }
+      });
+    }
+
+    async function generateCards() {
+      const container = document.getElementById('kartu-container');
+      container.innerHTML = '<div class="text-center w-100 py-4">Membuat kartu siswa...</div>';
+      try {
+        const data = await callApi('getSiswa');
+        if (!Array.isArray(data) || data.length === 0) { 
+          container.innerHTML = '<div class="alert alert-warning w-100">Belum ada siswa untuk dicetak kartunya.</div>'; 
+          return; 
+        }
+        container.innerHTML = '';
+        data.forEach(s => {
+          const card = document.createElement('div');
+          card.className = 'id-card-wrapper';
+          card.innerHTML = `
+            <div class="id-card-header d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="fw-bold text-success mb-0" style="font-size:10px;">KARTU SHOLAT SISWA</h6>
+                <span style="font-size:7px;" class="text-muted">SMK BK CIAWI</span>
+              </div>
+              <i class="fa-solid fa-mosque text-success"></i>
+            </div>
+            <div class="d-flex align-items-center justify-content-between mt-1">
+              <div style="font-size:9.5px; line-height: 1.25;">
+                <div class="fw-bold text-truncate" style="max-width: 170px;">${s.nama_siswa}</div>
+                <div class="text-muted">NISN: ${s.nisn}</div>
+                <div class="text-muted">Kelas: <strong>${s.kelas}</strong></div>
+                <span class="badge bg-success mt-1" style="font-size: 7.5px;">PESERTA IBADAH</span>
+              </div>
+              <div id="qrcode-${s.nisn}"></div>
+            </div>`;
+          container.appendChild(card);
+          new QRCode(document.getElementById('qrcode-' + s.nisn), { text: String(s.nisn), width: 62, height: 62 });
+        });
+      } catch(e){}
+    }
+
+    function exportExcel() {
+      const table = document.getElementById("table-rekap");
+      let csv = [];
+      for (let i = 0; i < table.rows.length; i++) {
+        let row = [], cols = table.rows[i].querySelectorAll("td:not(.no-print), th:not(.no-print)");
+        for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText.replace(/"/g, '""') + '"');
+        csv.push(row.join(","));
+      }
+      downloadBlob(csv.join("\n"), "Rekap_Sholat.csv");
+    }
+  </script>
+</body>
+</html>

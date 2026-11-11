@@ -559,7 +559,7 @@
     let siswaCache = [], guruCache = [];
 
     // Endpoint URL Apps Script untuk mode eksternal (GitHub Pages)
-    let gasEndpoint = localStorage.getItem('esholat_gas_url') || '';
+    let gasEndpoint = localStorage.getItem('esholat_gas_url') || 'https://script.google.com/macros/s/AKfycbwYdYQbtlBT-IqD9ZqD3yYYav2e8-yi8l2XQL91jtB92JopNbcs2gvIBA9O9RwH9PovBA/exec';
 
     function openConfigModal() {
       document.getElementById('cfg-gas-url').value = gasEndpoint;

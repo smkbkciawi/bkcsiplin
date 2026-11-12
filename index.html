@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-Sholat Siswa - SMK BK Ciawi Tasikmalaya</title>
+  <title>E-Sholat Siswa - SMK Bhakti Kencana Ciawi Ciawi Tasikmalaya</title>
   
   <!-- CSS Bootstrap 5 & Font Awesome 6 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <!-- Libraries Eksternal -->
+  <!-- Libraries Eksternal: Chart.js (Grafik Pie), SweetAlert2, HTML5-QRCode, QRCodeJS, SheetJS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -17,33 +18,118 @@
 
   <style>
     :root {
+      --sidebar-width: 260px;
+      --sidebar-bg: #042f2e;
+      --sidebar-hover: #0f766e;
       --primary-teal: #0f766e;
-      --primary-dark: #042f2e;
-      --secondary-emerald: #059669;
       --accent-gold: #f59e0b;
     }
     body {
-      background-color: #f8fafc;
+      background-color: #f1f5f9;
       font-family: system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
     }
     .view-section { display: none; }
     .view-section.active { display: block; }
 
-    /* HERO SECTION */
+    /* LAYOUT SIDEBAR KIRI */
+    #sidebar-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--sidebar-bg);
+      color: #fff;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1050;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+    }
+    #sidebar-wrapper.collapsed {
+      left: calc(-1 * var(--sidebar-width));
+    }
+    .sidebar-brand {
+      padding: 1.25rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sidebar-menu {
+      padding: 1rem 0;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      color: #cbd5e1;
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border-left: 4px solid transparent;
+      gap: 12px;
+    }
+    .sidebar-link:hover, .sidebar-link.active-nav {
+      color: #fff;
+      background: var(--sidebar-hover);
+      border-left-color: var(--accent-gold);
+    }
+    .sidebar-link i {
+      width: 22px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.15);
+    }
+
+    /* KONTEN UTAMA */
+    #main-content {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    #main-content.expanded {
+      margin-left: 0;
+    }
+
+    /* TOPBAR DI ATAS KONTEN */
+    .topbar {
+      background: #ffffff;
+      padding: 0.85rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1020;
+    }
+
+    /* HERO & WIDGET WAKTU */
     .hero-wrapper {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-teal) 50%, #115e59 100%);
+      background: linear-gradient(135deg, #042f2e 0%, #0f766e 50%, #115e59 100%);
       color: white;
-      border-radius: 1.5rem;
-      padding: 2.5rem 2rem;
+      border-radius: 1.25rem;
+      padding: 2.2rem 2rem;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 15px 30px -5px rgba(15, 118, 110, 0.3);
+      box-shadow: 0 10px 25px -5px rgba(15, 118, 110, 0.25);
     }
     .hero-pattern {
       position: absolute;
       right: -30px;
       bottom: -30px;
-      font-size: 16rem;
+      font-size: 14rem;
       color: rgba(255, 255, 255, 0.04);
       pointer-events: none;
     }
@@ -51,45 +137,36 @@
       background: rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 1rem;
+      border-radius: 0.9rem;
       padding: 1rem;
-      transition: transform 0.2s;
     }
-    .stat-badge:hover {
-      transform: translateY(-3px);
-    }
-
-    /* PRAYER TIMES BAR KEC. CIAWI TASIKMALAYA */
     .prayer-bar {
       background: #ffffff;
       border-radius: 1rem;
-      padding: 1.1rem;
+      padding: 1rem;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       border: 1px solid #e2e8f0;
     }
     .prayer-pill {
       background: #f1f5f9;
       border-radius: 0.75rem;
-      padding: 0.45rem 0.7rem;
+      padding: 0.45rem 0.65rem;
       text-align: center;
-      transition: all 0.2s;
-      border: 1px solid transparent;
-      min-width: 68px;
+      min-width: 65px;
     }
     .prayer-pill.active {
       background: #ccfbf1;
-      border-color: var(--primary-teal);
+      border: 1px solid var(--primary-teal);
       color: var(--primary-teal);
       font-weight: bold;
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
 
-    /* AUTOCOMPLETE LIVE SEARCH */
+    /* AUTOCOMPLETE SEARCH */
     .autocomplete-box { position: relative; }
     .autocomplete-items {
       position: absolute;
       border: 1px solid #cbd5e1;
-      border-top: none;
       z-index: 99;
       top: 100%;
       left: 0;
@@ -105,11 +182,10 @@
       cursor: pointer;
       text-align: left;
       border-bottom: 1px solid #f1f5f9;
-      transition: background 0.15s;
     }
     .autocomplete-item:hover { background-color: #f0fdfa; }
 
-    /* KARTU CR80 DENGAN QR CODE EKSTRA BESAR (85.6mm x 54mm) */
+    /* KARTU CR80 DENGAN QR BESAR 100px */
     .id-card-wrapper {
       width: 85.6mm;
       height: 54mm;
@@ -121,7 +197,6 @@
       margin: 8px;
       page-break-inside: avoid;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.12);
-      position: relative;
       box-sizing: border-box;
       vertical-align: top;
     }
@@ -136,11 +211,8 @@
       border: 1px solid #94a3b8;
       border-radius: 6px;
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
     }
     .qr-large-container img { display: block !important; }
-
     #reader {
       width: 100%;
       max-width: 420px;
@@ -150,24 +222,559 @@
       border: 2px dashed #0f766e;
     }
 
+    /* BACKDROP PADA HP */
+    #sidebar-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.4);
+      z-index: 1040;
+    }
+    #sidebar-backdrop.show { display: block; }
+
+    @media (max-width: 991.98px) {
+      #sidebar-wrapper { left: calc(-1 * var(--sidebar-width)); }
+      #sidebar-wrapper.mobile-open { left: 0; }
+      #main-content { margin-left: 0; }
+    }
+
     @media print {
       body * { visibility: hidden; }
       #print-area, #print-area * { visibility: visible; }
       #print-area { position: absolute; left: 0; top: 0; width: 100%; }
-      .no-print { display: none !important; }
+      .no-print, #sidebar-wrapper, .topbar { display: none !important; }
     }
   </style>
 </head>
 <body>
 
-  <!-- MODAL KONFIGURASI CADANGAN -->
+  <!-- BACKDROP MOBILE -->
+  <div id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
+  <!-- ==================== SIDEBAR MODERN DI SAMPING ==================== -->
+  <aside id="sidebar-wrapper">
+    <div class="sidebar-brand">
+      <i class="fa-solid fa-mosque text-warning fs-3"></i>
+      <div>
+        <h6 class="fw-bold text-white mb-0" style="letter-spacing: 0.5px;">E-SHOLAT</h6>
+        <small class="text-white-50" style="font-size: 11px;">SMK BK CIAWI</small>
+      </div>
+    </div>
+
+    <div class="sidebar-menu">
+      <a href="javascript:void(0)" class="sidebar-link active-nav" onclick="navTo('landing', this)">
+        <i class="fa-solid fa-house"></i><span>Dashboard Utama</span>
+      </a>
+
+      <!-- Menu Tamu -->
+      <a href="javascript:void(0)" class="sidebar-link auth-guest" onclick="navTo('login', this)">
+        <i class="fa-solid fa-right-to-bracket text-warning"></i><span>Login Petugas</span>
+      </a>
+
+      <!-- Menu Guru & Petugas -->
+      <div class="sidebar-heading px-3 pt-3 pb-1 text-white-50 small fw-bold auth-user d-none">PRESENSI</div>
+      <a href="javascript:void(0)" class="sidebar-link auth-user d-none" onclick="navTo('scanner', this)">
+        <i class="fa-solid fa-qrcode text-info"></i><span>Scan Kartu Sholat</span>
+      </a>
+
+      <!-- Menu Admin Lengkap -->
+      <div class="sidebar-heading px-3 pt-3 pb-1 text-white-50 small fw-bold auth-admin d-none">ADMINISTRASI</div>
+      <a href="javascript:void(0)" class="sidebar-link auth-admin d-none" onclick="navTo('rekap', this)">
+        <i class="fa-solid fa-chart-column"></i><span>Laporan Rekapitulasi</span>
+      </a>
+      <a href="javascript:void(0)" class="sidebar-link auth-admin d-none" onclick="navTo('siswa', this)">
+        <i class="fa-solid fa-graduation-cap"></i><span>Data Siswa</span>
+      </a>
+      <a href="javascript:void(0)" class="sidebar-link auth-admin d-none" onclick="navTo('naik-kelas', this)">
+        <i class="fa-solid fa-angles-up text-warning"></i><span>Naik Kelas Massal</span>
+      </a>
+      <a href="javascript:void(0)" class="sidebar-link auth-admin d-none" onclick="navTo('kelas', this)">
+        <i class="fa-solid fa-door-open"></i><span>Master Kelas</span>
+      </a>
+      <a href="javascript:void(0)" class="sidebar-link auth-admin d-none" onclick="navTo('guru', this)">
+        <i class="fa-solid fa-chalkboard-user"></i><span>Data Guru & Petugas</span>
+      </a>
+      <a href="javascript:void(0)" class="sidebar-link auth-admin d-none" onclick="navTo('cetak-kartu', this)">
+        <i class="fa-solid fa-id-card"></i><span>Cetak Kartu Siswa</span>
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2 overflow-hidden">
+          <i class="fa-solid fa-circle-user fs-4 text-warning"></i>
+          <div class="text-truncate">
+            <div class="small fw-bold text-white text-truncate" id="user-display">Tamu</div>
+            <span class="badge bg-secondary" style="font-size: 9px;" id="role-display">Guest</span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-outline-light auth-user d-none" onclick="logout()" title="Keluar"><i class="fa-solid fa-power-off"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== KONTEN UTAMA ==================== -->
+  <div id="main-content">
+    
+    <!-- TOPBAR DENGAN TOMBOL HAMBURGER BUKA/TUTUP -->
+    <header class="topbar no-print">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary btn-sm" id="btn-toggle-sidebar" onclick="toggleSidebar()" title="Buka/Tutup Menu">
+          <i class="fa-solid fa-bars fs-6"></i>
+        </button>
+        <h6 class="mb-0 fw-bold text-dark d-none d-sm-block">Presensi Ibadah Terpadu</h6>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-secondary" onclick="openConfigModal()" title="Pengaturan URL API"><i class="fa-solid fa-gear"></i></button>
+      </div>
+    </header>
+
+    <main class="container-fluid p-3 p-md-4">
+
+      <!-- WIDGET REALTIME JAM & WAKTU SHOLAT KEC. CIAWI KAB. TASIKMALAYA -->
+      <div class="prayer-bar mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <div>
+            <div class="small text-muted fw-bold">
+              <i class="fa-solid fa-location-dot me-1 text-danger"></i>Kec. Ciawi, Kab. Tasikmalaya, Jawa Barat
+            </div>
+            <div class="fs-4 fw-bold text-dark font-monospace" id="live-clock">00:00:00 WIB</div>
+            <div class="small fw-semibold text-secondary" id="live-date">-</div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <div class="prayer-pill" id="pill-subuh"><div class="small text-muted">Subuh</div><strong id="time-subuh">04:06</strong></div>
+            <div class="prayer-pill" id="pill-dhuha"><div class="small text-muted">Dhuha</div><strong id="time-dhuha">05:48</strong></div>
+            <div class="prayer-pill" id="pill-dzuhur"><div class="small text-muted">Dzuhur</div><strong id="time-dzuhur">11:37</strong></div>
+            <div class="prayer-pill" id="pill-ashar"><div class="small text-muted">Ashar</div><strong id="time-ashar">14:56</strong></div>
+            <div class="prayer-pill" id="pill-maghrib"><div class="small text-muted">Maghrib</div><strong id="time-maghrib">17:49</strong></div>
+            <div class="prayer-pill" id="pill-isya"><div class="small text-muted">Isya</div><strong id="time-isya">19:01</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. VIEW HERO & DASHBOARD ADMIN DENGAN GRAFIK PIE INTERAKTIF -->
+      <div id="view-landing" class="view-section active">
+        <div class="hero-wrapper mb-4">
+          <i class="fa-solid fa-kaaba hero-pattern"></i>
+          <div class="row align-items-center position-relative" style="z-index: 2;">
+            <div class="col-lg-7 text-center text-lg-start mb-4 mb-lg-0">
+              <div class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
+                <i class="fa-solid fa-circle-check me-1"></i>Sistem Presensi Sholat Digital
+              </div>
+              <h1 class="display-6 fw-bold mb-3">Tegakkan Sholat, Disiplinkan Generasi Siswa.</h1>
+              <p class="lead opacity-75 mb-4">Aplikasi absensi ibadah berbasis kartu QR Code jurusan <strong>Farmasi & Keperawatan</strong> SMK BK Ciawi Tasikmalaya. Navigasi samping fleksibel, naik kelas massal, & analitik visual.</p>
+              <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
+                <button class="btn btn-warning btn-lg fw-bold px-4 shadow" onclick="switchView('scanner')">
+                  <i class="fa-solid fa-qrcode me-2"></i>Buka Scanner
+                </button>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="stat-badge text-center">
+                    <i class="fa-solid fa-user-graduate fa-2x mb-2 text-warning"></i>
+                    <div class="fs-4 fw-bold" id="stat-siswa">-</div>
+                    <div class="small opacity-75">Siswa Terdaftar</div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="stat-badge text-center">
+                    <i class="fa-solid fa-hands-praying fa-2x mb-2 text-info"></i>
+                    <div class="fs-4 fw-bold" id="stat-absen-hari-ini">-</div>
+                    <div class="small opacity-75">Hadir Hari Ini</div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="stat-badge text-center">
+                    <i class="fa-solid fa-chalkboard-user fa-2x mb-2 text-white"></i>
+                    <div class="fs-4 fw-bold" id="stat-guru">-</div>
+                    <div class="small opacity-75">Guru & Pembina</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FITUR BARU: GRAFIK PIE ANALITIK ADMIN -->
+        <div class="row g-4 mt-2">
+          <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+              <div class="card-header bg-white py-3 border-0">
+                <h6 class="fw-bold mb-0 text-success"><i class="fa-solid fa-chart-pie me-2"></i>Komposisi Kehadiran Sholat Hari Ini Per Kelas</h6>
+              </div>
+              <div class="card-body d-flex align-items-center justify-content-center" style="position: relative; min-height: 280px;">
+                <canvas id="chartKehadiranKelas"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+              <div class="card-header bg-white py-3 border-0">
+                <h6 class="fw-bold mb-0 text-success"><i class="fa-solid fa-chart-donut me-2"></i>Distribusi Status Siswa</h6>
+              </div>
+              <div class="card-body d-flex align-items-center justify-content-center" style="position: relative; min-height: 280px;">
+                <canvas id="chartStatusSiswa"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. VIEW LOGIN -->
+      <div id="view-login" class="view-section">
+        <div class="row justify-content-center mt-3">
+          <div class="col-md-5">
+            <div class="card shadow border-0 rounded-4">
+              <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                  <div class="rounded-circle d-inline-flex p-3 mb-2" style="background-color: #ccfbf1; color: var(--primary-teal);">
+                    <i class="fa-solid fa-lock fa-2x"></i>
+                  </div>
+                  <h4 class="fw-bold">Login Petugas / Admin</h4>
+                </div>
+                <form id="form-login" onsubmit="handleLogin(event)">
+                  <div class="mb-3">
+                    <label class="form-label small fw-semibold">Username</label>
+                    <input type="text" id="login-username" class="form-control" required placeholder="admin / guru1">
+                  </div>
+                  <div class="mb-4">
+                    <label class="form-label small fw-semibold">Password</label>
+                    <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="background-color: var(--primary-teal); border: none;">
+                    <i class="fa-solid fa-sign-in me-1"></i>Masuk Aplikasi
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. VIEW SCANNER DENGAN AUTOCOMPLETE LIVE SEARCH -->
+      <div id="view-scanner" class="view-section">
+        <div class="row justify-content-center">
+          <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+              <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-qrcode me-2"></i>Scanner Absensi Sholat</h5>
+                <span class="badge bg-primary" id="badge-guru-scanner">Petugas: -</span>
+              </div>
+              <div class="card-body p-4 text-center">
+                <div class="row g-2 mb-3 align-items-center">
+                  <div class="col-md-6">
+                    <div class="input-group">
+                      <span class="input-group-text bg-light"><i class="fa-solid fa-clock"></i></span>
+                      <select id="scan-sholat" class="form-select fw-bold">
+                        <option value="Dzuhur">Dzuhur</option>
+                        <option value="Ashar">Ashar</option>
+                        <option value="Dhuha">Dhuha</option>
+                        <option value="Jumat">Jumat</option>
+                        <option value="Subuh">Subuh</option>
+                        <option value="Maghrib">Maghrib</option>
+                        <option value="Isya">Isya</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6 d-flex gap-2">
+                    <button class="btn btn-success flex-fill" id="btn-toggle-camera" onclick="startNativeCamera()">
+                      <i class="fa-solid fa-camera me-1"></i>Buka Kamera HP
+                    </button>
+                    <label class="btn btn-outline-secondary flex-fill mb-0">
+                      <i class="fa-solid fa-image me-1"></i>Upload Foto
+                      <input type="file" id="qr-input-file" accept="image/*" class="d-none" onchange="scanFromImage(this)">
+                    </label>
+                  </div>
+                </div>
+
+                <div id="reader"></div>
+
+                <div class="mt-4 text-start">
+                  <label class="small fw-bold text-muted"><i class="fa-solid fa-search me-1"></i>Siswa Lupa Bawa Kartu? Cari Nama / NISN:</label>
+                  <div class="autocomplete-box">
+                    <div class="input-group">
+                      <span class="input-group-text bg-light"><i class="fa-solid fa-user-tag"></i></span>
+                      <input type="text" id="input-search-siswa" class="form-control" placeholder="Ketik nama siswa (contoh: Siti, Fatih, Ahmad)..." autocomplete="off" oninput="handleSearchSiswa(this.value)">
+                      <button class="btn btn-outline-secondary" type="button" onclick="clearSearchSiswa()"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="search-results" class="autocomplete-items d-none"></div>
+                  </div>
+                </div>
+
+                <div class="mt-4 text-start">
+                  <h6 class="fw-bold text-muted border-bottom pb-2"><i class="fa-solid fa-clock-rotate-left me-1"></i>Baru Saja Absen:</h6>
+                  <ul class="list-group list-group-flush small" id="recent-scan-list">
+                    <li class="list-group-item text-muted text-center">Belum ada aktivitas presensi</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. VIEW REKAP PRESENSI DENGAN KALENDER FILTER -->
+      <div id="view-rekap" class="view-section">
+        <div class="card shadow border-0 rounded-4">
+          <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-clipboard-check me-2"></i>Laporan Rekapitulasi Presensi</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-success btn-sm" onclick="exportToExcel()"><i class="fa-solid fa-file-excel me-1"></i>Ekspor Excel (.xlsx)</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="fa-solid fa-print me-1"></i>Cetak Laporan</button>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3 mb-4 align-items-end">
+              <div class="col-md-3">
+                <label class="form-label small fw-semibold">Rentang Periode:</label>
+                <select id="filter-type" class="form-select" onchange="toggleFilterMode()">
+                  <option value="HARIAN">Hari Ini (Harian)</option>
+                  <option value="PILIH_TANGGAL">Pilih Tanggal (Kalender)</option>
+                  <option value="RENTANG_TANGGAL">Rentang Tanggal (Dari - Sampai)</option>
+                  <option value="MINGGUAN">7 Hari Terakhir</option>
+                  <option value="BULANAN">Bulan Ini</option>
+                  <option value="SEMUA">Semua Catatan</option>
+                </select>
+              </div>
+
+              <div class="col-md-3 d-none" id="box-single-date">
+                <label class="form-label small fw-semibold"><i class="fa-solid fa-calendar-day me-1"></i>Pilih Tanggal:</label>
+                <input type="date" id="filter-single-date" class="form-control" onchange="loadRekapData()">
+              </div>
+
+              <div class="col-md-4 d-none" id="box-range-date">
+                <label class="form-label small fw-semibold"><i class="fa-solid fa-calendar-days me-1"></i>Dari - Sampai Tanggal:</label>
+                <div class="input-group">
+                  <input type="date" id="filter-start-date" class="form-control" onchange="loadRekapData()">
+                  <span class="input-group-text">s/d</span>
+                  <input type="date" id="filter-end-date" class="form-control" onchange="loadRekapData()">
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label small fw-semibold">Filter Kelas:</label>
+                <select id="filter-kelas" class="form-select" onchange="loadRekapData()">
+                  <option value="SEMUA">Semua Kelas</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive" id="print-area">
+              <table class="table table-hover align-middle" id="table-rekap">
+                <thead class="table-light">
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Waktu</th>
+                    <th>NISN</th>
+                    <th>Nama Siswa</th>
+                    <th>Kelas</th>
+                    <th>Ibadah</th>
+                    <th>Petugas Piket</th>
+                    <th class="no-print text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="rekap-tbody">
+                  <tr><td colspan="8" class="text-center py-4">Memuat data rekap...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. VIEW DATA SISWA DENGAN CHECKBOX BULK DELETE -->
+      <div id="view-siswa" class="view-section">
+        <div class="card shadow border-0 rounded-4">
+          <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-graduation-cap me-2"></i>Data Siswa</h5>
+              <button id="btn-bulk-delete" class="btn btn-danger btn-sm d-none" onclick="handleBulkDeleteSelected()">
+                <i class="fa-solid fa-trash-can me-1"></i>Hapus Terpilih (<span id="count-selected">0</span>)
+              </button>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-primary btn-sm" onclick="openSiswaModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Siswa</button>
+              <button class="btn btn-outline-success btn-sm" onclick="downloadTemplateSiswaXlsx()"><i class="fa-solid fa-file-excel me-1"></i>Unduh Template (.xlsx)</button>
+              <label class="btn btn-success btn-sm mb-0">
+                <i class="fa-solid fa-file-import me-1"></i>Impor Excel (.xlsx)
+                <input type="file" id="file-import-siswa" accept=".xlsx, .xls" class="d-none" onchange="handleBulkImportSiswaXlsx(this)">
+              </label>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <div class="table-responsive">
+              <table class="table table-striped align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width: 40px;" class="text-center">
+                      <input type="checkbox" id="check-all-siswa" class="form-check-input" onchange="toggleSelectAllSiswa(this)">
+                    </th>
+                    <th>NISN</th>
+                    <th>Nama Siswa</th>
+                    <th>Kelas</th>
+                    <th>Gender</th>
+                    <th>No HP Ortu</th>
+                    <th>Status</th>
+                    <th class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="siswa-tbody">
+                  <tr><td colspan="8" class="text-center py-4">Memuat data siswa...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. VIEW KENAIKAN KELAS MASSAL -->
+      <div id="view-naik-kelas" class="view-section">
+        <div class="card shadow border-0 rounded-4">
+          <div class="card-header bg-white py-3 border-0">
+            <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-angles-up me-2"></i>Kenaikan Kelas Massal Siswa</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="alert alert-info border-0 rounded-3 small">
+              <i class="fa-solid fa-circle-info me-1"></i><strong>Informasi Kenaikan Kelas:</strong>
+              QR Code pada kartu siswa <strong>tidak perlu dicetak ulang</strong> saat naik kelas.
+            </div>
+
+            <div class="row g-3 mb-4 align-items-end bg-light p-3 rounded-3">
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">1. Pilih Kelas Asal:</label>
+                <select id="nk-kelas-asal" class="form-select" onchange="loadSiswaForNaikKelas()">
+                  <option value="">-- Pilih Kelas Asal --</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">2. Pilih Kelas Tujuan / Lulus:</label>
+                <select id="nk-kelas-tujuan" class="form-select">
+                  <option value="">-- Pilih Kelas Tujuan --</option>
+                  <option value="LULUS" class="fw-bold text-danger">★ LULUS / ALUMNI (Siswa Kelas XII) ★</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <button class="btn btn-primary w-100 fw-bold" onclick="executeNaikKelas()" style="background-color: var(--primary-teal);">
+                  <i class="fa-solid fa-bolt me-1"></i>Proses Kenaikan Kelas
+                </button>
+              </div>
+            </div>
+
+            <h6 class="fw-bold text-muted border-bottom pb-2">Daftar Siswa di Kelas Terpilih:</h6>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width: 40px;" class="text-center">
+                      <input type="checkbox" id="check-all-naik" class="form-check-input" checked onchange="toggleSelectAllNaik(this)">
+                    </th>
+                    <th>NISN</th>
+                    <th>Nama Lengkap Siswa</th>
+                    <th>Kelas Saat Ini</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="naik-kelas-tbody">
+                  <tr><td colspan="5" class="text-center text-muted py-4">Silakan pilih kelas asal di atas terlebih dahulu.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. VIEW KELOLA MASTER KELAS -->
+      <div id="view-kelas" class="view-section">
+        <div class="row justify-content-center">
+          <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+              <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-door-open me-2"></i>Manajemen Master Kelas</h5>
+                <button class="btn btn-primary btn-sm" onclick="openAddKelasModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Kelas Baru</button>
+              </div>
+              <div class="card-body p-4">
+                <p class="text-muted small">Daftar kelas resmi SMK BK Ciawi. Menambahkan atau menghapus kelas di sini akan otomatis memperbarui seluruh pilihan kelas di sistem.</p>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                      <tr>
+                        <th style="width: 70px;">No</th>
+                        <th>Nama Kelas</th>
+                        <th class="text-center" style="width: 120px;">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="kelas-tbody">
+                      <tr><td colspan="3" class="text-center py-3">Memuat kelas...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. VIEW DATA GURU -->
+      <div id="view-guru" class="view-section">
+        <div class="card shadow border-0 rounded-4">
+          <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-chalkboard-user me-2"></i>Daftar Guru & Petugas</h5>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-primary btn-sm" onclick="openGuruModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Guru</button>
+              <button class="btn btn-outline-success btn-sm" onclick="downloadTemplateGuruXlsx()"><i class="fa-solid fa-file-excel me-1"></i>Unduh Template (.xlsx)</button>
+              <label class="btn btn-success btn-sm mb-0">
+                <i class="fa-solid fa-file-import me-1"></i>Impor Excel (.xlsx)
+                <input type="file" id="file-import-guru" accept=".xlsx, .xls" class="d-none" onchange="handleBulkImportGuruXlsx(this)">
+              </label>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Nama Lengkap Guru</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="guru-tbody">
+                  <tr><td colspan="6" class="text-center py-4">Memuat data guru...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. VIEW CETAK KARTU SISWA CR80 DENGAN QR BESAR 100px -->
+      <div id="view-cetak-kartu" class="view-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 class="fw-bold text-success mb-0"><i class="fa-solid fa-id-card me-2"></i>Kartu Absensi Sholat Siap Cetak</h4>
+            <span class="small text-muted">Layout disesuaikan dengan QR Code besar 100px agar pemindaian kamera cepat dan akurat.</span>
+          </div>
+          <button class="btn btn-primary" onclick="window.print()" style="background-color: var(--primary-teal);"><i class="fa-solid fa-print me-1"></i>Cetak Kartu ke PDF</button>
+        </div>
+        <div id="print-area">
+          <div id="kartu-container" class="d-flex flex-wrap justify-content-start"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODALS -->
   <div class="modal fade" id="modalConfig" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold"><i class="fa-solid fa-gear me-2"></i>Konfigurasi URL Google Apps Script</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
+        <div class="modal-header"><h5 class="modal-title fw-bold">Konfigurasi URL Backend</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
           <p class="small text-muted">Masukkan Web App URL deployment Apps Script Anda (yang berakhiran <code>/exec</code>):</p>
           <input type="text" id="cfg-gas-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
@@ -177,464 +784,6 @@
     </div>
   </div>
 
-  <!-- NAVBAR UTAMA -->
-  <nav class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top" style="background-color: var(--primary-teal);">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="javascript:void(0)" onclick="switchView('landing')">
-        <i class="fa-solid fa-mosque me-2 text-warning"></i>E-Sholat SMK BK Ciawi
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav ms-auto align-items-center">
-          <li class="nav-item auth-guest"><a class="nav-link" href="javascript:void(0)" onclick="switchView('landing')">Beranda</a></li>
-          <li class="nav-item auth-guest"><a class="btn btn-warning btn-sm fw-semibold ms-2" href="javascript:void(0)" onclick="switchView('login')"><i class="fa-solid fa-right-to-bracket me-1"></i>Login Petugas</a></li>
-          
-          <li class="nav-item auth-user d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('scanner')"><i class="fa-solid fa-qrcode me-1"></i>Scan Presensi</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('rekap')"><i class="fa-solid fa-chart-column me-1"></i>Laporan Sholat</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('siswa')"><i class="fa-solid fa-graduation-cap me-1"></i>Data Siswa</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('naik-kelas')"><i class="fa-solid fa-angles-up me-1"></i>Naik Kelas</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('kelas')"><i class="fa-solid fa-door-open me-1"></i>Kelola Kelas</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('guru')"><i class="fa-solid fa-chalkboard-user me-1"></i>Data Guru</a></li>
-          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('cetak-kartu')"><i class="fa-solid fa-id-card me-1"></i>Cetak Kartu</a></li>
-          
-          <li class="nav-item ms-lg-2">
-            <button class="btn btn-sm btn-outline-light" onclick="openConfigModal()" title="Pengaturan URL Spreadsheet"><i class="fa-solid fa-gear"></i></button>
-          </li>
-
-          <li class="nav-item auth-user d-none ms-lg-2">
-            <span class="badge bg-light text-dark py-2 px-3 fw-medium" id="user-display">Petugas</span>
-            <button class="btn btn-outline-light btn-sm ms-2" onclick="logout()" title="Keluar"><i class="fa-solid fa-power-off"></i></button>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <div class="container py-4">
-
-    <!-- WIDGET REALTIME JAM & WAKTU SHOLAT KEC. CIAWI KAB. TASIKMALAYA -->
-    <div class="prayer-bar mb-4">
-      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-          <div class="small text-muted fw-bold">
-            <i class="fa-solid fa-location-dot me-1 text-danger"></i>Kec. Ciawi, Kab. Tasikmalaya, Jawa Barat, Indonesia
-          </div>
-          <div class="fs-4 fw-bold text-dark font-monospace" id="live-clock">00:00:00 WIB</div>
-          <div class="small fw-semibold text-secondary" id="live-date">-</div>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-          <div class="prayer-pill" id="pill-subuh"><div class="small text-muted">Subuh</div><strong id="time-subuh">04:06</strong></div>
-          <div class="prayer-pill" id="pill-dhuha"><div class="small text-muted">Dhuha</div><strong id="time-dhuha">05:48</strong></div>
-          <div class="prayer-pill" id="pill-dzuhur"><div class="small text-muted">Dzuhur</div><strong id="time-dzuhur">11:37</strong></div>
-          <div class="prayer-pill" id="pill-ashar"><div class="small text-muted">Ashar</div><strong id="time-ashar">14:56</strong></div>
-          <div class="prayer-pill" id="pill-maghrib"><div class="small text-muted">Maghrib</div><strong id="time-maghrib">17:49</strong></div>
-          <div class="prayer-pill" id="pill-isya"><div class="small text-muted">Isya</div><strong id="time-isya">19:01</strong></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 1. VIEW HERO SECTION -->
-    <div id="view-landing" class="view-section active">
-      <div class="hero-wrapper mb-4">
-        <i class="fa-solid fa-kaaba hero-pattern"></i>
-        <div class="row align-items-center position-relative" style="z-index: 2;">
-          <div class="col-lg-7 text-center text-lg-start mb-4 mb-lg-0">
-            <div class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
-              <i class="fa-solid fa-circle-check me-1"></i>Sistem Presensi Sholat Digital
-            </div>
-            <h1 class="display-5 fw-bold mb-3">Tegakkan Sholat, Disiplinkan Generasi Siswa.</h1>
-            <p class="lead opacity-75 mb-4">Aplikasi absensi ibadah siswa berbasis kartu QR Code untuk jurusan <strong>Farmasi & Keperawatan</strong> SMK BK Ciawi, Kab. Tasikmalaya. Dilengkapi manajemen naik kelas massal, live search, dan kalender rekapitulasi.</p>
-            <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
-              <button class="btn btn-warning btn-lg fw-bold px-4 shadow" onclick="switchView('login')">
-                <i class="fa-solid fa-qrcode me-2"></i>Mulai Absensi
-              </button>
-            </div>
-          </div>
-          <div class="col-lg-5">
-            <div class="row g-3">
-              <div class="col-6">
-                <div class="stat-badge text-center">
-                  <i class="fa-solid fa-user-graduate fa-2x mb-2 text-warning"></i>
-                  <div class="fs-4 fw-bold" id="stat-siswa">-</div>
-                  <div class="small opacity-75">Siswa Terdaftar</div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="stat-badge text-center">
-                  <i class="fa-solid fa-hands-praying fa-2x mb-2 text-info"></i>
-                  <div class="fs-4 fw-bold" id="stat-absen-hari-ini">-</div>
-                  <div class="small opacity-75">Hadir Hari Ini</div>
-                </div>
-              </div>
-              <div class="col-12">
-                <div class="stat-badge text-center">
-                  <i class="fa-solid fa-chalkboard-user fa-2x mb-2 text-white"></i>
-                  <div class="fs-4 fw-bold" id="stat-guru">-</div>
-                  <div class="small opacity-75">Guru & Pembina</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. VIEW LOGIN -->
-    <div id="view-login" class="view-section">
-      <div class="row justify-content-center mt-3">
-        <div class="col-md-5">
-          <div class="card shadow border-0 rounded-4">
-            <div class="card-body p-4 p-md-5">
-              <div class="text-center mb-4">
-                <div class="rounded-circle d-inline-flex p-3 mb-2" style="background-color: #ccfbf1; color: var(--primary-teal);">
-                  <i class="fa-solid fa-lock fa-2x"></i>
-                </div>
-                <h4 class="fw-bold">Login Guru / Admin</h4>
-                <p class="text-muted small">Gunakan akun pembina yang terdaftar</p>
-              </div>
-              <form id="form-login" onsubmit="handleLogin(event)">
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold">Username</label>
-                  <input type="text" id="login-username" class="form-control" required placeholder="admin / guru1">
-                </div>
-                <div class="mb-4">
-                  <label class="form-label small fw-semibold">Password</label>
-                  <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="background-color: var(--primary-teal); border: none;">
-                  <i class="fa-solid fa-sign-in me-1"></i>Masuk Aplikasi
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. VIEW SCANNER DENGAN AUTOCOMPLETE SEARCH SISWA -->
-    <div id="view-scanner" class="view-section">
-      <div class="row justify-content-center">
-        <div class="col-md-8">
-          <div class="card shadow border-0 rounded-4">
-            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-              <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-qrcode me-2"></i>Scanner Absensi Sholat</h5>
-              <span class="badge bg-primary" id="badge-guru-scanner">Petugas: -</span>
-            </div>
-            <div class="card-body p-4 text-center">
-              
-              <div class="row g-2 mb-3 align-items-center">
-                <div class="col-md-6">
-                  <div class="input-group">
-                    <span class="input-group-text bg-light"><i class="fa-solid fa-clock"></i></span>
-                    <select id="scan-sholat" class="form-select fw-bold">
-                      <option value="Dzuhur">Dzuhur</option>
-                      <option value="Ashar">Ashar</option>
-                      <option value="Dhuha">Dhuha</option>
-                      <option value="Jumat">Jumat</option>
-                      <option value="Subuh">Subuh</option>
-                      <option value="Maghrib">Maghrib</option>
-                      <option value="Isya">Isya</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6 d-flex gap-2">
-                  <button class="btn btn-success flex-fill" id="btn-toggle-camera" onclick="startNativeCamera()">
-                    <i class="fa-solid fa-camera me-1"></i>Buka Kamera HP
-                  </button>
-                  <label class="btn btn-outline-secondary flex-fill mb-0">
-                    <i class="fa-solid fa-image me-1"></i>Upload Foto
-                    <input type="file" id="qr-input-file" accept="image/*" class="d-none" onchange="scanFromImage(this)">
-                  </label>
-                </div>
-              </div>
-
-              <!-- Viewport Kamera -->
-              <div id="reader"></div>
-
-              <!-- INPUT PENCARIAN SISWA AUTOCOMPLETE (JIKA LUPA BAWA KARTU) -->
-              <div class="mt-4 text-start">
-                <label class="small fw-bold text-muted"><i class="fa-solid fa-search me-1"></i>Siswa Lupa Bawa Kartu? Cari Nama / NISN:</label>
-                <div class="autocomplete-box">
-                  <div class="input-group">
-                    <span class="input-group-text bg-light"><i class="fa-solid fa-user-tag"></i></span>
-                    <input type="text" id="input-search-siswa" class="form-control" placeholder="Ketik nama siswa (contoh: Siti, Fatih, Ahmad)..." autocomplete="off" oninput="handleSearchSiswa(this.value)">
-                    <button class="btn btn-outline-secondary" type="button" onclick="clearSearchSiswa()"><i class="fa-solid fa-xmark"></i></button>
-                  </div>
-                  <div id="search-results" class="autocomplete-items d-none"></div>
-                </div>
-              </div>
-
-              <!-- Log Kehadiran Terakhir -->
-              <div class="mt-4 text-start">
-                <h6 class="fw-bold text-muted border-bottom pb-2"><i class="fa-solid fa-clock-rotate-left me-1"></i>Baru Saja Absen:</h6>
-                <ul class="list-group list-group-flush small" id="recent-scan-list">
-                  <li class="list-group-item text-muted text-center">Belum ada aktivitas presensi</li>
-                </ul>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. VIEW REKAP PRESENSI DENGAN KALENDER FILTER TANGGAL -->
-    <div id="view-rekap" class="view-section">
-      <div class="card shadow border-0 rounded-4">
-        <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-clipboard-check me-2"></i>Laporan Rekapitulasi Presensi</h5>
-          <div class="d-flex gap-2">
-            <button class="btn btn-outline-success btn-sm" onclick="exportToExcel()"><i class="fa-solid fa-file-excel me-1"></i>Ekspor Excel (.xlsx)</button>
-            <button class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="fa-solid fa-print me-1"></i>Cetak Laporan</button>
-          </div>
-        </div>
-        <div class="card-body p-4">
-          <div class="row g-3 mb-4 align-items-end">
-            <div class="col-md-3">
-              <label class="form-label small fw-semibold">Rentang Periode:</label>
-              <select id="filter-type" class="form-select" onchange="toggleFilterMode()">
-                <option value="HARIAN">Hari Ini (Harian)</option>
-                <option value="PILIH_TANGGAL">Pilih Tanggal (Kalender)</option>
-                <option value="RENTANG_TANGGAL">Rentang Tanggal (Dari - Sampai)</option>
-                <option value="MINGGUAN">7 Hari Terakhir</option>
-                <option value="BULANAN">Bulan Ini</option>
-                <option value="SEMUA">Semua Catatan</option>
-              </select>
-            </div>
-
-            <div class="col-md-3 d-none" id="box-single-date">
-              <label class="form-label small fw-semibold"><i class="fa-solid fa-calendar-day me-1"></i>Pilih Tanggal:</label>
-              <input type="date" id="filter-single-date" class="form-control" onchange="loadRekapData()">
-            </div>
-
-            <div class="col-md-4 d-none" id="box-range-date">
-              <label class="form-label small fw-semibold"><i class="fa-solid fa-calendar-days me-1"></i>Dari - Sampai Tanggal:</label>
-              <div class="input-group">
-                <input type="date" id="filter-start-date" class="form-control" onchange="loadRekapData()">
-                <span class="input-group-text">s/d</span>
-                <input type="date" id="filter-end-date" class="form-control" onchange="loadRekapData()">
-              </div>
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label small fw-semibold">Filter Kelas:</label>
-              <select id="filter-kelas" class="form-select" onchange="loadRekapData()">
-                <option value="SEMUA">Semua Kelas</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="table-responsive" id="print-area">
-            <table class="table table-hover align-middle" id="table-rekap">
-              <thead class="table-light">
-                <tr>
-                  <th>Tanggal</th>
-                  <th>Waktu</th>
-                  <th>NISN</th>
-                  <th>Nama Siswa</th>
-                  <th>Kelas</th>
-                  <th>Ibadah</th>
-                  <th>Petugas Piket</th>
-                  <th class="no-print text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="rekap-tbody">
-                <tr><td colspan="8" class="text-center py-4">Memuat data rekap...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. VIEW DATA SISWA DENGAN CHECKBOX BULK DELETE -->
-    <div id="view-siswa" class="view-section">
-      <div class="card shadow border-0 rounded-4">
-        <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <div class="d-flex align-items-center gap-2">
-            <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-graduation-cap me-2"></i>Data Siswa</h5>
-            <button id="btn-bulk-delete" class="btn btn-danger btn-sm d-none" onclick="handleBulkDeleteSelected()">
-              <i class="fa-solid fa-trash-can me-1"></i>Hapus Terpilih (<span id="count-selected">0</span>)
-            </button>
-          </div>
-          <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-primary btn-sm" onclick="openSiswaModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Siswa</button>
-            <button class="btn btn-outline-success btn-sm" onclick="downloadTemplateSiswaXlsx()"><i class="fa-solid fa-file-excel me-1"></i>Unduh Template (.xlsx)</button>
-            <label class="btn btn-success btn-sm mb-0">
-              <i class="fa-solid fa-file-import me-1"></i>Impor Excel (.xlsx)
-              <input type="file" id="file-import-siswa" accept=".xlsx, .xls" class="d-none" onchange="handleBulkImportSiswaXlsx(this)">
-            </label>
-          </div>
-        </div>
-        <div class="card-body p-4">
-          <div class="table-responsive">
-            <table class="table table-striped align-middle">
-              <thead class="table-light">
-                <tr>
-                  <th style="width: 40px;" class="text-center">
-                    <input type="checkbox" id="check-all-siswa" class="form-check-input" onchange="toggleSelectAllSiswa(this)">
-                  </th>
-                  <th>NISN</th>
-                  <th>Nama Siswa</th>
-                  <th>Kelas</th>
-                  <th>Gender</th>
-                  <th>No HP Ortu</th>
-                  <th>Status</th>
-                  <th class="text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="siswa-tbody">
-                <tr><td colspan="8" class="text-center py-4">Memuat data siswa...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 6. VIEW KENAIKAN KELAS MASSAL -->
-    <div id="view-naik-kelas" class="view-section">
-      <div class="card shadow border-0 rounded-4">
-        <div class="card-header bg-white py-3 border-0">
-          <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-angles-up me-2"></i>Kenaikan Kelas Massal Siswa</h5>
-        </div>
-        <div class="card-body p-4">
-          <div class="alert alert-info border-0 rounded-3 small">
-            <i class="fa-solid fa-circle-info me-1"></i><strong>Informasi Kenaikan Kelas:</strong>
-            QR Code pada kartu siswa <strong>tidak perlu dicetak ulang</strong> saat naik kelas. QR Code menyimpan nomor NISN permanen yang otomatis membaca kelas terbaru dari sistem.
-          </div>
-
-          <div class="row g-3 mb-4 align-items-end bg-light p-3 rounded-3">
-            <div class="col-md-4">
-              <label class="form-label small fw-semibold">1. Pilih Kelas Asal:</label>
-              <select id="nk-kelas-asal" class="form-select" onchange="loadSiswaForNaikKelas()">
-                <option value="">-- Pilih Kelas Asal --</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label small fw-semibold">2. Pilih Kelas Tujuan / Lulus:</label>
-              <select id="nk-kelas-tujuan" class="form-select">
-                <option value="">-- Pilih Kelas Tujuan --</option>
-                <option value="LULUS" class="fw-bold text-danger">★ LULUS / ALUMNI (Siswa Kelas XII) ★</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <button class="btn btn-primary w-100 fw-bold" onclick="executeNaikKelas()" style="background-color: var(--primary-teal);">
-                <i class="fa-solid fa-bolt me-1"></i>Proses Kenaikan Kelas
-              </button>
-            </div>
-          </div>
-
-          <h6 class="fw-bold text-muted border-bottom pb-2">Daftar Siswa di Kelas Terpilih (Centang yang naik kelas):</h6>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle">
-              <thead class="table-light">
-                <tr>
-                  <th style="width: 40px;" class="text-center">
-                    <input type="checkbox" id="check-all-naik" class="form-check-input" checked onchange="toggleSelectAllNaik(this)">
-                  </th>
-                  <th>NISN</th>
-                  <th>Nama Lengkap Siswa</th>
-                  <th>Kelas Saat Ini</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="naik-kelas-tbody">
-                <tr><td colspan="5" class="text-center text-muted py-4">Silakan pilih kelas asal di atas terlebih dahulu.</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- 7. VIEW KELOLA MASTER KELAS -->
-    <div id="view-kelas" class="view-section">
-      <div class="row justify-content-center">
-        <div class="col-md-8">
-          <div class="card shadow border-0 rounded-4">
-            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-              <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-door-open me-2"></i>Manajemen Master Kelas</h5>
-              <button class="btn btn-primary btn-sm" onclick="openAddKelasModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Kelas Baru</button>
-            </div>
-            <div class="card-body p-4">
-              <p class="text-muted small">Daftar kelas resmi SMK BK Ciawi. Menambahkan atau menghapus kelas di sini akan otomatis memperbarui seluruh pilihan kelas di menu Siswa, Naik Kelas, dan Laporan.</p>
-              <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                  <thead class="table-light">
-                    <tr>
-                      <th style="width: 70px;">No</th>
-                      <th>Nama Kelas</th>
-                      <th class="text-center" style="width: 120px;">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody id="kelas-tbody">
-                    <tr><td colspan="3" class="text-center py-3">Memuat kelas...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 8. VIEW DATA GURU -->
-    <div id="view-guru" class="view-section">
-      <div class="card shadow border-0 rounded-4">
-        <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-chalkboard-user me-2"></i>Daftar Guru & Petugas</h5>
-          <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-primary btn-sm" onclick="openGuruModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Guru</button>
-            <button class="btn btn-outline-success btn-sm" onclick="downloadTemplateGuruXlsx()"><i class="fa-solid fa-file-excel me-1"></i>Unduh Template (.xlsx)</button>
-            <label class="btn btn-success btn-sm mb-0">
-              <i class="fa-solid fa-file-import me-1"></i>Impor Excel (.xlsx)
-              <input type="file" id="file-import-guru" accept=".xlsx, .xls" class="d-none" onchange="handleBulkImportGuruXlsx(this)">
-            </label>
-          </div>
-        </div>
-        <div class="card-body p-4">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle">
-              <thead class="table-light">
-                <tr>
-                  <th>ID</th>
-                  <th>Username</th>
-                  <th>Nama Lengkap Guru</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th class="text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="guru-tbody">
-                <tr><td colspan="6" class="text-center py-4">Memuat data guru...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 9. VIEW CETAK KARTU SISWA CR80 DENGAN QR BESAR -->
-    <div id="view-cetak-kartu" class="view-section">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h4 class="fw-bold text-success mb-0"><i class="fa-solid fa-id-card me-2"></i>Kartu Absensi Sholat Siap Cetak</h4>
-          <span class="small text-muted">Layout disesuaikan dengan QR Code besar 100px agar pemindaian kamera cepat dan akurat.</span>
-        </div>
-        <button class="btn btn-primary" onclick="window.print()" style="background-color: var(--primary-teal);"><i class="fa-solid fa-print me-1"></i>Cetak Kartu ke PDF</button>
-      </div>
-      <div id="print-area">
-        <div id="kartu-container" class="d-flex flex-wrap justify-content-start"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- MODALS -->
   <div class="modal fade" id="modalSiswa" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -643,10 +792,7 @@
           <form id="form-siswa" onsubmit="handleSaveSiswa(event)">
             <div class="mb-3"><label class="form-label small fw-semibold">NISN</label><input type="text" id="m-nisn" class="form-control" required></div>
             <div class="mb-3"><label class="form-label small fw-semibold">Nama Lengkap</label><input type="text" id="m-nama" class="form-control" required></div>
-            <div class="mb-3">
-              <label class="form-label small fw-semibold">Kelas</label>
-              <select id="m-kelas" class="form-select" required></select>
-            </div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Kelas</label><select id="m-kelas" class="form-select" required></select></div>
             <div class="mb-3"><label class="form-label small fw-semibold">Jenis Kelamin</label><select id="m-gender" class="form-select"><option value="L">Laki-laki (L)</option><option value="P">Perempuan (P)</option></select></div>
             <div class="mb-3"><label class="form-label small fw-semibold">No HP Ortu / WA</label><input type="text" id="m-nohp" class="form-control" placeholder="08xxxxxxxxxx"></div>
             <button type="submit" class="btn btn-primary w-100" style="background-color: var(--primary-teal);">Simpan Siswa</button>
@@ -728,6 +874,7 @@
     let html5QrCode = null;
     let isCameraRunning = false;
     let siswaCache = [], guruCache = [];
+    let chartKelasInstance = null, chartStatusInstance = null;
     
     let kelasCache = [
       'X Farmasi',
@@ -737,6 +884,31 @@
       'XII Farmasi',
       'XII Keperawatan'
     ];
+
+    // BUKA / TUTUP SIDEBAR
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar-wrapper');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      const mainContent = document.getElementById('main-content');
+
+      if (window.innerWidth < 992) {
+        sidebar.classList.toggle('mobile-open');
+        backdrop.classList.toggle('show');
+      } else {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('expanded');
+      }
+    }
+
+    function navTo(viewName, linkEl) {
+      document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active-nav'));
+      if (linkEl) linkEl.classList.add('active-nav');
+      switchView(viewName);
+      if (window.innerWidth < 992) {
+        document.getElementById('sidebar-wrapper').classList.remove('mobile-open');
+        document.getElementById('sidebar-backdrop').classList.remove('show');
+      }
+    }
 
     function openConfigModal() {
       document.getElementById('cfg-gas-url').value = gasEndpoint;
@@ -820,6 +992,7 @@
 
       document.querySelectorAll('.prayer-pill').forEach(el => el.classList.remove('active'));
 
+      // Subuh: 04:06 (246) | Dhuha: 05:48 (348) | Dzuhur: 11:37 (697) | Ashar: 14:56 (896) | Maghrib: 17:49 (1069) | Isya: 19:01 (1141)
       let currentSholat = 'Dzuhur';
       if (timeVal >= 246 && timeVal < 348) {
         document.getElementById('pill-subuh').classList.add('active');
@@ -853,6 +1026,78 @@
     setInterval(updateClockAndPrayer, 1000);
 
     // ==========================================
+    // GRAFIK PIE & DONUT INTERAKTIF (CHART.JS)
+    // ==========================================
+    async function renderDashboardCharts() {
+      try {
+        await ensureSiswaCacheLoaded();
+        const rekapHariIni = await callApi('getRekap', {}, { filterType: 'HARIAN', filterKelas: 'SEMUA' });
+
+        // 1. Hitung Kehadiran per Kelas Hari Ini
+        const countsByClass = {};
+        kelasCache.forEach(k => countsByClass[k] = 0);
+        if (Array.isArray(rekapHariIni)) {
+          rekapHariIni.forEach(r => {
+            const k = String(r.kelas).trim();
+            if (countsByClass[k] !== undefined) countsByClass[k]++;
+            else countsByClass[k] = (countsByClass[k] || 0) + 1;
+          });
+        }
+
+        const labelsKelas = Object.keys(countsByClass);
+        const dataKelas = Object.values(countsByClass);
+
+        // Hancurkan instance chart lama jika sudah ada
+        if (chartKelasInstance) chartKelasInstance.destroy();
+        const ctxKelas = document.getElementById('chartKehadiranKelas').getContext('2d');
+        chartKelasInstance = new Chart(ctxKelas, {
+          type: 'pie',
+          data: {
+            labels: labelsKelas,
+            datasets: [{
+              data: dataKelas,
+              backgroundColor: ['#0f766e', '#14b8a6', '#059669', '#10b981', '#f59e0b', '#fbbf24', '#64748b']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom' }
+            }
+          }
+        });
+
+        // 2. Hitung Distribusi Status Siswa (Aktif vs Lulus/Alumni)
+        let aktifCount = 0, lulusCount = 0;
+        siswaCache.forEach(s => {
+          if (String(s.status).toUpperCase() === 'AKTIF') aktifCount++;
+          else lulusCount++;
+        });
+
+        if (chartStatusInstance) chartStatusInstance.destroy();
+        const ctxStatus = document.getElementById('chartStatusSiswa').getContext('2d');
+        chartStatusInstance = new Chart(ctxStatus, {
+          type: 'doughnut',
+          data: {
+            labels: ['Siswa Aktif', 'Alumni / Lulus'],
+            datasets: [{
+              data: [aktifCount, lulusCount],
+              backgroundColor: ['#059669', '#94a3b8']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom' }
+            }
+          }
+        });
+      } catch(e) {}
+    }
+
+    // ==========================================
     // FILTER RENTANG PERIODE KALENDER
     // ==========================================
     function toggleFilterMode() {
@@ -871,893 +1116,4 @@
         boxRange.classList.remove('d-none');
         if (!document.getElementById('filter-start-date').value) {
           const d = new Date(); d.setDate(d.getDate() - 7);
-          document.getElementById('filter-start-date').value = d.toISOString().slice(0, 10);
-          document.getElementById('filter-end-date').value = new Date().toISOString().slice(0, 10);
-        }
-      } else {
-        boxSingle.classList.add('d-none');
-        boxRange.classList.add('d-none');
-      }
-
-      loadRekapData();
-    }
-
-    // ==========================================
-    // AUTOCOMPLETE LIVE SEARCH SISWA
-    // ==========================================
-    async function ensureSiswaCacheLoaded() {
-      if (siswaCache.length === 0) {
-        try { siswaCache = await callApi('getSiswa'); } catch(e) {}
-      }
-    }
-
-    function handleSearchSiswa(val) {
-      const resultsContainer = document.getElementById('search-results');
-      const query = val.trim().toLowerCase();
-
-      if (query.length < 2) {
-        resultsContainer.innerHTML = '';
-        resultsContainer.classList.add('d-none');
-        return;
-      }
-
-      ensureSiswaCacheLoaded();
-
-      const filtered = siswaCache.filter(s => 
-        String(s.nama_siswa || '').toLowerCase().includes(query) || 
-        String(s.nisn || '').toLowerCase().includes(query)
-      ).slice(0, 8);
-
-      if (filtered.length === 0) {
-        resultsContainer.innerHTML = '<div class="autocomplete-item text-muted text-center small py-3">Siswa tidak ditemukan</div>';
-        resultsContainer.classList.remove('d-none');
-        return;
-      }
-
-      let html = '';
-      filtered.forEach(s => {
-        html += `
-          <div class="autocomplete-item" onclick="selectSiswaFromSearch('${s.nisn}', '${s.nama_siswa.replace(/'/g, "\\'")}')">
-            <div class="fw-bold text-dark">${s.nama_siswa}</div>
-            <div class="small text-muted">NISN: <span class="badge bg-light text-dark border">${s.nisn}</span> • Kelas: <strong class="text-primary">${s.kelas}</strong></div>
-          </div>
-        `;
-      });
-
-      resultsContainer.innerHTML = html;
-      resultsContainer.classList.remove('d-none');
-    }
-
-    function selectSiswaFromSearch(nisn, nama) {
-      document.getElementById('input-search-siswa').value = nama;
-      document.getElementById('search-results').classList.add('d-none');
-
-      Swal.fire({
-        title: 'Verifikasi Absensi?',
-        html: `Konfirmasi kehadiran sholat untuk:<br><b>${nama}</b> (NISN: ${nisn})?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, Catat Hadir',
-        confirmButtonColor: '#0f766e',
-        cancelButtonText: 'Batal'
-      }).then(res => {
-        if (res.isConfirmed) {
-          processAbsensi(nisn);
-          clearSearchSiswa();
-        }
-      });
-    }
-
-    function clearSearchSiswa() {
-      document.getElementById('input-search-siswa').value = '';
-      document.getElementById('search-results').innerHTML = '';
-      document.getElementById('search-results').classList.add('d-none');
-    }
-
-    // ==========================================
-    // DATA SISWA (CRUD + CHECKBOX BULK DELETE)
-    // ==========================================
-    async function loadSiswaData() {
-      try {
-        siswaCache = await callApi('getSiswa');
-        const tbody = document.getElementById('siswa-tbody');
-        if (!Array.isArray(siswaCache) || siswaCache.length === 0) { 
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Belum ada siswa terdaftar.</td></tr>'; 
-          return; 
-        }
-        let html = '';
-        siswaCache.forEach(s => {
-          html += `<tr>
-            <td class="text-center">
-              <input type="checkbox" class="form-check-input check-item-siswa" value="${s.nisn}" onchange="updateBulkDeleteButton()">
-            </td>
-            <td><strong>${s.nisn}</strong></td>
-            <td>${s.nama_siswa}</td>
-            <td><span class="badge bg-secondary">${s.kelas}</span></td>
-            <td>${s.jenis_kelamin}</td>
-            <td>${s.no_hp_ortu || '-'}</td>
-            <td><span class="badge bg-success">${s.status}</span></td>
-            <td class="text-center">
-              <button class="btn btn-sm btn-outline-warning me-1" onclick="editSiswa('${s.nisn}')"><i class="fa-solid fa-pen"></i></button>
-              <button class="btn btn-sm btn-outline-danger" onclick="hapusSiswa('${s.nisn}')"><i class="fa-solid fa-trash"></i></button>
-            </td>
-          </tr>`;
-        });
-        tbody.innerHTML = html;
-        document.getElementById('check-all-siswa').checked = false;
-        updateBulkDeleteButton();
-      } catch(e){}
-    }
-
-    function toggleSelectAllSiswa(master) {
-      document.querySelectorAll('.check-item-siswa').forEach(cb => {
-        cb.checked = master.checked;
-      });
-      updateBulkDeleteButton();
-    }
-
-    function updateBulkDeleteButton() {
-      const selected = document.querySelectorAll('.check-item-siswa:checked');
-      const btn = document.getElementById('btn-bulk-delete');
-      const countEl = document.getElementById('count-selected');
-
-      if (selected.length > 0) {
-        countEl.innerText = selected.length;
-        btn.classList.remove('d-none');
-      } else {
-        btn.classList.add('d-none');
-      }
-    }
-
-    function handleBulkDeleteSelected() {
-      const selected = Array.from(document.querySelectorAll('.check-item-siswa:checked')).map(cb => cb.value);
-      if (selected.length === 0) return;
-
-      Swal.fire({
-        title: `Hapus ${selected.length} Siswa Terpilih?`,
-        text: 'Data siswa yang dipilih akan dihapus secara permanen dari sistem.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: `Ya, Hapus ${selected.length} Siswa!`
-      }).then(async res => {
-        if (res.isConfirmed) {
-          Swal.fire({ title: 'Menghapus data...', didOpen: () => Swal.showLoading() });
-          try {
-            const r = await callApi('bulkDeleteSiswa', { nisnList: selected });
-            Swal.fire('Selesai', r.message, r.success ? 'success' : 'error');
-            loadSiswaData();
-          } catch(err) {
-            Swal.fire('Error', err.toString(), 'error');
-          }
-        }
-      });
-    }
-
-    function openSiswaModal() {
-      document.getElementById('form-siswa').reset();
-      document.getElementById('m-nisn').removeAttribute('readonly');
-      document.getElementById('modalSiswaTitle').innerText = 'Tambah Siswa Baru';
-      new bootstrap.Modal(document.getElementById('modalSiswa')).show();
-    }
-
-    function editSiswa(nisn) {
-      const s = siswaCache.find(x => String(x.nisn) === String(nisn));
-      if (!s) return;
-      document.getElementById('m-nisn').value = s.nisn;
-      document.getElementById('m-nisn').setAttribute('readonly', true);
-      document.getElementById('m-nama').value = s.nama_siswa;
-      document.getElementById('m-kelas').value = s.kelas;
-      document.getElementById('m-gender').value = s.jenis_kelamin;
-      document.getElementById('m-nohp').value = s.no_hp_ortu || '';
-      document.getElementById('modalSiswaTitle').innerText = 'Edit Siswa: ' + s.nisn;
-      new bootstrap.Modal(document.getElementById('modalSiswa')).show();
-    }
-
-    async function handleSaveSiswa(e) {
-      e.preventDefault();
-      const p = {
-        nisn: document.getElementById('m-nisn').value,
-        nama_siswa: document.getElementById('m-nama').value,
-        kelas: document.getElementById('m-kelas').value,
-        jenis_kelamin: document.getElementById('m-gender').value,
-        no_hp_ortu: document.getElementById('m-nohp').value
-      };
-      Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
-      const res = await callApi('saveSiswa', p);
-      bootstrap.Modal.getInstance(document.getElementById('modalSiswa')).hide();
-      Swal.fire('Sukses', res.message, 'success');
-      loadSiswaData();
-    }
-
-    function hapusSiswa(nisn) {
-      Swal.fire({ title: 'Hapus data siswa ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
-        if (r.isConfirmed) {
-          const res = await callApi('deleteSiswa', { nisn });
-          Swal.fire('Dihapus', res.message, 'success');
-          loadSiswaData();
-        }
-      });
-    }
-
-    // ==========================================
-    // MODUL KENAIKAN KELAS MASSAL
-    // ==========================================
-    async function loadSiswaForNaikKelas() {
-      const kelasAsal = document.getElementById('nk-kelas-asal').value;
-      const tbody = document.getElementById('naik-kelas-tbody');
-
-      if (!kelasAsal) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Silakan pilih kelas asal di atas terlebih dahulu.</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">Memuat siswa kelas ' + kelasAsal + '...</td></tr>';
-      await ensureSiswaCacheLoaded();
-
-      const filtered = siswaCache.filter(s => String(s.kelas).trim() === kelasAsal && String(s.status).toUpperCase() === 'AKTIF');
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Tidak ada siswa aktif ditemukan di kelas ' + kelasAsal + '.</td></tr>';
-        return;
-      }
-
-      let html = '';
-      filtered.forEach(s => {
-        html += `<tr>
-          <td class="text-center">
-            <input type="checkbox" class="form-check-input check-naik-item" value="${s.nisn}" checked>
-          </td>
-          <td><strong>${s.nisn}</strong></td>
-          <td>${s.nama_siswa}</td>
-          <td><span class="badge bg-secondary">${s.kelas}</span></td>
-          <td><span class="badge bg-success">${s.status}</span></td>
-        </tr>`;
-      });
-
-      tbody.innerHTML = html;
-      document.getElementById('check-all-naik').checked = true;
-    }
-
-    function toggleSelectAllNaik(master) {
-      document.querySelectorAll('.check-naik-item').forEach(cb => cb.checked = master.checked);
-    }
-
-    function executeNaikKelas() {
-      const kelasAsal = document.getElementById('nk-kelas-asal').value;
-      const targetKelas = document.getElementById('nk-kelas-tujuan').value;
-      const selected = Array.from(document.querySelectorAll('.check-naik-item:checked')).map(cb => cb.value);
-
-      if (!kelasAsal) {
-        Swal.fire('Peringatan', 'Pilih kelas asal terlebih dahulu!', 'warning');
-        return;
-      }
-      if (!targetKelas) {
-        Swal.fire('Peringatan', 'Tentukan kelas tujuan atau pilih status Lulus!', 'warning');
-        return;
-      }
-      if (selected.length === 0) {
-        Swal.fire('Peringatan', 'Pilih minimal satu siswa yang akan diproses!', 'warning');
-        return;
-      }
-
-      const isLulus = targetKelas === 'LULUS';
-      const pesan = isLulus 
-        ? `Apakah Anda yakin ingin meluluskan <b>${selected.length} siswa</b> dari kelas <b>${kelasAsal}</b>? Status akan diubah menjadi Alumni.`
-        : `Apakah Anda yakin ingin menaikkan <b>${selected.length} siswa</b> dari <b>${kelasAsal}</b> ke <b>${targetKelas}</b>?`;
-
-      Swal.fire({
-        title: isLulus ? 'Konfirmasi Kelulusan' : 'Konfirmasi Kenaikan Kelas',
-        html: pesan + '<br><br><small class="text-success fw-bold">✓ Kartu QR siswa lama tetap berlaku, tidak perlu cetak ulang!</small>',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#0f766e',
-        confirmButtonText: 'Ya, Proses Sekarang!'
-      }).then(async res => {
-        if (res.isConfirmed) {
-          Swal.fire({ title: 'Memproses Kenaikan Kelas...', didOpen: () => Swal.showLoading() });
-          try {
-            const r = await callApi('bulkNaikKelas', {
-              nisnList: selected,
-              targetKelas: targetKelas,
-              isLulus: isLulus
-            });
-            Swal.fire('Selesai', r.message, r.success ? 'success' : 'error');
-            siswaCache = [];
-            loadSiswaForNaikKelas();
-            loadSiswaData();
-          } catch(err) {
-            Swal.fire('Error', err.toString(), 'error');
-          }
-        }
-      });
-    }
-
-    // ==========================================
-    // MANAJEMEN MASTER KELAS DINAMIS
-    // ==========================================
-    async function loadKelasData() {
-      try {
-        const res = await callApi('getKelas');
-        if (Array.isArray(res) && res.length > 0) {
-          kelasCache = res;
-        }
-      } catch(e) {}
-
-      const tbody = document.getElementById('kelas-tbody');
-      if (tbody) {
-        let html = '';
-        kelasCache.forEach((k, idx) => {
-          html += `<tr>
-            <td><strong>${idx + 1}</strong></td>
-            <td><span class="badge bg-secondary fs-6">${k}</span></td>
-            <td class="text-center">
-              <button class="btn btn-sm btn-outline-danger" onclick="hapusKelas('${k}')"><i class="fa-solid fa-trash me-1"></i>Hapus</button>
-            </td>
-          </tr>`;
-        });
-        tbody.innerHTML = html;
-      }
-
-      const filterSelect = document.getElementById('filter-kelas');
-      if (filterSelect) {
-        const currentVal = filterSelect.value;
-        let optHtml = '<option value="SEMUA">Semua Kelas</option>';
-        kelasCache.forEach(k => optHtml += `<option value="${k}">${k}</option>`);
-        filterSelect.innerHTML = optHtml;
-        if (currentVal) filterSelect.value = currentVal;
-      }
-
-      const modalSelect = document.getElementById('m-kelas');
-      if (modalSelect) {
-        let optHtml = '';
-        kelasCache.forEach(k => optHtml += `<option value="${k}">${k}</option>`);
-        modalSelect.innerHTML = optHtml;
-      }
-
-      const asalSelect = document.getElementById('nk-kelas-asal');
-      const tujuanSelect = document.getElementById('nk-kelas-tujuan');
-      if (asalSelect && tujuanSelect) {
-        let asalHtml = '<option value="">-- Pilih Kelas Asal --</option>';
-        let tujuanHtml = '<option value="">-- Pilih Kelas Tujuan --</option><option value="LULUS" class="fw-bold text-danger">★ LULUS / ALUMNI (Siswa Kelas XII) ★</option>';
-        kelasCache.forEach(k => {
-          asalHtml += `<option value="${k}">${k}</option>`;
-          tujuanHtml += `<option value="${k}">${k}</option>`;
-        });
-        asalSelect.innerHTML = asalHtml;
-        tujuanSelect.innerHTML = tujuanHtml;
-      }
-    }
-
-    function openAddKelasModal() {
-      document.getElementById('input-nama-kelas').value = '';
-      new bootstrap.Modal(document.getElementById('modalAddKelas')).show();
-    }
-
-    async function handleSaveKelas(e) {
-      e.preventDefault();
-      const nama = document.getElementById('input-nama-kelas').value.trim();
-      if (!nama) return;
-
-      Swal.fire({ title: 'Menyimpan Kelas...', didOpen: () => Swal.showLoading() });
-      try {
-        const res = await callApi('saveKelas', { nama_kelas: nama });
-        bootstrap.Modal.getInstance(document.getElementById('modalAddKelas')).hide();
-        Swal.fire(res.success ? 'Berhasil' : 'Perhatian', res.message, res.success ? 'success' : 'warning');
-        loadKelasData();
-      } catch(err) {
-        Swal.fire('Error', err.toString(), 'error');
-      }
-    }
-
-    function hapusKelas(nama) {
-      Swal.fire({
-        title: 'Hapus Kelas?',
-        text: 'Kelas "' + nama + '" akan dihapus dari daftar.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Ya, Hapus!'
-      }).then(async r => {
-        if (r.isConfirmed) {
-          const res = await callApi('deleteKelas', { nama_kelas: nama });
-          Swal.fire('Dihapus', res.message, 'success');
-          loadKelasData();
-        }
-      });
-    }
-
-    // ==========================================
-    // DATA GURU (CRUD)
-    // ==========================================
-    async function loadGuruData() {
-      try {
-        guruCache = await callApi('getGuru');
-        const tbody = document.getElementById('guru-tbody');
-        if (!Array.isArray(guruCache) || guruCache.length === 0) { 
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Belum ada guru terdaftar.</td></tr>'; 
-          return; 
-        }
-        let html = '';
-        guruCache.forEach(g => {
-          html += `<tr>
-            <td><code>${g.user_id}</code></td><td><strong>${g.username}</strong></td><td>${g.nama_lengkap}</td>
-            <td><span class="badge ${g.role === 'ADMIN' ? 'bg-danger' : 'bg-info text-dark'}">${g.role}</span></td>
-            <td><span class="badge bg-success">${g.status}</span></td>
-            <td class="text-center">
-              <button class="btn btn-sm btn-outline-warning me-1" onclick="editGuru('${g.user_id}')"><i class="fa-solid fa-pen"></i></button>
-              <button class="btn btn-sm btn-outline-danger" onclick="hapusGuru('${g.user_id}')"><i class="fa-solid fa-trash"></i></button>
-            </td>
-          </tr>`;
-        });
-        tbody.innerHTML = html;
-      } catch(e){}
-    }
-
-    function openGuruModal() {
-      document.getElementById('form-guru').reset();
-      document.getElementById('g-userid').value = '';
-      document.getElementById('modalGuruTitle').innerText = 'Tambah Guru Baru';
-      new bootstrap.Modal(document.getElementById('modalGuru')).show();
-    }
-
-    function editGuru(uid) {
-      const g = guruCache.find(x => String(x.user_id) === String(uid));
-      if (!g) return;
-      document.getElementById('g-userid').value = g.user_id;
-      document.getElementById('g-username').value = g.username;
-      document.getElementById('g-password').value = g.password;
-      document.getElementById('g-nama').value = g.nama_lengkap;
-      document.getElementById('g-role').value = g.role;
-      document.getElementById('modalGuruTitle').innerText = 'Edit Guru: ' + g.username;
-      new bootstrap.Modal(document.getElementById('modalGuru')).show();
-    }
-
-    async function handleSaveGuru(e) {
-      e.preventDefault();
-      const p = {
-        user_id: document.getElementById('g-userid').value,
-        username: document.getElementById('g-username').value,
-        password: document.getElementById('g-password').value,
-        nama_lengkap: document.getElementById('g-nama').value,
-        role: document.getElementById('g-role').value
-      };
-      Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
-      const res = await callApi('saveGuru', p);
-      bootstrap.Modal.getInstance(document.getElementById('modalGuru')).hide();
-      Swal.fire('Sukses', res.message, 'success');
-      loadGuruData();
-    }
-
-    function hapusGuru(uid) {
-      Swal.fire({ title: 'Hapus pengguna ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
-        if (r.isConfirmed) {
-          const res = await callApi('deleteGuru', { userId: uid });
-          Swal.fire('Dihapus', res.message, 'success');
-          loadGuruData();
-        }
-      });
-    }
-
-    // ==========================================
-    // DATA REKAP & KALENDER
-    // ==========================================
-    async function loadRekapData() {
-      try {
-        const mode = document.getElementById('filter-type').value;
-        const fKelas = document.getElementById('filter-kelas').value;
-
-        let records = await callApi('getRekap', {}, { filterType: 'SEMUA', filterKelas: fKelas });
-        const tbody = document.getElementById('rekap-tbody');
-
-        if (!Array.isArray(records) || records.length === 0) { 
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada data kehadiran yang cocok.</td></tr>'; 
-          return; 
-        }
-
-        const todayStr = new Date().toISOString().slice(0, 10);
-        if (mode === 'HARIAN') {
-          records = records.filter(r => r.tanggal === todayStr);
-        } else if (mode === 'PILIH_TANGGAL') {
-          const selectedDate = document.getElementById('filter-single-date').value;
-          if (selectedDate) records = records.filter(r => r.tanggal === selectedDate);
-        } else if (mode === 'RENTANG_TANGGAL') {
-          const start = document.getElementById('filter-start-date').value;
-          const end = document.getElementById('filter-end-date').value;
-          if (start && end) records = records.filter(r => r.tanggal >= start && r.tanggal <= end);
-        } else if (mode === 'MINGGUAN') {
-          const d = new Date(); d.setDate(d.getDate() - 7);
-          const weekStart = d.toISOString().slice(0, 10);
-          records = records.filter(r => r.tanggal >= weekStart && r.tanggal <= todayStr);
-        } else if (mode === 'BULANAN') {
-          const monthStr = todayStr.slice(0, 7);
-          records = records.filter(r => r.tanggal.startsWith(monthStr));
-        }
-
-        if (records.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada catatan presensi pada tanggal/periode yang dipilih.</td></tr>';
-          return;
-        }
-
-        let html = '';
-        records.forEach(r => {
-          html += `<tr>
-            <td>${r.tanggal}</td><td>${r.waktu}</td><td>${r.nisn}</td><td>${r.nama}</td><td><span class="badge bg-secondary">${r.kelas}</span></td>
-            <td><span class="badge bg-success">${r.sholat}</span></td><td>${r.petugas}</td>
-            <td class="no-print text-center">
-              <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditAbsen('${r.id}', '${r.nama}', '${r.sholat}')"><i class="fa-solid fa-pen"></i></button>
-              <button class="btn btn-sm btn-outline-danger" onclick="hapusAbsen('${r.id}')"><i class="fa-solid fa-trash"></i></button>
-            </td>
-          </tr>`;
-        });
-        tbody.innerHTML = html;
-      } catch(e){}
-    }
-
-    function openEditAbsen(id, nama, sholat) {
-      document.getElementById('ea-id').value = id;
-      document.getElementById('ea-nama').value = nama;
-      document.getElementById('ea-sholat').value = sholat;
-      new bootstrap.Modal(document.getElementById('modalEditAbsen')).show();
-    }
-
-    async function handleSaveEditAbsen(e) {
-      e.preventDefault();
-      const id = document.getElementById('ea-id').value;
-      const sholat = document.getElementById('ea-sholat').value;
-      const res = await callApi('updateAbsensi', { idAbsen: id, sholat });
-      bootstrap.Modal.getInstance(document.getElementById('modalEditAbsen')).hide();
-      Swal.fire('Sukses', res.message, 'success');
-      loadRekapData();
-    }
-
-    function hapusAbsen(id) {
-      Swal.fire({ title: 'Hapus absensi ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
-        if (r.isConfirmed) {
-          const res = await callApi('deleteAbsensi', { idAbsen: id });
-          Swal.fire('Dihapus', res.message, 'success');
-          loadRekapData();
-        }
-      });
-    }
-
-    // ==========================================
-    // SHEETJS EXCEL .XLSX IMPORTER & EXPORTER
-    // ==========================================
-    function downloadTemplateSiswaXlsx() {
-      const data = [
-        ["nisn", "nama_siswa", "kelas", "jenis_kelamin", "no_hp_ortu"],
-        ["1001", "Ahmad Fatih Pratama", "X Farmasi", "L", "081234567890"],
-        ["1002", "Aisyah Zahra Khairunnisa", "X Keperawatan", "P", "081298765432"],
-        ["1003", "Bilal Al-Habasyi", "XI Farmasi", "L", "081345678901"],
-        ["1004", "Siti Nurhaliza", "XI Keperawatan", "P", "081211223344"]
-      ];
-      const ws = XLSX.utils.aoa_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Data_Siswa");
-      XLSX.writeFile(wb, "Template_Siswa_SMKBK_Tasikmalaya.xlsx");
-    }
-
-    function downloadTemplateGuruXlsx() {
-      const data = [
-        ["username", "password", "nama_lengkap", "role"],
-        ["ustadz_fahri", "pass123", "Ustadz Fahri S.Ag", "GURU"],
-        ["ustadzah_dewi", "pass123", "Ustadzah Dewi M.Pd", "GURU"],
-        ["admin_smkbk", "admin123", "Ustadz Farhan S.Kom", "ADMIN"]
-      ];
-      const ws = XLSX.utils.aoa_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Data_Guru");
-      XLSX.writeFile(wb, "Template_Guru_SMKBK_Tasikmalaya.xlsx");
-    }
-
-    function handleBulkImportSiswaXlsx(input) {
-      if (input.files.length === 0) return;
-      const file = input.files[0];
-      const reader = new FileReader();
-
-      reader.onload = async function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-          if (jsonData.length === 0) {
-            Swal.fire('File Kosong', 'Tidak ada data siswa ditemukan di file Excel.', 'warning');
-            return;
-          }
-
-          Swal.fire({ title: 'Mengimpor ' + jsonData.length + ' Siswa...', didOpen: () => Swal.showLoading() });
-          const res = await callApi('bulkImportSiswa', { data: jsonData });
-          input.value = '';
-          Swal.fire('Selesai', res.message, 'success');
-          loadSiswaData();
-        } catch(err) {
-          Swal.fire('Gagal Membaca Excel', err.message, 'error');
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    function handleBulkImportGuruXlsx(input) {
-      if (input.files.length === 0) return;
-      const file = input.files[0];
-      const reader = new FileReader();
-
-      reader.onload = async function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-          if (jsonData.length === 0) {
-            Swal.fire('File Kosong', 'Tidak ada data guru ditemukan di file Excel.', 'warning');
-            return;
-          }
-
-          Swal.fire({ title: 'Mengimpor ' + jsonData.length + ' Akun Guru...', didOpen: () => Swal.showLoading() });
-          const res = await callApi('bulkImportGuru', { data: jsonData });
-          input.value = '';
-          Swal.fire('Selesai', res.message, 'success');
-          loadGuruData();
-        } catch(err) {
-          Swal.fire('Gagal Membaca Excel', err.message, 'error');
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    function exportToExcel() {
-      const table = document.getElementById("table-rekap");
-      const wb = XLSX.utils.table_to_book(table, { sheet: "Rekap_Sholat" });
-      XLSX.writeFile(wb, "Rekap_Sholat_SMKBK_Tasikmalaya_" + new Date().toISOString().slice(0, 10) + ".xlsx");
-    }
-
-    // ==========================================
-    // INITIALIZATION & SWITCH VIEW
-    // ==========================================
-    window.addEventListener('load', () => {
-      updateClockAndPrayer();
-      loadKelasData();
-      try {
-        const savedUser = localStorage.getItem('esholat_session');
-        if (savedUser) {
-          currentUser = JSON.parse(savedUser);
-          setupAuthUI();
-          switchView('scanner');
-        } else {
-          switchView('landing');
-        }
-      } catch(e) {
-        switchView('landing');
-      }
-      loadStats();
-      ensureSiswaCacheLoaded();
-    });
-
-    async function loadStats() {
-      if (!gasEndpoint) return;
-      try {
-        const stats = await callApi('getStats');
-        if (stats) {
-          document.getElementById('stat-siswa').innerText = stats.totalSiswa || 0;
-          document.getElementById('stat-absen-hari-ini').innerText = stats.absenHariIni || 0;
-          document.getElementById('stat-guru').innerText = stats.totalGuru || 0;
-        }
-      } catch(e) {}
-    }
-
-    function switchView(viewName) {
-      if (isCameraRunning && viewName !== 'scanner') stopCamera();
-      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-      const target = document.getElementById('view-' + viewName);
-      if (target) {
-        target.classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      if (viewName === 'rekap') loadRekapData();
-      if (viewName === 'siswa') loadSiswaData();
-      if (viewName === 'naik-kelas') { loadKelasData(); loadSiswaForNaikKelas(); }
-      if (viewName === 'guru') loadGuruData();
-      if (viewName === 'kelas') loadKelasData();
-      if (viewName === 'cetak-kartu') generateCards();
-      if (viewName === 'landing') loadStats();
-      if (viewName === 'scanner') ensureSiswaCacheLoaded();
-    }
-
-    function setupAuthUI() {
-      if (currentUser) {
-        document.querySelectorAll('.auth-guest').forEach(el => el.classList.add('d-none'));
-        document.querySelectorAll('.auth-user').forEach(el => el.classList.remove('d-none'));
-        document.getElementById('user-display').innerText = currentUser.nama;
-        document.getElementById('badge-guru-scanner').innerText = 'Petugas: ' + currentUser.nama;
-        
-        if (currentUser.role === 'ADMIN') {
-          document.querySelectorAll('.auth-admin').forEach(el => el.classList.remove('d-none'));
-        } else {
-          document.querySelectorAll('.auth-admin').forEach(el => el.classList.add('d-none'));
-        }
-      } else {
-        document.querySelectorAll('.auth-guest').forEach(el => el.classList.remove('d-none'));
-        document.querySelectorAll('.auth-user').forEach(el => el.classList.add('d-none'));
-        document.querySelectorAll('.auth-admin').forEach(el => el.classList.add('d-none'));
-      }
-    }
-
-    async function handleLogin(e) {
-      e.preventDefault();
-      const u = document.getElementById('login-username').value;
-      const p = document.getElementById('login-password').value;
-      
-      Swal.fire({ title: 'Memverifikasi...', didOpen: () => Swal.showLoading() });
-      try {
-        const res = await callApi('login', { username: u, password: p });
-        if (res.success) {
-          currentUser = res.user;
-          localStorage.setItem('esholat_session', JSON.stringify(currentUser));
-          setupAuthUI();
-          Swal.fire('Berhasil!', 'Selamat bertugas, ' + currentUser.nama, 'success');
-          switchView('scanner');
-        } else {
-          Swal.fire('Gagal Login', res.message, 'error');
-        }
-      } catch(err) {
-        Swal.fire('Error', err.toString(), 'error');
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem('esholat_session');
-      currentUser = null;
-      setupAuthUI();
-      switchView('landing');
-      Swal.fire('Logout', 'Sesi Anda telah berakhir.', 'info');
-    }
-
-    // ==========================================
-    // SCANNER ENGINE
-    // ==========================================
-    function startNativeCamera() {
-      if (isCameraRunning) {
-        stopCamera();
-        return;
-      }
-
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(stream => {
-          stream.getTracks().forEach(t => t.stop());
-          html5QrCode = new Html5Qrcode("reader");
-          html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess)
-            .then(() => {
-              isCameraRunning = true;
-              document.getElementById('btn-toggle-camera').innerHTML = '<i class="fa-solid fa-stop me-1"></i>Tutup Kamera';
-              document.getElementById('btn-toggle-camera').classList.replace('btn-success', 'btn-danger');
-            });
-        })
-        .catch(() => {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Kamera Belum Diizinkan',
-            text: 'Klik izin kamera di bilah alamat browser Anda lalu pilih "Izinkan".'
-          });
-        });
-    }
-
-    function stopCamera() {
-      if (html5QrCode && isCameraRunning) {
-        html5QrCode.stop().then(() => {
-          isCameraRunning = false;
-          document.getElementById('btn-toggle-camera').innerHTML = '<i class="fa-solid fa-camera me-1"></i>Buka Kamera HP';
-          document.getElementById('btn-toggle-camera').classList.replace('btn-danger', 'btn-success');
-        });
-      }
-    }
-
-    function scanFromImage(input) {
-      if (input.files.length === 0) return;
-      const scanner = new Html5Qrcode("reader");
-      Swal.fire({ title: 'Membaca Foto...', didOpen: () => Swal.showLoading() });
-      scanner.scanFile(input.files[0], true)
-        .then(decodedText => { Swal.close(); onScanSuccess(decodedText); })
-        .catch(() => Swal.fire('Gagal', 'QR Code tidak terbaca dari foto.', 'error'));
-    }
-
-    let scanThrottle = false;
-    function onScanSuccess(decodedText) {
-      if (scanThrottle) return;
-      scanThrottle = true;
-      playBeep();
-      processAbsensi(decodedText);
-      setTimeout(() => { scanThrottle = false; }, 2500);
-    }
-
-    async function processAbsensi(nisn) {
-      const sholat = document.getElementById('scan-sholat').value;
-      const petugas = currentUser ? currentUser.nama : 'Guru Piket';
-      Swal.fire({ title: 'Mencatat...', text: 'NISN: ' + nisn, timer: 1500, didOpen: () => Swal.showLoading() });
-      try {
-        const res = await callApi('submitAbsensi', { nisn, jenis_sholat: sholat, petugas });
-        if (res.success) {
-          Swal.fire({ icon: 'success', title: 'Hadir!', text: res.message, timer: 1800, showConfirmButton: false });
-          addRecentLog(res.siswa.nama, res.siswa.kelas, sholat, res.siswa.waktu, res.siswa.petugas);
-        } else {
-          Swal.fire({ icon: res.isDuplicate ? 'warning' : 'error', title: 'Perhatian', text: res.message });
-        }
-      } catch(err) {
-        Swal.fire('Error', err.toString(), 'error');
-      }
-    }
-
-    function addRecentLog(nama, kelas, sholat, waktu, petugas) {
-      const list = document.getElementById('recent-scan-list');
-      if (list.innerHTML.includes('Belum ada')) list.innerHTML = '';
-      const li = document.createElement('li');
-      li.className = 'list-group-item d-flex justify-content-between align-items-center';
-      li.innerHTML = `<div><strong>${nama}</strong> <span class="badge bg-secondary ms-1">${kelas}</span> <small class="text-muted d-block">${petugas}</small></div>
-                      <span class="badge bg-success">${sholat} • ${waktu}</span>`;
-      list.prepend(li);
-    }
-
-    function playBeep() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.15);
-      } catch(e){}
-    }
-
-    // ==========================================
-    // KARTU SISWA CR80 DENGAN QR CODE BESAR (100px)
-    // ==========================================
-    async function generateCards() {
-      const container = document.getElementById('kartu-container');
-      container.innerHTML = '<div class="text-center w-100 py-4">Membuat kartu siswa dengan QR Code besar...</div>';
-      try {
-        const data = await callApi('getSiswa');
-        if (!Array.isArray(data) || data.length === 0) { 
-          container.innerHTML = '<div class="alert alert-warning w-100">Belum ada data siswa untuk dicetak kartunya.</div>'; 
-          return; 
-        }
-        container.innerHTML = '';
-        data.forEach(s => {
-          const card = document.createElement('div');
-          card.className = 'id-card-wrapper';
-          card.innerHTML = `
-            <div class="id-card-header d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="fw-bold text-success mb-0" style="font-size:10px; letter-spacing:0.3px;">KARTU ABSENSI SHOLAT</h6>
-                <span style="font-size:7.5px; color:#475569; font-weight:600;">SMK BHAKTI KENCANA CIAWI TASIKMALAYA</span>
-              </div>
-              <i class="fa-solid fa-mosque text-success" style="font-size:15px;"></i>
-            </div>
-            <div class="d-flex align-items-center justify-content-between mt-1">
-              <div style="font-size:10px; line-height: 1.3; max-width: 175px;">
-                <div class="fw-bold text-dark text-truncate mb-1" style="max-width: 170px; font-size:11px;">${s.nama_siswa}</div>
-                <div class="text-muted">NISN: <strong class="text-dark">${s.nisn}</strong></div>
-                <div class="text-muted">Kelas: <span class="badge bg-secondary" style="font-size:8.5px;">${s.kelas}</span></div>
-                <div class="mt-2">
-                  <span class="badge bg-success" style="font-size: 8px;">KARTU RESMI SISWA/SISWI</span>
-                </div>
-              </div>
-              <div class="qr-large-container" id="qrcode-${s.nisn}"></div>
-            </div>`;
-          container.appendChild(card);
-
-          new QRCode(document.getElementById('qrcode-' + s.nisn), {
-            text: String(s.nisn),
-            width: 100,
-            height: 100,
-            correctLevel: QRCode.CorrectLevel.H
-          });
-        });
-      } catch(e){}
-    }
-  </script>
-</body>
-</html>
+          documen

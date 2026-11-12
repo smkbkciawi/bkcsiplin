@@ -59,7 +59,7 @@
       transform: translateY(-3px);
     }
 
-    /* WIDGET WAKTU SHOLAT CIAWI TASIKMALAYA */
+    /* PRAYER TIMES BAR KEC. CIAWI TASIKMALAYA */
     .prayer-bar {
       background: #ffffff;
       border-radius: 1rem;
@@ -84,7 +84,7 @@
       transform: scale(1.05);
     }
 
-    /* AUTOCOMPLETE LIVE SEARCH SISWA */
+    /* AUTOCOMPLETE LIVE SEARCH */
     .autocomplete-box { position: relative; }
     .autocomplete-items {
       position: absolute;
@@ -139,9 +139,7 @@
       align-items: center;
       justify-content: center;
     }
-    .qr-large-container img {
-      display: block !important;
-    }
+    .qr-large-container img { display: block !important; }
 
     #reader {
       width: 100%;
@@ -162,7 +160,7 @@
 </head>
 <body>
 
-  <!-- MODAL KONFIGURASI URL APPS SCRIPT -->
+  <!-- MODAL KONFIGURASI CADANGAN -->
   <div class="modal fade" id="modalConfig" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -196,6 +194,7 @@
           <li class="nav-item auth-user d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('scanner')"><i class="fa-solid fa-qrcode me-1"></i>Scan Presensi</a></li>
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('rekap')"><i class="fa-solid fa-chart-column me-1"></i>Laporan Sholat</a></li>
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('siswa')"><i class="fa-solid fa-graduation-cap me-1"></i>Data Siswa</a></li>
+          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('naik-kelas')"><i class="fa-solid fa-angles-up me-1"></i>Naik Kelas</a></li>
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('kelas')"><i class="fa-solid fa-door-open me-1"></i>Kelola Kelas</a></li>
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('guru')"><i class="fa-solid fa-chalkboard-user me-1"></i>Data Guru</a></li>
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('cetak-kartu')"><i class="fa-solid fa-id-card me-1"></i>Cetak Kartu</a></li>
@@ -246,7 +245,7 @@
               <i class="fa-solid fa-circle-check me-1"></i>Sistem Presensi Sholat Digital
             </div>
             <h1 class="display-5 fw-bold mb-3">Tegakkan Sholat, Disiplinkan Generasi Siswa.</h1>
-            <p class="lead opacity-75 mb-4">Aplikasi absensi ibadah siswa berbasis kartu QR Code untuk jurusan <strong>Farmasi & Keperawatan</strong> SMK BK Ciawi, Kab. Tasikmalaya. Dilengkapi live search nama, filter laporan kalender, dan scanner responsif.</p>
+            <p class="lead opacity-75 mb-4">Aplikasi absensi ibadah siswa berbasis kartu QR Code untuk jurusan <strong>Farmasi & Keperawatan</strong> SMK BK Ciawi, Kab. Tasikmalaya. Dilengkapi manajemen naik kelas massal, live search, dan kalender rekapitulasi.</p>
             <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
               <button class="btn btn-warning btn-lg fw-bold px-4 shadow" onclick="switchView('login')">
                 <i class="fa-solid fa-qrcode me-2"></i>Mulai Absensi
@@ -392,8 +391,6 @@
           </div>
         </div>
         <div class="card-body p-4">
-          
-          <!-- FILTER BAR MULTI-MODE DENGAN KALENDER -->
           <div class="row g-3 mb-4 align-items-end">
             <div class="col-md-3">
               <label class="form-label small fw-semibold">Rentang Periode:</label>
@@ -407,13 +404,11 @@
               </select>
             </div>
 
-            <!-- Kalender Tanggal Tunggal -->
             <div class="col-md-3 d-none" id="box-single-date">
               <label class="form-label small fw-semibold"><i class="fa-solid fa-calendar-day me-1"></i>Pilih Tanggal:</label>
               <input type="date" id="filter-single-date" class="form-control" onchange="loadRekapData()">
             </div>
 
-            <!-- Kalender Rentang Tanggal -->
             <div class="col-md-4 d-none" id="box-range-date">
               <label class="form-label small fw-semibold"><i class="fa-solid fa-calendar-days me-1"></i>Dari - Sampai Tanggal:</label>
               <div class="input-group">
@@ -454,11 +449,16 @@
       </div>
     </div>
 
-    <!-- 5. VIEW DATA SISWA -->
+    <!-- 5. VIEW DATA SISWA DENGAN CHECKBOX BULK DELETE -->
     <div id="view-siswa" class="view-section">
       <div class="card shadow border-0 rounded-4">
         <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-graduation-cap me-2"></i>Data Siswa</h5>
+          <div class="d-flex align-items-center gap-2">
+            <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-graduation-cap me-2"></i>Data Siswa</h5>
+            <button id="btn-bulk-delete" class="btn btn-danger btn-sm d-none" onclick="handleBulkDeleteSelected()">
+              <i class="fa-solid fa-trash-can me-1"></i>Hapus Terpilih (<span id="count-selected">0</span>)
+            </button>
+          </div>
           <div class="d-flex flex-wrap gap-2">
             <button class="btn btn-primary btn-sm" onclick="openSiswaModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Siswa</button>
             <button class="btn btn-outline-success btn-sm" onclick="downloadTemplateSiswaXlsx()"><i class="fa-solid fa-file-excel me-1"></i>Unduh Template (.xlsx)</button>
@@ -473,6 +473,9 @@
             <table class="table table-striped align-middle">
               <thead class="table-light">
                 <tr>
+                  <th style="width: 40px;" class="text-center">
+                    <input type="checkbox" id="check-all-siswa" class="form-check-input" onchange="toggleSelectAllSiswa(this)">
+                  </th>
                   <th>NISN</th>
                   <th>Nama Siswa</th>
                   <th>Kelas</th>
@@ -483,7 +486,7 @@
                 </tr>
               </thead>
               <tbody id="siswa-tbody">
-                <tr><td colspan="7" class="text-center py-4">Memuat data siswa...</td></tr>
+                <tr><td colspan="8" class="text-center py-4">Memuat data siswa...</td></tr>
               </tbody>
             </table>
           </div>
@@ -491,7 +494,64 @@
       </div>
     </div>
 
-    <!-- 6. VIEW KELOLA MASTER KELAS -->
+    <!-- 6. VIEW KENAIKAN KELAS MASSAL -->
+    <div id="view-naik-kelas" class="view-section">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-white py-3 border-0">
+          <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-angles-up me-2"></i>Kenaikan Kelas Massal Siswa</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="alert alert-info border-0 rounded-3 small">
+            <i class="fa-solid fa-circle-info me-1"></i><strong>Informasi Kenaikan Kelas:</strong>
+            QR Code pada kartu siswa <strong>tidak perlu dicetak ulang</strong> saat naik kelas. QR Code menyimpan nomor NISN permanen yang otomatis membaca kelas terbaru dari sistem.
+          </div>
+
+          <div class="row g-3 mb-4 align-items-end bg-light p-3 rounded-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">1. Pilih Kelas Asal:</label>
+              <select id="nk-kelas-asal" class="form-select" onchange="loadSiswaForNaikKelas()">
+                <option value="">-- Pilih Kelas Asal --</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-semibold">2. Pilih Kelas Tujuan / Lulus:</label>
+              <select id="nk-kelas-tujuan" class="form-select">
+                <option value="">-- Pilih Kelas Tujuan --</option>
+                <option value="LULUS" class="fw-bold text-danger">★ LULUS / ALUMNI (Siswa Kelas XII) ★</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-primary w-100 fw-bold" onclick="executeNaikKelas()" style="background-color: var(--primary-teal);">
+                <i class="fa-solid fa-bolt me-1"></i>Proses Kenaikan Kelas
+              </button>
+            </div>
+          </div>
+
+          <h6 class="fw-bold text-muted border-bottom pb-2">Daftar Siswa di Kelas Terpilih (Centang yang naik kelas):</h6>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 40px;" class="text-center">
+                    <input type="checkbox" id="check-all-naik" class="form-check-input" checked onchange="toggleSelectAllNaik(this)">
+                  </th>
+                  <th>NISN</th>
+                  <th>Nama Lengkap Siswa</th>
+                  <th>Kelas Saat Ini</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="naik-kelas-tbody">
+                <tr><td colspan="5" class="text-center text-muted py-4">Silakan pilih kelas asal di atas terlebih dahulu.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. VIEW KELOLA MASTER KELAS -->
     <div id="view-kelas" class="view-section">
       <div class="row justify-content-center">
         <div class="col-md-8">
@@ -501,7 +561,7 @@
               <button class="btn btn-primary btn-sm" onclick="openAddKelasModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Kelas Baru</button>
             </div>
             <div class="card-body p-4">
-              <p class="text-muted small">Daftar kelas resmi SMK BK Ciawi. Menambahkan atau menghapus kelas di sini akan otomatis memperbarui seluruh pilihan kelas di menu Siswa dan Laporan.</p>
+              <p class="text-muted small">Daftar kelas resmi SMK BK Ciawi. Menambahkan atau menghapus kelas di sini akan otomatis memperbarui seluruh pilihan kelas di menu Siswa, Naik Kelas, dan Laporan.</p>
               <div class="table-responsive">
                 <table class="table table-hover align-middle">
                   <thead class="table-light">
@@ -522,7 +582,7 @@
       </div>
     </div>
 
-    <!-- 7. VIEW DATA GURU -->
+    <!-- 8. VIEW DATA GURU -->
     <div id="view-guru" class="view-section">
       <div class="card shadow border-0 rounded-4">
         <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -558,7 +618,7 @@
       </div>
     </div>
 
-    <!-- 8. VIEW CETAK KARTU SISWA CR80 DENGAN QR BESAR -->
+    <!-- 9. VIEW CETAK KARTU SISWA CR80 DENGAN QR BESAR -->
     <div id="view-cetak-kartu" class="view-section">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
@@ -662,7 +722,7 @@
     // ==============================================================
     const DEFAULT_GAS_URL = 'PASTE_URL_APPS_SCRIPT_ANDA_DISINI';
     
-    let gasEndpoint = localStorage.getItem('esholat_gas_url') || (DEFAULT_GAS_URL !== 'https://script.google.com/macros/s/AKfycby3YjsrTSC4VtDbhZUyCPkwrEi7UV8_CMbQhLKaqAxzz0UEYFUHuTU8P_7DV9D9qCJ9Bg/exec' ? DEFAULT_GAS_URL : '');
+    let gasEndpoint = localStorage.getItem('esholat_gas_url') || (DEFAULT_GAS_URL !== 'https://script.google.com/macros/s/AKfycbyL0tOT_gwgj1ZnigQoOwPpq1LAayXZQNIGO-qExIg8H304xmn39pP0YuXZxbd4eo5NGQ/exec' ? DEFAULT_GAS_URL : '');
 
     let currentUser = null;
     let html5QrCode = null;
@@ -699,6 +759,8 @@
           else if (action === 'getSiswa') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getSiswaList();
           else if (action === 'saveSiswa') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveSiswa(payload);
           else if (action === 'deleteSiswa') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).deleteSiswa(payload.nisn);
+          else if (action === 'bulkDeleteSiswa') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).bulkDeleteSiswa(payload.nisnList);
+          else if (action === 'bulkNaikKelas') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).bulkNaikKelas(payload);
           else if (action === 'bulkImportSiswa') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).bulkImportSiswa(payload.data);
           else if (action === 'getGuru') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getGuruUsersList();
           else if (action === 'saveGuru') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveGuruUser(payload);
@@ -752,15 +814,12 @@
       document.getElementById('live-clock').innerText = timeStr;
       document.getElementById('live-date').innerText = dateStr;
 
-      // Konversi menit harian
       const hour = now.getHours();
       const min = now.getMinutes();
       const timeVal = hour * 60 + min;
 
       document.querySelectorAll('.prayer-pill').forEach(el => el.classList.remove('active'));
 
-      // Jadwal Kemenag RI Kec. Ciawi, Tasikmalaya:
-      // Subuh: 04:06 (246) | Dhuha: 05:48 (348) | Dzuhur: 11:37 (697) | Ashar: 14:56 (896) | Maghrib: 17:49 (1069) | Isya: 19:01 (1141)
       let currentSholat = 'Dzuhur';
       if (timeVal >= 246 && timeVal < 348) {
         document.getElementById('pill-subuh').classList.add('active');
@@ -794,7 +853,7 @@
     setInterval(updateClockAndPrayer, 1000);
 
     // ==========================================
-    // FILTER RENTANG PERIODE KALENDER INTERAKTIF
+    // FILTER RENTANG PERIODE KALENDER
     // ==========================================
     function toggleFilterMode() {
       const mode = document.getElementById('filter-type').value;
@@ -804,7 +863,6 @@
       if (mode === 'PILIH_TANGGAL') {
         boxSingle.classList.remove('d-none');
         boxRange.classList.add('d-none');
-        // Default tanggal hari ini
         if (!document.getElementById('filter-single-date').value) {
           document.getElementById('filter-single-date').value = new Date().toISOString().slice(0, 10);
         }
@@ -812,8 +870,7 @@
         boxSingle.classList.add('d-none');
         boxRange.classList.remove('d-none');
         if (!document.getElementById('filter-start-date').value) {
-          const d = new Date();
-          d.setDate(d.getDate() - 7);
+          const d = new Date(); d.setDate(d.getDate() - 7);
           document.getElementById('filter-start-date').value = d.toISOString().slice(0, 10);
           document.getElementById('filter-end-date').value = new Date().toISOString().slice(0, 10);
         }
@@ -898,6 +955,225 @@
     }
 
     // ==========================================
+    // DATA SISWA (CRUD + CHECKBOX BULK DELETE)
+    // ==========================================
+    async function loadSiswaData() {
+      try {
+        siswaCache = await callApi('getSiswa');
+        const tbody = document.getElementById('siswa-tbody');
+        if (!Array.isArray(siswaCache) || siswaCache.length === 0) { 
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Belum ada siswa terdaftar.</td></tr>'; 
+          return; 
+        }
+        let html = '';
+        siswaCache.forEach(s => {
+          html += `<tr>
+            <td class="text-center">
+              <input type="checkbox" class="form-check-input check-item-siswa" value="${s.nisn}" onchange="updateBulkDeleteButton()">
+            </td>
+            <td><strong>${s.nisn}</strong></td>
+            <td>${s.nama_siswa}</td>
+            <td><span class="badge bg-secondary">${s.kelas}</span></td>
+            <td>${s.jenis_kelamin}</td>
+            <td>${s.no_hp_ortu || '-'}</td>
+            <td><span class="badge bg-success">${s.status}</span></td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="editSiswa('${s.nisn}')"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="hapusSiswa('${s.nisn}')"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+        document.getElementById('check-all-siswa').checked = false;
+        updateBulkDeleteButton();
+      } catch(e){}
+    }
+
+    function toggleSelectAllSiswa(master) {
+      document.querySelectorAll('.check-item-siswa').forEach(cb => {
+        cb.checked = master.checked;
+      });
+      updateBulkDeleteButton();
+    }
+
+    function updateBulkDeleteButton() {
+      const selected = document.querySelectorAll('.check-item-siswa:checked');
+      const btn = document.getElementById('btn-bulk-delete');
+      const countEl = document.getElementById('count-selected');
+
+      if (selected.length > 0) {
+        countEl.innerText = selected.length;
+        btn.classList.remove('d-none');
+      } else {
+        btn.classList.add('d-none');
+      }
+    }
+
+    function handleBulkDeleteSelected() {
+      const selected = Array.from(document.querySelectorAll('.check-item-siswa:checked')).map(cb => cb.value);
+      if (selected.length === 0) return;
+
+      Swal.fire({
+        title: `Hapus ${selected.length} Siswa Terpilih?`,
+        text: 'Data siswa yang dipilih akan dihapus secara permanen dari sistem.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: `Ya, Hapus ${selected.length} Siswa!`
+      }).then(async res => {
+        if (res.isConfirmed) {
+          Swal.fire({ title: 'Menghapus data...', didOpen: () => Swal.showLoading() });
+          try {
+            const r = await callApi('bulkDeleteSiswa', { nisnList: selected });
+            Swal.fire('Selesai', r.message, r.success ? 'success' : 'error');
+            loadSiswaData();
+          } catch(err) {
+            Swal.fire('Error', err.toString(), 'error');
+          }
+        }
+      });
+    }
+
+    function openSiswaModal() {
+      document.getElementById('form-siswa').reset();
+      document.getElementById('m-nisn').removeAttribute('readonly');
+      document.getElementById('modalSiswaTitle').innerText = 'Tambah Siswa Baru';
+      new bootstrap.Modal(document.getElementById('modalSiswa')).show();
+    }
+
+    function editSiswa(nisn) {
+      const s = siswaCache.find(x => String(x.nisn) === String(nisn));
+      if (!s) return;
+      document.getElementById('m-nisn').value = s.nisn;
+      document.getElementById('m-nisn').setAttribute('readonly', true);
+      document.getElementById('m-nama').value = s.nama_siswa;
+      document.getElementById('m-kelas').value = s.kelas;
+      document.getElementById('m-gender').value = s.jenis_kelamin;
+      document.getElementById('m-nohp').value = s.no_hp_ortu || '';
+      document.getElementById('modalSiswaTitle').innerText = 'Edit Siswa: ' + s.nisn;
+      new bootstrap.Modal(document.getElementById('modalSiswa')).show();
+    }
+
+    async function handleSaveSiswa(e) {
+      e.preventDefault();
+      const p = {
+        nisn: document.getElementById('m-nisn').value,
+        nama_siswa: document.getElementById('m-nama').value,
+        kelas: document.getElementById('m-kelas').value,
+        jenis_kelamin: document.getElementById('m-gender').value,
+        no_hp_ortu: document.getElementById('m-nohp').value
+      };
+      Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+      const res = await callApi('saveSiswa', p);
+      bootstrap.Modal.getInstance(document.getElementById('modalSiswa')).hide();
+      Swal.fire('Sukses', res.message, 'success');
+      loadSiswaData();
+    }
+
+    function hapusSiswa(nisn) {
+      Swal.fire({ title: 'Hapus data siswa ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
+        if (r.isConfirmed) {
+          const res = await callApi('deleteSiswa', { nisn });
+          Swal.fire('Dihapus', res.message, 'success');
+          loadSiswaData();
+        }
+      });
+    }
+
+    // ==========================================
+    // MODUL KENAIKAN KELAS MASSAL
+    // ==========================================
+    async function loadSiswaForNaikKelas() {
+      const kelasAsal = document.getElementById('nk-kelas-asal').value;
+      const tbody = document.getElementById('naik-kelas-tbody');
+
+      if (!kelasAsal) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Silakan pilih kelas asal di atas terlebih dahulu.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">Memuat siswa kelas ' + kelasAsal + '...</td></tr>';
+      await ensureSiswaCacheLoaded();
+
+      const filtered = siswaCache.filter(s => String(s.kelas).trim() === kelasAsal && String(s.status).toUpperCase() === 'AKTIF');
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Tidak ada siswa aktif ditemukan di kelas ' + kelasAsal + '.</td></tr>';
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(s => {
+        html += `<tr>
+          <td class="text-center">
+            <input type="checkbox" class="form-check-input check-naik-item" value="${s.nisn}" checked>
+          </td>
+          <td><strong>${s.nisn}</strong></td>
+          <td>${s.nama_siswa}</td>
+          <td><span class="badge bg-secondary">${s.kelas}</span></td>
+          <td><span class="badge bg-success">${s.status}</span></td>
+        </tr>`;
+      });
+
+      tbody.innerHTML = html;
+      document.getElementById('check-all-naik').checked = true;
+    }
+
+    function toggleSelectAllNaik(master) {
+      document.querySelectorAll('.check-naik-item').forEach(cb => cb.checked = master.checked);
+    }
+
+    function executeNaikKelas() {
+      const kelasAsal = document.getElementById('nk-kelas-asal').value;
+      const targetKelas = document.getElementById('nk-kelas-tujuan').value;
+      const selected = Array.from(document.querySelectorAll('.check-naik-item:checked')).map(cb => cb.value);
+
+      if (!kelasAsal) {
+        Swal.fire('Peringatan', 'Pilih kelas asal terlebih dahulu!', 'warning');
+        return;
+      }
+      if (!targetKelas) {
+        Swal.fire('Peringatan', 'Tentukan kelas tujuan atau pilih status Lulus!', 'warning');
+        return;
+      }
+      if (selected.length === 0) {
+        Swal.fire('Peringatan', 'Pilih minimal satu siswa yang akan diproses!', 'warning');
+        return;
+      }
+
+      const isLulus = targetKelas === 'LULUS';
+      const pesan = isLulus 
+        ? `Apakah Anda yakin ingin meluluskan <b>${selected.length} siswa</b> dari kelas <b>${kelasAsal}</b>? Status akan diubah menjadi Alumni.`
+        : `Apakah Anda yakin ingin menaikkan <b>${selected.length} siswa</b> dari <b>${kelasAsal}</b> ke <b>${targetKelas}</b>?`;
+
+      Swal.fire({
+        title: isLulus ? 'Konfirmasi Kelulusan' : 'Konfirmasi Kenaikan Kelas',
+        html: pesan + '<br><br><small class="text-success fw-bold">✓ Kartu QR siswa lama tetap berlaku, tidak perlu cetak ulang!</small>',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#0f766e',
+        confirmButtonText: 'Ya, Proses Sekarang!'
+      }).then(async res => {
+        if (res.isConfirmed) {
+          Swal.fire({ title: 'Memproses Kenaikan Kelas...', didOpen: () => Swal.showLoading() });
+          try {
+            const r = await callApi('bulkNaikKelas', {
+              nisnList: selected,
+              targetKelas: targetKelas,
+              isLulus: isLulus
+            });
+            Swal.fire('Selesai', r.message, r.success ? 'success' : 'error');
+            siswaCache = [];
+            loadSiswaForNaikKelas();
+            loadSiswaData();
+          } catch(err) {
+            Swal.fire('Error', err.toString(), 'error');
+          }
+        }
+      });
+    }
+
+    // ==========================================
     // MANAJEMEN MASTER KELAS DINAMIS
     // ==========================================
     async function loadKelasData() {
@@ -908,7 +1184,6 @@
         }
       } catch(e) {}
 
-      // Tabel Kelola Kelas
       const tbody = document.getElementById('kelas-tbody');
       if (tbody) {
         let html = '';
@@ -924,26 +1199,33 @@
         tbody.innerHTML = html;
       }
 
-      // Dropdown Filter Laporan
       const filterSelect = document.getElementById('filter-kelas');
       if (filterSelect) {
         const currentVal = filterSelect.value;
         let optHtml = '<option value="SEMUA">Semua Kelas</option>';
-        kelasCache.forEach(k => {
-          optHtml += `<option value="${k}">${k}</option>`;
-        });
+        kelasCache.forEach(k => optHtml += `<option value="${k}">${k}</option>`);
         filterSelect.innerHTML = optHtml;
         if (currentVal) filterSelect.value = currentVal;
       }
 
-      // Dropdown Modal Tambah Siswa
       const modalSelect = document.getElementById('m-kelas');
       if (modalSelect) {
         let optHtml = '';
-        kelasCache.forEach(k => {
-          optHtml += `<option value="${k}">${k}</option>`;
-        });
+        kelasCache.forEach(k => optHtml += `<option value="${k}">${k}</option>`);
         modalSelect.innerHTML = optHtml;
+      }
+
+      const asalSelect = document.getElementById('nk-kelas-asal');
+      const tujuanSelect = document.getElementById('nk-kelas-tujuan');
+      if (asalSelect && tujuanSelect) {
+        let asalHtml = '<option value="">-- Pilih Kelas Asal --</option>';
+        let tujuanHtml = '<option value="">-- Pilih Kelas Tujuan --</option><option value="LULUS" class="fw-bold text-danger">★ LULUS / ALUMNI (Siswa Kelas XII) ★</option>';
+        kelasCache.forEach(k => {
+          asalHtml += `<option value="${k}">${k}</option>`;
+          tujuanHtml += `<option value="${k}">${k}</option>`;
+        });
+        asalSelect.innerHTML = asalHtml;
+        tujuanSelect.innerHTML = tujuanHtml;
       }
     }
 
@@ -981,6 +1263,160 @@
           const res = await callApi('deleteKelas', { nama_kelas: nama });
           Swal.fire('Dihapus', res.message, 'success');
           loadKelasData();
+        }
+      });
+    }
+
+    // ==========================================
+    // DATA GURU (CRUD)
+    // ==========================================
+    async function loadGuruData() {
+      try {
+        guruCache = await callApi('getGuru');
+        const tbody = document.getElementById('guru-tbody');
+        if (!Array.isArray(guruCache) || guruCache.length === 0) { 
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Belum ada guru terdaftar.</td></tr>'; 
+          return; 
+        }
+        let html = '';
+        guruCache.forEach(g => {
+          html += `<tr>
+            <td><code>${g.user_id}</code></td><td><strong>${g.username}</strong></td><td>${g.nama_lengkap}</td>
+            <td><span class="badge ${g.role === 'ADMIN' ? 'bg-danger' : 'bg-info text-dark'}">${g.role}</span></td>
+            <td><span class="badge bg-success">${g.status}</span></td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="editGuru('${g.user_id}')"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="hapusGuru('${g.user_id}')"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+      } catch(e){}
+    }
+
+    function openGuruModal() {
+      document.getElementById('form-guru').reset();
+      document.getElementById('g-userid').value = '';
+      document.getElementById('modalGuruTitle').innerText = 'Tambah Guru Baru';
+      new bootstrap.Modal(document.getElementById('modalGuru')).show();
+    }
+
+    function editGuru(uid) {
+      const g = guruCache.find(x => String(x.user_id) === String(uid));
+      if (!g) return;
+      document.getElementById('g-userid').value = g.user_id;
+      document.getElementById('g-username').value = g.username;
+      document.getElementById('g-password').value = g.password;
+      document.getElementById('g-nama').value = g.nama_lengkap;
+      document.getElementById('g-role').value = g.role;
+      document.getElementById('modalGuruTitle').innerText = 'Edit Guru: ' + g.username;
+      new bootstrap.Modal(document.getElementById('modalGuru')).show();
+    }
+
+    async function handleSaveGuru(e) {
+      e.preventDefault();
+      const p = {
+        user_id: document.getElementById('g-userid').value,
+        username: document.getElementById('g-username').value,
+        password: document.getElementById('g-password').value,
+        nama_lengkap: document.getElementById('g-nama').value,
+        role: document.getElementById('g-role').value
+      };
+      Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+      const res = await callApi('saveGuru', p);
+      bootstrap.Modal.getInstance(document.getElementById('modalGuru')).hide();
+      Swal.fire('Sukses', res.message, 'success');
+      loadGuruData();
+    }
+
+    function hapusGuru(uid) {
+      Swal.fire({ title: 'Hapus pengguna ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
+        if (r.isConfirmed) {
+          const res = await callApi('deleteGuru', { userId: uid });
+          Swal.fire('Dihapus', res.message, 'success');
+          loadGuruData();
+        }
+      });
+    }
+
+    // ==========================================
+    // DATA REKAP & KALENDER
+    // ==========================================
+    async function loadRekapData() {
+      try {
+        const mode = document.getElementById('filter-type').value;
+        const fKelas = document.getElementById('filter-kelas').value;
+
+        let records = await callApi('getRekap', {}, { filterType: 'SEMUA', filterKelas: fKelas });
+        const tbody = document.getElementById('rekap-tbody');
+
+        if (!Array.isArray(records) || records.length === 0) { 
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada data kehadiran yang cocok.</td></tr>'; 
+          return; 
+        }
+
+        const todayStr = new Date().toISOString().slice(0, 10);
+        if (mode === 'HARIAN') {
+          records = records.filter(r => r.tanggal === todayStr);
+        } else if (mode === 'PILIH_TANGGAL') {
+          const selectedDate = document.getElementById('filter-single-date').value;
+          if (selectedDate) records = records.filter(r => r.tanggal === selectedDate);
+        } else if (mode === 'RENTANG_TANGGAL') {
+          const start = document.getElementById('filter-start-date').value;
+          const end = document.getElementById('filter-end-date').value;
+          if (start && end) records = records.filter(r => r.tanggal >= start && r.tanggal <= end);
+        } else if (mode === 'MINGGUAN') {
+          const d = new Date(); d.setDate(d.getDate() - 7);
+          const weekStart = d.toISOString().slice(0, 10);
+          records = records.filter(r => r.tanggal >= weekStart && r.tanggal <= todayStr);
+        } else if (mode === 'BULANAN') {
+          const monthStr = todayStr.slice(0, 7);
+          records = records.filter(r => r.tanggal.startsWith(monthStr));
+        }
+
+        if (records.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada catatan presensi pada tanggal/periode yang dipilih.</td></tr>';
+          return;
+        }
+
+        let html = '';
+        records.forEach(r => {
+          html += `<tr>
+            <td>${r.tanggal}</td><td>${r.waktu}</td><td>${r.nisn}</td><td>${r.nama}</td><td><span class="badge bg-secondary">${r.kelas}</span></td>
+            <td><span class="badge bg-success">${r.sholat}</span></td><td>${r.petugas}</td>
+            <td class="no-print text-center">
+              <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditAbsen('${r.id}', '${r.nama}', '${r.sholat}')"><i class="fa-solid fa-pen"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="hapusAbsen('${r.id}')"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+      } catch(e){}
+    }
+
+    function openEditAbsen(id, nama, sholat) {
+      document.getElementById('ea-id').value = id;
+      document.getElementById('ea-nama').value = nama;
+      document.getElementById('ea-sholat').value = sholat;
+      new bootstrap.Modal(document.getElementById('modalEditAbsen')).show();
+    }
+
+    async function handleSaveEditAbsen(e) {
+      e.preventDefault();
+      const id = document.getElementById('ea-id').value;
+      const sholat = document.getElementById('ea-sholat').value;
+      const res = await callApi('updateAbsensi', { idAbsen: id, sholat });
+      bootstrap.Modal.getInstance(document.getElementById('modalEditAbsen')).hide();
+      Swal.fire('Sukses', res.message, 'success');
+      loadRekapData();
+    }
+
+    function hapusAbsen(id) {
+      Swal.fire({ title: 'Hapus absensi ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
+        if (r.isConfirmed) {
+          const res = await callApi('deleteAbsensi', { idAbsen: id });
+          Swal.fire('Dihapus', res.message, 'success');
+          loadRekapData();
         }
       });
     }
@@ -1124,6 +1560,7 @@
 
       if (viewName === 'rekap') loadRekapData();
       if (viewName === 'siswa') loadSiswaData();
+      if (viewName === 'naik-kelas') { loadKelasData(); loadSiswaForNaikKelas(); }
       if (viewName === 'guru') loadGuruData();
       if (viewName === 'kelas') loadKelasData();
       if (viewName === 'cetak-kartu') generateCards();
@@ -1276,239 +1713,6 @@
     }
 
     // ==========================================
-    // DATA SISWA (CRUD)
-    // ==========================================
-    async function loadSiswaData() {
-      try {
-        siswaCache = await callApi('getSiswa');
-        const tbody = document.getElementById('siswa-tbody');
-        if (!Array.isArray(siswaCache) || siswaCache.length === 0) { 
-          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Belum ada siswa terdaftar.</td></tr>'; 
-          return; 
-        }
-        let html = '';
-        siswaCache.forEach(s => {
-          html += `<tr>
-            <td><strong>${s.nisn}</strong></td><td>${s.nama_siswa}</td><td><span class="badge bg-secondary">${s.kelas}</span></td>
-            <td>${s.jenis_kelamin}</td><td>${s.no_hp_ortu || '-'}</td><td><span class="badge bg-success">${s.status}</span></td>
-            <td class="text-center">
-              <button class="btn btn-sm btn-outline-warning me-1" onclick="editSiswa('${s.nisn}')"><i class="fa-solid fa-pen"></i></button>
-              <button class="btn btn-sm btn-outline-danger" onclick="hapusSiswa('${s.nisn}')"><i class="fa-solid fa-trash"></i></button>
-            </td>
-          </tr>`;
-        });
-        tbody.innerHTML = html;
-      } catch(e){}
-    }
-
-    function openSiswaModal() {
-      document.getElementById('form-siswa').reset();
-      document.getElementById('m-nisn').removeAttribute('readonly');
-      document.getElementById('modalSiswaTitle').innerText = 'Tambah Siswa Baru';
-      new bootstrap.Modal(document.getElementById('modalSiswa')).show();
-    }
-
-    function editSiswa(nisn) {
-      const s = siswaCache.find(x => String(x.nisn) === String(nisn));
-      if (!s) return;
-      document.getElementById('m-nisn').value = s.nisn;
-      document.getElementById('m-nisn').setAttribute('readonly', true);
-      document.getElementById('m-nama').value = s.nama_siswa;
-      document.getElementById('m-kelas').value = s.kelas;
-      document.getElementById('m-gender').value = s.jenis_kelamin;
-      document.getElementById('m-nohp').value = s.no_hp_ortu || '';
-      document.getElementById('modalSiswaTitle').innerText = 'Edit Siswa: ' + s.nisn;
-      new bootstrap.Modal(document.getElementById('modalSiswa')).show();
-    }
-
-    async function handleSaveSiswa(e) {
-      e.preventDefault();
-      const p = {
-        nisn: document.getElementById('m-nisn').value,
-        nama_siswa: document.getElementById('m-nama').value,
-        kelas: document.getElementById('m-kelas').value,
-        jenis_kelamin: document.getElementById('m-gender').value,
-        no_hp_ortu: document.getElementById('m-nohp').value
-      };
-      Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
-      const res = await callApi('saveSiswa', p);
-      bootstrap.Modal.getInstance(document.getElementById('modalSiswa')).hide();
-      Swal.fire('Sukses', res.message, 'success');
-      loadSiswaData();
-    }
-
-    function hapusSiswa(nisn) {
-      Swal.fire({ title: 'Hapus data siswa ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
-        if (r.isConfirmed) {
-          const res = await callApi('deleteSiswa', { nisn });
-          Swal.fire('Dihapus', res.message, 'success');
-          loadSiswaData();
-        }
-      });
-    }
-
-    // ==========================================
-    // DATA GURU (CRUD)
-    // ==========================================
-    async function loadGuruData() {
-      try {
-        guruCache = await callApi('getGuru');
-        const tbody = document.getElementById('guru-tbody');
-        if (!Array.isArray(guruCache) || guruCache.length === 0) { 
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Belum ada guru terdaftar.</td></tr>'; 
-          return; 
-        }
-        let html = '';
-        guruCache.forEach(g => {
-          html += `<tr>
-            <td><code>${g.user_id}</code></td><td><strong>${g.username}</strong></td><td>${g.nama_lengkap}</td>
-            <td><span class="badge ${g.role === 'ADMIN' ? 'bg-danger' : 'bg-info text-dark'}">${g.role}</span></td>
-            <td><span class="badge bg-success">${g.status}</span></td>
-            <td class="text-center">
-              <button class="btn btn-sm btn-outline-warning me-1" onclick="editGuru('${g.user_id}')"><i class="fa-solid fa-pen"></i></button>
-              <button class="btn btn-sm btn-outline-danger" onclick="hapusGuru('${g.user_id}')"><i class="fa-solid fa-trash"></i></button>
-            </td>
-          </tr>`;
-        });
-        tbody.innerHTML = html;
-      } catch(e){}
-    }
-
-    function openGuruModal() {
-      document.getElementById('form-guru').reset();
-      document.getElementById('g-userid').value = '';
-      document.getElementById('modalGuruTitle').innerText = 'Tambah Guru Baru';
-      new bootstrap.Modal(document.getElementById('modalGuru')).show();
-    }
-
-    function editGuru(uid) {
-      const g = guruCache.find(x => String(x.user_id) === String(uid));
-      if (!g) return;
-      document.getElementById('g-userid').value = g.user_id;
-      document.getElementById('g-username').value = g.username;
-      document.getElementById('g-password').value = g.password;
-      document.getElementById('g-nama').value = g.nama_lengkap;
-      document.getElementById('g-role').value = g.role;
-      document.getElementById('modalGuruTitle').innerText = 'Edit Guru: ' + g.username;
-      new bootstrap.Modal(document.getElementById('modalGuru')).show();
-    }
-
-    async function handleSaveGuru(e) {
-      e.preventDefault();
-      const p = {
-        user_id: document.getElementById('g-userid').value,
-        username: document.getElementById('g-username').value,
-        password: document.getElementById('g-password').value,
-        nama_lengkap: document.getElementById('g-nama').value,
-        role: document.getElementById('g-role').value
-      };
-      Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
-      const res = await callApi('saveGuru', p);
-      bootstrap.Modal.getInstance(document.getElementById('modalGuru')).hide();
-      Swal.fire('Sukses', res.message, 'success');
-      loadGuruData();
-    }
-
-    function hapusGuru(uid) {
-      Swal.fire({ title: 'Hapus pengguna ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
-        if (r.isConfirmed) {
-          const res = await callApi('deleteGuru', { userId: uid });
-          Swal.fire('Dihapus', res.message, 'success');
-          loadGuruData();
-        }
-      });
-    }
-
-    // ==========================================
-    // DATA REKAP DENGAN FILTER KALENDER TANGGAL
-    // ==========================================
-    async function loadRekapData() {
-      try {
-        const mode = document.getElementById('filter-type').value;
-        const fKelas = document.getElementById('filter-kelas').value;
-
-        // Ambil data dasar
-        let records = await callApi('getRekap', {}, { filterType: 'SEMUA', filterKelas: fKelas });
-        const tbody = document.getElementById('rekap-tbody');
-
-        if (!Array.isArray(records) || records.length === 0) { 
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada data kehadiran yang cocok.</td></tr>'; 
-          return; 
-        }
-
-        // Filter Frontend berdasarkan Tanggal Kalender
-        const todayStr = new Date().toISOString().slice(0, 10);
-        
-        if (mode === 'HARIAN') {
-          records = records.filter(r => r.tanggal === todayStr);
-        } else if (mode === 'PILIH_TANGGAL') {
-          const selectedDate = document.getElementById('filter-single-date').value;
-          if (selectedDate) {
-            records = records.filter(r => r.tanggal === selectedDate);
-          }
-        } else if (mode === 'RENTANG_TANGGAL') {
-          const start = document.getElementById('filter-start-date').value;
-          const end = document.getElementById('filter-end-date').value;
-          if (start && end) {
-            records = records.filter(r => r.tanggal >= start && r.tanggal <= end);
-          }
-        } else if (mode === 'MINGGUAN') {
-          const d = new Date(); d.setDate(d.getDate() - 7);
-          const weekStart = d.toISOString().slice(0, 10);
-          records = records.filter(r => r.tanggal >= weekStart && r.tanggal <= todayStr);
-        } else if (mode === 'BULANAN') {
-          const monthStr = todayStr.slice(0, 7);
-          records = records.filter(r => r.tanggal.startsWith(monthStr));
-        }
-
-        if (records.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada catatan presensi pada tanggal/periode yang dipilih.</td></tr>';
-          return;
-        }
-
-        let html = '';
-        records.forEach(r => {
-          html += `<tr>
-            <td>${r.tanggal}</td><td>${r.waktu}</td><td>${r.nisn}</td><td>${r.nama}</td><td><span class="badge bg-secondary">${r.kelas}</span></td>
-            <td><span class="badge bg-success">${r.sholat}</span></td><td>${r.petugas}</td>
-            <td class="no-print text-center">
-              <button class="btn btn-sm btn-outline-warning me-1" onclick="openEditAbsen('${r.id}', '${r.nama}', '${r.sholat}')"><i class="fa-solid fa-pen"></i></button>
-              <button class="btn btn-sm btn-outline-danger" onclick="hapusAbsen('${r.id}')"><i class="fa-solid fa-trash"></i></button>
-            </td>
-          </tr>`;
-        });
-        tbody.innerHTML = html;
-      } catch(e){}
-    }
-
-    function openEditAbsen(id, nama, sholat) {
-      document.getElementById('ea-id').value = id;
-      document.getElementById('ea-nama').value = nama;
-      document.getElementById('ea-sholat').value = sholat;
-      new bootstrap.Modal(document.getElementById('modalEditAbsen')).show();
-    }
-
-    async function handleSaveEditAbsen(e) {
-      e.preventDefault();
-      const id = document.getElementById('ea-id').value;
-      const sholat = document.getElementById('ea-sholat').value;
-      const res = await callApi('updateAbsensi', { idAbsen: id, sholat });
-      bootstrap.Modal.getInstance(document.getElementById('modalEditAbsen')).hide();
-      Swal.fire('Sukses', res.message, 'success');
-      loadRekapData();
-    }
-
-    function hapusAbsen(id) {
-      Swal.fire({ title: 'Hapus absensi ini?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async r => {
-        if (r.isConfirmed) {
-          const res = await callApi('deleteAbsensi', { idAbsen: id });
-          Swal.fire('Dihapus', res.message, 'success');
-          loadRekapData();
-        }
-      });
-    }
-
-    // ==========================================
     // KARTU SISWA CR80 DENGAN QR CODE BESAR (100px)
     // ==========================================
     async function generateCards() {
@@ -1528,7 +1732,7 @@
             <div class="id-card-header d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="fw-bold text-success mb-0" style="font-size:10px; letter-spacing:0.3px;">KARTU ABSENSI SHOLAT</h6>
-                <span style="font-size:7.5px; color:#475569; font-weight:600;">SMK BHAKTI KENCANA CIAWI</span>
+                <span style="font-size:7.5px; color:#475569; font-weight:600;">SMK BHAKTI KENCANA CIAWI TASIKMALAYA</span>
               </div>
               <i class="fa-solid fa-mosque text-success" style="font-size:15px;"></i>
             </div>
@@ -1545,7 +1749,6 @@
             </div>`;
           container.appendChild(card);
 
-          // Render QR Code 100px ekstra besar & tajam
           new QRCode(document.getElementById('qrcode-' + s.nisn), {
             text: String(s.nisn),
             width: 100,

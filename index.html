@@ -151,16 +151,16 @@
 </head>
 <body>
 
-  <!-- MODAL KONFIGURASI CADANGAN (OPTIONAL) -->
+  <!-- MODAL KONFIGURASI CADANGAN -->
   <div class="modal fade" id="modalConfig" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold"><i class="fa-solid fa-gear me-2"></i>Konfigurasi Manual URL Backend</h5>
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-gear me-2"></i>Konfigurasi URL Google Apps Script</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="small text-muted">URL Apps Script saat ini tersimpan otomatis. Anda bisa memperbaruinya di sini jika diperlukan:</p>
+          <p class="small text-muted">Masukkan Web App URL dari deployment Apps Script Anda (yang berakhiran <code>/exec</code>):</p>
           <input type="text" id="cfg-gas-url" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
           <button class="btn btn-primary w-100 mt-3" onclick="saveGasUrl()" style="background-color: var(--primary-teal); border:none;">Simpan URL</button>
         </div>
@@ -185,11 +185,12 @@
           <li class="nav-item auth-user d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('scanner')"><i class="fa-solid fa-qrcode me-1"></i>Scan Presensi</a></li>
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('rekap')"><i class="fa-solid fa-chart-column me-1"></i>Laporan Sholat</a></li>
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('siswa')"><i class="fa-solid fa-graduation-cap me-1"></i>Data Siswa</a></li>
+          <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('kelas')"><i class="fa-solid fa-door-open me-1"></i>Kelola Kelas</a></li>
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('guru')"><i class="fa-solid fa-chalkboard-user me-1"></i>Data Guru</a></li>
           <li class="nav-item auth-admin d-none"><a class="nav-link" href="javascript:void(0)" onclick="switchView('cetak-kartu')"><i class="fa-solid fa-id-card me-1"></i>Cetak Kartu</a></li>
           
           <li class="nav-item ms-lg-2">
-            <button class="btn btn-sm btn-outline-light" onclick="openConfigModal()" title="Pengaturan URL Backend"><i class="fa-solid fa-gear"></i></button>
+            <button class="btn btn-sm btn-outline-light" onclick="openConfigModal()" title="Pengaturan URL Spreadsheet"><i class="fa-solid fa-gear"></i></button>
           </li>
 
           <li class="nav-item auth-user d-none ms-lg-2">
@@ -232,7 +233,7 @@
               <i class="fa-solid fa-circle-check me-1"></i>Sistem Presensi Sholat Digital
             </div>
             <h1 class="display-5 fw-bold mb-3">Tegakkan Sholat, Disiplinkan Generasi Siswa.</h1>
-            <p class="lead opacity-75 mb-4">Aplikasi absensi ibadah berbasis kartu QR Code untuk SMK BK Ciawi. Dilengkapi pemindai kamera responsif, live search nama jika kartu tertinggal, serta manajemen data Excel.</p>
+            <p class="lead opacity-75 mb-4">Aplikasi absensi ibadah berbasis kartu QR Code untuk jurusan <strong>Farmasi & Keperawatan</strong> SMK BK Ciawi. Dilengkapi pemindai kamera responsif, live search nama jika kartu tertinggal, serta manajemen data Excel.</p>
             <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
               <button class="btn btn-warning btn-lg fw-bold px-4 shadow" onclick="switchView('login')">
                 <i class="fa-solid fa-qrcode me-2"></i>Mulai Absensi
@@ -346,7 +347,7 @@
                 <div class="autocomplete-box">
                   <div class="input-group">
                     <span class="input-group-text bg-light"><i class="fa-solid fa-user-tag"></i></span>
-                    <input type="text" id="input-search-siswa" class="form-control" placeholder="Ketik nama siswa (contoh: Ahmad, Fatih, Siti)..." autocomplete="off" oninput="handleSearchSiswa(this.value)">
+                    <input type="text" id="input-search-siswa" class="form-control" placeholder="Ketik nama siswa (contoh: Siti, Fatih, Ahmad)..." autocomplete="off" oninput="handleSearchSiswa(this.value)">
                     <button class="btn btn-outline-secondary" type="button" onclick="clearSearchSiswa()"><i class="fa-solid fa-xmark"></i></button>
                   </div>
                   <div id="search-results" class="autocomplete-items d-none"></div>
@@ -367,7 +368,7 @@
       </div>
     </div>
 
-    <!-- 4. VIEW REKAP PRESENSI -->
+    <!-- 4. VIEW REKAP PRESENSI (DROPDOWN KELAS DINAMIS) -->
     <div id="view-rekap" class="view-section">
       <div class="card shadow border-0 rounded-4">
         <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -390,14 +391,9 @@
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-semibold">Filter Kelas:</label>
+              <!-- Dropdown Kelas ini otomatis diisi dari Master Kelas -->
               <select id="filter-kelas" class="form-select" onchange="loadRekapData()">
                 <option value="SEMUA">Semua Kelas</option>
-                <option value="X-RPL">X-RPL</option>
-                <option value="X-TKJ">X-TKJ</option>
-                <option value="XI-RPL">XI-RPL</option>
-                <option value="XI-TKJ">XI-TKJ</option>
-                <option value="XII-RPL">XII-RPL</option>
-                <option value="XII-TKJ">XII-TKJ</option>
               </select>
             </div>
           </div>
@@ -425,7 +421,7 @@
       </div>
     </div>
 
-    <!-- 5. VIEW DATA SISWA (IMPORT EXCEL .XLSX ASLI) -->
+    <!-- 5. VIEW DATA SISWA -->
     <div id="view-siswa" class="view-section">
       <div class="card shadow border-0 rounded-4">
         <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -462,7 +458,38 @@
       </div>
     </div>
 
-    <!-- 6. VIEW DATA GURU (IMPORT EXCEL .XLSX ASLI) -->
+    <!-- 6. VIEW KELOLA MASTER KELAS (FITUR BARU) -->
+    <div id="view-kelas" class="view-section">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card shadow border-0 rounded-4">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+              <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-door-open me-2"></i>Manajemen Master Kelas</h5>
+              <button class="btn btn-primary btn-sm" onclick="openAddKelasModal()"><i class="fa-solid fa-plus me-1"></i>Tambah Kelas Baru</button>
+            </div>
+            <div class="card-body p-4">
+              <p class="text-muted small">Daftar kelas resmi SMK BK Ciawi. Menambahkan atau menghapus kelas di sini akan otomatis memperbarui seluruh pilihan kelas di menu Siswa dan Laporan.</p>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 70px;">No</th>
+                      <th>Nama Kelas</th>
+                      <th class="text-center" style="width: 120px;">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kelas-tbody">
+                    <tr><td colspan="3" class="text-center py-3">Memuat kelas...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. VIEW DATA GURU -->
     <div id="view-guru" class="view-section">
       <div class="card shadow border-0 rounded-4">
         <div class="card-header bg-white py-3 border-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -498,7 +525,7 @@
       </div>
     </div>
 
-    <!-- 7. VIEW CETAK KARTU SISWA CR80 -->
+    <!-- 8. VIEW CETAK KARTU SISWA CR80 -->
     <div id="view-cetak-kartu" class="view-section">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold text-success mb-0"><i class="fa-solid fa-id-card me-2"></i>Kartu Absensi Sholat Siap Cetak</h4>
@@ -512,7 +539,9 @@
 
   </div>
 
-  <!-- MODALS -->
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- MODAL FORM SISWA (KELAS PILIHAN DINAMIS) -->
   <div class="modal fade" id="modalSiswa" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -521,7 +550,12 @@
           <form id="form-siswa" onsubmit="handleSaveSiswa(event)">
             <div class="mb-3"><label class="form-label small fw-semibold">NISN</label><input type="text" id="m-nisn" class="form-control" required></div>
             <div class="mb-3"><label class="form-label small fw-semibold">Nama Lengkap</label><input type="text" id="m-nama" class="form-control" required></div>
-            <div class="mb-3"><label class="form-label small fw-semibold">Kelas</label><input type="text" id="m-kelas" class="form-control" placeholder="Contoh: X-RPL" required></div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Kelas</label>
+              <select id="m-kelas" class="form-select" required>
+                <!-- Opsi diisi otomatis dari master kelas -->
+              </select>
+            </div>
             <div class="mb-3"><label class="form-label small fw-semibold">Jenis Kelamin</label><select id="m-gender" class="form-select"><option value="L">Laki-laki (L)</option><option value="P">Perempuan (P)</option></select></div>
             <div class="mb-3"><label class="form-label small fw-semibold">No HP Ortu / WA</label><input type="text" id="m-nohp" class="form-control" placeholder="08xxxxxxxxxx"></div>
             <button type="submit" class="btn btn-primary w-100" style="background-color: var(--primary-teal);">Simpan Siswa</button>
@@ -531,6 +565,25 @@
     </div>
   </div>
 
+  <!-- MODAL TAMBAH KELAS BARU -->
+  <div class="modal fade" id="modalAddKelas" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title fw-bold">Tambah Kelas Baru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <form onsubmit="handleSaveKelas(event)">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Nama Kelas</label>
+              <input type="text" id="input-nama-kelas" class="form-control" placeholder="Contoh: X Farmasi 1, XII Keperawatan B" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" style="background-color: var(--primary-teal);">Simpan Kelas</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FORM GURU -->
   <div class="modal fade" id="modalGuru" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -549,6 +602,7 @@
     </div>
   </div>
 
+  <!-- MODAL EDIT CATATAN ABSEN -->
   <div class="modal fade" id="modalEditAbsen" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -576,9 +630,9 @@
   <script>
     // ==============================================================
     // KONFIGURASI PERMANEN BACKEND GOOGLE APPS SCRIPT
-    // GANTI TULISAN DI DALAM KUTIP INI DENGAN URL WEB APP ANDA SEKALI SAJA:
+    // GANTI TULISAN DI DALAM KUTIP INI DENGAN URL WEB APP ANDA:
     // ==============================================================
-    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwXgQrU-8HGPnHQFkkf-3hO6ZDBQjDXMK2qc5gK-3RZnMoC4Wp5xCn20VoNHXwfxaMR/exec';
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycby3YjsrTSC4VtDbhZUyCPkwrEi7UV8_CMbQhLKaqAxzz0UEYFUHuTU8P_7DV9D9qCJ9Bg/exec';
     
     let gasEndpoint = localStorage.getItem('esholat_gas_url') || (DEFAULT_GAS_URL !== 'PASTE_URL_APPS_SCRIPT_ANDA_DISINI' ? DEFAULT_GAS_URL : '');
 
@@ -586,6 +640,16 @@
     let html5QrCode = null;
     let isCameraRunning = false;
     let siswaCache = [], guruCache = [];
+    
+    // Default Kelas Resmi SMK BK Ciawi (Sebagai cadangan offline/fallback)
+    let kelasCache = [
+      'X Farmasi',
+      'X Keperawatan',
+      'XI Farmasi',
+      'XI Keperawatan',
+      'XII Farmasi',
+      'XII Keperawatan'
+    ];
 
     function openConfigModal() {
       document.getElementById('cfg-gas-url').value = gasEndpoint;
@@ -614,6 +678,9 @@
           else if (action === 'saveGuru') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveGuruUser(payload);
           else if (action === 'deleteGuru') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).deleteGuruUser(payload.userId);
           else if (action === 'bulkImportGuru') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).bulkImportGuru(payload.data);
+          else if (action === 'getKelas') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getKelasList();
+          else if (action === 'saveKelas') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveKelas(payload.nama_kelas);
+          else if (action === 'deleteKelas') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).deleteKelas(payload.nama_kelas);
           else if (action === 'getRekap') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getRekapData(params.filterType, params.filterKelas);
           else if (action === 'updateAbsensi') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).updateAbsensi(payload.idAbsen, payload.sholat);
           else if (action === 'deleteAbsensi') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).deleteAbsensi(payload.idAbsen);
@@ -649,7 +716,7 @@
     }
 
     // ==========================================
-    // JAM REALTIME & KALKULASI WAKTU SHOLAT
+    // JAM REALTIME & WAKTU SHOLAT
     // ==========================================
     function updateClockAndPrayer() {
       const now = new Date();
@@ -659,14 +726,12 @@
       document.getElementById('live-clock').innerText = timeStr;
       document.getElementById('live-date').innerText = dateStr;
 
-      // Estimasi jadwal sholat Ciawi, Bogor
       const hour = now.getHours();
       const min = now.getMinutes();
       const timeVal = hour * 60 + min;
 
       document.querySelectorAll('.prayer-pill').forEach(el => el.classList.remove('active'));
 
-      // 04:38 = 278, 06:20 = 380, 11:58 = 718, 15:15 = 915, 18:04 = 1084, 19:15 = 1155
       let currentSholat = 'Dzuhur';
       if (timeVal >= 278 && timeVal < 380) {
         document.getElementById('pill-subuh').classList.add('active');
@@ -688,7 +753,6 @@
         currentSholat = 'Isya';
       }
 
-      // Otomatis arahkan select box scanner ke waktu sholat terdekat jika user belum mengubahnya manual
       const scanSelect = document.getElementById('scan-sholat');
       if (scanSelect && !scanSelect.dataset.userChanged) {
         scanSelect.value = currentSholat;
@@ -698,17 +762,14 @@
     document.getElementById('scan-sholat').addEventListener('change', () => {
       document.getElementById('scan-sholat').dataset.userChanged = 'true';
     });
-
     setInterval(updateClockAndPrayer, 1000);
 
     // ==========================================
-    // AUTOCOMPLETE LIVE SEARCH NAMA SISWA
+    // AUTOCOMPLETE LIVE SEARCH SISWA
     // ==========================================
     async function ensureSiswaCacheLoaded() {
       if (siswaCache.length === 0) {
-        try {
-          siswaCache = await callApi('getSiswa');
-        } catch(e) {}
+        try { siswaCache = await callApi('getSiswa'); } catch(e) {}
       }
     }
 
@@ -727,7 +788,7 @@
       const filtered = siswaCache.filter(s => 
         String(s.nama_siswa || '').toLowerCase().includes(query) || 
         String(s.nisn || '').toLowerCase().includes(query)
-      ).slice(0, 8); // Tampilkan maksimal 8 hasil agar ringan
+      ).slice(0, 8);
 
       if (filtered.length === 0) {
         resultsContainer.innerHTML = '<div class="autocomplete-item text-muted text-center small py-3">Siswa tidak ditemukan</div>';
@@ -776,14 +837,103 @@
     }
 
     // ==========================================
+    // MANAJEMEN MASTER KELAS DINAMIS
+    // ==========================================
+    async function loadKelasData() {
+      try {
+        const res = await callApi('getKelas');
+        if (Array.isArray(res) && res.length > 0) {
+          kelasCache = res;
+        }
+      } catch(e) {}
+
+      // 1. Render Tabel di Menu Kelola Kelas
+      const tbody = document.getElementById('kelas-tbody');
+      if (tbody) {
+        let html = '';
+        kelasCache.forEach((k, idx) => {
+          html += `<tr>
+            <td><strong>${idx + 1}</strong></td>
+            <td><span class="badge bg-secondary fs-6">${k}</span></td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-danger" onclick="hapusKelas('${k}')"><i class="fa-solid fa-trash me-1"></i>Hapus</button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html;
+      }
+
+      // 2. Render Dropdown Filter di Menu Rekapitulasi
+      const filterSelect = document.getElementById('filter-kelas');
+      if (filterSelect) {
+        const currentVal = filterSelect.value;
+        let optHtml = '<option value="SEMUA">Semua Kelas</option>';
+        kelasCache.forEach(k => {
+          optHtml += `<option value="${k}">${k}</option>`;
+        });
+        filterSelect.innerHTML = optHtml;
+        if (currentVal) filterSelect.value = currentVal;
+      }
+
+      // 3. Render Dropdown Kelas di Modal Siswa
+      const modalSelect = document.getElementById('m-kelas');
+      if (modalSelect) {
+        let optHtml = '';
+        kelasCache.forEach(k => {
+          optHtml += `<option value="${k}">${k}</option>`;
+        });
+        modalSelect.innerHTML = optHtml;
+      }
+    }
+
+    function openAddKelasModal() {
+      document.getElementById('input-nama-kelas').value = '';
+      new bootstrap.Modal(document.getElementById('modalAddKelas')).show();
+    }
+
+    async function handleSaveKelas(e) {
+      e.preventDefault();
+      const nama = document.getElementById('input-nama-kelas').value.trim();
+      if (!nama) return;
+
+      Swal.fire({ title: 'Menyimpan Kelas...', didOpen: () => Swal.showLoading() });
+      try {
+        const res = await callApi('saveKelas', { nama_kelas: nama });
+        bootstrap.Modal.getInstance(document.getElementById('modalAddKelas')).hide();
+        Swal.fire(res.success ? 'Berhasil' : 'Perhatian', res.message, res.success ? 'success' : 'warning');
+        loadKelasData();
+      } catch(err) {
+        Swal.fire('Error', err.toString(), 'error');
+      }
+    }
+
+    function hapusKelas(nama) {
+      Swal.fire({
+        title: 'Hapus Kelas?',
+        text: 'Kelas "' + nama + '" akan dihapus dari daftar master kelas.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Ya, Hapus!'
+      }).then(async r => {
+        if (r.isConfirmed) {
+          const res = await callApi('deleteKelas', { nama_kelas: nama });
+          Swal.fire('Dihapus', res.message, 'success');
+          loadKelasData();
+        }
+      });
+    }
+
+    // ==========================================
     // SHEETJS EXCEL .XLSX IMPORTER & EXPORTER
     // ==========================================
     function downloadTemplateSiswaXlsx() {
       const data = [
         ["nisn", "nama_siswa", "kelas", "jenis_kelamin", "no_hp_ortu"],
-        ["1001", "Ahmad Fatih Pratama", "X-RPL", "L", "081234567890"],
-        ["1002", "Aisyah Zahra Khairunnisa", "X-RPL", "P", "081298765432"],
-        ["1003", "Bilal Al-Habasyi", "X-TKJ", "L", "081345678901"]
+        ["1001", "Ahmad Fatih Pratama", "X Farmasi", "L", "081234567890"],
+        ["1002", "Aisyah Zahra Khairunnisa", "X Keperawatan", "P", "081298765432"],
+        ["1003", "Bilal Al-Habasyi", "XI Farmasi", "L", "081345678901"],
+        ["1004", "Siti Nurhaliza", "XI Keperawatan", "P", "081211223344"]
       ];
       const ws = XLSX.utils.aoa_to_sheet(data);
       const wb = XLSX.utils.book_new();
@@ -873,6 +1023,7 @@
     // ==========================================
     window.addEventListener('load', () => {
       updateClockAndPrayer();
+      loadKelasData(); // Sinkronisasi otomatis master kelas
       try {
         const savedUser = localStorage.getItem('esholat_session');
         if (savedUser) {
@@ -913,6 +1064,7 @@
       if (viewName === 'rekap') loadRekapData();
       if (viewName === 'siswa') loadSiswaData();
       if (viewName === 'guru') loadGuruData();
+      if (viewName === 'kelas') loadKelasData();
       if (viewName === 'cetak-kartu') generateCards();
       if (viewName === 'landing') loadStats();
       if (viewName === 'scanner') ensureSiswaCacheLoaded();

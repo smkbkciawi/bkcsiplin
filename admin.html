@@ -67,7 +67,6 @@
   .scan-area.ok .uid{color:#6EE7B7}
   .scan-area.err .uid{color:#FCA5A5}
 
-  /* CHECK LIST UNTUK PILIHAN */
   .check-list{max-height:250px;overflow-y:auto;border:1.5px solid #E5EEFF;border-radius:8px;padding:.5rem}
   .check-item{display:flex;align-items:center;gap:.6rem;padding:.4rem .6rem;border-radius:6px;cursor:pointer}
   .check-item:hover{background:#F8FAFF}
@@ -101,11 +100,11 @@
   .kartu-item .info-kartu .kelas{font-size:7pt;color:#64748B;font-weight:600}
   .kartu-item .info-kartu .sekolah{font-size:6pt;color:#3B82F6;font-weight:700;margin-top:1.5mm;border-top:1px solid #E5EEFF;padding-top:1mm}
 
-  /* CSS CETAK: Hanya mencetak area laporan */
   @media print {
     body * { visibility: hidden; }
-    #page-laporan, #page-laporan * { visibility: visible; }
-    #page-laporan { position: absolute; left: 0; top: 0; width: 100%; }
+    #page-laporan-siswa, #page-laporan-siswa * { visibility: visible; }
+    #page-laporan-guru, #page-laporan-guru * { visibility: visible; }
+    #page-laporan-siswa, #page-laporan-guru { position: absolute; left: 0; top: 0; width: 100%; }
     .no-print, .no-print-laporan, .main-sidebar, .main-header, .main-footer { display: none !important; }
     .content-wrapper { margin: 0 !important; padding: 0 !important; }
     .card { border: none !important; box-shadow: none !important; }
@@ -120,7 +119,6 @@
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-  <!-- NAVBAR -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <ul class="navbar-nav">
       <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></li>
@@ -133,7 +131,6 @@
     </ul>
   </nav>
 
-  <!-- SIDEBAR -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="#" class="brand-link">
       <div class="ml-3 mr-2 d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3B82F6,#1E40AF);font-weight:900;color:#fff">BK</div>
@@ -149,7 +146,8 @@
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="tatib"><i class="nav-icon fas fa-book"></i><p>Tata Tertib</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="rfid"><i class="nav-icon fas fa-wifi"></i><p>Pendaftaran RFID</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="naikkelas"><i class="nav-icon fas fa-arrow-up"></i><p>Naik Kelas</p></a></li>
-          <li class="nav-item" data-role="all"><a href="#" class="nav-link" data-page="laporan-siswa"><i class="nav-icon fas fa-user-graduate"></i><p>Laporan Siswa</p></a></li> <li class="nav-item" data-role="all"><a href="#" class="nav-link" data-page="laporan-guru"><i class="nav-icon fas fa-chalkboard-teacher"></i><p>Laporan Guru</p></a></li>
+          <li class="nav-item" data-role="all"><a href="#" class="nav-link" data-page="laporan-siswa"><i class="nav-icon fas fa-user-graduate"></i><p>Laporan Siswa</p></a></li>
+          <li class="nav-item" data-role="all"><a href="#" class="nav-link" data-page="laporan-guru"><i class="nav-icon fas fa-chalkboard-teacher"></i><p>Laporan Guru</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="pengaturan"><i class="nav-icon fas fa-cog"></i><p>Pengaturan</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="kartu"><i class="nav-icon fas fa-id-card"></i><p>Cetak Kartu</p></a></li>
         </ul>
@@ -157,7 +155,6 @@
     </div>
   </aside>
 
-  <!-- CONTENT -->
   <div class="content-wrapper">
     <div class="content-header">
       <div class="container-fluid">
@@ -279,7 +276,6 @@
               <button data-tab="guru">Kartu Guru</button>
             </div>
             
-            <!-- TAB SISWA -->
             <div id="rfid-tab-siswa">
               <div class="row">
                 <div class="col-lg-5">
@@ -313,7 +309,6 @@
               </div>
             </div>
 
-            <!-- TAB GURU -->
             <div id="rfid-tab-guru" style="display:none">
               <div class="row">
                 <div class="col-lg-5">
@@ -386,8 +381,7 @@
         </div>
       </div>
 
-      <!-- LAPORAN -->
-            <!-- LAPORAN SISWA -->
+      <!-- LAPORAN SISWA -->
       <div id="page-laporan-siswa" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
@@ -415,7 +409,6 @@
               <table class="table table-sm table-hover" id="tabel-laporan"><thead id="lap-thead"></thead><tbody id="lap-tbody"></tbody></table>
             </div>
             
-            <!-- CHART LAPORAN -->
             <div class="row mt-4 print-laporan-only" id="chart-laporan-wrap" style="display:none">
               <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Analisis Kehadiran</h3></div><div class="card-body"><canvas id="chart-lap-hadir" style="max-height:200px"></canvas></div></div></div>
               <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Analisis Kedisiplinan</h3></div><div class="card-body"><canvas id="chart-lap-disiplin" style="max-height:200px"></canvas></div></div></div>
@@ -513,7 +506,7 @@
   </div>
 
   <footer class="main-footer text-sm">
-    <div class="float-right d-none d-sm-inline">v4.1</div>
+    <div class="float-right d-none d-sm-inline">v5.0</div>
     <strong>BKCSiplin</strong> &middot; SMK Bhakti Kencana Ciawi &middot; Yayasan Adhi Guna Kencana
   </footer>
 </div>
@@ -1063,16 +1056,12 @@ async function loadSiswaTanpaRfid() {
     const res = await apiCall('getSiswaTanpaRfid');
     const list = $('rfid-siswa-list'); const tbody = $('tbody-tanpa-rfid');
     if (!res.ok) { toast(res.message, true); return; }
-    
-    // Sisi Kanan: Tabel
     if (!res.data.length) { 
       list.innerHTML = '<div class="text-muted" style="font-size:.85rem;text-align:center;padding:1rem">Semua siswa sudah punya kartu ✓</div>'; 
       tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Semua siswa sudah punya kartu ✓</td></tr>'; 
       return; 
     }
     tbody.innerHTML = res.data.map(s => `<tr><td class="font-weight-bold">${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td></tr>`).join('');
-    
-    // Sisi Kiri: Check List
     list.innerHTML = res.data.map(s => `<label class="check-item"><input type="checkbox" class="rfid-siswa-cb" value="${escapeHtml(s.nis)}"><div class="info">${escapeHtml(s.nama)} <br><span>${escapeHtml(s.nis)} · ${escapeHtml(s.kelas)}</span></div></label>`).join('');
   } catch (err) { toast('Gagal memuat', true); }
 }
@@ -1081,14 +1070,12 @@ async function loadGuruTanpaRfid() {
     const res = await apiCall('getGuruTanpaRfid');
     const list = $('rfid-guru-list'); const tbody = $('tbody-tanpa-rfid-guru');
     if (!res.ok) { toast(res.message, true); return; }
-    
     if (!res.data.length) { 
       list.innerHTML = '<div class="text-muted" style="font-size:.85rem;text-align:center;padding:1rem">Semua guru sudah punya kartu ✓</div>'; 
       tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Semua guru sudah punya kartu ✓</td></tr>'; 
       return; 
     }
     tbody.innerHTML = res.data.map(g => `<tr><td class="font-weight-bold">${escapeHtml(g.id_guru)}</td><td>${escapeHtml(g.nama)}</td><td>${escapeHtml(g.role)}</td></tr>`).join('');
-    
     list.innerHTML = res.data.map(g => `<label class="check-item"><input type="checkbox" class="rfid-guru-cb" value="${escapeHtml(g.id_guru)}"><div class="info">${escapeHtml(g.nama)} <br><span>${escapeHtml(g.id_guru)} · ${escapeHtml(g.role)}</span></div></label>`).join('');
   } catch (err) { toast('Gagal memuat', true); }
 }
@@ -1101,7 +1088,6 @@ setInterval(() => {
   const pageRfid = $('page-rfid').style.display !== 'none';
   if (!pageRfid) return;
   const active = document.activeElement;
-  // Jangan fokus paksa jika user sedang mengisi sesuatu
   if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) return;
   fokusRfid();
 }, 600);
@@ -1133,8 +1119,7 @@ $('btn-save-rfid-siswa').addEventListener('click', async () => {
   if (!checkboxes.length) { toast('Centang minimal 1 siswa', true); return; }
   if (!state.scan.uid) { toast('Tap kartu dulu', true); return; }
   const btn = $('btn-save-rfid-siswa'); btn.disabled = true; btn.textContent = 'Menyimpan…';
-  
-  const nis = checkboxes[0].value; // Ambil yang pertama dicentang
+  const nis = checkboxes[0].value;
   try {
     const res = await apiCall('daftarRfid', { nis, uid_rfid: state.scan.uid }, true);
     if (!res.ok) { toast(res.message, true); return; }
@@ -1151,7 +1136,6 @@ $('btn-save-rfid-guru').addEventListener('click', async () => {
   if (!checkboxes.length) { toast('Centang minimal 1 guru', true); return; }
   if (!state.scan.uid) { toast('Tap kartu dulu', true); return; }
   const btn = $('btn-save-rfid-guru'); btn.disabled = true; btn.textContent = 'Menyimpan…';
-  
   const id_guru = checkboxes[0].value;
   try {
     const res = await apiCall('daftarRfidGuru', { id_guru, uid_rfid: state.scan.uid }, true);
@@ -1214,24 +1198,37 @@ $('btn-proses-lulus').addEventListener('click', async () => {
   finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-graduation-cap mr-1"></i> Luluskan Siswa Terpilih'; }
 });
 
-// LAPORAN + CHART + PDF
+// LAPORAN SISWA
 async function initLaporan() {
   if (!$('lap-dari').value) $('lap-dari').value = todayISO();
   if (!$('lap-sampai').value) $('lap-sampai').value = todayISO();
+  
+  document.querySelectorAll('#laporan-tabs button').forEach(btn => {
+    btn.removeEventListener('click', handleTabLaporan);
+    btn.addEventListener('click', handleTabLaporan);
+  });
+  $('lap-kelas').removeEventListener('change', loadLaporan);
+  $('lap-kelas').addEventListener('change', loadLaporan);
+  $('lap-dari').removeEventListener('change', loadLaporan);
+  $('lap-dari').addEventListener('change', loadLaporan);
+  $('lap-sampai').removeEventListener('change', loadLaporan);
+  $('lap-sampai').addEventListener('change', loadLaporan);
+  
+  $('btn-lap-cari').removeEventListener('click', loadLaporan);
+  $('btn-lap-cari').addEventListener('click', loadLaporan);
+  $('btn-lap-export').removeEventListener('click', exportLaporanSiswa);
+  $('btn-lap-export').addEventListener('click', exportLaporanSiswa);
+  $('btn-lap-print').removeEventListener('click', printLaporan);
+  $('btn-lap-print').addEventListener('click', printLaporan);
+
   await loadLaporan();
 }
-document.querySelectorAll('#laporan-tabs button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#laporan-tabs button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active'); state.laporanJenis = btn.dataset.jenis; loadLaporan();
-  });
-});
-// Filter kelas memicu pencarian otomatis saat diubah
-$('lap-kelas').addEventListener('change', loadLaporan);
-$('lap-dari').addEventListener('change', loadLaporan);
-$('lap-sampai').addEventListener('change', loadLaporan);
-
-$('btn-lap-cari').addEventListener('click', loadLaporan);
+function handleTabLaporan(e) {
+  document.querySelectorAll('#laporan-tabs button').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  state.laporanJenis = e.target.dataset.jenis;
+  loadLaporan();
+}
 async function loadLaporan() {
   const dari = $('lap-dari').value; const sampai = $('lap-sampai').value; const kelas = $('lap-kelas').value;
   if (!dari || !sampai) { toast('Isi tanggal', true); return; }
@@ -1250,7 +1247,6 @@ function renderLaporan() {
   if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
   else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
   else if (jenis === 'poin') { headers = ['Tanggal','NIS','Nama','Kelas','Jenis','Pasal','Deskripsi','Poin','Saldo','Petugas']; rows = data.map(r => [r.tanggal, r.nis, r.nama, r.kelas, r.jenis, r.pasal, r.deskripsi, r.poin, r.saldo_setelah, r.petugas]); }
-  else if (jenis === 'guru') { headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam']; rows = data.map(r => [r.tanggal, r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]); }
   else { headers = ['NIS','Nama','Kelas','JK','Status','UID RFID']; rows = data.map(r => [r.nis, r.nama, r.kelas, r.jk, r.status, r.uid_rfid]); }
 
   $('lap-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
@@ -1288,18 +1284,68 @@ function renderLaporanCharts() {
   $('ai-insight').innerHTML = insight;
 }
 
-$('btn-lap-export').addEventListener('click', () => {
+function exportLaporanSiswa() {
   if (!state.laporanData.length) { toast('Tidak ada data', true); return; }
   const jenis = state.laporanJenis; let headers = [], rows = [];
   if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
   else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
   else if (jenis === 'poin') { headers = ['Tanggal','NIS','Nama','Kelas','Jenis','Pasal','Deskripsi','Poin','Saldo','Petugas']; rows = state.laporanData.map(r => [r.tanggal, r.nis, r.nama, r.kelas, r.jenis, r.pasal, r.deskripsi, r.poin, r.saldo_setelah, r.petugas]); }
-  else if (jenis === 'guru') { headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam']; rows = state.laporanData.map(r => [r.tanggal, r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]); }
   else { headers = ['NIS','Nama','Kelas','JK','Status','UID RFID']; rows = state.laporanData.map(r => [r.nis, r.nama, r.kelas, r.jk, r.status, r.uid_rfid]); }
-
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, jenis); XLSX.writeFile(wb, `Laporan_${jenis}_${$('lap-dari').value}_sd_${$('lap-sampai').value}.xlsx`); toast('File Excel diunduh');
-});
-$('btn-lap-print').addEventListener('click', () => window.print());
+}
+function printLaporan() {
+  const target = document.getElementById('page-laporan-siswa').style.display !== 'none' ? document.getElementById('page-laporan-siswa') : document.getElementById('page-laporan-guru');
+  const originalTitle = document.title;
+  document.title = 'Laporan';
+  window.print();
+  document.title = originalTitle;
+}
+
+// LAPORAN GURU (EVENT LISTENER DI DALAM INIT)
+async function initLaporanGuru() {
+  if (!$('lap-guru-dari').value) $('lap-guru-dari').value = todayISO();
+  if (!$('lap-guru-sampai').value) $('lap-guru-sampai').value = todayISO();
+  
+  $('btn-lap-guru-cari').removeEventListener('click', loadLaporanGuru);
+  $('btn-lap-guru-cari').addEventListener('click', loadLaporanGuru);
+  $('lap-guru-dari').removeEventListener('change', loadLaporanGuru);
+  $('lap-guru-dari').addEventListener('change', loadLaporanGuru);
+  $('lap-guru-sampai').removeEventListener('change', loadLaporanGuru);
+  $('lap-guru-sampai').addEventListener('change', loadLaporanGuru);
+  $('btn-lap-guru-export').removeEventListener('click', exportLaporanGuru);
+  $('btn-lap-guru-export').addEventListener('click', exportLaporanGuru);
+  $('btn-lap-guru-print').removeEventListener('click', printLaporan);
+  $('btn-lap-guru-print').addEventListener('click', printLaporan);
+  
+  await loadLaporanGuru();
+}
+
+async function loadLaporanGuru() {
+  const dari = $('lap-guru-dari').value; const sampai = $('lap-guru-sampai').value;
+  if (!dari || !sampai) { toast('Isi tanggal', true); return; }
+  try {
+    const res = await apiCall('getLaporan', { jenis: 'guru', dari, sampai });
+    if (!res.ok) { toast(res.message, true); return; }
+    state.laporanData = res.data;
+    renderLaporanGuru();
+  } catch (err) { toast('Gagal memuat laporan guru', true); }
+}
+
+function renderLaporanGuru() {
+  const data = state.laporanData;
+  const headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam'];
+  const rows = data.map(r => [r.tanggal, r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
+  $('lap-guru-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+  if (!data.length) { $('lap-guru-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`; return; }
+  $('lap-guru-tbody').innerHTML = rows.map(r => '<tr>' + r.map(c => `<td>${escapeHtml(c)}</td>`).join('') + '</tr>').join('');
+}
+
+function exportLaporanGuru() {
+  if (!state.laporanData.length) { toast('Tidak ada data', true); return; }
+  const headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam'];
+  const rows = state.laporanData.map(r => [r.tanggal, r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Laporan_Guru'); XLSX.writeFile(wb, `Laporan_Guru_${$('lap-guru-dari').value}_sd_${$('lap-guru-sampai').value}.xlsx`); toast('File Excel diunduh');
+}
 
 // PENGATURAN
 async function loadPengaturan() {

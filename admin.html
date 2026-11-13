@@ -1,200 +1,4 @@
-const SPREADSHEET_ID = '1Qal6IxJ9_qqEP1Z-w49pcUsQPx94MmIK4W1ghOm7jPU'; // <-- GANTI ID ANDA
-const TZ = 'Asia/Jakarta';
-
-const SHEET = {
-  SISWA: 'MASTER_SISWA', GURU: 'MASTER_GURU', GERBANG: 'PRESENSI_GERBANG',
-  SHOLAT: 'PRESENSI_SHOLAT', POIN: 'POIN_BK', PENGATURAN: 'PENGATURAN',
-  TATA_TERTIB: 'MASTER_TATA_TERTIB', KELAS: 'MASTER_KELAS', AUDIT: 'LOG_AUDIT'
-};
-
-function doGet(e) { return handleRequest_(e); }
-function doPost(e) { return handleRequest_(e); }
-
-function handleRequest_(e) {
-  try {
-    let params = e.parameter || {};
-    if (e.postData && e.postData.contents) {
-      try { Object.assign(params, JSON.parse(e.postData.contents)); } catch(err){}
-    }
-    
-    const action = params.action || '';
-    const token = params.token || '';
-    let payload = params.payload || params; 
-    if (typeof payload === 'string') { try { payload = JSON.parse(payload); } catch(err){} }
-    
-    let result;
-    // AUTH & DASHBOARD
-    if (action === 'ping') result = { ok: true, message: 'pong' };
-    else if (action === 'login') result = login_(payload);
-    else if (action === 'logout') result = { ok: true, message: 'Logout' };
-    else if (action === 'heartbeat') result = heartbeat_(token);
-    else if (action === 'getDashboardSummary') result = getDashboardSummary_(token);
-    
-    // MASTER SISWA
-    else if (action === 'getMasterSiswa') result = getMasterSiswa_(token, payload);
-    else if (action === 'tambahSiswa') result = tambahSiswa_(token, payload);
-    else if (action === 'editSiswa') result = editSiswa_(token, payload);
-    else if (action === 'hapusSiswa') result = hapusSiswa_(token, payload);
-    else if (action === 'importSiswa') result = importSiswa_(token, payload);
-    
-    // MASTER KELAS
-    else if (action === 'getMasterKelas') result = getMasterKelas_(token);
-    else if (action === 'tambahKelas') result = tambahKelas_(token, payload);
-    else if (action === 'editKelas') result = editKelas_(token, payload);
-    else if (action === 'hapusKelas') result = hapusKelas_(token, payload);
-    
-    // TATA TERTIB
-    else if (action === 'getTataTertib') result = getTataTertib_(token);
-    else if (action === 'tambahTataTertib') result = tambahTataTertib_(token, payload);
-    else if (action === 'editTataTertib') result = editTataTertib_(token, payload);
-    else if (action === 'hapusTataTertib') result = hapusTataTertib_(token, payload);
-    else if (action === 'importTatib') result = importTatib_(token, payload);
-    
-    // FITUR BARU: KENAIKAN KELAS & KELULUSAN
-    else if (action === 'getSiswaPerKelas') result = getSiswaPerKelas_(token, payload);
-    else if (action === 'prosesNaikKelas') result = prosesNaikKelas_(token, payload);
-    else if (action === 'prosesLulus') result = prosesLulus_(token, payload);
-    
-    // LAINNYA
-    else if (action === 'getMasterGuruFull') result = getMasterGuruFull_(token);
-    else if (action === 'daftarRfid') result = daftarRfid_(token, payload);
-    else if (action === 'getSiswaTanpaRfid') result = getSiswaTanpaRfid_(token);
-    else if (action === 'getLaporan') result = getLaporan_(token, payload);
-    else if (action === 'getDaftarKelas') result = getDaftarKelas_(token);
-    else if (action === 'getKartuKelas') result = getKartuKelas_(token, payload);
-    else if (action === 'getPengaturan') result = getPengaturan_(token);
-    else if (action === 'simpanPengaturan') result = simpanPengaturan_(token, payload);
-    
-    else result = { ok: false, message: 'Aksi tidak dikenal: ' + action };
-
-    const callback = params.callback;
-    if (callback) {
-      return ContentService.createTextOutput(callback + '(' + JSON.stringify(result) + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
-    }
-    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ ok: false, message: 'Server error: ' + err.message })).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function readAll_(name) {
-  try {
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sh = ss.getSheetByName(name);
-    if (!sh) return [];
-    const values = sh.getDataRange().getValues();
-    if (values.length < 2) return [];
-    const headers = values[0].map(h => String(h).trim());
-    const rows = [];
-    for (let i = 1; i < values.length; i++) {
-      const obj = { _row: i + 1 };
-      for (let j = 0; j < headers.length; j++) obj[headers[j]] = values[i][j];
-      rows.push(obj);
-    }
-    return rows;
-  } catch(e) { return []; }
-}
-function appendRow_(name, obj) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID); const sh = ss.getSheetByName(name);
-  if(!sh) return;
-  const headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(h => String(h).trim());
-  sh.appendRow(headers.map(h => (obj[h] !== undefined ? obj[h] : '')));
-}
-function verifikasiToken_(token) {
-  if (!token) throw new Error('Token kosong.');
-  const raw = CacheService.getScriptCache().get('sess_' + token);
-  if (!raw) throw new Error('Sesi kedaluwarsa / tidak valid.');
-  return JSON.parse(raw);
-}
-function login_(p) {
-  const username = String(p.username || '').trim(); const pin = String(p.pin || '').trim(); const modul = String(p.modul || 'admin');
-  if (!username || !pin) return { ok: false, message: 'ID dan PIN wajib diisi.' };
-  const guru = readAll_(SHEET.GURU).find(g => (String(g.id_guru).trim() === username || String(g.nama).trim().toLowerCase() === username.toLowerCase()) && String(g.pin).trim() === pin && String(g.status).trim().toUpperCase() === 'AKTIF');
-  if (!guru) return { ok: false, message: 'ID/PIN salah atau akun nonaktif.' };
-  const token = Utilities.getUuid(); const sesi = { id_guru: guru.id_guru, nama: guru.nama, role: guru.role, modul: modul };
-  CacheService.getScriptCache().put('sess_' + token, JSON.stringify(sesi), 21600);
-  return { ok: true, message: 'Login berhasil', data: { token: token, nama: sesi.nama, role: sesi.role } };
-}
-function heartbeat_(token) { try { verifikasiToken_(token); return { ok: true, message: 'OK' }; } catch (e) { return { ok: false, message: e.message }; } }
-
-// FITUR BARU: KENAIKAN & KELULUSAN
-function getSiswaPerKelas_(token, p) {
-  try {
-    verifikasiToken_(token);
-    const list = readAll_(SHEET.SISWA).filter(s => s.kelas === p.kelas && String(s.status).toUpperCase() === 'AKTIF');
-    return { ok: true, data: list };
-  } catch (err) { return { ok: false, message: err.message }; }
-}
-function prosesNaikKelas_(token, p) {
-  try {
-    verifikasiToken_(token);
-    const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA);
-    const data = sh.getDataRange().getValues(); const headers = data[0];
-    const idxKelas = headers.indexOf('kelas');
-    let count = 0;
-    
-    p.nisList.forEach(nis => {
-      for (let i = 1; i < data.length; i++) {
-        if (String(data[i][0]).trim() === String(nis).trim()) {
-          data[i][idxKelas] = p.kelasTujuan;
-          sh.getRange(i+1, 1, 1, headers.length).setValues([data[i]]);
-          count++; break;
-        }
-      }
-    });
-    return { ok: true, message: count + ' siswa berhasil dinaikkan ke ' + p.kelasTujuan };
-  } catch (err) { return { ok: false, message: err.message }; }
-}
-function prosesLulus_(token, p) {
-  try {
-    verifikasiToken_(token);
-    const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA);
-    const data = sh.getDataRange().getValues(); const headers = data[0];
-    const idxStatus = headers.indexOf('status');
-    let count = 0;
-    
-    p.nisList.forEach(nis => {
-      for (let i = 1; i < data.length; i++) {
-        if (String(data[i][0]).trim() === String(nis).trim()) {
-          data[i][idxStatus] = 'LULUS';
-          sh.getRange(i+1, 1, 1, headers.length).setValues([data[i]]);
-          count++; break;
-        }
-      }
-    });
-    return { ok: true, message: count + ' siswa berhasil diluluskan.' };
-  } catch (err) { return { ok: false, message: err.message }; }
-}
-
-// MASTER KELAS
-function getMasterKelas_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.KELAS) }; } catch (err) { return { ok: false, message: err.message }; } }
-function tambahKelas_(token, p) { try { verifikasiToken_(token); appendRow_(SHEET.KELAS, { id_kelas: p.id_kelas, nama_kelas: p.nama_kelas, tingkat: p.tingkat, jurusan: p.jurusan, wali_kelas: p.wali_kelas, status: 'AKTIF' }); return { ok: true, message: 'Kelas ditambahkan.' }; } catch (err) { return { ok: false, message: err.message }; } }
-function editKelas_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.KELAS); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.id_kelas)){d[i][1]=p.nama_kelas;d[i][2]=p.tingkat;d[i][3]=p.jurusan;d[i][4]=p.wali_kelas;sh.getRange(i+1,1,1,d[0].length).setValues([d[i]]);break;}} return { ok: true, message: 'Kelas diperbarui.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function hapusKelas_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.KELAS); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.id_kelas)){sh.deleteRow(i+1);break;}} return { ok: true, message: 'Kelas dihapus.' }; } catch (e) { return { ok: false, message: e.message }; } }
-
-// TATA TERTIB
-function getTataTertib_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.TATA_TERTIB) }; } catch (err) { return { ok: false, message: err.message }; } }
-function tambahTataTertib_(token, p) { try { verifikasiToken_(token); appendRow_(SHEET.TATA_TERTIB, p); return { ok: true, message: 'Tatib ditambahkan.' }; } catch (err) { return { ok: false, message: err.message }; } }
-function editTataTertib_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.TATA_TERTIB); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.kode)){d[i][1]=p.kategori;d[i][2]=p.deskripsi;d[i][3]=p.poin;d[i][4]=p.jenis;sh.getRange(i+1,1,1,d[0].length).setValues([d[i]]);break;}} return { ok: true, message: 'Tatib diperbarui.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function hapusTataTertib_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.TATA_TERTIB); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.kode)){sh.deleteRow(i+1);break;}} return { ok: true, message: 'Tatib dihapus.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function importTatib_(token, p) { try { verifikasiToken_(token); (p.rows||[]).forEach(r => appendRow_(SHEET.TATA_TERTIB, r)); return { ok: true, message: 'Tatib diimport.' }; } catch (e) { return { ok: false, message: e.message }; } }
-
-// FUNGSI LAINNYA
-function getDashboardSummary_(token) { try { verifikasiToken_(token); return { ok: true, data: { info_box: { total_siswa: readAll_(SHEET.SISWA).length, hadir_gerbang: 0, partisipasi_sholat: 0, zona_merah: 0 }, top_pelanggaran: [], zonasi: {}, ketepatan: {}, rapor_kelas: [] } }; } catch (err) { return { ok: false, message: err.message }; } }
-function getMasterSiswa_(token, p) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.SISWA) }; } catch (err) { return { ok: false, message: err.message }; } }
-function tambahSiswa_(token, p) { try { verifikasiToken_(token); appendRow_(SHEET.SISWA, p); return { ok: true, message: 'Siswa ditambahkan.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function editSiswa_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.nis)){d[i][1]=p.nama;d[i][2]=p.kelas;d[i][3]=p.jk;d[i][4]=p.status;sh.getRange(i+1,1,1,d[0].length).setValues([d[i]]);break;}} return { ok: true, message: 'Siswa diperbarui.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function hapusSiswa_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.nis)){sh.deleteRow(i+1);break;}} return { ok: true, message: 'Siswa dihapus.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function importSiswa_(token, p) { try { verifikasiToken_(token); (p.rows||[]).forEach(r => appendRow_(SHEET.SISWA, r)); return { ok: true, message: 'Siswa diimport.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function getMasterGuruFull_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.GURU) }; } catch (e) { return { ok: false, message: e.message }; } }
-function daftarRfid_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.nis)){d[i][5]=String(p.uid_rfid).toUpperCase();sh.getRange(i+1,1,1,d[0].length).setValues([d[i]]);break;}} return { ok: true, message: 'Kartu didaftarkan.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function getSiswaTanpaRfid_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.SISWA).filter(s => !s.uid_rfid) }; } catch (e) { return { ok: false, message: e.message }; } }
-function getLaporan_(token, p) { try { verifikasiToken_(token); let d = []; if(p.jenis==='gerbang') d = readAll_(SHEET.GERBANG); else if(p.jenis==='poin') d = readAll_(SHEET.POIN); else d = readAll_(SHEET.SISWA); return { ok: true, data: d, ringkasan: {} }; } catch (e) { return { ok: false, message: e.message }; } }
-function getDaftarKelas_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.KELAS).map(k => k.nama_kelas) }; } catch (e) { return { ok: false, message: e.message }; } }
-function getKartuKelas_(token, p) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.SISWA).filter(s => s.kelas === p.kelas), sekolah: 'SMK Bhakti Kencana Ciawi' }; } catch (e) { return { ok: false, message: e.message }; } }
-function getPengaturan_(token) { try { verifikasiToken_(token); const m={}; readAll_(SHEET.PENGATURAN).forEach(r=>m[r.kunci]=r.nilai); return { ok: true, data: m }; } catch (e) { return { ok: false, message: e.message }; } }
-function simpanPengaturan_(token, p) { try { verifikasiToken_(token); const sh=SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.PENGATURAN); const d=sh.getDataRange().getValues(); for(let k in p){let f=false;for(let i=1;i<d.length;i++){if(d[i][0]===k){sh.getRange(i+1,2).setValue(p[k]);f=true;break;}} if(!f)sh.appendRow([k,p[k],'']);} return { ok: true, message: 'Disimpan.' }; } catch (e) { return { ok: false, message: e.message }; } }
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -233,11 +37,11 @@ function simpanPengaturan_(token, p) { try { verifikasiToken_(token); const sh=S
   .btn-danger-soft{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#B91C1C;border-radius:8px;font-weight:700;padding:.35rem .7rem;font-size:.78rem}
   .btn-danger-soft:hover{background:rgba(239,68,68,.2);color:#B91C1C}
   
-  /* MODAL LEBIH KECIL */
   .overlay-modal{position:fixed;inset:0;z-index:2000;background:rgba(3,7,20,.88);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
   .overlay-modal.show{display:flex}
   .overlay-box{width:100%;max-width:450px;background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:boxIn .3s ease;margin:auto;max-height:90vh;overflow-y:auto}
   .overlay-box.wide{max-width:650px}
+  .overlay-box.xwide{max-width:900px}
   @keyframes boxIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
   .overlay-box h2{font-size:1.15rem;text-align:center;color:#0A1533;font-weight:800;margin-bottom:.2rem}
   .overlay-box p.sub{text-align:center;font-size:.8rem;color:#64748B;margin-bottom:1rem}
@@ -246,7 +50,6 @@ function simpanPengaturan_(token, p) { try { verifikasiToken_(token); const sh=S
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
   .field{margin-bottom:.7rem}
   
-  /* FORM 2 KOLOM */
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
   .form-row.full{grid-template-columns:1fr}
   
@@ -270,7 +73,16 @@ function simpanPengaturan_(token, p) { try { verifikasiToken_(token); const sh=S
   @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
   .user-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .8rem;background:#F1F5F9;border-radius:999px;font-size:.82rem;font-weight:700;color:#1E3A8A}
   
-  /* GRID KARTU: 3 KE SAMPING (HORIZONTAL) */
+  .tabs-nav{display:flex;gap:.5rem;border-bottom:2px solid #E5EEFF;margin-bottom:1rem;flex-wrap:wrap}
+  .tabs-nav button{background:none;border:none;padding:.7rem 1.1rem;font-weight:700;color:#64748B;border-bottom:3px solid transparent;cursor:pointer;font-size:.9rem}
+  .tabs-nav button.active{color:#1E3A8A;border-bottom-color:#3B82F6}
+  .filter-bar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:end;margin-bottom:1rem}
+  .filter-bar .field{margin-bottom:0;min-width:140px}
+  .filter-bar label{font-size:.7rem}
+  .stat-mini{display:inline-flex;flex-direction:column;padding:.6rem .9rem;background:#F8FAFF;border:1px solid #E5EEFF;border-radius:10px;margin-right:.5rem;margin-bottom:.5rem;min-width:110px}
+  .stat-mini b{font-size:1.3rem;color:#1E3A8A;font-weight:800}
+  .stat-mini span{font-size:.7rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  
   .kartu-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:6mm;padding:5mm;justify-items:center}
   .kartu-item{border:1.5px dashed #94A3B8;border-radius:10px;padding:4mm;background:linear-gradient(135deg,#fff,#F8FAFF);display:grid;grid-template-columns:auto 1fr;gap:3mm;align-items:center;width:85.6mm;height:54mm;box-sizing:border-box}
   .kartu-item .qr-box{width:30mm;height:30mm;background:#fff;border-radius:6px;padding:1mm;display:grid;place-items:center}
@@ -759,9 +571,6 @@ const state = {
 };
 const $ = (id) => document.getElementById(id);
 
-// ============================================================
-// FUNGSI PEMBANTU & JSONP (ANTI-CORS)
-// ============================================================
 function toast(msg, isErr) {
   const el = document.createElement('div');
   el.className = 'toast-item' + (isErr ? ' err' : '');
@@ -805,9 +614,6 @@ function apiCall(action, payload = {}, isPost = false) {
   });
 }
 
-// ============================================================
-// LOGIN / LOGOUT
-// ============================================================
 async function doLogin() {
   const username = $('login-user').value.trim();
   const pin = $('login-pin').value.trim();
@@ -852,9 +658,6 @@ $('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') $('log
 $('btn-logout').addEventListener('click', () => { if (confirm('Logout?')) doLogout('Manual'); });
 $('btn-logout-now').addEventListener('click', () => doLogout('Idle'));
 
-// ============================================================
-// ROLE & IDLE
-// ============================================================
 function terapkanRoleMenu() {
   const role = state.role;
   document.querySelectorAll('.nav-sidebar .nav-item[data-role]').forEach(li => {
@@ -901,9 +704,6 @@ function mulaiHeartbeat() {
 }
 function hentikanHeartbeat() { clearInterval(state.heartbeatTimer); }
 
-// ============================================================
-// NAVIGASI & DASHBOARD
-// ============================================================
 document.querySelectorAll('.nav-sidebar .nav-link[data-page]').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
@@ -959,9 +759,6 @@ function renderCharts(d) {
   state.charts.ketepatan = new Chart($('chart-ketepatan'), { type: 'pie', data: { labels: ['Tepat Waktu','Terlambat','Tidak Hadir'], datasets: [{ data: [k.tepat_waktu||0, k.terlambat||0, k.tidak_hadir||0], backgroundColor: ['#10B981','#F59E0B','#EF4444'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
 }
 
-// ============================================================
-// MASTER SISWA
-// ============================================================
 async function loadSiswa() {
   $('footer-siswa').textContent = 'Memuat…';
   const q = $('filter-q').value.trim(); const kelas = $('filter-kelas').value;
@@ -1026,9 +823,6 @@ $('btn-tambah-siswa').addEventListener('click', openTambahSiswa);
 $('btn-simpan-siswa').addEventListener('click', simpanSiswa);
 $('btn-batal-siswa').addEventListener('click', () => $('modal-siswa').classList.remove('show'));
 
-// ============================================================
-// MASTER KELAS
-// ============================================================
 async function loadKelas() {
   try {
     const res = await apiCall('getMasterKelas');
@@ -1075,9 +869,6 @@ $('btn-tambah-kelas').addEventListener('click', openTambahKelas);
 $('btn-simpan-kelas').addEventListener('click', simpanKelas);
 $('btn-batal-kelas').addEventListener('click', () => $('modal-kelas').classList.remove('show'));
 
-// ============================================================
-// SCAN RFID
-// ============================================================
 function openScan(nis, siswa) {
   state.scan = { nis, nama: siswa?.nama || '', kelas: siswa?.kelas || '', uid: '', mode: 'row' };
   $('scan-uid').textContent = '—'; $('scan-nama').textContent = state.scan.nama; $('scan-kelas').textContent = (state.scan.kelas || '') + ' · NIS ' + nis; $('scan-hint').textContent = 'Dekatkan kartu ke reader.';
@@ -1112,9 +903,6 @@ async function simpanUid() {
 $('btn-save-uid').addEventListener('click', simpanUid);
 $('btn-cancel-scan').addEventListener('click', () => { $('modal-scan').classList.remove('show'); state.scan.uid = ''; });
 
-// ============================================================
-// MASTER GURU & TATIB
-// ============================================================
 async function loadGuru() {
   try {
     const res = await apiCall('getMasterGuruFull');
@@ -1183,9 +971,6 @@ $('btn-tambah-tatib').addEventListener('click', openTambahTatib);
 $('btn-simpan-tatib').addEventListener('click', simpanTatib);
 $('btn-batal-tatib').addEventListener('click', () => $('modal-tatib').classList.remove('show'));
 
-// ============================================================
-// NAIK KELAS
-// ============================================================
 async function initNaikKelas() {
   const [resKelas] = await Promise.all([apiCall('getDaftarKelas')]);
   if (resKelas.ok) {
@@ -1245,9 +1030,6 @@ async function prosesLulus() {
 }
 $('btn-proses-lulus').addEventListener('click', prosesLulus);
 
-// ============================================================
-// RFID MAIN & LAPORAN & LAINNYA
-// ============================================================
 async function loadRfid() {
   state.scan.mode = 'main'; state.scan.uid = ''; $('scan-uid-main').textContent = '—'; $('scan-hint-main').textContent = 'Dekatkan kartu ke reader USB.'; $('scan-area-main').classList.remove('ok','err','scanning'); $('scan-area-main').classList.add('scanning'); $('btn-save-rfid-main').disabled = true;
   await loadSiswaTanpaRfid(); setTimeout(() => fokusRfid(), 300);

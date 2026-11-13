@@ -17,7 +17,6 @@
   .user-pill{background:rgba(255,255,255,.2);padding:.4rem .8rem;border-radius:99px;font-size:.8rem;font-weight:700}
   .btn-logout{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:.4rem .8rem;cursor:pointer;font-weight:700;font-size:.8rem}
   
-  /* TAB NAVIGASI */
   .tabs-nav{display:flex;gap:.5rem;padding:1rem 1.5rem 0;max-width:1200px;margin:0 auto;width:100%;flex-wrap:wrap}
   .tabs-nav button{background:#fff;border:1px solid var(--border);padding:.7rem 1.2rem;border-radius:12px 12px 0 0;font-family:inherit;font-weight:700;font-size:.85rem;color:var(--muted);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:.5rem;border-bottom:none}
   .tabs-nav button.active{background:var(--emerald);color:#fff;border-color:var(--emerald)}
@@ -28,7 +27,6 @@
   .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;box-shadow:0 4px 20px rgba(5,150,105,.05);display:flex;flex-direction:column}
   .card h2{font-size:1rem;font-weight:800;color:var(--emerald);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
   
-  /* JADWAL */
   .jadwal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-bottom:1rem}
   .jadwal-item{background:#F0FDF4;border:1px solid var(--border);border-radius:12px;padding:.8rem .5rem;text-align:center;cursor:pointer;transition:.2s}
   .jadwal-item.active{background:var(--emerald);color:#fff;border-color:var(--emerald);transform:scale(1.05);box-shadow:0 6px 16px rgba(5,150,105,.3)}
@@ -38,7 +36,6 @@
   .jam-sekarang .waktu{font-size:3rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--emerald);line-height:1}
   .jam-sekarang .tanggal{font-size:.85rem;color:var(--muted);font-weight:600}
 
-  /* SCANNER */
   .scanner-box{background:#000;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:4/3;margin-bottom:1rem;display:flex;align-items:center;justify-content:center}
   .scanner-box video{width:100%;height:100%;object-fit:cover}
   .scanner-box .overlay{position:absolute;inset:0;border:3px solid var(--emerald-l);border-radius:16px;box-shadow:inset 0 0 0 40px rgba(0,0,0,.4);pointer-events:none}
@@ -81,7 +78,6 @@
   .btn-primary-full{background:var(--emerald);color:#fff}
   .btn-secondary-full{background:#F1F5F9;color:#475569;margin-top:.5rem}
 
-  /* TABEL */
   .table-wrap{overflow-x:auto;margin-top:1rem}
   table{width:100%;border-collapse:collapse;font-size:.85rem}
   th{background:#F0FDF4;padding:.6rem;text-align:left;font-weight:800;color:var(--emerald);border-bottom:2px solid var(--border)}
@@ -94,6 +90,13 @@
   @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
 
   .hidden{display:none!important}
+  .counter-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .8rem;border-radius:99px;background:var(--emerald);color:#fff;font-weight:800;font-size:.85rem;margin-bottom:1rem}
+  .riwayat-list{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:.4rem;margin-top:1rem}
+  .riwayat-item{display:flex;justify-content:space-between;align-items:center;padding:.6rem .9rem;border-radius:10px;background:#F0FDF4;border:1px solid var(--border);font-size:.85rem}
+  .riwayat-item .nama{font-weight:700}
+  .riwayat-item .waktu{font-size:.75rem;color:var(--muted);font-weight:600}
+  .riwayat-item.udzur{background:#FEF3C7;border-color:#FCD34D}
+
   @media(max-width:600px){.jadwal-grid{grid-template-columns:repeat(3,1fr)}.jam-sekarang .waktu{font-size:2.2rem}.tabs-nav button{font-size:.75rem;padding:.5rem .8rem}}
 </style>
 </head>
@@ -107,7 +110,6 @@
   </div>
 </header>
 
-<!-- TAB NAVIGASI (MUNCUL SETELAH LOGIN) -->
 <div class="tabs-nav hidden" id="tabs-nav">
   <button class="active" data-tab="scan"><i class="fas fa-qrcode"></i> Scan Presensi</button>
   <button data-tab="udzur" id="tab-btn-udzur"><i class="fas fa-hand-holding-heart"></i> Manajemen Udzur</button>
@@ -123,7 +125,7 @@
           <div class="waktu" id="clock-time">--:--:--</div>
           <div class="tanggal" id="clock-date">Memuat…</div>
         </div>
-        <h2><i class="fas fa-clock"></i> Jadwal Sholat — Ciawi</h2>
+        <h2><i class="fas fa-clock"></i> Pilih Waktu Sholat</h2>
         <div class="jadwal-grid">
           <div class="jadwal-item" data-waktu="SUBUH"><b>Subuh</b><span id="jam-subuh">--:--</span></div>
           <div class="jadwal-item active" data-waktu="DZUHUR"><b>Dzuhur</b><span id="jam-dzuhur">--:--</span></div>
@@ -137,6 +139,7 @@
     <div>
       <div class="card">
         <h2><i class="fas fa-qrcode"></i> Presensi Sholat</h2>
+        <div class="counter-badge" id="counter-badge"><i class="fas fa-users"></i> <span id="counter-text">0 siswa hadir hari ini</span></div>
         <div class="status-box" id="status-box"></div>
         <div class="scanner-box" id="scanner-container">
           <div class="scanner-placeholder" id="scanner-placeholder"><i class="fas fa-camera"></i><p style="margin-top:.5rem;font-size:.9rem">Kamera belum aktif</p></div>
@@ -153,6 +156,8 @@
           <button class="btn btn-outline btn-sm" id="btn-search"><i class="fas fa-search"></i></button>
         </div>
         <div class="result-box" id="result-box"></div>
+        <h2 style="margin-top:1rem"><i class="fas fa-history"></i> Siswa Sudah Scan</h2>
+        <div class="riwayat-list" id="riwayat-list"></div>
       </div>
     </div>
   </div>
@@ -195,7 +200,6 @@
   </div>
 </main>
 
-<!-- MODAL LOGIN -->
 <div class="modal-overlay show" id="modal-login">
   <div class="modal">
     <h2><i class="fas fa-mosque"></i> Login Petugas</h2>
@@ -206,7 +210,6 @@
   </div>
 </div>
 
-<!-- MODAL KONFIRMASI UDZUR -->
 <div class="modal-overlay" id="modal-konfirmasi-udzur">
   <div class="modal">
     <h2 style="color:var(--warn)"><i class="fas fa-hand-holding-heart"></i> Konfirmasi Udzur</h2>
@@ -223,6 +226,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9Qp
 const MODUL = 'sholat';
 const IDLE_TOTAL_MS = 10 * 60 * 1000;
 const IDLE_WARN_MS = 30 * 1000;
+const ANTI_DUP_MS = 1500;
 
 const state = {
   token: sessionStorage.getItem('bkc_sholat_token') || '',
@@ -230,7 +234,8 @@ const state = {
   role: sessionStorage.getItem('bkc_sholat_role') || '',
   waktuSholat: 'DZUHUR', stream: null, scanInterval: null, currentFacing: 'environment',
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null, searchTimer: null,
-  konfirmasiNis: null, konfirmasiWaktu: null
+  konfirmasiNis: null, konfirmasiWaktu: null, lastScanAt: 0, lastScanNis: '',
+  riwayat: [], voiceReady: false
 };
 const $ = (id) => document.getElementById(id);
 
@@ -250,6 +255,25 @@ function apiCall(action, payload = {}, isPost = false) {
     window[cbName] = function(res) { document.body.removeChild(script); delete window[cbName]; resolve(res); };
     script.src = url; script.onerror = () => reject(new Error('Gagal koneksi')); document.body.appendChild(script);
   });
+}
+
+// TTS
+function siapkanVoice() {
+  if (!('speechSynthesis' in window)) return;
+  const load = () => { if (speechSynthesis.getVoices().length) state.voiceReady = true; };
+  load(); speechSynthesis.onvoiceschanged = load;
+}
+siapkanVoice();
+function ucapkan(teks) {
+  if (!('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(teks);
+    u.lang = 'id-ID'; u.rate = 1.0; u.pitch = 1.0; u.volume = 1.0;
+    const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.toLowerCase().startsWith('id'));
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (_) {}
 }
 
 function tickClock() {
@@ -273,18 +297,13 @@ async function doLogin() {
     sessionStorage.setItem('bkc_sholat_token', state.token); sessionStorage.setItem('bkc_sholat_nama', state.nama); sessionStorage.setItem('bkc_sholat_role', state.role);
     $('modal-login').classList.remove('show'); $('user-label').textContent = state.nama; $('btn-logout').style.display = 'inline-block';
     $('tabs-nav').classList.remove('hidden');
-    // Tampilkan tab Udzur & Laporan hanya untuk role tertentu
     const roles = String(state.role).toUpperCase().split(',').map(r => r.trim());
     const bolehAdmin = roles.includes('SUPER_ADMIN') || roles.includes('GURU_BK') || roles.includes('KEPSEK');
-    if (!bolehAdmin) {
-      $('tab-btn-udzur').style.display = 'none';
-      $('tab-btn-laporan').style.display = 'none';
-    } else {
-      $('tab-btn-udzur').style.display = 'flex';
-      $('tab-btn-laporan').style.display = 'flex';
-    }
+    if (!bolehAdmin) { $('tab-btn-udzur').style.display = 'none'; $('tab-btn-laporan').style.display = 'none'; }
+    else { $('tab-btn-udzur').style.display = 'flex'; $('tab-btn-laporan').style.display = 'flex'; }
     toast('Selamat datang, ' + state.nama);
-    mulaiIdleWatcher(); mulaiHeartbeat(); loadJadwal(); loadUdzurAktif();
+    mulaiIdleWatcher(); mulaiHeartbeat(); loadJadwal(); loadUdzurAktif(); loadCounterHariIni();
+    if (state.riwayat.length === 0) renderRiwayat();
   } catch (err) { alertEl.textContent = 'Koneksi gagal.'; alertEl.style.display = 'block'; }
   finally { btn.disabled = false; btn.textContent = 'Masuk'; }
 }
@@ -334,7 +353,6 @@ document.querySelectorAll('.jadwal-item').forEach(item => {
   });
 });
 
-// KAMERA & SCAN
 async function startKamera() {
   try {
     state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.currentFacing } });
@@ -355,7 +373,14 @@ function scanQR() {
   const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const code = jsQR(imageData.data, imageData.width, imageData.height);
-  if (code) { const nis = code.data.trim(); if (nis.length >= 4) { stopKamera(); prosesPresensi(nis, 'QR'); } }
+  if (code) { 
+    const nis = code.data.trim(); 
+    if (nis.length >= 4) {
+      if (Date.now() - state.lastScanAt < ANTI_DUP_MS && state.lastScanNis === nis) return;
+      state.lastScanAt = Date.now(); state.lastScanNis = nis;
+      prosesPresensi(nis, 'QR');
+    }
+  }
 }
 $('btn-start-cam').addEventListener('click', startKamera);
 $('btn-stop-cam').addEventListener('click', stopKamera);
@@ -389,7 +414,6 @@ async function prosesPresensi(kode, sumber) {
     if (!res.ok) { statusBox.className = 'status-box show err'; statusBox.textContent = res.message; toast(res.message, true); return; }
     const d = res.data;
     if (d.status === 'UDZUR') {
-      // Konfirmasi jika siswa sudah bersih
       state.konfirmasiNis = kode; state.konfirmasiWaktu = state.waktuSholat;
       $('konfirmasi-nama').textContent = d.nama;
       $('modal-konfirmasi-udzur').classList.add('show');
@@ -397,15 +421,40 @@ async function prosesPresensi(kode, sumber) {
     } else {
       statusBox.className = 'status-box show ok'; statusBox.innerHTML = `<i class="fas fa-check-circle"></i> ${d.nama} — Hadir ${d.waktu}`;
       toast(d.nama + ' Hadir ' + d.waktu);
-      setTimeout(() => { statusBox.classList.remove('show'); }, 4000);
+      ucapkan(d.nama + ', hadir ' + d.waktu);
+      tambahRiwayat(d.nama, d.waktu, false);
+      loadCounterHariIni();
+      setTimeout(() => { statusBox.classList.remove('show'); }, 3000);
     }
   } catch (e) { statusBox.className = 'status-box show err'; statusBox.textContent = 'Koneksi gagal.'; toast('Koneksi gagal', true); }
+}
+
+function tambahRiwayat(nama, waktu, isUdzur) {
+  state.riwayat.unshift({ nama, waktu, udzur: isUdzur });
+  if (state.riwayat.length > 20) state.riwayat.pop();
+  renderRiwayat();
+}
+function renderRiwayat() {
+  const list = $('riwayat-list');
+  if (!state.riwayat.length) { list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.8rem;padding:1rem">Belum ada siswa scan hari ini.</div>'; return; }
+  const now = new Date(); const jam = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  list.innerHTML = state.riwayat.map(r => `<div class="riwayat-item ${r.udzur?'udzur':''}"><div><div class="nama">${r.nama}</div><div class="waktu">${r.waktu}</div></div><div class="waktu">${jam}</div></div>`).join('');
+}
+
+async function loadCounterHariIni() {
+  try {
+    const today = new Date(); const tgl = new Date(today.getTime() - today.getTimezoneOffset()*60000).toISOString().slice(0,10);
+    const res = await apiCall('getLaporan', { jenis: 'sholat', dari: tgl, sampai: tgl });
+    if (res.ok) {
+      const count = res.data.filter(r => r.status === 'HADIR').length;
+      $('counter-text').textContent = count + ' siswa hadir hari ini';
+    }
+  } catch (e) {}
 }
 
 // KONFIRMASI UDZUR
 $('btn-udzur-beres').addEventListener('click', async () => {
   $('modal-konfirmasi-udzur').classList.remove('show');
-  // Hapus udzur, lalu panggil presensi ulang
   try {
     const udzurList = await apiCall('getUdzurAktif');
     if (udzurList.ok) {
@@ -421,7 +470,7 @@ $('btn-udzur-belum').addEventListener('click', () => {
   toast('Siswa tetap dalam masa udzur.');
 });
 
-// TAB UDZUR
+// TAB NAV
 document.querySelectorAll('.tabs-nav button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tabs-nav button').forEach(b => b.classList.remove('active'));
@@ -488,8 +537,13 @@ $('btn-load-laporan').addEventListener('click', async () => {
   try {
     const res = await apiCall('getLaporan', { jenis: 'sholat', dari, sampai });
     if (!res.ok) { toast(res.message, true); return; }
-    const data = res.data.filter(r => String(r.tanggal) >= dari && String(r.tanggal) <= sampai);
+    const data = res.data;
     $('lap-table-wrap').style.display = 'block';
+    if (!data.length) {
+      $('lap-thead').innerHTML = '<tr><th>Info</th></tr>';
+      $('lap-tbody').innerHTML = '<tr><td style="text-align:center;color:var(--muted)">Tidak ada data pada rentang tanggal tersebut.</td></tr>';
+      return;
+    }
     if (mode === 'siswa') {
       const rekap = {};
       data.forEach(r => { if (!rekap[r.nis]) rekap[r.nis] = { nis: r.nis, nama: r.nama, hadir: 0, udzur: 0 }; if (r.status === 'HADIR') rekap[r.nis].hadir++; else if (r.status === 'UDZUR') rekap[r.nis].udzur++; });
@@ -499,7 +553,7 @@ $('btn-load-laporan').addEventListener('click', async () => {
       const rekap = {};
       data.forEach(r => { if (!rekap[r.tanggal]) rekap[r.tanggal] = { tanggal: r.tanggal, hadir: 0, udzur: 0 }; if (r.status === 'HADIR') rekap[r.tanggal].hadir++; else if (r.status === 'UDZUR') rekap[r.tanggal].udzur++; });
       $('lap-thead').innerHTML = '<tr><th>Tanggal</th><th>Hadir</th><th>Udzur</th></tr>';
-      $('lap-tbody').innerHTML = Object.values(rekap).map(r => `<tr><td>${r.tanggal}</td><td>${r.hadir}</td><td>${r.udzur}</td></tr>`).join('');
+      $('lap-tbody').innerHTML = Object.values(rekap).sort((a,b) => b.tanggal.localeCompare(a.tanggal)).map(r => `<tr><td>${r.tanggal}</td><td>${r.hadir}</td><td>${r.udzur}</td></tr>`).join('');
     }
   } catch (e) { toast('Gagal memuat laporan.', true); }
 });
@@ -509,7 +563,7 @@ if (state.token) {
   const roles = String(state.role).toUpperCase().split(',').map(r => r.trim());
   const bolehAdmin = roles.includes('SUPER_ADMIN') || roles.includes('GURU_BK') || roles.includes('KEPSEK');
   if (!bolehAdmin) { $('tab-btn-udzur').style.display = 'none'; $('tab-btn-laporan').style.display = 'none'; }
-  mulaiIdleWatcher(); mulaiHeartbeat(); loadJadwal(); loadUdzurAktif();
+  mulaiIdleWatcher(); mulaiHeartbeat(); loadJadwal(); loadUdzurAktif(); loadCounterHariIni();
 }
 </script>
 </body>

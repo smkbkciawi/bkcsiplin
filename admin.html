@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — BKCSiplin</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — BKCSiplin SMK Bhakti Kencana Ciawi</title>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/css/adminlte.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+
 <style>
   :root{--brand:#1E3A8A;--brand-2:#3B82F6;--success:#10B981;--warning:#F59E0B;--danger:#EF4444}
   body{font-family:'Inter',system-ui,sans-serif;background:#F4F7FA}
@@ -36,7 +38,7 @@
   .btn-ghost:hover{background:#F8FAFF;color:#1E3A8A}
   .btn-danger-soft{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#B91C1C;border-radius:8px;font-weight:700;padding:.35rem .7rem;font-size:.78rem}
   .btn-danger-soft:hover{background:rgba(239,68,68,.2);color:#B91C1C}
-  
+
   .overlay-modal{position:fixed;inset:0;z-index:2000;background:rgba(3,7,20,.88);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
   .overlay-modal.show{display:flex}
   .overlay-box{width:100%;max-width:450px;background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:boxIn .3s ease;margin:auto;max-height:90vh;overflow-y:auto}
@@ -49,14 +51,13 @@
   .field input,.field select,.field textarea{width:100%;padding:.6rem .8rem;border:1.5px solid #E5EEFF;border-radius:8px;font-size:.9rem;font-family:inherit;font-weight:600;outline:none;transition:.15s}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
   .field{margin-bottom:.7rem}
-  
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
   .form-row.full{grid-template-columns:1fr}
-  
+
   .btn-primary-full{width:100%;padding:.8rem;margin-top:.4rem;background:linear-gradient(135deg,var(--brand-2),#1D4ED8);color:#fff;border:none;border-radius:8px;font-family:inherit;font-weight:800;font-size:.9rem;cursor:pointer;transition:.15s;box-shadow:0 6px 20px rgba(59,130,246,.3)}
   .btn-primary-full:hover{transform:translateY(-1px);color:#fff}
   .btn-secondary-full{width:100%;padding:.75rem;margin-top:.4rem;background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:8px;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
-  
+
   .scan-area{background:linear-gradient(180deg,#0A1533,#102252);border-radius:12px;padding:1.2rem;text-align:center;color:#DBEAFE;margin-bottom:1rem}
   .scan-area .label{font-size:.65rem;letter-spacing:.25em;color:#93C5FD;font-weight:800}
   .scan-area .uid{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:#fff;margin:.4rem 0 .2rem;letter-spacing:.05em}
@@ -65,14 +66,14 @@
   @keyframes blink{50%{opacity:.4}}
   .scan-area.ok .uid{color:#6EE7B7}
   .scan-area.err .uid{color:#FCA5A5}
-  
+
   #rfid-input-hidden{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0}
   .toast-wrap{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:.5rem}
   .toast-item{padding:.7rem 1rem;border-radius:10px;font-size:.85rem;font-weight:700;background:#10B981;color:#fff;box-shadow:0 12px 40px rgba(16,185,129,.35);animation:toastIn .25s ease}
   .toast-item.err{background:#EF4444;box-shadow:0 12px 40px rgba(239,68,68,.35)}
   @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
   .user-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .8rem;background:#F1F5F9;border-radius:999px;font-size:.82rem;font-weight:700;color:#1E3A8A}
-  
+
   .tabs-nav{display:flex;gap:.5rem;border-bottom:2px solid #E5EEFF;margin-bottom:1rem;flex-wrap:wrap}
   .tabs-nav button{background:none;border:none;padding:.7rem 1.1rem;font-weight:700;color:#64748B;border-bottom:3px solid transparent;cursor:pointer;font-size:.9rem}
   .tabs-nav button.active{color:#1E3A8A;border-bottom-color:#3B82F6}
@@ -82,7 +83,7 @@
   .stat-mini{display:inline-flex;flex-direction:column;padding:.6rem .9rem;background:#F8FAFF;border:1px solid #E5EEFF;border-radius:10px;margin-right:.5rem;margin-bottom:.5rem;min-width:110px}
   .stat-mini b{font-size:1.3rem;color:#1E3A8A;font-weight:800}
   .stat-mini span{font-size:.7rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-  
+
   .kartu-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:6mm;padding:5mm;justify-items:center}
   .kartu-item{border:1.5px dashed #94A3B8;border-radius:10px;padding:4mm;background:linear-gradient(135deg,#fff,#F8FAFF);display:grid;grid-template-columns:auto 1fr;gap:3mm;align-items:center;width:85.6mm;height:54mm;box-sizing:border-box}
   .kartu-item .qr-box{width:30mm;height:30mm;background:#fff;border-radius:6px;padding:1mm;display:grid;place-items:center}
@@ -91,7 +92,7 @@
   .kartu-item .info-kartu .nis{font-family:monospace;font-size:8pt;color:#1E3A8A;font-weight:700;margin-bottom:1mm}
   .kartu-item .info-kartu .kelas{font-size:7pt;color:#64748B;font-weight:600}
   .kartu-item .info-kartu .sekolah{font-size:6pt;color:#3B82F6;font-weight:700;margin-top:1.5mm;border-top:1px solid #E5EEFF;padding-top:1mm}
-  
+
   @media print{
     body *{visibility:hidden}
     #print-area,#print-area *{visibility:visible}
@@ -114,6 +115,8 @@
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
+
+  <!-- NAVBAR -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <ul class="navbar-nav">
       <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></li>
@@ -125,6 +128,8 @@
       <li class="nav-item ml-2"><button class="btn btn-sm btn-outline-danger" id="btn-logout" style="display:none"><i class="fas fa-sign-out-alt"></i></button></li>
     </ul>
   </nav>
+
+  <!-- SIDEBAR -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="#" class="brand-link">
       <div class="ml-3 mr-2 d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3B82F6,#1E40AF);font-weight:900;color:#fff">BK</div>
@@ -147,6 +152,8 @@
       </nav>
     </div>
   </aside>
+
+  <!-- CONTENT -->
   <div class="content-wrapper">
     <div class="content-header">
       <div class="container-fluid">
@@ -156,7 +163,10 @@
         </div>
       </div>
     </div>
+
     <section class="content"><div class="container-fluid">
+
+      <!-- DASHBOARD -->
       <div id="page-dashboard">
         <div class="row">
           <div class="col-lg-3 col-md-6"><div class="small-box bg-primary"><div class="inner"><h3 id="info-total">—</h3><p>Total Siswa Aktif</p></div><div class="icon"><i class="fas fa-users"></i></div></div></div>
@@ -171,6 +181,8 @@
           <div class="col-lg-6"><div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-hourglass-half text-info mr-2"></i>Ketepatan Waktu Hari Ini</h3></div><div class="card-body"><canvas id="chart-ketepatan" style="max-height:280px"></canvas></div></div></div>
         </div>
       </div>
+
+      <!-- MASTER SISWA -->
       <div id="page-siswa" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
@@ -194,6 +206,8 @@
           <div class="card-footer text-muted small" id="footer-siswa">Memuat…</div>
         </div>
       </div>
+
+      <!-- MASTER KELAS -->
       <div id="page-kelas" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
@@ -210,6 +224,8 @@
           </div>
         </div>
       </div>
+
+      <!-- MASTER GURU -->
       <div id="page-guru" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
@@ -226,6 +242,8 @@
           </div>
         </div>
       </div>
+
+      <!-- TATA TERTIB -->
       <div id="page-tatib" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
@@ -246,40 +264,83 @@
           </div>
         </div>
       </div>
+
+      <!-- PENDAFTARAN RFID -->
       <div id="page-rfid" style="display:none">
-        <div class="row">
-          <div class="col-lg-5">
-            <div class="card">
-              <div class="card-header"><h3 class="card-title"><i class="fas fa-wifi text-primary mr-2"></i>Tap Kartu Dulu</h3></div>
-              <div class="card-body">
-                <div class="scan-area" id="scan-area-main">
-                  <div class="label">TAP KARTU SEKARANG</div>
-                  <div class="uid" id="scan-uid-main">—</div>
-                  <div class="hint" id="scan-hint-main">Dekatkan kartu ke reader USB.</div>
+        <div class="card">
+          <div class="card-header"><h3 class="card-title"><i class="fas fa-wifi text-primary mr-2"></i>Pendaftaran Kartu RFID</h3></div>
+          <div class="card-body">
+            <div class="tabs-nav" id="rfid-tabs">
+              <button class="active" data-tab="siswa">Kartu Siswa</button>
+              <button data-tab="guru">Kartu Guru</button>
+            </div>
+            
+            <!-- TAB SISWA -->
+            <div id="rfid-tab-siswa">
+              <div class="row">
+                <div class="col-lg-5">
+                  <div class="scan-area" id="scan-area-siswa">
+                    <div class="label">TAP KARTU SISWA</div>
+                    <div class="uid" id="scan-uid-siswa">—</div>
+                    <div class="hint" id="scan-hint-siswa">Dekatkan kartu ke reader USB.</div>
+                  </div>
+                  <div class="field"><label>Pilih Siswa</label><select id="rfid-siswa-select"><option value="">— Pilih siswa —</option></select></div>
+                  <button class="btn-primary-full" id="btn-save-rfid-siswa" disabled>Simpan Kartu Siswa</button>
                 </div>
-                <div class="field"><label>Pilih Siswa</label><select id="rfid-siswa-select"><option value="">— Pilih siswa —</option></select></div>
-                <button class="btn-primary-full" id="btn-save-rfid-main" disabled>Simpan Kartu</button>
+                <div class="col-lg-7">
+                  <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <h3 class="card-title mb-0">Siswa Belum Punya Kartu</h3>
+                      <button class="btn btn-sm btn-outline-primary" id="btn-refresh-tanpa-rfid"><i class="fas fa-sync"></i></button>
+                    </div>
+                    <div class="card-body p-0">
+                      <div class="table-responsive" style="max-height:400px;overflow-y:auto">
+                        <table class="table table-sm table-hover mb-0">
+                          <thead><tr><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
+                          <tbody id="tbody-tanpa-rfid"></tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="col-lg-7">
-            <div class="card">
-              <div class="card-header d-flex justify-content-between align-items-center">
-                <h3 class="card-title mb-0"><i class="fas fa-list text-primary mr-2"></i>Siswa Belum Punya Kartu</h3>
-                <button class="btn btn-sm btn-outline-primary" id="btn-refresh-tanpa-rfid"><i class="fas fa-sync"></i></button>
-              </div>
-              <div class="card-body p-0">
-                <div class="table-responsive" style="max-height:520px;overflow-y:auto">
-                  <table class="table table-sm table-hover mb-0">
-                    <thead><tr><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
-                    <tbody id="tbody-tanpa-rfid"></tbody>
-                  </table>
+
+            <!-- TAB GURU -->
+            <div id="rfid-tab-guru" style="display:none">
+              <div class="row">
+                <div class="col-lg-5">
+                  <div class="scan-area" id="scan-area-guru">
+                    <div class="label">TAP KARTU GURU</div>
+                    <div class="uid" id="scan-uid-guru">—</div>
+                    <div class="hint" id="scan-hint-guru">Dekatkan kartu ke reader USB.</div>
+                  </div>
+                  <div class="field"><label>Pilih Guru</label><select id="rfid-guru-select"><option value="">— Pilih guru —</option></select></div>
+                  <button class="btn-primary-full" id="btn-save-rfid-guru" disabled>Simpan Kartu Guru</button>
+                </div>
+                <div class="col-lg-7">
+                  <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <h3 class="card-title mb-0">Guru Belum Punya Kartu</h3>
+                      <button class="btn btn-sm btn-outline-primary" id="btn-refresh-tanpa-rfid-guru"><i class="fas fa-sync"></i></button>
+                    </div>
+                    <div class="card-body p-0">
+                      <div class="table-responsive" style="max-height:400px;overflow-y:auto">
+                        <table class="table table-sm table-hover mb-0">
+                          <thead><tr><th>ID</th><th>Nama</th><th>Role</th></tr></thead>
+                          <tbody id="tbody-tanpa-rfid-guru"></tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- NAIK KELAS -->
       <div id="page-naikkelas" style="display:none">
         <div class="row">
           <div class="col-lg-5">
@@ -314,14 +375,19 @@
           </div>
         </div>
       </div>
+
+      <!-- LAPORAN -->
       <div id="page-laporan" style="display:none">
         <div class="card">
-          <div class="card-header"><h3 class="card-title"><i class="fas fa-file-alt text-primary mr-2"></i>Laporan & Rekap</h3></div>
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
+            <h3 class="card-title mb-0"><i class="fas fa-file-alt text-primary mr-2"></i>Laporan & Rekap</h3>
+          </div>
           <div class="card-body">
             <div class="tabs-nav" id="laporan-tabs">
               <button class="active" data-jenis="gerbang">Presensi Gerbang</button>
               <button data-jenis="sholat">Presensi Sholat</button>
               <button data-jenis="poin">Pelanggaran / Poin</button>
+              <button data-jenis="guru">Rekap Guru</button>
               <button data-jenis="siswa">Data Siswa</button>
             </div>
             <div class="filter-bar">
@@ -333,12 +399,14 @@
               <div class="field"><button class="btn btn-secondary" id="btn-lap-print"><i class="fas fa-print mr-1"></i>Cetak</button></div>
             </div>
             <div id="lap-ringkasan" style="margin-bottom:1rem"></div>
-            <div class="table-responsive" style="max-height:520px;overflow-y:auto">
+            <div class="table-responsive" style="max-height:520px;overflow-y:auto" id="lap-table-wrap">
               <table class="table table-sm table-hover" id="tabel-laporan"><thead id="lap-thead"></thead><tbody id="lap-tbody"></tbody></table>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- PENGATURAN -->
       <div id="page-pengaturan" style="display:none">
         <div class="row">
           <div class="col-lg-6">
@@ -380,6 +448,8 @@
           <button class="btn btn-primary btn-lg" id="btn-simpan-pengaturan"><i class="fas fa-save mr-1"></i>Simpan Pengaturan</button>
         </div>
       </div>
+
+      <!-- CETAK KARTU -->
       <div id="page-kartu" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
@@ -396,41 +466,32 @@
           </div>
         </div>
       </div>
+
     </div></section>
   </div>
+
   <footer class="main-footer text-sm">
-    <div class="float-right d-none d-sm-inline">v2.1</div>
+    <div class="float-right d-none d-sm-inline">v3.0</div>
     <strong>BKCSiplin</strong> &middot; SMK Bhakti Kencana Ciawi &middot; Yayasan Adhi Guna Kencana
   </footer>
 </div>
+
 <input id="rfid-input-hidden" type="text" autocomplete="off" inputmode="none" aria-hidden="true">
+
+<!-- MODAL LOGIN -->
 <div class="overlay-modal show" id="modal-login">
   <div class="overlay-box">
-    <div class="text-center mb-3"><div style="width:50px;height:50px;border-radius:12px;margin:0 auto;background:linear-gradient(135deg,#3B82F6,#1E40AF);display:grid;place-items:center;font-weight:900;color:#fff;font-size:1.2rem">BK</div></div>
+    <div class="overlay-logo">BK</div>
     <h2>Login Admin</h2>
-    <p class="sub">Masukkan ID dan PIN Anda.</p>
-    <div id="login-alert" class="text-danger mb-2 text-center" style="display:none;font-size:.85rem;font-weight:700"></div>
-    <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="G002"></div>
-    <div class="field"><label>PIN</label><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric"></div>
+    <p class="sub">Super Admin, Kepala Sekolah, atau Guru BK.</p>
+    <div class="alert-box err" id="login-alert"></div>
+    <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="Contoh: G002" autocomplete="username"></div>
+    <div class="field"><label>PIN</label><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric" autocomplete="current-password"></div>
     <button class="btn-primary-full" id="btn-login">Masuk</button>
   </div>
 </div>
-<div class="overlay-modal" id="modal-scan">
-  <div class="overlay-box wide">
-    <div class="scan-area" id="scan-area">
-      <div class="label">TAP KARTU RFID</div>
-      <div class="uid" id="scan-uid">—</div>
-      <div class="hint" id="scan-hint">Dekatkan kartu ke reader.</div>
-    </div>
-    <div style="background:#F8FAFF;border-radius:12px;padding:1rem;margin-bottom:1rem">
-      <div style="font-size:.72rem;letter-spacing:.1em;color:#64748B;font-weight:800;text-transform:uppercase;margin-bottom:.3rem">Untuk Siswa</div>
-      <div style="font-weight:800;color:#0A1533;font-size:1.05rem" id="scan-nama">—</div>
-      <div style="font-size:.85rem;color:#64748B" id="scan-kelas">—</div>
-    </div>
-    <button class="btn-primary-full" id="btn-save-uid" disabled>Simpan Kartu</button>
-    <button class="btn-secondary-full" id="btn-cancel-scan">Batal</button>
-  </div>
-</div>
+
+<!-- MODAL SISWA -->
 <div class="overlay-modal" id="modal-siswa">
   <div class="overlay-box">
     <h2 id="modal-siswa-title">Tambah Siswa</h2>
@@ -451,6 +512,8 @@
     <button class="btn-secondary-full" id="btn-batal-siswa">Batal</button>
   </div>
 </div>
+
+<!-- MODAL KELAS -->
 <div class="overlay-modal" id="modal-kelas">
   <div class="overlay-box">
     <h2 id="modal-kelas-title">Tambah Kelas</h2>
@@ -468,6 +531,8 @@
     <button class="btn-secondary-full" id="btn-batal-kelas">Batal</button>
   </div>
 </div>
+
+<!-- MODAL GURU -->
 <div class="overlay-modal" id="modal-guru">
   <div class="overlay-box">
     <h2 id="modal-guru-title">Tambah Guru</h2>
@@ -480,16 +545,7 @@
     </div>
     <div class="field"><label>Nama Lengkap</label><input type="text" id="guru-nama" placeholder="Nama, S.Pd."></div>
     <div class="form-row">
-      <div class="field">
-  <label>Role (Bisa pilih lebih dari 1)</label>
-  <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:.3rem">
-    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-piket" value="GURU_PIKET"> Guru Piket</label>
-    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-bk" value="GURU_BK"> Guru BK</label>
-    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-admin" value="SUPER_ADMIN"> Super Admin</label>
-    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-kepsek" value="KEPSEK"> Kepsek</label>
-    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-wali" value="WALI_KELAS"> Wali Kelas</label>
-  </div>
-</div>
+      <div class="field"><label>Role</label><select id="guru-role"><option value="GURU_PIKET">GURU_PIKET</option><option value="GURU_BK">GURU_BK</option><option value="SUPER_ADMIN">SUPER_ADMIN</option><option value="KEPSEK">KEPSEK</option><option value="WALI_KELAS">WALI_KELAS</option></select></div>
       <div class="field"><label>Status</label><select id="guru-status"><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
     </div>
     <div class="field"><label>No HP</label><input type="text" id="guru-hp"></div>
@@ -497,6 +553,8 @@
     <button class="btn-secondary-full" id="btn-batal-guru">Batal</button>
   </div>
 </div>
+
+<!-- MODAL TATIB -->
 <div class="overlay-modal" id="modal-tatib">
   <div class="overlay-box">
     <h2 id="modal-tatib-title">Tambah Tata Tertib</h2>
@@ -516,6 +574,8 @@
     <button class="btn-secondary-full" id="btn-batal-tatib">Batal</button>
   </div>
 </div>
+
+<!-- MODAL IMPORT -->
 <div class="overlay-modal" id="modal-import">
   <div class="overlay-box wide">
     <h2 id="import-title">Import Excel</h2>
@@ -527,20 +587,8 @@
     <button class="btn-secondary-full" id="btn-cancel-import">Batal</button>
   </div>
 </div>
-<div class="overlay-modal" id="modal-surat">
-  <div class="overlay-box xwide">
-    <div class="no-print d-flex justify-content-between align-items-center mb-3">
-      <h2 style="margin:0">Cetak Surat Pelanggaran</h2>
-      <div style="display:flex;gap:.5rem">
-        <button class="btn btn-success btn-sm" id="btn-print-surat"><i class="fas fa-print mr-1"></i>Print</button>
-        <button class="btn btn-secondary btn-sm" id="btn-cancel-surat">Tutup</button>
-      </div>
-    </div>
-    <div id="surat-content" style="background:#fff;padding:20mm;border:1px solid #E5EEFF;border-radius:8px;color:#0A1533;font-size:11pt;line-height:1.5;max-height:70vh;overflow-y:auto">
-      <div id="surat-body">Memuat…</div>
-    </div>
-  </div>
-</div>
+
+<!-- MODAL IDLE -->
 <div class="overlay-modal" id="modal-idle">
   <div class="overlay-box" style="text-align:center">
     <h2>Sesi Akan Berakhir</h2>
@@ -550,7 +598,9 @@
     <button class="btn-secondary-full" id="btn-logout-now">Logout Sekarang</button>
   </div>
 </div>
+
 <div class="toast-wrap" id="toast-wrap"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/js/adminlte.min.js"></script>
@@ -563,7 +613,6 @@ const MODUL   = 'admin';
 const IDLE_TOTAL_MS = 10 * 60 * 1000;
 const IDLE_WARN_MS  = 30 * 1000;
 const HEARTBEAT_MS  = 2 * 60 * 1000;
-const ANTI_DUP_MS   = 4 * 1000;
 
 const state = {
   token: sessionStorage.getItem('bkc_admin_token') || '',
@@ -572,11 +621,10 @@ const state = {
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null,
   searchTimer: null,
   siswaList: [], guruList: [], tatibList: [], kelasList: [],
-  scan: { nis: '', nama: '', kelas: '', uid: '', mode: 'row' },
-  lastUidAt: 0, lastUid: '',
+  scan: { tipe: 'siswa', nis: '', id_guru: '', uid: '' },
   laporanJenis: 'gerbang', laporanData: [],
   importMode: 'siswa', importRows: [],
-  charts: {}, pengaturan: {}, naikKelasList: []
+  charts: {}, pengaturan: {}
 };
 const $ = (id) => document.getElementById(id);
 
@@ -611,11 +659,8 @@ function apiCall(action, payload = {}, isPost = false) {
     const cbName = 'jsonp_' + Math.round(100000 * Math.random());
     const script = document.createElement('script');
     let url = `${API_URL}?callback=${cbName}&action=${action}&token=${state.token}`;
-    if (isPost) {
-      url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`;
-    } else {
-      for (let k in payload) { if (payload[k]) url += `&${k}=${encodeURIComponent(payload[k])}`; }
-    }
+    if (isPost) { url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`; }
+    else { for (let k in payload) { if (payload[k]) url += `&${k}=${encodeURIComponent(payload[k])}`; } }
     window[cbName] = function(res) { document.body.removeChild(script); delete window[cbName]; resolve(res); };
     script.src = url;
     script.onerror = () => reject(new Error('Gagal koneksi ke server'));
@@ -627,29 +672,21 @@ async function doLogin() {
   const username = $('login-user').value.trim();
   const pin = $('login-pin').value.trim();
   const alertEl = $('login-alert');
-  alertEl.style.display = 'none';
-  if (!username || !pin) { alertEl.textContent = 'ID dan PIN wajib diisi.'; alertEl.style.display = 'block'; return; }
-  
+  alertEl.classList.remove('show');
+  if (!username || !pin) { alertEl.textContent = 'ID dan PIN wajib diisi.'; alertEl.classList.add('show'); return; }
   const btn = $('btn-login'); btn.disabled = true; btn.textContent = 'Memeriksa…';
   try {
     const res = await apiCall('login', { username, pin, modul: MODUL }, true);
-    if (!res.ok) { alertEl.textContent = res.message; alertEl.style.display = 'block'; return; }
-    
+    if (!res.ok) { alertEl.textContent = res.message; alertEl.classList.add('show'); return; }
     state.token = res.data.token; state.petugas = res.data.nama; state.role = res.data.role;
-    sessionStorage.setItem('bkc_admin_token', state.token);
-    sessionStorage.setItem('bkc_admin_nama', state.petugas);
-    sessionStorage.setItem('bkc_admin_role', state.role);
-    
+    sessionStorage.setItem('bkc_admin_token', state.token); sessionStorage.setItem('bkc_admin_nama', state.petugas); sessionStorage.setItem('bkc_admin_role', state.role);
     $('modal-login').classList.remove('show');
-    $('user-pill').style.display = 'inline-flex';
-    $('user-name').textContent = state.petugas + ' (' + state.role + ')';
-    $('sesi-pill').style.display = 'inline-flex';
-    $('btn-logout').style.display = 'inline-block';
-    
-    await loadMasterKelas(); // Muat kelas dulu sebelum render apapun
+    $('user-pill').style.display = 'inline-flex'; $('user-name').textContent = state.petugas + ' (' + state.role + ')';
+    $('sesi-pill').style.display = 'inline-flex'; $('btn-logout').style.display = 'inline-block';
+    await loadMasterKelas();
     terapkanRoleMenu(); mulaiIdleWatcher(); mulaiHeartbeat(); loadPage('dashboard');
     toast('Selamat datang, ' + state.petugas);
-  } catch (err) { alertEl.textContent = err.message; alertEl.style.display = 'block'; }
+  } catch (err) { alertEl.textContent = 'Tidak dapat menghubungi server.'; alertEl.classList.add('show'); }
   finally { btn.disabled = false; btn.textContent = 'Masuk'; }
 }
 
@@ -714,25 +751,19 @@ function mulaiHeartbeat() {
 }
 function hentikanHeartbeat() { clearInterval(state.heartbeatTimer); }
 
-// ==========================================
-// MASTER KELAS (DIPANGGIL SAAT LOGIN)
-// ==========================================
+// LOAD KELAS GLOBAL
 async function loadMasterKelas() {
   try {
     const res = await apiCall('getMasterKelas');
     if (res.ok) {
       state.kelasList = res.data;
       const opts = res.data.map(k => `<option value="${escapeHtml(k.nama_kelas)}">${escapeHtml(k.nama_kelas)}</option>`).join('');
-      
-      // Isi dropdown Kelas di Modal Siswa
-      $('siswa-kelas').innerHTML = '<option value="">— Pilih Kelas —</option>' + opts;
-      
-      // Isi dropdown Filter Kelas di Master Siswa
-      $('filter-kelas').innerHTML = '<option value="">Semua Kelas</option>' + opts;
-      
-      // Isi dropdown Filter di Laporan & Cetak Kartu (jika ada)
+      if ($('siswa-kelas')) $('siswa-kelas').innerHTML = '<option value="">— Pilih Kelas —</option>' + opts;
+      if ($('filter-kelas')) $('filter-kelas').innerHTML = '<option value="">Semua Kelas</option>' + opts;
       if ($('lap-kelas')) $('lap-kelas').innerHTML = '<option value="">Semua</option>' + opts;
       if ($('kartu-kelas')) $('kartu-kelas').innerHTML = '<option value="">— Pilih Kelas —</option>' + opts;
+      if ($('naik-kelas-asal')) $('naik-kelas-asal').innerHTML = '<option value="">— Pilih Kelas —</option>' + opts;
+      if ($('naik-kelas-tujuan')) $('naik-kelas-tujuan').innerHTML = '<option value="">— Pilih Kelas Tujuan —</option>' + opts;
     }
   } catch (err) { console.error('Gagal load kelas:', err); }
 }
@@ -792,6 +823,7 @@ function renderCharts(d) {
   state.charts.ketepatan = new Chart($('chart-ketepatan'), { type: 'pie', data: { labels: ['Tepat Waktu','Terlambat','Tidak Hadir'], datasets: [{ data: [k.tepat_waktu||0, k.terlambat||0, k.tidak_hadir||0], backgroundColor: ['#10B981','#F59E0B','#EF4444'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
 }
 
+// MASTER SISWA
 async function loadSiswa() {
   $('footer-siswa').textContent = 'Memuat…';
   const q = $('filter-q').value.trim(); const kelas = $('filter-kelas').value;
@@ -823,23 +855,23 @@ $('filter-kelas').addEventListener('change', loadSiswa);
 function openTambahSiswa() {
   $('siswa-mode').value = 'tambah'; $('siswa-nis-lama').value = ''; $('siswa-nis').value = ''; $('siswa-nis').disabled = false;
   $('siswa-nama').value = ''; $('siswa-kelas').value = ''; $('siswa-jk').value = ''; $('siswa-status').value = 'AKTIF'; $('siswa-catatan').value = '';
-  $('modal-siswa-title').textContent = 'Tambah Siswa'; $('siswa-alert').style.display = 'none'; $('modal-siswa').classList.add('show');
+  $('modal-siswa-title').textContent = 'Tambah Siswa'; $('siswa-alert').classList.remove('show'); $('modal-siswa').classList.add('show');
 }
 function openEditSiswa(s) {
   $('siswa-mode').value = 'edit'; $('siswa-nis-lama').value = s.nis; $('siswa-nis').value = s.nis; $('siswa-nis').disabled = true;
   $('siswa-nama').value = s.nama || ''; $('siswa-kelas').value = s.kelas || ''; $('siswa-jk').value = s.jk || ''; $('siswa-status').value = s.status || 'AKTIF'; $('siswa-catatan').value = s.catatan || '';
-  $('modal-siswa-title').textContent = 'Edit Siswa — ' + s.nama; $('siswa-alert').style.display = 'none'; $('modal-siswa').classList.add('show');
+  $('modal-siswa-title').textContent = 'Edit Siswa — ' + s.nama; $('siswa-alert').classList.remove('show'); $('modal-siswa').classList.add('show');
 }
 async function simpanSiswa() {
   const mode = $('siswa-mode').value;
   const payload = { nis: mode === 'edit' ? $('siswa-nis-lama').value : $('siswa-nis').value.trim(), nama: $('siswa-nama').value.trim(), kelas: $('siswa-kelas').value, jk: $('siswa-jk').value, status: $('siswa-status').value, catatan: $('siswa-catatan').value.trim() };
-  if (!payload.nis || !payload.nama || !payload.kelas) { $('siswa-alert').textContent = 'NIS, Nama, Kelas wajib.'; $('siswa-alert').style.display = 'block'; return; }
+  if (!payload.nis || !payload.nama || !payload.kelas) { $('siswa-alert').textContent = 'NIS, Nama, Kelas wajib.'; $('siswa-alert').classList.add('show'); return; }
   const action = mode === 'edit' ? 'editSiswa' : 'tambahSiswa'; const btn = $('btn-simpan-siswa'); btn.disabled = true; btn.textContent = 'Menyimpan…';
   try {
     const res = await apiCall(action, payload, true);
-    if (!res.ok) { $('siswa-alert').textContent = res.message; $('siswa-alert').style.display = 'block'; return; }
+    if (!res.ok) { $('siswa-alert').textContent = res.message; $('siswa-alert').classList.add('show'); return; }
     $('modal-siswa').classList.remove('show'); toast(res.message); loadSiswa();
-  } catch (err) { $('siswa-alert').textContent = err.message; $('siswa-alert').style.display = 'block'; }
+  } catch (err) { $('siswa-alert').textContent = err.message; $('siswa-alert').classList.add('show'); }
   finally { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 async function hapusSiswa(nis, nama) {
@@ -850,6 +882,7 @@ $('btn-tambah-siswa').addEventListener('click', openTambahSiswa);
 $('btn-simpan-siswa').addEventListener('click', simpanSiswa);
 $('btn-batal-siswa').addEventListener('click', () => $('modal-siswa').classList.remove('show'));
 
+// MASTER KELAS
 async function loadKelas() {
   try {
     const res = await apiCall('getMasterKelas');
@@ -864,30 +897,29 @@ async function loadKelas() {
         if (btn.dataset.act === 'hapus') hapusKelas(id, kelas.nama_kelas);
       });
     });
-    // Segarkan dropdown setiap kali halaman kelas dibuka (untuk update nama baru)
-    loadMasterKelas(); 
+    loadMasterKelas();
   } catch (err) { toast('Gagal memuat kelas', true); }
 }
 function openTambahKelas() {
   $('kelas-mode').value = 'tambah'; $('kelas-id-lama').value = ''; $('kelas-id').value = ''; $('kelas-id').disabled = false;
   $('kelas-nama').value = ''; $('kelas-tingkat').value = 'X'; $('kelas-jurusan').value = ''; $('kelas-wali').value = '';
-  $('modal-kelas-title').textContent = 'Tambah Kelas'; $('kelas-alert').style.display = 'none'; $('modal-kelas').classList.add('show');
+  $('modal-kelas-title').textContent = 'Tambah Kelas'; $('kelas-alert').classList.remove('show'); $('modal-kelas').classList.add('show');
 }
 function openEditKelas(k) {
   $('kelas-mode').value = 'edit'; $('kelas-id-lama').value = k.id_kelas; $('kelas-id').value = k.id_kelas; $('kelas-id').disabled = true;
   $('kelas-nama').value = k.nama_kelas || ''; $('kelas-tingkat').value = k.tingkat || 'X'; $('kelas-jurusan').value = k.jurusan || ''; $('kelas-wali').value = k.wali_kelas || '';
-  $('modal-kelas-title').textContent = 'Edit Kelas — ' + k.nama_kelas; $('kelas-alert').style.display = 'none'; $('modal-kelas').classList.add('show');
+  $('modal-kelas-title').textContent = 'Edit Kelas — ' + k.nama_kelas; $('kelas-alert').classList.remove('show'); $('modal-kelas').classList.add('show');
 }
 async function simpanKelas() {
   const mode = $('kelas-mode').value;
   const payload = { id_kelas: mode === 'edit' ? $('kelas-id-lama').value : $('kelas-id').value.trim(), nama_kelas: $('kelas-nama').value.trim(), tingkat: $('kelas-tingkat').value, jurusan: $('kelas-jurusan').value.trim(), wali_kelas: $('kelas-wali').value.trim() };
-  if (!payload.id_kelas || !payload.nama_kelas) { $('kelas-alert').textContent = 'ID dan Nama Kelas wajib.'; $('kelas-alert').style.display = 'block'; return; }
+  if (!payload.id_kelas || !payload.nama_kelas) { $('kelas-alert').textContent = 'ID dan Nama Kelas wajib.'; $('kelas-alert').classList.add('show'); return; }
   const action = mode === 'edit' ? 'editKelas' : 'tambahKelas'; const btn = $('btn-simpan-kelas'); btn.disabled = true; btn.textContent = 'Menyimpan…';
   try {
     const res = await apiCall(action, payload, true);
-    if (!res.ok) { $('kelas-alert').textContent = res.message; $('kelas-alert').style.display = 'block'; return; }
+    if (!res.ok) { $('kelas-alert').textContent = res.message; $('kelas-alert').classList.add('show'); return; }
     $('modal-kelas').classList.remove('show'); toast(res.message); loadKelas();
-  } catch (err) { $('kelas-alert').textContent = err.message; $('kelas-alert').style.display = 'block'; }
+  } catch (err) { $('kelas-alert').textContent = err.message; $('kelas-alert').classList.add('show'); }
   finally { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 async function hapusKelas(id, nama) {
@@ -898,40 +930,7 @@ $('btn-tambah-kelas').addEventListener('click', openTambahKelas);
 $('btn-simpan-kelas').addEventListener('click', simpanKelas);
 $('btn-batal-kelas').addEventListener('click', () => $('modal-kelas').classList.remove('show'));
 
-function openScan(nis, siswa) {
-  state.scan = { nis, nama: siswa?.nama || '', kelas: siswa?.kelas || '', uid: '', mode: 'row' };
-  $('scan-uid').textContent = '—'; $('scan-nama').textContent = state.scan.nama; $('scan-kelas').textContent = (state.scan.kelas || '') + ' · NIS ' + nis; $('scan-hint').textContent = 'Dekatkan kartu ke reader.';
-  const area = $('scan-area'); area.classList.remove('ok', 'err'); area.classList.add('scanning'); $('btn-save-uid').disabled = true; $('modal-scan').classList.add('show'); setTimeout(() => fokusRfid(), 300);
-}
-function fokusRfid() { const el = $('rfid-input-hidden'); try { el.focus({ preventScroll: true }); } catch (_) { el.focus(); } }
-setInterval(() => {
-  const modalOpen = $('modal-scan').classList.contains('show') || (state.scan.mode === 'main' && $('page-rfid').style.display !== 'none');
-  if (!modalOpen) return; const active = document.activeElement; if (active && active.id !== 'rfid-input-hidden') fokusRfid();
-}, 600);
-$('rfid-input-hidden').addEventListener('keydown', (e) => {
-  if (e.key !== 'Enter') return; e.preventDefault(); const raw = e.target.value.trim(); e.target.value = ''; if (!raw) return;
-  const uid = raw.replace(/[\s\-:]/g, '').toUpperCase(); if (uid.length < 6) return;
-  if (Date.now() - state.lastUidAt < ANTI_DUP_MS && state.lastUid === uid) return;
-  state.lastUidAt = Date.now(); state.lastUid = uid; state.scan.uid = uid;
-  if (state.scan.mode === 'main') {
-    $('scan-uid-main').textContent = uid; $('scan-hint-main').textContent = 'Kartu terbaca. Pilih siswa lalu simpan.';
-    $('scan-area-main').classList.remove('scanning'); $('scan-area-main').classList.add('ok'); $('btn-save-rfid-main').disabled = false;
-  } else {
-    $('scan-uid').textContent = uid; $('scan-hint').textContent = 'Kartu terbaca. Klik Simpan.';
-    $('scan-area').classList.remove('scanning'); $('scan-area').classList.add('ok'); $('btn-save-uid').disabled = false;
-  }
-});
-async function simpanUid() {
-  if (!state.scan.uid) return; const btn = $('btn-save-uid'); btn.disabled = true; btn.textContent = 'Menyimpan…';
-  try {
-    const res = await apiCall('daftarRfid', { nis: state.scan.nis, uid_rfid: state.scan.uid }, true);
-    if (!res.ok) { $('scan-area').classList.remove('ok'); $('scan-area').classList.add('err'); $('scan-hint').textContent = res.message; toast(res.message, true); state.scan.uid = ''; $('scan-uid').textContent = '—'; return; }
-    $('modal-scan').classList.remove('show'); toast(res.message); loadSiswa();
-  } catch (err) { toast(err.message, true); } finally { btn.disabled = false; btn.textContent = 'Simpan Kartu'; }
-}
-$('btn-save-uid').addEventListener('click', simpanUid);
-$('btn-cancel-scan').addEventListener('click', () => { $('modal-scan').classList.remove('show'); state.scan.uid = ''; });
-
+// MASTER GURU
 async function loadGuru() {
   try {
     const res = await apiCall('getMasterGuruFull');
@@ -943,75 +942,25 @@ async function loadGuru() {
   } catch (err) { toast('Gagal memuat guru', true); }
 }
 function openTambahGuru() {
-  $('guru-mode').value = 'tambah'; $('guru-id-lama').value = '';
-  $('guru-id').value = ''; $('guru-id').disabled = false;
-  $('guru-nama').value = ''; $('guru-pin').value = '';
-  $('guru-hp').value = ''; $('guru-status').value = 'AKTIF';
-  document.querySelectorAll('.field input[type="checkbox"]').forEach(cb => cb.checked = false);
-  $('role-piket').checked = true; // Default Guru Piket
-  $('modal-guru-title').textContent = 'Tambah Guru';
-  $('guru-alert').style.display = 'none';
-  $('modal-guru').classList.add('show');
+  $('guru-mode').value = 'tambah'; $('guru-id-lama').value = ''; $('guru-id').value = ''; $('guru-id').disabled = false; $('guru-nama').value = ''; $('guru-pin').value = ''; $('guru-role').value = 'GURU_PIKET'; $('guru-hp').value = ''; $('guru-status').value = 'AKTIF';
+  $('modal-guru-title').textContent = 'Tambah Guru'; $('guru-alert').classList.remove('show'); $('modal-guru').classList.add('show');
 }
 function openEditGuru(g) {
-  $('guru-mode').value = 'edit'; $('guru-id-lama').value = g.id_guru;
-  $('guru-id').value = g.id_guru; $('guru-id').disabled = true;
-  $('guru-nama').value = g.nama || ''; $('guru-pin').value = '';
-  $('guru-hp').value = g.no_hp || ''; $('guru-status').value = g.status || 'AKTIF';
-  
-  // Centang role yang sesuai
-  document.querySelectorAll('.field input[type="checkbox"]').forEach(cb => cb.checked = false);
-  const roles = String(g.role || '').toUpperCase().split(',').map(r => r.trim());
-  if (roles.includes('GURU_PIKET')) $('role-piket').checked = true;
-  if (roles.includes('GURU_BK')) $('role-bk').checked = true;
-  if (roles.includes('SUPER_ADMIN')) $('role-admin').checked = true;
-  if (roles.includes('KEPSEK')) $('role-kepsek').checked = true;
-  if (roles.includes('WALI_KELAS')) $('role-wali').checked = true;
-
-  $('modal-guru-title').textContent = 'Edit Guru — ' + g.nama;
-  $('guru-alert').style.display = 'none';
-  $('modal-guru').classList.add('show');
+  $('guru-mode').value = 'edit'; $('guru-id-lama').value = g.id_guru; $('guru-id').value = g.id_guru; $('guru-id').disabled = true; $('guru-nama').value = g.nama || ''; $('guru-pin').value = ''; $('guru-role').value = g.role || 'GURU_PIKET'; $('guru-hp').value = g.no_hp || ''; $('guru-status').value = g.status || 'AKTIF';
+  $('modal-guru-title').textContent = 'Edit Guru — ' + g.nama; $('guru-alert').classList.remove('show'); $('modal-guru').classList.add('show');
 }
 async function simpanGuru() {
-  const mode = $('guru-mode').value;
-  
-  // Kumpulkan role yang dicentang
-  const roles = [];
-  if ($('role-piket').checked) roles.push('GURU_PIKET');
-  if ($('role-bk').checked) roles.push('GURU_BK');
-  if ($('role-admin').checked) roles.push('SUPER_ADMIN');
-  if ($('role-kepsek').checked) roles.push('KEPSEK');
-  if ($('role-wali').checked) roles.push('WALI_KELAS');
-
-  const payload = { 
-    id_guru: mode === 'edit' ? $('guru-id-lama').value : $('guru-id').value.trim(),
-    nama: $('guru-nama').value.trim(),
-    pin: $('guru-pin').value.trim(),
-    role: roles.join(', '), // <-- Gabungkan dengan koma
-    no_hp: $('guru-hp').value.trim(),
-    status: $('guru-status').value
-  };
+  const mode = $('guru-mode').value; const payload = { id_guru: mode === 'edit' ? $('guru-id-lama').value : $('guru-id').value.trim(), nama: $('guru-nama').value.trim(), pin: $('guru-pin').value.trim(), role: $('guru-role').value, no_hp: $('guru-hp').value.trim(), status: $('guru-status').value };
   if (mode === 'edit' && !payload.pin) delete payload.pin;
-  if (!payload.id_guru || !payload.nama || (mode === 'tambah' && !payload.pin) || roles.length === 0) {
-    $('guru-alert').textContent = 'Lengkapi data & pilih minimal 1 role.';
-    $('guru-alert').style.display = 'block'; return;
-  }
-  
-  const action = mode === 'edit' ? 'editGuru' : 'tambahGuru';
-  const btn = $('btn-simpan-guru'); btn.disabled = true; btn.textContent = 'Menyimpan…';
-  
-  try {
-    const res = await apiCall(action, payload, true);
-    if (!res.ok) { $('guru-alert').textContent = res.message; $('guru-alert').style.display = 'block'; return; }
-    $('modal-guru').classList.remove('show'); toast(res.message); loadGuru();
-  } catch (err) {
-    $('guru-alert').textContent = err.message; $('guru-alert').style.display = 'block';
-  } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
+  if (!payload.id_guru || !payload.nama || (mode === 'tambah' && !payload.pin)) { $('guru-alert').textContent = 'Lengkapi data.'; $('guru-alert').classList.add('show'); return; }
+  const action = mode === 'edit' ? 'editGuru' : 'tambahGuru'; const btn = $('btn-simpan-guru'); btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try { const res = await apiCall(action, payload, true); if (!res.ok) { $('guru-alert').textContent = res.message; $('guru-alert').classList.add('show'); return; } $('modal-guru').classList.remove('show'); toast(res.message); loadGuru(); } catch (err) { $('guru-alert').textContent = err.message; $('guru-alert').classList.add('show'); } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 $('btn-tambah-guru').addEventListener('click', openTambahGuru);
 $('btn-simpan-guru').addEventListener('click', simpanGuru);
 $('btn-batal-guru').addEventListener('click', () => $('modal-guru').classList.remove('show'));
 
+// TATA TERTIB
 async function loadTatib() {
   try {
     const res = await apiCall('getTataTertib');
@@ -1030,18 +979,18 @@ async function loadTatib() {
 }
 function openTambahTatib() {
   $('tatib-mode').value = 'tambah'; $('tatib-kode-lama').value = ''; $('tatib-kode').value = ''; $('tatib-kode').disabled = false; $('tatib-kategori').value = ''; $('tatib-deskripsi').value = ''; $('tatib-poin').value = ''; $('tatib-jenis').value = 'PELANGGARAN';
-  $('modal-tatib-title').textContent = 'Tambah Tata Tertib'; $('tatib-alert').style.display = 'none'; $('modal-tatib').classList.add('show');
+  $('modal-tatib-title').textContent = 'Tambah Tata Tertib'; $('tatib-alert').classList.remove('show'); $('modal-tatib').classList.add('show');
 }
 function openEditTatib(t) {
   $('tatib-mode').value = 'edit'; $('tatib-kode-lama').value = t.kode; $('tatib-kode').value = t.kode; $('tatib-kode').disabled = true; $('tatib-kategori').value = t.kategori || ''; $('tatib-deskripsi').value = t.deskripsi || ''; $('tatib-poin').value = t.poin; $('tatib-jenis').value = t.jenis || 'PELANGGARAN';
-  $('modal-tatib-title').textContent = 'Edit Tata Tertib — ' + t.kode; $('tatib-alert').style.display = 'none'; $('modal-tatib').classList.add('show');
+  $('modal-tatib-title').textContent = 'Edit Tata Tertib — ' + t.kode; $('tatib-alert').classList.remove('show'); $('modal-tatib').classList.add('show');
 }
 async function simpanTatib() {
   const mode = $('tatib-mode').value;
   const payload = { kode: mode === 'edit' ? $('tatib-kode-lama').value : $('tatib-kode').value.trim().toUpperCase(), kategori: $('tatib-kategori').value.trim(), deskripsi: $('tatib-deskripsi').value.trim(), poin: parseInt($('tatib-poin').value, 10), jenis: $('tatib-jenis').value };
-  if (!payload.kode || !payload.deskripsi || isNaN(payload.poin)) { $('tatib-alert').textContent = 'Lengkapi data.'; $('tatib-alert').style.display = 'block'; return; }
+  if (!payload.kode || !payload.deskripsi || isNaN(payload.poin)) { $('tatib-alert').textContent = 'Lengkapi data.'; $('tatib-alert').classList.add('show'); return; }
   const action = mode === 'edit' ? 'editTataTertib' : 'tambahTataTertib'; const btn = $('btn-simpan-tatib'); btn.disabled = true; btn.textContent = 'Menyimpan…';
-  try { const res = await apiCall(action, payload, true); if (!res.ok) { $('tatib-alert').textContent = res.message; $('tatib-alert').style.display = 'block'; return; } $('modal-tatib').classList.remove('show'); toast(res.message); loadTatib(); } catch (err) { $('tatib-alert').textContent = err.message; $('tatib-alert').style.display = 'block'; } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
+  try { const res = await apiCall(action, payload, true); if (!res.ok) { $('tatib-alert').textContent = res.message; $('tatib-alert').classList.add('show'); return; } $('modal-tatib').classList.remove('show'); toast(res.message); loadTatib(); } catch (err) { $('tatib-alert').textContent = err.message; $('tatib-alert').classList.add('show'); } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 async function hapusTatib(kode, desc) {
   if (!confirm('Hapus tata tertib ini?\n' + desc)) return;
@@ -1051,12 +1000,113 @@ $('btn-tambah-tatib').addEventListener('click', openTambahTatib);
 $('btn-simpan-tatib').addEventListener('click', simpanTatib);
 $('btn-batal-tatib').addEventListener('click', () => $('modal-tatib').classList.remove('show'));
 
-async function initNaikKelas() {
-  const [resKelas] = await Promise.all([apiCall('getDaftarKelas')]);
-  if (resKelas.ok) {
-    $('naik-kelas-asal').innerHTML = '<option value="">— Pilih Kelas —</option>' + resKelas.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
-    $('naik-kelas-tujuan').innerHTML = '<option value="">— Pilih Kelas Tujuan —</option>' + resKelas.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+// PENDAFTARAN RFID
+async function loadRfid() {
+  document.querySelectorAll('#rfid-tabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#rfid-tabs button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      $('rfid-tab-siswa').style.display = btn.dataset.tab === 'siswa' ? '' : 'none';
+      $('rfid-tab-guru').style.display = btn.dataset.tab === 'guru' ? '' : 'none';
+    });
+  });
+  await loadSiswaTanpaRfid();
+  await loadGuruTanpaRfid();
+  state.scan.tipe = 'siswa';
+}
+
+async function loadSiswaTanpaRfid() {
+  try {
+    const res = await apiCall('getSiswaTanpaRfid');
+    const sel = $('rfid-siswa-select'); const tbody = $('tbody-tanpa-rfid');
+    if (!res.ok) { toast(res.message, true); return; }
+    if (!res.data.length) { sel.innerHTML = '<option value="">— Semua siswa sudah punya kartu —</option>'; tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Semua siswa sudah punya kartu ✓</td></tr>'; return; }
+    sel.innerHTML = '<option value="">— Pilih siswa (' + res.data.length + ' belum punya kartu) —</option>' + res.data.map(s => `<option value="${escapeHtml(s.nis)}">${escapeHtml(s.nis)} - ${escapeHtml(s.nama)} (${escapeHtml(s.kelas)})</option>`).join('');
+    tbody.innerHTML = res.data.map(s => `<tr><td class="font-weight-bold">${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td></tr>`).join('');
+  } catch (err) { toast('Gagal memuat', true); }
+}
+async function loadGuruTanpaRfid() {
+  try {
+    const res = await apiCall('getGuruTanpaRfid');
+    const sel = $('rfid-guru-select'); const tbody = $('tbody-tanpa-rfid-guru');
+    if (!res.ok) { toast(res.message, true); return; }
+    if (!res.data.length) { sel.innerHTML = '<option value="">— Semua guru sudah punya kartu —</option>'; tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Semua guru sudah punya kartu ✓</td></tr>'; return; }
+    sel.innerHTML = '<option value="">— Pilih guru (' + res.data.length + ' belum punya kartu) —</option>' + res.data.map(g => `<option value="${escapeHtml(g.id_guru)}">${escapeHtml(g.id_guru)} - ${escapeHtml(g.nama)}</option>`).join('');
+    tbody.innerHTML = res.data.map(g => `<tr><td class="font-weight-bold">${escapeHtml(g.id_guru)}</td><td>${escapeHtml(g.nama)}</td><td>${escapeHtml(g.role)}</td></tr>`).join('');
+  } catch (err) { toast('Gagal memuat', true); }
+}
+
+$('btn-refresh-tanpa-rfid').addEventListener('click', loadSiswaTanpaRfid);
+$('btn-refresh-tanpa-rfid-guru').addEventListener('click', loadGuruTanpaRfid);
+
+// RFID SCAN LISTENER
+function fokusRfid() { const el = $('rfid-input-hidden'); try { el.focus({ preventScroll: true }); } catch (_) { el.focus(); } }
+setInterval(() => {
+  const pageRfid = $('page-rfid').style.display !== 'none';
+  const modalScan = document.querySelector('.overlay-modal.show#modal-scan');
+  if (!pageRfid && !modalScan) return;
+  const active = document.activeElement;
+  if (active && (active.id === 'search-input' || active.id === 'login-user' || active.id === 'login-pin')) return;
+  fokusRfid();
+}, 600);
+
+$('rfid-input-hidden').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const raw = e.target.value.trim(); e.target.value = '';
+  if (!raw) return;
+  const uid = raw.replace(/[\s\-:]/g, '').toUpperCase();
+  if (uid.length < 6) return;
+  
+  if (state.scan.tipe === 'siswa') {
+    $('scan-uid-siswa').textContent = uid;
+    $('scan-hint-siswa').textContent = 'Kartu terbaca. Pilih siswa lalu simpan.';
+    $('scan-area-siswa').classList.remove('scanning'); $('scan-area-siswa').classList.add('ok');
+    $('btn-save-rfid-siswa').disabled = false;
+  } else {
+    $('scan-uid-guru').textContent = uid;
+    $('scan-hint-guru').textContent = 'Kartu terbaca. Pilih guru lalu simpan.';
+    $('scan-area-guru').classList.remove('scanning'); $('scan-area-guru').classList.add('ok');
+    $('btn-save-rfid-guru').disabled = false;
   }
+  state.scan.uid = uid;
+});
+
+$('btn-save-rfid-siswa').addEventListener('click', async () => {
+  const nis = $('rfid-siswa-select').value;
+  if (!nis) { toast('Pilih siswa dulu', true); return; }
+  if (!state.scan.uid) { toast('Tap kartu dulu', true); return; }
+  const btn = $('btn-save-rfid-siswa'); btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    const res = await apiCall('daftarRfid', { nis, uid_rfid: state.scan.uid }, true);
+    if (!res.ok) { toast(res.message, true); return; }
+    toast(res.message);
+    $('scan-uid-siswa').textContent = '—'; $('scan-hint-siswa').textContent = 'Kartu tersimpan. Tap kartu berikutnya.';
+    $('scan-area-siswa').classList.remove('ok'); $('scan-area-siswa').classList.add('scanning');
+    state.scan.uid = '';
+    await loadSiswaTanpaRfid();
+  } catch (err) { toast(err.message, true); } finally { btn.disabled = false; btn.textContent = 'Simpan Kartu Siswa'; }
+});
+
+$('btn-save-rfid-guru').addEventListener('click', async () => {
+  const id_guru = $('rfid-guru-select').value;
+  if (!id_guru) { toast('Pilih guru dulu', true); return; }
+  if (!state.scan.uid) { toast('Tap kartu dulu', true); return; }
+  const btn = $('btn-save-rfid-guru'); btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    const res = await apiCall('daftarRfidGuru', { id_guru, uid_rfid: state.scan.uid }, true);
+    if (!res.ok) { toast(res.message, true); return; }
+    toast(res.message);
+    $('scan-uid-guru').textContent = '—'; $('scan-hint-guru').textContent = 'Kartu tersimpan. Tap kartu berikutnya.';
+    $('scan-area-guru').classList.remove('ok'); $('scan-area-guru').classList.add('scanning');
+    state.scan.uid = '';
+    await loadGuruTanpaRfid();
+  } catch (err) { toast(err.message, true); } finally { btn.disabled = false; btn.textContent = 'Simpan Kartu Guru'; }
+});
+
+// NAIK KELAS
+async function initNaikKelas() {
+  // Dropdown sudah diisi oleh loadMasterKelas()
 }
 $('btn-load-siswa-naik').addEventListener('click', async () => {
   const kelas = $('naik-kelas-asal').value;
@@ -1065,7 +1115,6 @@ $('btn-load-siswa-naik').addEventListener('click', async () => {
   try {
     const res = await apiCall('getSiswaPerKelas', { kelas });
     if (!res.ok) { toast(res.message, true); return; }
-    state.naikKelasList = res.data;
     const tbody = $('tbody-naik-kelas');
     if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Tidak ada siswa di kelas ini.</td></tr>'; return; }
     tbody.innerHTML = res.data.map(s => `<tr><td><input type="checkbox" class="form-check-input check-siswa" value="${escapeHtml(s.nis)}" checked></td><td>${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td></tr>`).join('');
@@ -1075,10 +1124,8 @@ $('btn-load-siswa-naik').addEventListener('click', async () => {
   } catch (err) { toast(err.message, true); }
   finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-search mr-1"></i> Tampilkan Siswa'; }
 });
-$('check-all-naik').addEventListener('change', (e) => {
-  document.querySelectorAll('.check-siswa').forEach(cb => cb.checked = e.target.checked);
-});
-async function prosesNaik() {
+$('check-all-naik').addEventListener('change', (e) => { document.querySelectorAll('.check-siswa').forEach(cb => cb.checked = e.target.checked); });
+$('btn-proses-naik').addEventListener('click', async () => {
   const kelasTujuan = $('naik-kelas-tujuan').value;
   if (!kelasTujuan) { toast('Pilih kelas tujuan dulu', true); return; }
   const checked = document.querySelectorAll('.check-siswa:checked');
@@ -1092,13 +1139,11 @@ async function prosesNaik() {
     toast(res.message); $('btn-load-siswa-naik').click();
   } catch (err) { toast(err.message, true); }
   finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-level-up-alt mr-1"></i> Proses Naik Kelas'; }
-}
-$('btn-proses-naik').addEventListener('click', prosesNaik);
-
-async function prosesLulus() {
+});
+$('btn-proses-lulus').addEventListener('click', async () => {
   const checked = document.querySelectorAll('.check-siswa:checked');
   if (!checked.length) { toast('Pilih minimal 1 siswa', true); return; }
-  if (!confirm(`Luluskan ${checked.length} siswa terpilih? Status akan berubah menjadi LULUS dan tidak muncul di daftar aktif.`)) return;
+  if (!confirm(`Luluskan ${checked.length} siswa terpilih?`)) return;
   const nisList = Array.from(checked).map(cb => cb.value);
   const btn = $('btn-proses-lulus'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses…';
   try {
@@ -1107,98 +1152,77 @@ async function prosesLulus() {
     toast(res.message); $('btn-load-siswa-naik').click();
   } catch (err) { toast(err.message, true); }
   finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-graduation-cap mr-1"></i> Luluskan Siswa Terpilih'; }
-}
-$('btn-proses-lulus').addEventListener('click', prosesLulus);
-
-async function loadRfid() {
-  state.scan.mode = 'main'; state.scan.uid = ''; $('scan-uid-main').textContent = '—'; $('scan-hint-main').textContent = 'Dekatkan kartu ke reader USB.'; $('scan-area-main').classList.remove('ok','err','scanning'); $('scan-area-main').classList.add('scanning'); $('btn-save-rfid-main').disabled = true;
-  await loadSiswaTanpaRfid(); setTimeout(() => fokusRfid(), 300);
-}
-async function loadSiswaTanpaRfid() {
-  try {
-    const res = await apiCall('getSiswaTanpaRfid');
-    const sel = $('rfid-siswa-select'); const tbody = $('tbody-tanpa-rfid');
-    if (!res.ok) { toast(res.message, true); return; }
-    if (!res.data.length) { sel.innerHTML = '<option value="">— Semua siswa sudah punya kartu —</option>'; tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Semua siswa sudah punya kartu ✓</td></tr>'; return; }
-    sel.innerHTML = '<option value="">— Pilih siswa (' + res.data.length + ' belum punya kartu) —</option>' + res.data.map(s => `<option value="${escapeHtml(s.nis)}">${escapeHtml(s.nis)} - ${escapeHtml(s.nama)} (${escapeHtml(s.kelas)})</option>`).join('');
-    tbody.innerHTML = res.data.map(s => `<tr><td class="font-weight-bold">${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td></tr>`).join('');
-  } catch (err) { toast('Gagal memuat', true); }
-}
-$('btn-refresh-tanpa-rfid').addEventListener('click', loadSiswaTanpaRfid);
-$('btn-save-rfid-main').addEventListener('click', async () => {
-  const nis = $('rfid-siswa-select').value; if (!nis) { toast('Pilih siswa dulu', true); return; } if (!state.scan.uid) { toast('Tap kartu dulu', true); return; }
-  const btn = $('btn-save-rfid-main'); btn.disabled = true; btn.textContent = 'Menyimpan…';
-  try {
-    const res = await apiCall('daftarRfid', { nis, uid_rfid: state.scan.uid }, true);
-    if (!res.ok) { $('scan-area-main').classList.remove('ok'); $('scan-area-main').classList.add('err'); $('scan-hint-main').textContent = res.message; toast(res.message, true); state.scan.uid = ''; $('scan-uid-main').textContent = '—'; return; }
-    toast(res.message); $('scan-uid-main').textContent = '—'; $('scan-hint-main').textContent = 'Kartu tersimpan. Tap kartu berikutnya.'; $('scan-area-main').classList.remove('ok','err'); $('scan-area-main').classList.add('scanning'); state.scan.uid = ''; await loadSiswaTanpaRfid();
-  } catch (err) { toast(err.message, true); } finally { btn.disabled = false; btn.textContent = 'Simpan Kartu'; }
 });
 
+// LAPORAN
 async function initLaporan() {
-  if (!$('lap-dari').value) $('lap-dari').value = todayISO(); if (!$('lap-sampai').value) $('lap-sampai').value = todayISO();
-  await isiKelasLaporan(); await loadLaporan();
+  if (!$('lap-dari').value) $('lap-dari').value = todayISO();
+  if (!$('lap-sampai').value) $('lap-sampai').value = todayISO();
+  await loadLaporan();
 }
-async function isiKelasLaporan() { try { const res = await apiCall('getDaftarKelas'); if (!res.ok) return; $('lap-kelas').innerHTML = '<option value="">Semua</option>' + res.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join(''); } catch (_) {} }
-document.querySelectorAll('#laporan-tabs button').forEach(btn => btn.addEventListener('click', () => { document.querySelectorAll('#laporan-tabs button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); state.laporanJenis = btn.dataset.jenis; loadLaporan(); }));
+document.querySelectorAll('#laporan-tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#laporan-tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); state.laporanJenis = btn.dataset.jenis; loadLaporan();
+  });
+});
 $('btn-lap-cari').addEventListener('click', loadLaporan);
 async function loadLaporan() {
   const dari = $('lap-dari').value; const sampai = $('lap-sampai').value; const kelas = $('lap-kelas').value;
   if (!dari || !sampai) { toast('Isi tanggal', true); return; }
-  try { const res = await apiCall('getLaporan', { jenis: state.laporanJenis, dari, sampai, kelas }); if (!res.ok) { toast(res.message, true); return; } state.laporanData = res.data; renderLaporan(res); } catch (err) { toast('Gagal memuat laporan', true); }
+  try {
+    const res = await apiCall('getLaporan', { jenis: state.laporanJenis, dari, sampai, kelas });
+    if (!res.ok) { toast(res.message, true); return; }
+    state.laporanData = res.data;
+    renderLaporan();
+  } catch (err) { toast('Gagal memuat laporan', true); }
 }
-function renderLaporan(res) {
-  const data = res.data; const jenis = state.laporanJenis; const ring = res.ringkasan || {}; let ringkasHtml = '';
-  if (jenis === 'gerbang') ringkasHtml = `<div class="stat-mini"><b>${data.length}</b><span>Total Baris</span></div>` + Object.keys(ring).map(k => `<div class="stat-mini"><b>${ring[k]}</b><span>${escapeHtml(k)}</span></div>`).join('');
-  else if (jenis === 'sholat') ringkasHtml = `<div class="stat-mini"><b>${data.length}</b><span>Total Baris</span></div>` + Object.keys(ring).map(k => `<div class="stat-mini"><b>${ring[k]}</b><span>${escapeHtml(k)}</span></div>`).join('');
-  else if (jenis === 'poin') ringkasHtml = `<div class="stat-mini"><b>${ring.jumlah_transaksi || 0}</b><span>Transaksi</span></div><div class="stat-mini"><b style="color:#EF4444">${ring.total_minus || 0}</b><span>Total Minus</span></div><div class="stat-mini"><b style="color:#10B981">+${ring.total_plus || 0}</b><span>Total Plus</span></div>`;
-  else ringkasHtml = `<div class="stat-mini"><b>${data.length}</b><span>Total Siswa</span></div>`;
-  $('lap-ringkasan').innerHTML = ringkasHtml;
+function renderLaporan() {
+  const data = state.laporanData; const jenis = state.laporanJenis;
   let headers = [], rows = [];
-  if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam, r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
-  else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam, r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
-  else if (jenis === 'poin') { headers = ['Tanggal','NIS','Nama','Kelas','Jenis','Pasal','Deskripsi','Poin','Saldo','Petugas','Aksi']; rows = data.map((r, i) => [r.tanggal, r.nis, r.nama, r.kelas, r.jenis, r.pasal, r.deskripsi, r.poin, r.saldo_setelah, r.petugas, `<button class="btn btn-sm btn-outline-danger" data-surat="${i}"><i class="fas fa-file-alt"></i> Surat</button>`]); }
+  
+  if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
+  else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
+  else if (jenis === 'poin') { headers = ['Tanggal','NIS','Nama','Kelas','Jenis','Pasal','Deskripsi','Poin','Saldo','Petugas']; rows = data.map(r => [r.tanggal, r.nis, r.nama, r.kelas, r.jenis, r.pasal, r.deskripsi, r.poin, r.saldo_setelah, r.petugas]); }
+  else if (jenis === 'guru') { headers = ['Tanggal','ID Guru','Jam Masuk','Jam Pulang','Status','Total Jam']; rows = data.map(r => [r.tanggal, r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]); }
   else { headers = ['NIS','Nama','Kelas','JK','Status','UID RFID']; rows = data.map(r => [r.nis, r.nama, r.kelas, r.jk, r.status, r.uid_rfid]); }
+
   $('lap-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-  if (!data.length) { $('lap-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`; }
-  else {
-    $('lap-tbody').innerHTML = rows.map(r => '<tr>' + r.map((c, i) => (i === r.length - 1 && jenis === 'poin') ? `<td>${c}</td>` : `<td>${escapeHtml(c)}</td>`).join('') + '</tr>').join('');
-    if (jenis === 'poin') { $('lap-tbody').querySelectorAll('[data-surat]').forEach(btn => btn.addEventListener('click', () => cetakSurat(data[parseInt(btn.dataset.surat, 10)]))); }
-  }
+  if (!data.length) { $('lap-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`; return; }
+  $('lap-tbody').innerHTML = rows.map(r => '<tr>' + r.map(c => `<td>${escapeHtml(c)}</td>`).join('') + '</tr>').join('');
 }
+
 $('btn-lap-export').addEventListener('click', () => {
   if (!state.laporanData.length) { toast('Tidak ada data', true); return; }
   const jenis = state.laporanJenis; let headers = [], rows = [];
-  if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam, r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
-  else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam, r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
+  if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
+  else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
   else if (jenis === 'poin') { headers = ['Tanggal','NIS','Nama','Kelas','Jenis','Pasal','Deskripsi','Poin','Saldo','Petugas']; rows = state.laporanData.map(r => [r.tanggal, r.nis, r.nama, r.kelas, r.jenis, r.pasal, r.deskripsi, r.poin, r.saldo_setelah, r.petugas]); }
+  else if (jenis === 'guru') { headers = ['Tanggal','ID Guru','Jam Masuk','Jam Pulang','Status','Total Jam']; rows = state.laporanData.map(r => [r.tanggal, r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]); }
   else { headers = ['NIS','Nama','Kelas','JK','Status','UID RFID']; rows = state.laporanData.map(r => [r.nis, r.nama, r.kelas, r.jk, r.status, r.uid_rfid]); }
+
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, jenis); XLSX.writeFile(wb, `Laporan_${jenis}_${$('lap-dari').value}_sd_${$('lap-sampai').value}.xlsx`); toast('File Excel diunduh');
 });
 $('btn-lap-print').addEventListener('click', () => window.print());
 
-async function cetakSurat(row) {
-  const setting = state.pengaturan.nama_sekolah ? state.pengaturan : await fetchPengaturan();
-  const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }); const noSurat = (setting.no_surat_prefix || '421.5/SMK-BKC') + '/' + String(Math.floor(Math.random() * 900 + 100)) + '/' + new Date().getFullYear();
-  $('surat-body').innerHTML = `<div style="text-align:center;border-bottom:3px double #0A1533;padding-bottom:10px;margin-bottom:20px"><div style="font-weight:800;font-size:13pt">${escapeHtml(setting.nama_yayasan || 'YAYASAN ADHI GUNA KENCANA')}</div><div style="font-weight:800;font-size:15pt">${escapeHtml(setting.nama_sekolah || 'SMK BHAKTI KENCANA CIAWI')}</div><div style="font-size:9pt;color:#64748B">${escapeHtml(setting.alamat_sekolah || 'Kec. Ciawi, Kab. Tasikmalaya, Jawa Barat')}</div></div><div style="text-align:center;margin-bottom:20px"><div style="font-weight:800;font-size:13pt;text-decoration:underline">SURAT PERINGATAN</div><div style="font-size:10pt">Nomor: ${escapeHtml(noSurat)}</div></div><p style="margin-bottom:10px">Yang bertanda tangan di bawah ini, Kepala ${escapeHtml(setting.nama_sekolah || 'SMK Bhakti Kencana Ciawi')}, dengan ini memberikan peringatan kepada:</p><table style="margin-left:20px;margin-bottom:15px;font-size:10pt"><tr><td style="padding:3px 10px 3px 0">Nama</td><td>: <b>${escapeHtml(row.nama)}</b></td></tr><tr><td style="padding:3px 10px 3px 0">NIS</td><td>: ${escapeHtml(row.nis)}</td></tr><tr><td style="padding:3px 10px 3px 0">Kelas</td><td>: ${escapeHtml(row.kelas)}</td></tr></table><p style="margin-bottom:10px">Sehubungan dengan pelanggaran tata tertib sekolah yang dilakukan siswa tersebut:</p><table style="width:100%;border-collapse:collapse;margin-bottom:15px;font-size:10pt"><tr style="background:#F1F5F9"><th style="border:1px solid #CBD5E1;padding:6px;text-align:left">Tanggal</th><th style="border:1px solid #CBD5E1;padding:6px;text-align:left">Pasal</th><th style="border:1px solid #CBD5E1;padding:6px;text-align:left">Deskripsi</th><th style="border:1px solid #CBD5E1;padding:6px;text-align:center">Poin</th></tr><tr><td style="border:1px solid #CBD5E1;padding:6px">${escapeHtml(row.tanggal)}</td><td style="border:1px solid #CBD5E1;padding:6px">${escapeHtml(row.pasal)}</td><td style="border:1px solid #CBD5E1;padding:6px">${escapeHtml(row.deskripsi)}</td><td style="border:1px solid #CBD5E1;padding:6px;text-align:center">${escapeHtml(row.poin)}</td></tr></table><p style="margin-bottom:10px">Sisa poin siswa saat ini: <b>${escapeHtml(row.saldo_setelah)}</b></p><p style="margin-bottom:20px">Demikian surat peringatan ini disampaikan.</p><table style="width:100%;font-size:10pt;margin-top:30px"><tr><td style="text-align:center;width:50%">Mengetahui,<br>Orang Tua/Wali<br><br><br><br><br>(_________________________)</td><td style="text-align:center;width:50%">${escapeHtml(setting.kota_surat || 'Ciawi')}, ${tgl}<br>Kepala Sekolah<br><br><br><br><br><b>${escapeHtml(setting.kepala_sekolah || 'Dr. H. Ahmad Fauzi, M.M.')}</b></td></tr></table>`;
-  $('modal-surat').classList.add('show');
-}
-$('btn-print-surat').addEventListener('click', () => window.print());
-$('btn-cancel-surat').addEventListener('click', () => $('modal-surat').classList.remove('show'));
-
-async function fetchPengaturan() { try { const res = await apiCall('getPengaturan'); if (res.ok) { state.pengaturan = res.data; return res.data; } } catch (_) {} return {}; }
+// PENGATURAN
 async function loadPengaturan() {
-  const s = await fetchPengaturan();
-  $('set-jam-masuk').value = bersihkanJam_(s.jam_masuk, '07:00'); $('set-jam-pulang').value = bersihkanJam_(s.jam_pulang, '15:00'); $('set-toleransi').value = s.toleransi_menit || '0';
-  $('set-subuh').value = bersihkanJam_(s.jam_subuh, '04:30'); $('set-dzuhur').value = bersihkanJam_(s.jam_dzuhur, '12:00'); $('set-ashar').value = bersihkanJam_(s.jam_ashar, '15:15'); $('set-maghrib').value = bersihkanJam_(s.jam_maghrib, '18:00'); $('set-isya').value = bersihkanJam_(s.jam_isya, '19:15');
-  $('set-nama-sekolah').value = s.nama_sekolah || ''; $('set-nama-yayasan').value = s.nama_yayasan || ''; $('set-alamat').value = s.alamat_sekolah || ''; $('set-kota').value = s.kota_surat || 'Ciawi'; $('set-prefix-surat').value = s.no_surat_prefix || '421.5/SMK-BKC'; $('set-kepsek').value = s.kepala_sekolah || ''; $('set-wakasek').value = s.wakasek_kesiswaan || ''; $('set-gurubk').value = s.guru_bk || ''; $('set-poin-awal').value = s.poin_awal || '100'; $('set-zona-kuning').value = s.zona_kuning_min || '51'; $('set-zona-oranye').value = s.zona_oranye_min || '26'; $('set-zona-merah').value = s.zona_merah_min || '1';
+  try {
+    const res = await apiCall('getPengaturan');
+    if (!res.ok) return;
+    const s = res.data;
+    $('set-jam-masuk').value = bersihkanJam_(s.jam_masuk, '07:00'); $('set-jam-pulang').value = bersihkanJam_(s.jam_pulang, '15:00'); $('set-toleransi').value = s.toleransi_menit || '0';
+    $('set-subuh').value = bersihkanJam_(s.jam_subuh, '04:30'); $('set-dzuhur').value = bersihkanJam_(s.jam_dzuhur, '12:00'); $('set-ashar').value = bersihkanJam_(s.jam_ashar, '15:15'); $('set-maghrib').value = bersihkanJam_(s.jam_maghrib, '18:00'); $('set-isya').value = bersihkanJam_(s.jam_isya, '19:15');
+    $('set-nama-sekolah').value = s.nama_sekolah || ''; $('set-nama-yayasan').value = s.nama_yayasan || ''; $('set-alamat').value = s.alamat_sekolah || ''; $('set-kota').value = s.kota_surat || 'Ciawi'; $('set-prefix-surat').value = s.no_surat_prefix || '421.5/SMK-BKC'; $('set-kepsek').value = s.kepala_sekolah || ''; $('set-wakasek').value = s.wakasek_kesiswaan || ''; $('set-gurubk').value = s.guru_bk || ''; $('set-poin-awal').value = s.poin_awal || '100'; $('set-zona-kuning').value = s.zona_kuning_min || '51'; $('set-zona-oranye').value = s.zona_oranye_min || '26'; $('set-zona-merah').value = s.zona_merah_min || '1';
+  } catch (e) {}
 }
 $('btn-simpan-pengaturan').addEventListener('click', async () => {
   const payload = { jam_masuk: $('set-jam-masuk').value, jam_pulang: $('set-jam-pulang').value, toleransi_menit: $('set-toleransi').value, jam_subuh: $('set-subuh').value, jam_dzuhur: $('set-dzuhur').value, jam_ashar: $('set-ashar').value, jam_maghrib: $('set-maghrib').value, jam_isya: $('set-isya').value, nama_sekolah: $('set-nama-sekolah').value, nama_yayasan: $('set-nama-yayasan').value, alamat_sekolah: $('set-alamat').value, kota_surat: $('set-kota').value, no_surat_prefix: $('set-prefix-surat').value, kepala_sekolah: $('set-kepsek').value, wakasek_kesiswaan: $('set-wakasek').value, guru_bk: $('set-gurubk').value, poin_awal: $('set-poin-awal').value, zona_kuning_min: $('set-zona-kuning').value, zona_oranye_min: $('set-zona-oranye').value, zona_merah_min: $('set-zona-merah').value };
-  try { const res = await apiCall('simpanPengaturan', payload, true); if (!res.ok) { toast(res.message, true); return; } state.pengaturan = payload; toast('Pengaturan disimpan'); } catch (err) { toast(err.message, true); }
+  try { const res = await apiCall('simpanPengaturan', payload, true); if (!res.ok) { toast(res.message, true); return; } toast('Pengaturan disimpan'); } catch (err) { toast(err.message, true); }
 });
 
-async function initKartu() { try { const res = await apiCall('getDaftarKelas'); if (res.ok) { $('kartu-kelas').innerHTML = '<option value="">— Pilih Kelas —</option>' + res.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join(''); } } catch (_) {} }
+// CETAK KARTU
+async function initKartu() { /* Dropdown sudah diisi oleh loadMasterKelas() */ }
 $('btn-load-kartu').addEventListener('click', async () => {
   const kelas = $('kartu-kelas').value; if (!kelas) { toast('Pilih kelas dulu', true); return; }
   try {
@@ -1214,24 +1238,25 @@ $('btn-load-kartu').addEventListener('click', async () => {
 });
 $('btn-print-kartu').addEventListener('click', () => window.print());
 
+// IMPORT
 $('btn-import-siswa').addEventListener('click', () => openImport('siswa'));
 $('btn-import-tatib').addEventListener('click', () => openImport('tatib'));
 function openImport(mode) {
   state.importMode = mode; state.importRows = [];
   $('import-title').textContent = mode === 'siswa' ? 'Import Data Siswa' : 'Import Tata Tertib';
   $('import-sub').textContent = mode === 'siswa' ? 'File .xlsx dengan header: nis, nama, kelas, jk, uid_rfid.' : 'File .xlsx dengan header: kode, kategori, deskripsi, poin, jenis.';
-  $('import-preview').textContent = ''; $('import-alert').style.display = 'none'; $('import-file').value = ''; $('btn-do-import').disabled = true; $('modal-import').classList.add('show');
+  $('import-preview').textContent = ''; $('import-alert').classList.remove('show'); $('import-file').value = ''; $('btn-do-import').disabled = true; $('modal-import').classList.add('show');
 }
 $('import-file').addEventListener('change', (e) => {
   const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
   reader.onload = (ev) => {
-    try { const data = new Uint8Array(ev.target.result); const wb = XLSX.read(data, { type: 'array' }); const ws = wb.Sheets[wb.SheetNames[0]]; const json = XLSX.utils.sheet_to_json(ws, { defval: '' }); state.importRows = json; $('import-preview').textContent = `Terbaca ${json.length} baris.`; $('btn-do-import').disabled = json.length === 0; } catch (err) { $('import-alert').textContent = 'Gagal membaca file: ' + err.message; $('import-alert').style.display = 'block'; }
+    try { const data = new Uint8Array(ev.target.result); const wb = XLSX.read(data, { type: 'array' }); const ws = wb.Sheets[wb.SheetNames[0]]; const json = XLSX.utils.sheet_to_json(ws, { defval: '' }); state.importRows = json; $('import-preview').textContent = `Terbaca ${json.length} baris.`; $('btn-do-import').disabled = json.length === 0; } catch (err) { $('import-alert').textContent = 'Gagal membaca file: ' + err.message; $('import-alert').classList.add('show'); }
   };
   reader.readAsArrayBuffer(file);
 });
 $('btn-do-import').addEventListener('click', async () => {
   if (!state.importRows.length) return; const btn = $('btn-do-import'); btn.disabled = true; btn.textContent = 'Mengimport…';
-  try { const action = state.importMode === 'siswa' ? 'importSiswa' : 'importTatib'; const res = await apiCall(action, { rows: state.importRows }, true); if (!res.ok) { $('import-alert').textContent = res.message; $('import-alert').style.display = 'block'; return; } $('modal-import').classList.remove('show'); toast(res.message); if (state.importMode === 'siswa') loadSiswa(); else loadTatib(); } catch (err) { $('import-alert').textContent = err.message; $('import-alert').style.display = 'block'; } finally { btn.disabled = false; btn.textContent = 'Import'; }
+  try { const action = state.importMode === 'siswa' ? 'importSiswa' : 'importTatib'; const res = await apiCall(action, { rows: state.importRows }, true); if (!res.ok) { $('import-alert').textContent = res.message; $('import-alert').classList.add('show'); return; } $('modal-import').classList.remove('show'); toast(res.message); if (state.importMode === 'siswa') loadSiswa(); else loadTatib(); } catch (err) { $('import-alert').textContent = err.message; $('import-alert').classList.add('show'); } finally { btn.disabled = false; btn.textContent = 'Import'; }
 });
 $('btn-cancel-import').addEventListener('click', () => $('modal-import').classList.remove('show'));
 

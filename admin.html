@@ -637,6 +637,7 @@ async function doLogin() {
     $('sesi-pill').style.display = 'inline-flex';
     $('btn-logout').style.display = 'inline-block';
     
+    await loadMasterKelas(); // Muat kelas dulu sebelum render apapun
     terapkanRoleMenu(); mulaiIdleWatcher(); mulaiHeartbeat(); loadPage('dashboard');
     toast('Selamat datang, ' + state.petugas);
   } catch (err) { alertEl.textContent = err.message; alertEl.style.display = 'block'; }
@@ -704,6 +705,29 @@ function mulaiHeartbeat() {
 }
 function hentikanHeartbeat() { clearInterval(state.heartbeatTimer); }
 
+// ==========================================
+// MASTER KELAS (DIPANGGIL SAAT LOGIN)
+// ==========================================
+async function loadMasterKelas() {
+  try {
+    const res = await apiCall('getMasterKelas');
+    if (res.ok) {
+      state.kelasList = res.data;
+      const opts = res.data.map(k => `<option value="${escapeHtml(k.nama_kelas)}">${escapeHtml(k.nama_kelas)}</option>`).join('');
+      
+      // Isi dropdown Kelas di Modal Siswa
+      $('siswa-kelas').innerHTML = '<option value="">— Pilih Kelas —</option>' + opts;
+      
+      // Isi dropdown Filter Kelas di Master Siswa
+      $('filter-kelas').innerHTML = '<option value="">Semua Kelas</option>' + opts;
+      
+      // Isi dropdown Filter di Laporan & Cetak Kartu (jika ada)
+      if ($('lap-kelas')) $('lap-kelas').innerHTML = '<option value="">Semua</option>' + opts;
+      if ($('kartu-kelas')) $('kartu-kelas').innerHTML = '<option value="">— Pilih Kelas —</option>' + opts;
+    }
+  } catch (err) { console.error('Gagal load kelas:', err); }
+}
+
 document.querySelectorAll('.nav-sidebar .nav-link[data-page]').forEach(link => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
@@ -765,14 +789,8 @@ async function loadSiswa() {
   try {
     const res = await apiCall('getMasterSiswa', { q, kelas, limit: 2000 });
     if (!res.ok) { toast(res.message, true); return; }
-    state.siswaList = res.data; renderSiswaTable(); $('footer-siswa').textContent = `Menampilkan ${res.data.length} siswa.`; updateKelasOptions();
+    state.siswaList = res.data; renderSiswaTable(); $('footer-siswa').textContent = `Menampilkan ${res.data.length} siswa.`;
   } catch (err) { toast('Gagal memuat siswa', true); }
-}
-function updateKelasOptions() {
-  const sel = $('filter-kelas'); const cur = sel.value; const set = {};
-  state.siswaList.forEach(s => { if (s.kelas) set[s.kelas] = true; });
-  sel.innerHTML = '<option value="">Semua Kelas</option>' + Object.keys(set).sort().map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
-  sel.value = cur;
 }
 function renderSiswaTable() {
   const tbody = $('tbody-siswa');
@@ -837,6 +855,8 @@ async function loadKelas() {
         if (btn.dataset.act === 'hapus') hapusKelas(id, kelas.nama_kelas);
       });
     });
+    // Segarkan dropdown setiap kali halaman kelas dibuka (untuk update nama baru)
+    loadMasterKelas(); 
   } catch (err) { toast('Gagal memuat kelas', true); }
 }
 function openTambahKelas() {
@@ -1166,7 +1186,7 @@ $('btn-export-tatib').addEventListener('click', () => {
 
 window.addEventListener('load', async () => {
   if(state.token) {
-    try { const res = await apiCall('heartbeat'); if(res.ok) { $('modal-login').classList.remove('show'); $('user-pill').style.display = 'inline-flex'; $('user-name').textContent = state.petugas + ' (' + state.role + ')'; $('sesi-pill').style.display = 'inline-flex'; $('btn-logout').style.display = 'inline-block'; terapkanRoleMenu(); mulaiIdleWatcher(); mulaiHeartbeat(); loadPage('dashboard'); } else { doLogout(); } } catch(e) { doLogout(); }
+    try { const res = await apiCall('heartbeat'); if(res.ok) { $('modal-login').classList.remove('show'); $('user-pill').style.display = 'inline-flex'; $('user-name').textContent = state.petugas + ' (' + state.role + ')'; $('sesi-pill').style.display = 'inline-flex'; $('btn-logout').style.display = 'inline-block'; await loadMasterKelas(); terapkanRoleMenu(); mulaiIdleWatcher(); mulaiHeartbeat(); loadPage('dashboard'); } else { doLogout(); } } catch(e) { doLogout(); }
   } else {
     $('modal-login').classList.add('show'); setTimeout(() => $('login-user').focus(), 300);
   }

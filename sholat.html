@@ -187,6 +187,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:1rem">
         <div class="field" style="margin:0"><label>Dari</label><input type="date" id="lap-dari"></div>
         <div class="field" style="margin:0"><label>Sampai</label><input type="date" id="lap-sampai"></div>
+        <div class="field" style="margin:0"><label>Kelas</label><select id="lap-kelas"><option value="">Semua Kelas</option></select></div>
         <div class="field" style="margin:0"><label>Mode</label><select id="lap-mode"><option value="siswa">Per Siswa</option><option value="hari">Per Hari</option></select></div>
       </div>
       <button class="btn btn-primary" id="btn-load-laporan"><i class="fas fa-search"></i> Tampilkan</button>
@@ -553,9 +554,10 @@ async function hapusUdzur(row) {
 
 $('btn-load-laporan').addEventListener('click', async () => {
   const dari = $('lap-dari').value; const sampai = $('lap-sampai').value; const mode = $('lap-mode').value;
+  const kelas = $('lap-kelas').value;
   if (!dari || !sampai) { toast('Isi tanggal.', true); return; }
   try {
-    const res = await apiCall('getLaporan', { jenis: 'sholat', dari, sampai });
+    const res = await apiCall('getLaporan', { jenis: 'sholat', dari, sampai, kelas });
     if (!res.ok) { toast(res.message, true); return; }
     const data = res.data;
     $('lap-table-wrap').style.display = 'block';
@@ -566,9 +568,9 @@ $('btn-load-laporan').addEventListener('click', async () => {
     }
     if (mode === 'siswa') {
       const rekap = {};
-      data.forEach(r => { if (!rekap[r.nis]) rekap[r.nis] = { nis: r.nis, nama: r.nama, hadir: 0, udzur: 0 }; if (r.status === 'HADIR') rekap[r.nis].hadir++; else if (r.status === 'UDZUR') rekap[r.nis].udzur++; });
-      $('lap-thead').innerHTML = '<tr><th>NIS</th><th>Nama</th><th>Hadir</th><th>Udzur</th></tr>';
-      $('lap-tbody').innerHTML = Object.values(rekap).map(r => `<tr><td>${r.nis}</td><td>${r.nama}</td><td>${r.hadir}</td><td>${r.udzur}</td></tr>`).join('');
+      data.forEach(r => { if (!rekap[r.nis]) rekap[r.nis] = { nis: r.nis, nama: r.nama, kelas: r.kelas, hadir: 0, udzur: 0 }; if (r.status === 'HADIR') rekap[r.nis].hadir++; else if (r.status === 'UDZUR') rekap[r.nis].udzur++; });
+      $('lap-thead').innerHTML = '<tr><th>NIS</th><th>Nama</th><th>Kelas</th><th>Hadir</th><th>Udzur</th></tr>';
+      $('lap-tbody').innerHTML = Object.values(rekap).map(r => `<tr><td>${r.nis}</td><td>${r.nama}</td><td>${r.kelas}</td><td>${r.hadir}</td><td>${r.udzur}</td></tr>`).join('');
     } else {
       const rekap = {};
       data.forEach(r => { if (!rekap[r.tanggal]) rekap[r.tanggal] = { tanggal: r.tanggal, hadir: 0, udzur: 0 }; if (r.status === 'HADIR') rekap[r.tanggal].hadir++; else if (r.status === 'UDZUR') rekap[r.tanggal].udzur++; });

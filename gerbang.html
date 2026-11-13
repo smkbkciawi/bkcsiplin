@@ -9,132 +9,48 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --navy-900:#050B1F;
-    --navy-800:#0A1533;
-    --navy-700:#102252;
-    --navy-600:#193070;
-    --accent:#3B82F6;
-    --accent-2:#60A5FA;
-    --success:#10B981;
-    --warning:#F59E0B;
-    --danger:#EF4444;
-    --text:#E5EEFF;
-    --muted:#8CA3C7;
-    --card:#0E1C42;
-    --border:rgba(96,165,250,.22);
+    --navy-900:#050B1F; --navy-800:#0A1533; --navy-700:#102252; --accent:#3B82F6; --accent-2:#60A5FA;
+    --success:#10B981; --warning:#F59E0B; --danger:#EF4444; --text:#E5EEFF; --muted:#8CA3C7;
+    --card:#0E1C42; --border:rgba(96,165,250,.22);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{
     font-family:'Inter',system-ui,sans-serif;
-    background:
-      radial-gradient(1200px 700px at 10% -10%, #14306B 0%, transparent 60%),
-      radial-gradient(900px 600px at 110% 110%, #0F2450 0%, transparent 55%),
-      var(--navy-900);
-    color:var(--text);
-    min-height:100vh;
-    overflow:hidden;
-    -webkit-tap-highlight-color:transparent;
+    background: radial-gradient(1200px 700px at 10% -10%, #14306B 0%, transparent 60%), radial-gradient(900px 600px at 110% 110%, #0F2450 0%, transparent 55%), var(--navy-900);
+    color:var(--text); min-height:100vh; overflow:hidden; -webkit-tap-highlight-color:transparent;
   }
-
-  /* ================= HEADER ================= */
   header{
-    position:fixed;top:0;left:0;right:0;z-index:40;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:.9rem 1.4rem;
-    background:linear-gradient(180deg, rgba(5,11,31,.92), rgba(5,11,31,.65));
-    backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--border);
+    position:fixed;top:0;left:0;right:0;z-index:40; display:flex;align-items:center;justify-content:space-between;
+    padding:.9rem 1.4rem; background:linear-gradient(180deg, rgba(5,11,31,.92), rgba(5,11,31,.65));
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--border);
   }
   .brand{display:flex;align-items:center;gap:.8rem;min-width:0}
-  .brand-logo{
-    width:44px;height:44px;border-radius:12px;
-    background:linear-gradient(135deg,var(--accent),#1E40AF);
-    display:grid;place-items:center;flex:0 0 auto;
-    font-weight:900;font-size:1.05rem;letter-spacing:.5px;
-    box-shadow:0 6px 20px rgba(59,130,246,.35);
-  }
+  .brand-logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#1E40AF);display:grid;place-items:center;flex:0 0 auto;font-weight:900;font-size:1.05rem;letter-spacing:.5px;box-shadow:0 6px 20px rgba(59,130,246,.35)}
   .brand-txt{display:flex;flex-direction:column;min-width:0}
   .brand-txt b{font-size:.95rem;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .brand-txt span{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
   .header-right{display:flex;align-items:center;gap:.9rem}
-  .pill{
-    display:inline-flex;align-items:center;gap:.4rem;
-    padding:.4rem .75rem;border-radius:999px;
-    background:rgba(59,130,246,.14);
-    border:1px solid var(--border);
-    font-size:.75rem;font-weight:600;color:var(--accent-2);
-    white-space:nowrap;
-  }
+  .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .75rem;border-radius:999px;background:rgba(59,130,246,.14);border:1px solid var(--border);font-size:.75rem;font-weight:600;color:var(--accent-2);white-space:nowrap}
   .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success)}
-  .btn-icon{
-    width:38px;height:38px;border-radius:10px;
-    background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);
-    color:#FCA5A5;cursor:pointer;display:grid;place-items:center;
-    font-size:1rem;transition:.15s;
-  }
+  .btn-icon{width:38px;height:38px;border-radius:10px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#FCA5A5;cursor:pointer;display:grid;place-items:center;font-size:1rem;transition:.15s}
   .btn-icon:hover{background:rgba(239,68,68,.25)}
 
-  /* ================= MAIN ================= */
-  main{
-    height:100vh;padding:80px 1.4rem 1.4rem;
-    display:grid;grid-template-columns:1.15fr 1fr;gap:1.2rem;
-  }
-
-  /* ---- KIRI: JAM + STATUS ---- */
+  main{height:100vh;padding:80px 1.4rem 1.4rem; display:grid;grid-template-columns:1.15fr 1fr;gap:1.2rem;}
   .left{display:flex;flex-direction:column;gap:1rem;min-height:0}
-  .clock-card{
-    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:linear-gradient(180deg,var(--card),var(--navy-800));
-    border:1px solid var(--border);border-radius:22px;
-    padding:1rem;text-align:center;position:relative;overflow:hidden;
-    min-height:0;
-  }
-  .clock-card::after{
-    content:"";position:absolute;inset:auto -20% -40% -20%;height:60%;
-    background:radial-gradient(closest-side, rgba(59,130,246,.18), transparent);
-    pointer-events:none;
-  }
+  .clock-card{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--card),var(--navy-800));border:1px solid var(--border);border-radius:22px;padding:1rem;text-align:center;position:relative;overflow:hidden;min-height:0}
+  .clock-card::after{content:"";position:absolute;inset:auto -20% -40% -20%;height:60%;background:radial-gradient(closest-side, rgba(59,130,246,.18), transparent);pointer-events:none}
   .clock-label{font-size:.7rem;letter-spacing:.28em;color:var(--muted);font-weight:700;margin-bottom:.4rem}
-  .clock-time{
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
-    font-size:clamp(3.2rem, 11vw, 12rem);
-    line-height:.92;
-    letter-spacing:-.02em;
-    background:linear-gradient(180deg,#FFFFFF,#93C5FD);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    text-shadow:0 0 40px rgba(96,165,250,.18);
-  }
-  .clock-seconds{
-    font-family:'JetBrains Mono',monospace;
-    color:var(--accent-2);font-weight:700;font-size:clamp(1rem,3.6vw,2.4rem);
-    margin-left:.4rem;
-  }
-  .clock-date{
-    margin-top:.65rem;font-size:clamp(.85rem,1.6vw,1.15rem);
-    color:#DCE8FF;font-weight:600;letter-spacing:.3px;
-  }
+  .clock-time{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:clamp(3.2rem, 11vw, 12rem);line-height:.92;letter-spacing:-.02em;background:linear-gradient(180deg,#FFFFFF,#93C5FD);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px rgba(96,165,250,.18)}
+  .clock-seconds{font-family:'JetBrains Mono',monospace;color:var(--accent-2);font-weight:700;font-size:clamp(1rem,3.6vw,2.4rem);margin-left:.4rem}
+  .clock-date{margin-top:.65rem;font-size:clamp(.85rem,1.6vw,1.15rem);color:#DCE8FF;font-weight:600;letter-spacing:.3px}
   .clock-tz{font-size:.72rem;color:var(--muted);letter-spacing:.25em;margin-top:.25rem;font-weight:700}
 
-  .status-card{
-    background:linear-gradient(180deg,var(--card),var(--navy-800));
-    border:1px solid var(--border);border-radius:22px;
-    padding:1rem 1.2rem;min-height:130px;
-    display:flex;flex-direction:column;justify-content:center;gap:.35rem;
-    position:relative;overflow:hidden;
-    transition:.25s;
-  }
+  .status-card{background:linear-gradient(180deg,var(--card),var(--navy-800));border:1px solid var(--border);border-radius:22px;padding:1rem 1.2rem;min-height:130px;display:flex;flex-direction:column;justify-content:center;gap:.35rem;position:relative;overflow:hidden;transition:.25s}
   .status-card .label{font-size:.7rem;letter-spacing:.25em;color:var(--muted);font-weight:700}
   .status-card .nama{font-size:clamp(1.3rem,3vw,2.1rem);font-weight:800;letter-spacing:-.01em;line-height:1.15}
   .status-card .sub{font-size:clamp(.8rem,1.6vw,1rem);color:#B9CDF0;font-weight:600}
-  .status-card .badge{
-    display:inline-flex;align-items:center;gap:.4rem;align-self:flex-start;
-    margin-top:.45rem;padding:.35rem .8rem;border-radius:999px;
-    font-size:.78rem;font-weight:800;letter-spacing:.05em;
-    background:rgba(59,130,246,.18);border:1px solid var(--border);color:var(--accent-2);
-  }
+  .status-card .badge{display:inline-flex;align-items:center;gap:.4rem;align-self:flex-start;margin-top:.45rem;padding:.35rem .8rem;border-radius:999px;font-size:.78rem;font-weight:800;letter-spacing:.05em;background:rgba(59,130,246,.18);border:1px solid var(--border);color:var(--accent-2)}
   .status-card.ok{border-color:rgba(16,185,129,.5);box-shadow:0 0 0 1px rgba(16,185,129,.15), 0 12px 40px rgba(16,185,129,.12)}
   .status-card.ok .badge{background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.5);color:#6EE7B7}
   .status-card.warn{border-color:rgba(245,158,11,.5);box-shadow:0 0 0 1px rgba(245,158,11,.15), 0 12px 40px rgba(245,158,11,.12)}
@@ -142,164 +58,70 @@
   .status-card.err{border-color:rgba(239,68,68,.5);box-shadow:0 0 0 1px rgba(239,68,68,.15), 0 12px 40px rgba(239,68,68,.12)}
   .status-card.err .badge{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.5);color:#FCA5A5}
 
-  /* ---- KANAN: SEARCH & INFO ---- */
   .right{display:flex;flex-direction:column;gap:1rem;min-height:0}
-
-  .search-card{
-    background:linear-gradient(180deg,var(--card),var(--navy-800));
-    border:1px solid var(--border);border-radius:22px;padding:1.1rem;
-    display:flex;flex-direction:column;gap:.7rem;min-height:0;
-  }
+  .search-card{background:linear-gradient(180deg,var(--card),var(--navy-800));border:1px solid var(--border);border-radius:22px;padding:1.1rem;display:flex;flex-direction:column;gap:.7rem;min-height:0}
   .search-card h3{font-size:.72rem;letter-spacing:.25em;color:var(--muted);font-weight:800}
   .search-wrap{position:relative}
-  .search-wrap input{
-    width:100%;padding:.95rem 2.6rem .95rem 2.8rem;
-    background:#081634;border:1.5px solid var(--border);border-radius:14px;
-    color:var(--text);font-size:1rem;font-family:inherit;font-weight:600;
-    outline:none;transition:.15s;
-  }
+  .search-wrap input{width:100%;padding:.95rem 2.6rem .95rem 2.8rem;background:#081634;border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-size:1rem;font-family:inherit;font-weight:600;outline:none;transition:.15s}
   .search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
-  .search-wrap .icon{
-    position:absolute;left:.9rem;top:50%;transform:translateY(-50%);
-    color:var(--muted);font-size:1.05rem;pointer-events:none;
-  }
-  .search-wrap .clear-btn{
-    position:absolute;right:.5rem;top:50%;transform:translateY(-50%);
-    width:28px;height:28px;border-radius:8px;border:none;
-    background:rgba(148,163,184,.14);color:#CBD5E1;cursor:pointer;
-    display:none;place-items:center;font-size:.9rem;
-  }
+  .search-wrap .icon{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.05rem;pointer-events:none}
+  .search-wrap .clear-btn{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:8px;border:none;background:rgba(148,163,184,.14);color:#CBD5E1;cursor:pointer;display:none;place-items:center;font-size:.9rem}
   .search-wrap .clear-btn.show{display:grid}
 
-  .results{
-    display:flex;flex-direction:column;gap:.4rem;
-    max-height:340px;overflow-y:auto;
-    padding-right:.2rem;
-  }
+  .results{display:flex;flex-direction:column;gap:.4rem;max-height:340px;overflow-y:auto;padding-right:.2rem}
   .results::-webkit-scrollbar{width:6px}
   .results::-webkit-scrollbar-thumb{background:rgba(96,165,250,.3);border-radius:3px}
-  .result-item{
-    display:flex;align-items:center;gap:.8rem;
-    padding:.7rem .85rem;border-radius:12px;
-    background:rgba(15,35,80,.65);border:1px solid rgba(96,165,250,.14);
-    cursor:pointer;transition:.12s;text-align:left;
-  }
+  .result-item{display:flex;align-items:center;gap:.8rem;padding:.7rem .85rem;border-radius:12px;background:rgba(15,35,80,.65);border:1px solid rgba(96,165,250,.14);cursor:pointer;transition:.12s;text-align:left}
   .result-item:hover{background:rgba(29,61,130,.85);border-color:var(--accent);transform:translateX(2px)}
-  .result-item .avatar{
-    width:38px;height:38px;border-radius:10px;flex:0 0 auto;
-    background:linear-gradient(135deg,#1E3A8A,#3B82F6);
-    display:grid;place-items:center;font-weight:800;font-size:.85rem;color:#DBEAFE;
-  }
+  .result-item .avatar{width:38px;height:38px;border-radius:10px;flex:0 0 auto;display:grid;place-items:center;font-weight:800;font-size:.85rem;color:#DBEAFE}
+  .result-item .avatar.siswa{background:linear-gradient(135deg,#1E3A8A,#3B82F6)}
+  .result-item .avatar.guru{background:linear-gradient(135deg,#D97706,#F59E0B)}
   .result-item .info{min-width:0;flex:1}
   .result-item .info b{display:block;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .result-item .info span{font-size:.75rem;color:#93C5FD;font-weight:600}
   .result-item .nis{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);font-weight:700}
 
-  .empty-hint{
-    padding:1rem;text-align:center;color:var(--muted);font-size:.8rem;
-    border:1px dashed rgba(96,165,250,.25);border-radius:12px;
-  }
-
-  .info-card{
-    background:linear-gradient(180deg,var(--card),var(--navy-800));
-    border:1px solid var(--border);border-radius:22px;padding:1rem 1.2rem;
-    display:flex;align-items:center;justify-content:space-between;gap:1rem;
-    flex-wrap:wrap;
-  }
+  .empty-hint{padding:1rem;text-align:center;color:var(--muted);font-size:.8rem;border:1px dashed rgba(96,165,250,.25);border-radius:12px}
+  .info-card{background:linear-gradient(180deg,var(--card),var(--navy-800));border:1px solid var(--border);border-radius:22px;padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
   .info-card .meta{display:flex;flex-direction:column;gap:.15rem}
   .info-card .meta b{font-size:.85rem}
   .info-card .meta span{font-size:.72rem;color:var(--muted);font-weight:600}
-  .reader-hint{
-    display:inline-flex;align-items:center;gap:.5rem;
-    padding:.5rem .85rem;border-radius:10px;
-    background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);
-    color:#6EE7B7;font-size:.75rem;font-weight:700;
-  }
+  .reader-hint{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .85rem;border-radius:10px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#6EE7B7;font-size:.75rem;font-weight:700}
   .reader-hint .pulse{width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 1.4s infinite}
   @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,.5)}50%{opacity:.6;box-shadow:0 0 0 8px rgba(16,185,129,0)}}
 
-  /* ================= RFID HIDDEN INPUT ================= */
-  #rfid-input{
-    position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;
-  }
+  #rfid-input{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0}
 
-  /* ================= MODAL LOGIN ================= */
-  .modal-overlay{
-    position:fixed;inset:0;z-index:100;
-    background:radial-gradient(800px 500px at 50% 20%, rgba(29,78,216,.35), transparent 60%), rgba(3,7,20,.92);
-    backdrop-filter:blur(10px);
-    display:none;align-items:center;justify-content:center;padding:1rem;
-  }
+  .modal-overlay{position:fixed;inset:0;z-index:100;background:radial-gradient(800px 500px at 50% 20%, rgba(29,78,216,.35), transparent 60%), rgba(3,7,20,.92);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:1rem}
   .modal-overlay.show{display:flex}
-  .modal{
-    width:100%;max-width:420px;
-    background:linear-gradient(180deg,#0E1C42,#0A1533);
-    border:1px solid var(--border);border-radius:22px;padding:2rem 1.7rem 1.7rem;
-    box-shadow:0 40px 80px rgba(0,0,0,.6);
-    animation:modalIn .3s ease;
-  }
+  .modal{width:100%;max-width:420px;background:linear-gradient(180deg,#0E1C42,#0A1533);border:1px solid var(--border);border-radius:22px;padding:2rem 1.7rem 1.7rem;box-shadow:0 40px 80px rgba(0,0,0,.6);animation:modalIn .3s ease}
   @keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
-  .modal-logo{
-    width:56px;height:56px;border-radius:16px;margin:0 auto 1rem;
-    background:linear-gradient(135deg,var(--accent),#1E40AF);
-    display:grid;place-items:center;font-weight:900;font-size:1.2rem;
-    box-shadow:0 10px 30px rgba(59,130,246,.4);
-  }
+  .modal-logo{width:56px;height:56px;border-radius:16px;margin:0 auto 1rem;background:linear-gradient(135deg,var(--accent),#1E40AF);display:grid;place-items:center;font-weight:900;font-size:1.2rem;box-shadow:0 10px 30px rgba(59,130,246,.4)}
   .modal h2{font-size:1.25rem;text-align:center;margin-bottom:.25rem}
   .modal p.sub{text-align:center;font-size:.82rem;color:var(--muted);margin-bottom:1.4rem}
   .field{margin-bottom:.9rem}
   .field label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--muted);margin-bottom:.35rem}
-  .field input{
-    width:100%;padding:.85rem 1rem;
-    background:#081634;border:1.5px solid var(--border);border-radius:12px;
-    color:var(--text);font-size:.95rem;font-family:inherit;font-weight:600;outline:none;transition:.15s;
-  }
+  .field input{width:100%;padding:.85rem 1rem;background:#081634;border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-size:.95rem;font-family:inherit;font-weight:600;outline:none;transition:.15s}
   .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
-  .btn-primary{
-    width:100%;padding:.95rem;margin-top:.6rem;
-    background:linear-gradient(135deg,var(--accent),#1D4ED8);
-    color:#fff;border:none;border-radius:12px;
-    font-family:inherit;font-weight:800;font-size:.95rem;letter-spacing:.3px;
-    cursor:pointer;transition:.15s;
-    box-shadow:0 10px 30px rgba(59,130,246,.35);
-  }
+  .btn-primary{width:100%;padding:.95rem;margin-top:.6rem;background:linear-gradient(135deg,var(--accent),#1D4ED8);color:#fff;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:.95rem;letter-spacing:.3px;cursor:pointer;transition:.15s;box-shadow:0 10px 30px rgba(59,130,246,.35)}
   .btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 36px rgba(59,130,246,.45)}
   .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
-  .alert{
-    padding:.7rem .9rem;border-radius:10px;font-size:.82rem;font-weight:600;
-    margin-bottom:.9rem;display:none;
-  }
+  .alert{padding:.7rem .9rem;border-radius:10px;font-size:.82rem;font-weight:600;margin-bottom:.9rem;display:none}
   .alert.show{display:block}
   .alert.err{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.4);color:#FCA5A5}
 
-  /* ================= IDLE WARNING ================= */
   #idle-modal .modal{max-width:380px;text-align:center}
-  #idle-modal .countdown{
-    font-family:'JetBrains Mono',monospace;font-size:4rem;font-weight:700;
-    color:#FCA5A5;margin:.6rem 0 1rem;letter-spacing:-.03em;
-  }
-  #idle-modal .modal .btn-secondary{
-    width:100%;padding:.85rem;margin-top:.5rem;
-    background:rgba(148,163,184,.12);color:#CBD5E1;border:1px solid rgba(148,163,184,.3);
-    border-radius:12px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;
-  }
+  #idle-modal .countdown{font-family:'JetBrains Mono',monospace;font-size:4rem;font-weight:700;color:#FCA5A5;margin:.6rem 0 1rem;letter-spacing:-.03em}
+  #idle-modal .modal .btn-secondary{width:100%;padding:.85rem;margin-top:.5rem;background:rgba(148,163,184,.12);color:#CBD5E1;border:1px solid rgba(148,163,184,.3);border-radius:12px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer}
 
-  /* ================= TOAST ================= */
   #toast-wrap{position:fixed;top:88px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:.5rem;pointer-events:none}
-  .toast{
-    padding:.7rem 1.1rem;border-radius:12px;font-size:.85rem;font-weight:700;
-    background:rgba(16,185,129,.95);color:#022C22;
-    box-shadow:0 12px 40px rgba(16,185,129,.35);
-    animation:toastIn .25s ease;
-  }
+  .toast{padding:.7rem 1.1rem;border-radius:12px;font-size:.85rem;font-weight:700;background:rgba(16,185,129,.95);color:#022C22;box-shadow:0 12px 40px rgba(16,185,129,.35);animation:toastIn .25s ease}
   .toast.err{background:rgba(239,68,68,.95);color:#fff;box-shadow:0 12px 40px rgba(239,68,68,.35)}
   @keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 
-  /* ================= RESPONSIVE ================= */
   @media (max-width: 900px){
     main{grid-template-columns:1fr;padding-top:76px;gap:.9rem;overflow-y:auto}
-    .left{order:1}
-    .right{order:2}
+    .left{order:1} .right{order:2}
     .clock-time{font-size:clamp(3rem, 18vw, 6rem)}
     .clock-card{min-height:220px}
   }
@@ -315,7 +137,6 @@
 </head>
 <body>
 
-<!-- ================= HEADER ================= -->
 <header>
   <div class="brand">
     <div class="brand-logo">BK</div>
@@ -331,15 +152,11 @@
   </div>
 </header>
 
-<!-- ================= MAIN ================= -->
 <main>
-  <!-- KIRI -->
   <section class="left">
     <div class="clock-card">
       <div class="clock-label">WAKTU INDONESIA BARAT</div>
-      <div>
-        <span class="clock-time" id="clock-hm">--:--</span><span class="clock-seconds" id="clock-s">:--</span>
-      </div>
+      <div><span class="clock-time" id="clock-hm">--:--</span><span class="clock-seconds" id="clock-s">:--</span></div>
       <div class="clock-date" id="clock-date">Memuat tanggal…</div>
       <div class="clock-tz">WIB &middot; UTC+7</div>
     </div>
@@ -352,53 +169,43 @@
     </div>
   </section>
 
-  <!-- KANAN -->
   <section class="right">
     <div class="search-card">
       <h3>PENCARIAN MANUAL (LUPA BAWA KARTU)</h3>
       <div class="search-wrap">
         <span class="icon">🔍</span>
-        <input type="text" id="search-input" placeholder="Ketik minimal 2 huruf nama atau NIS…" autocomplete="off" />
+        <input type="text" id="search-input" placeholder="Ketik nama / NIS / ID Guru…" autocomplete="off" />
         <button class="clear-btn" id="search-clear" title="Bersihkan">✕</button>
       </div>
       <div class="results" id="results">
-        <div class="empty-hint">Hasil pencarian muncul di sini — nama, kelas, dan NIS akan ditampilkan.</div>
+        <div class="empty-hint">Hasil pencarian muncul di sini — Siswa dan Guru akan ditampilkan.</div>
       </div>
     </div>
 
     <div class="info-card">
       <div class="meta">
         <b>Mode Kios Gerbang</b>
-        <span>Tap kartu RFID / scan QR / cari manual</span>
+        <span>Tap RFID / Cari manual (Siswa & Guru)</span>
       </div>
       <div class="reader-hint"><span class="pulse"></span>Reader siap</div>
     </div>
   </section>
 </main>
 
-<!-- Input tersembunyi untuk RFID (selalu fokus) -->
 <input id="rfid-input" type="text" autocomplete="off" inputmode="none" aria-hidden="true" />
 
-<!-- ================= MODAL LOGIN ================= -->
 <div class="modal-overlay show" id="login-modal">
   <div class="modal">
     <div class="modal-logo">BK</div>
     <h2>Login Petugas Gerbang</h2>
     <p class="sub">Masukkan ID Guru &amp; PIN untuk membuka kios presensi.</p>
     <div class="alert err" id="login-alert"></div>
-    <div class="field">
-      <label for="login-user">ID GURU / NAMA</label>
-      <input type="text" id="login-user" placeholder="Contoh: G001" autocomplete="username" />
-    </div>
-    <div class="field">
-      <label for="login-pin">PIN</label>
-      <input type="password" id="login-pin" placeholder="••••••" autocomplete="current-password" inputmode="numeric" />
-    </div>
+    <div class="field"><label for="login-user">ID GURU / NAMA</label><input type="text" id="login-user" placeholder="Contoh: G001" autocomplete="username" /></div>
+    <div class="field"><label for="login-pin">PIN</label><input type="password" id="login-pin" placeholder="••••••" autocomplete="current-password" inputmode="numeric" /></div>
     <button class="btn-primary" id="btn-login">Masuk &amp; Buka Kios</button>
   </div>
 </div>
 
-<!-- ================= MODAL IDLE WARNING ================= -->
 <div class="modal-overlay" id="idle-modal">
   <div class="modal">
     <h2>Sesi Akan Berakhir</h2>
@@ -412,38 +219,23 @@
 <div id="toast-wrap"></div>
 
 <script>
-/* ============================================================
- * KONFIGURASI
- * ============================================================ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec'; // <-- WAJIB GANTI
+const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 const MODUL   = 'gerbang';
-const IDLE_TOTAL_MS   = 10 * 60 * 1000;   // 10 menit
-const IDLE_WARN_MS    = 30 * 1000;        // 30 detik terakhir
-const HEARTBEAT_MS    = 2 * 60 * 1000;    // 2 menit
-const ANTI_DUP_MS     = 5 * 1000;         // 5 detik
-const FETCH_TIMEOUT   = 12000;
+const IDLE_TOTAL_MS = 10 * 60 * 1000;
+const IDLE_WARN_MS  = 30 * 1000;
+const HEARTBEAT_MS  = 2 * 60 * 1000;
+const ANTI_DUP_MS   = 5 * 1000;
+const FETCH_TIMEOUT = 12000;
 
-/* ============================================================
- * STATE
- * ============================================================ */
 const state = {
   token: sessionStorage.getItem('bkc_token') || '',
   petugas: sessionStorage.getItem('bkc_petugas') || '',
   role: sessionStorage.getItem('bkc_role') || '',
-  lastTapAt: 0,
-  lastTapNis: '',
-  idleTimer: null,
-  idleWarnTimer: null,
-  idleDeadline: 0,
-  heartbeatTimer: null,
-  searchTimer: null,
-  searchAbort: null,
-  voiceReady: false
+  lastTapAt: 0, lastTapNis: '',
+  idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null,
+  searchTimer: null, searchAbort: null, voiceReady: false
 };
 
-/* ============================================================
- * UTIL
- * ============================================================ */
 const $ = (id) => document.getElementById(id);
 
 function toast(msg, isErr) {
@@ -455,245 +247,124 @@ function toast(msg, isErr) {
   setTimeout(() => el.remove(), 3200);
 }
 
-async function apiGet(action, params = {}) {
-  const q = new URLSearchParams({ action, token: state.token, ...params });
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT);
-  try {
-    const res = await fetch(`${API_URL}?${q}`, { signal: ctrl.signal });
-    return await res.json();
-  } finally { clearTimeout(t); }
+// Gunakan JSONP agar tembus CORS
+function apiCall(action, payload = {}, isPost = false) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'jsonp_' + Math.round(100000 * Math.random());
+    const script = document.createElement('script');
+    let url = `${API_URL}?callback=${cbName}&action=${action}&token=${state.token}`;
+    if (isPost) { url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`; }
+    else { for (let k in payload) { if (payload[k]) url += `&${k}=${encodeURIComponent(payload[k])}`; } }
+    window[cbName] = function(res) { document.body.removeChild(script); delete window[cbName]; resolve(res); };
+    script.src = url;
+    script.onerror = () => reject(new Error('Gagal koneksi ke server'));
+    document.body.appendChild(script);
+  });
 }
 
-async function apiPost(action, payload = {}) {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT);
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action, token: state.token, payload }),
-      signal: ctrl.signal
-    });
-    return await res.json();
-  } finally { clearTimeout(t); }
-}
-
-/* ============================================================
- * JAM & TANGGAL
- * ============================================================ */
 const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-
 function tickClock() {
   const now = new Date();
-  // Konversi ke WIB (UTC+7) secara eksplisit, apa pun timezone browser
   const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
-  const hh = String(wib.getHours()).padStart(2, '0');
-  const mm = String(wib.getMinutes()).padStart(2, '0');
-  const ss = String(wib.getSeconds()).padStart(2, '0');
-  $('clock-hm').textContent = `${hh}:${mm}`;
-  $('clock-s').textContent = `:${ss}`;
-  $('clock-date').textContent =
-    `${HARI[wib.getDay()]}, ${wib.getDate()} ${BULAN[wib.getMonth()]} ${wib.getFullYear()}`;
+  const hh = String(wib.getHours()).padStart(2, '0'), mm = String(wib.getMinutes()).padStart(2, '0'), ss = String(wib.getSeconds()).padStart(2, '0');
+  $('clock-hm').textContent = `${hh}:${mm}`; $('clock-s').textContent = `:${ss}`;
+  $('clock-date').textContent = `${HARI[wib.getDay()]}, ${wib.getDate()} ${BULAN[wib.getMonth()]} ${wib.getFullYear()}`;
 }
 setInterval(tickClock, 1000); tickClock();
 
-/* ============================================================
- * AUDIO TTS BAHASA INDONESIA
- * ============================================================ */
 function siapkanVoice() {
   if (!('speechSynthesis' in window)) return;
-  const load = () => {
-    const voices = speechSynthesis.getVoices();
-    if (voices.length) state.voiceReady = true;
-  };
-  load();
-  speechSynthesis.onvoiceschanged = load;
+  const load = () => { if (speechSynthesis.getVoices().length) state.voiceReady = true; };
+  load(); speechSynthesis.onvoiceschanged = load;
 }
 siapkanVoice();
-
 function ucapkan(teks) {
   if (!('speechSynthesis' in window)) return;
   try {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(teks);
-    u.lang = 'id-ID';
-    u.rate = 1.0;
-    u.pitch = 1.0;
-    u.volume = 1.0;
-    const voices = speechSynthesis.getVoices();
-    const v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith('id'));
+    u.lang = 'id-ID'; u.rate = 1.0; u.pitch = 1.0; u.volume = 1.0;
+    const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.toLowerCase().startsWith('id'));
     if (v) u.voice = v;
     speechSynthesis.speak(u);
   } catch (_) {}
 }
 
-/* ============================================================
- * STATUS CARD
- * ============================================================ */
 function tampilStatus(kelas, nama, sub, badge) {
   const c = $('status-card');
   c.classList.remove('ok','warn','err');
   if (kelas) c.classList.add(kelas);
-  $('status-nama').textContent = nama;
-  $('status-sub').textContent = sub;
+  $('status-nama').textContent = nama; $('status-sub').textContent = sub;
   const b = $('status-badge');
   if (badge) { b.style.display = 'inline-flex'; b.textContent = badge; }
   else b.style.display = 'none';
 }
 
-/* ============================================================
- * LOGIN
- * ============================================================ */
 async function doLogin() {
-  const username = $('login-user').value.trim();
-  const pin = $('login-pin').value.trim();
-  const alertEl = $('login-alert');
-  alertEl.classList.remove('show');
-
-  if (!username || !pin) {
-    alertEl.textContent = 'ID/Username dan PIN wajib diisi.';
-    alertEl.classList.add('show');
-    return;
-  }
-
-  const btn = $('btn-login');
-  btn.disabled = true; btn.textContent = 'Memeriksa…';
-
+  const username = $('login-user').value.trim(); const pin = $('login-pin').value.trim();
+  const alertEl = $('login-alert'); alertEl.classList.remove('show');
+  if (!username || !pin) { alertEl.textContent = 'ID/Username dan PIN wajib diisi.'; alertEl.classList.add('show'); return; }
+  const btn = $('btn-login'); btn.disabled = true; btn.textContent = 'Memeriksa…';
   try {
-    const res = await apiPost('login', { username, pin, modul: MODUL });
-    if (!res.ok) {
-      alertEl.textContent = res.message || 'Login gagal.';
-      alertEl.classList.add('show');
-      return;
-    }
-    state.token = res.data.token;
-    state.petugas = res.data.nama;
-    state.role = res.data.role;
-    sessionStorage.setItem('bkc_token', state.token);
-    sessionStorage.setItem('bkc_petugas', state.petugas);
-    sessionStorage.setItem('bkc_role', state.role);
-
-    $('petugas-label').textContent = state.petugas;
-    $('sesi-pill').style.display = 'inline-flex';
-    $('login-modal').classList.remove('show');
-    $('login-user').value = '';
-    $('login-pin').value = '';
-
+    const res = await apiCall('login', { username, pin, modul: MODUL }, true);
+    if (!res.ok) { alertEl.textContent = res.message || 'Login gagal.'; alertEl.classList.add('show'); return; }
+    state.token = res.data.token; state.petugas = res.data.nama; state.role = res.data.role;
+    sessionStorage.setItem('bkc_token', state.token); sessionStorage.setItem('bkc_petugas', state.petugas); sessionStorage.setItem('bkc_role', state.role);
+    $('petugas-label').textContent = state.petugas; $('sesi-pill').style.display = 'inline-flex';
+    $('login-modal').classList.remove('show'); $('login-user').value = ''; $('login-pin').value = '';
     tampilStatus('ok', 'Siap menerima presensi', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
     ucapkan('Login berhasil. Selamat bertugas, ' + state.petugas);
-    mulaiIdleWatcher();
-    mulaiHeartbeat();
-    fokusRFID();
-  } catch (err) {
-    alertEl.textContent = 'Tidak dapat menghubungi server. Periksa koneksi.';
-    alertEl.classList.add('show');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Masuk & Buka Kios';
-  }
+    mulaiIdleWatcher(); mulaiHeartbeat(); fokusRFID();
+  } catch (err) { alertEl.textContent = 'Tidak dapat menghubungi server.'; alertEl.classList.add('show'); }
+  finally { btn.disabled = false; btn.textContent = 'Masuk & Buka Kios'; }
 }
-
 $('btn-login').addEventListener('click', doLogin);
 $('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 $('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-pin').focus(); });
 
-/* ============================================================
- * LOGOUT
- * ============================================================ */
 async function doLogout(reason) {
-  try { await apiPost('logout', { alasan: reason || 'Logout manual' }); } catch (_) {}
-  sessionStorage.removeItem('bkc_token');
-  sessionStorage.removeItem('bkc_petugas');
-  sessionStorage.removeItem('bkc_role');
+  try { await apiCall('logout', { alasan: reason || 'Logout manual' }, true); } catch (_) {}
+  sessionStorage.removeItem('bkc_token'); sessionStorage.removeItem('bkc_petugas'); sessionStorage.removeItem('bkc_role');
   state.token = ''; state.petugas = ''; state.role = '';
-  hentikanIdleWatcher();
-  hentikanHeartbeat();
-  $('petugas-label').textContent = 'Belum login';
-  $('sesi-pill').style.display = 'none';
-  $('idle-modal').classList.remove('show');
-  $('login-modal').classList.add('show');
-  $('login-user').focus();
+  hentikanIdleWatcher(); hentikanHeartbeat();
+  $('petugas-label').textContent = 'Belum login'; $('sesi-pill').style.display = 'none';
+  $('idle-modal').classList.remove('show'); $('login-modal').classList.add('show'); $('login-user').focus();
   tampilStatus('', 'Menunggu kartu…', 'Silakan login untuk membuka kios.', '');
   if ('speechSynthesis' in window) speechSynthesis.cancel();
 }
-
 $('btn-logout').addEventListener('click', () => { if (confirm('Logout dari kios?')) doLogout('Logout manual'); });
 $('btn-logout-now').addEventListener('click', () => doLogout('Logout dari peringatan idle'));
 
-/* ============================================================
- * IDLE WATCHER (10 MENIT)
- * ============================================================ */
 function resetIdle() {
   if (!state.token) return;
-  state.idleDeadline = Date.now() + IDLE_TOTAL_MS;
-  clearTimeout(state.idleWarnTimer);
-  $('idle-modal').classList.remove('show');
-
+  state.idleDeadline = Date.now() + IDLE_TOTAL_MS; clearTimeout(state.idleWarnTimer); $('idle-modal').classList.remove('show');
   state.idleWarnTimer = setTimeout(() => {
     if (!state.token) return;
     $('idle-modal').classList.add('show');
-    let sisa = Math.ceil(IDLE_WARN_MS / 1000);
-    $('idle-countdown').textContent = sisa;
-    const iv = setInterval(() => {
-      sisa--;
-      $('idle-countdown').textContent = sisa;
-      if (sisa <= 0) {
-        clearInterval(iv);
-        doLogout('Idle timeout');
-      }
-    }, 1000);
+    let sisa = Math.ceil(IDLE_WARN_MS / 1000); $('idle-countdown').textContent = sisa;
+    const iv = setInterval(() => { sisa--; $('idle-countdown').textContent = sisa; if (sisa <= 0) { clearInterval(iv); doLogout('Idle timeout'); } }, 1000);
   }, IDLE_TOTAL_MS - IDLE_WARN_MS);
 }
-
 function mulaiIdleWatcher() {
   resetIdle();
-  ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(ev =>
-    document.addEventListener(ev, resetIdle, { passive: true })
-  );
+  ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(ev => document.addEventListener(ev, resetIdle, { passive: true }));
   state.idleTimer = setInterval(() => {
     if (!state.token) return;
     const sisa = Math.max(0, state.idleDeadline - Date.now());
-    const mm = String(Math.floor(sisa / 60000)).padStart(2,'0');
-    const ss = String(Math.floor((sisa % 60000) / 1000)).padStart(2,'0');
-    $('sesi-timer').textContent = `${mm}:${ss}`;
+    $('sesi-timer').textContent = `${String(Math.floor(sisa / 60000)).padStart(2,'0')}:${String(Math.floor((sisa % 60000) / 1000)).padStart(2,'0')}`;
   }, 1000);
 }
+function hentikanIdleWatcher() { clearTimeout(state.idleWarnTimer); clearInterval(state.idleTimer); }
+$('btn-stay').addEventListener('click', () => { resetIdle(); apiCall('heartbeat').catch(()=>{}); toast('Sesi diperpanjang'); fokusRFID(); });
 
-function hentikanIdleWatcher() {
-  clearTimeout(state.idleWarnTimer);
-  clearInterval(state.idleTimer);
-}
-
-$('btn-stay').addEventListener('click', () => {
-  resetIdle();
-  apiPost('heartbeat').catch(() => {});
-  toast('Sesi diperpanjang');
-  fokusRFID();
-});
-
-/* ============================================================
- * HEARTBEAT (SINKRON IDLE SERVER)
- * ============================================================ */
 function mulaiHeartbeat() {
   hentikanHeartbeat();
-  state.heartbeatTimer = setInterval(() => {
-    if (!state.token) return;
-    apiPost('heartbeat').then(r => {
-      if (!r.ok) doLogout('Sesi server berakhir');
-    }).catch(() => {});
-  }, HEARTBEAT_MS);
+  state.heartbeatTimer = setInterval(() => { if (!state.token) return; apiCall('heartbeat').then(r => { if (!r.ok) doLogout('Sesi server berakhir'); }).catch(() => {}); }, HEARTBEAT_MS);
 }
 function hentikanHeartbeat() { clearInterval(state.heartbeatTimer); }
 
-/* ============================================================
- * RFID AUTO-FOCUS LOCK
- * ============================================================ */
-function fokusRFID() {
-  const inp = $('rfid-input');
-  if (!inp) return;
-  try { inp.focus({ preventScroll: true }); } catch (_) { inp.focus(); }
-}
+function fokusRFID() { const inp = $('rfid-input'); try { inp.focus({ preventScroll: true }); } catch (_) { inp.focus(); } }
 setInterval(() => {
   if (!state.token) return;
   const active = document.activeElement;
@@ -704,157 +375,72 @@ setInterval(() => {
 $('rfid-input').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
-    const val = e.target.value.trim();
-    e.target.value = '';
+    const val = e.target.value.trim(); e.target.value = '';
     if (val) prosesPresensi(val, 'RFID');
   }
 });
 
-/* ============================================================
- * PRESENSI (RFID / MANUAL)
- * ============================================================ */
-async function prosesPresensi(nis, sumber) {
+async function prosesPresensi(kode, sumber) {
   if (!state.token) return;
-  if (Date.now() - state.lastTapAt < ANTI_DUP_MS && state.lastTapNis === nis) {
-    return;
-  }
-  state.lastTapAt = Date.now();
-  state.lastTapNis = nis;
-
-  tampilStatus('', 'Memproses…', `NIS ${nis}`, 'MEMUAT');
-  resetIdle();
-
+  if (Date.now() - state.lastTapAt < ANTI_DUP_MS && state.lastTapNis === kode) return;
+  state.lastTapAt = Date.now(); state.lastTapNis = kode;
+  tampilStatus('', 'Memproses…', `Kode ${kode}`, 'MEMUAT'); resetIdle();
   try {
-    const res = await apiPost('presensiGerbang', { nis, sumber, tipe: 'SISWA' });
-    if (!res.ok) {
-      tampilStatus('err', 'Gagal', res.message || 'Presensi gagal', 'DITOLAK');
-      toast(res.message || 'Gagal', true);
-      ucapkan('Presensi gagal. ' + (res.message || ''));
-      return;
-    }
+    const res = await apiCall('presensiGerbang', { nis: kode, sumber: sumber, tipe: 'SISWA' }, true);
+    if (!res.ok) { tampilStatus('err', 'Gagal', res.message || 'Presensi gagal', 'DITOLAK'); toast(res.message || 'Gagal', true); ucapkan('Presensi gagal. ' + (res.message || '')); return; }
     const d = res.data;
     const st = (d.status || '').replace('_', ' ');
     const kelasCss = d.status === 'TERLAMBAT' ? 'warn' : 'ok';
-    tampilStatus(kelasCss, d.nama, `${d.kelas} · NIS ${d.nis} · ${d.jam} WIB`, st);
-    toast(`${d.nama} — ${st}`);
-    ucapkan(`${d.nama}, ${st}`);
-  } catch (err) {
-    tampilStatus('err', 'Koneksi gagal', 'Periksa jaringan Anda', 'ERROR');
-    toast('Tidak dapat menghubungi server', true);
-  } finally {
-    fokusRFID();
-  }
+    tampilStatus(kelasCss, d.nama, `${d.kelas} · ${d.jam} WIB`, st);
+    toast(`${d.nama} — ${st}`); ucapkan(`${d.nama}, ${st}`);
+  } catch (err) { tampilStatus('err', 'Koneksi gagal', 'Periksa jaringan Anda', 'ERROR'); toast('Tidak dapat menghubungi server', true); }
+  finally { fokusRFID(); }
 }
 
-/* ============================================================
- * LIVE SEARCH (AUTOCOMPLETE)
- * ============================================================ */
-const searchInput = $('search-input');
-const resultsEl = $('results');
-const clearBtn = $('search-clear');
-
+const searchInput = $('search-input'); const resultsEl = $('results'); const clearBtn = $('search-clear');
 searchInput.addEventListener('input', () => {
-  const q = searchInput.value.trim();
-  clearBtn.classList.toggle('show', q.length > 0);
-
+  const q = searchInput.value.trim(); clearBtn.classList.toggle('show', q.length > 0);
   if (state.searchTimer) clearTimeout(state.searchTimer);
   if (state.searchAbort) state.searchAbort.abort();
-
-  if (q.length < 2) {
-    resultsEl.innerHTML = '<div class="empty-hint">Ketik minimal 2 huruf nama atau NIS…</div>';
-    return;
-  }
-
+  if (q.length < 2) { resultsEl.innerHTML = '<div class="empty-hint">Ketik minimal 2 huruf…</div>'; return; }
   resultsEl.innerHTML = '<div class="empty-hint">Mencari…</div>';
-
   state.searchTimer = setTimeout(async () => {
     try {
-      const res = await apiGet('searchSiswa', { q });
-      if (!res.ok) {
-        resultsEl.innerHTML = `<div class="empty-hint">${res.message || 'Gagal mencari.'}</div>`;
-        return;
-      }
-      if (!res.data.length) {
-        resultsEl.innerHTML = '<div class="empty-hint">Tidak ada siswa cocok.</div>';
-        return;
-      }
+      const res = await apiCall('searchOrang', { q });
+      if (!res.ok) { resultsEl.innerHTML = `<div class="empty-hint">${res.message || 'Gagal mencari.'}</div>`; return; }
+      if (!res.data.length) { resultsEl.innerHTML = '<div class="empty-hint">Tidak ada siswa/guru cocok.</div>'; return; }
       resultsEl.innerHTML = '';
       res.data.forEach(s => {
-        const btn = document.createElement('button');
-        btn.className = 'result-item';
-        btn.innerHTML = `
-          <div class="avatar">${(s.nama || '?').slice(0,2).toUpperCase()}</div>
-          <div class="info">
-            <b>${escapeHtml(s.nama)}</b>
-            <span>${escapeHtml(s.kelas)}</span>
-          </div>
-          <div class="nis">${escapeHtml(String(s.nis))}</div>
-        `;
+        const btn = document.createElement('button'); btn.className = 'result-item';
+        const avatarClass = s.tipe === 'GURU' ? 'guru' : 'siswa';
+        const labelTipe = s.tipe === 'GURU' ? '👨‍🏫 Guru' : '🎓 Siswa';
+        btn.innerHTML = `<div class="avatar ${avatarClass}">${(s.nama || '?').slice(0,2).toUpperCase()}</div><div class="info"><b>${escapeHtml(s.nama)}</b><span>${labelTipe} &middot; ${escapeHtml(s.kelas)}</span></div><div class="nis">${escapeHtml(String(s.id))}</div>`;
         btn.addEventListener('click', () => {
-          searchInput.value = '';
-          clearBtn.classList.remove('show');
-          resultsEl.innerHTML = '<div class="empty-hint">Hasil pencarian muncul di sini.</div>';
-          prosesPresensi(String(s.nis), 'MANUAL');
+          searchInput.value = ''; clearBtn.classList.remove('show'); resultsEl.innerHTML = '<div class="empty-hint">Hasil pencarian muncul di sini.</div>';
+          prosesPresensi(String(s.id), 'MANUAL');
         });
         resultsEl.appendChild(btn);
       });
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        resultsEl.innerHTML = '<div class="empty-hint">Koneksi bermasalah.</div>';
-      }
-    }
+    } catch (err) { if (err.name !== 'AbortError') resultsEl.innerHTML = '<div class="empty-hint">Koneksi bermasalah.</div>'; }
   }, 280);
 });
+clearBtn.addEventListener('click', () => { searchInput.value = ''; clearBtn.classList.remove('show'); resultsEl.innerHTML = '<div class="empty-hint">Hasil pencarian muncul di sini.</div>'; fokusRFID(); });
+searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') { searchInput.value = ''; clearBtn.classList.remove('show'); fokusRFID(); } });
 
-clearBtn.addEventListener('click', () => {
-  searchInput.value = '';
-  clearBtn.classList.remove('show');
-  resultsEl.innerHTML = '<div class="empty-hint">Hasil pencarian muncul di sini.</div>';
-  fokusRFID();
-});
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
-searchInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    searchInput.value = '';
-    clearBtn.classList.remove('show');
-    fokusRFID();
-  }
-});
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  })[c]);
-}
-
-/* ============================================================
- * INIT
- * ============================================================ */
 (function init() {
-  if (API_URL.indexOf('ISI_URL') === 0) {
-    alert('API_URL belum diisi di gerbang.html. Buka file, cari baris API_URL, ganti dengan URL /exec dari Apps Script.');
-  }
+  if (API_URL.indexOf('ISI_URL') === 0) alert('API_URL belum diisi.');
   if (state.token) {
-    // Validasi token saat halaman dibuka ulang
-    apiPost('heartbeat').then(r => {
+    apiCall('heartbeat').then(r => {
       if (r.ok) {
-        $('petugas-label').textContent = state.petugas;
-        $('sesi-pill').style.display = 'inline-flex';
-        $('login-modal').classList.remove('show');
+        $('petugas-label').textContent = state.petugas; $('sesi-pill').style.display = 'inline-flex'; $('login-modal').classList.remove('show');
         tampilStatus('ok', 'Siap menerima presensi', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
-        mulaiIdleWatcher();
-        mulaiHeartbeat();
-        fokusRFID();
-      } else {
-        doLogout('Token tidak valid');
-      }
-    }).catch(() => {
-      // Offline: tetap tampilkan login agar tidak stuck
-      $('login-modal').classList.add('show');
-    });
+        mulaiIdleWatcher(); mulaiHeartbeat(); fokusRFID();
+      } else doLogout('Token tidak valid');
+    }).catch(() => $('login-modal').classList.add('show'));
   } else {
-    $('login-modal').classList.add('show');
-    setTimeout(() => $('login-user').focus(), 300);
+    $('login-modal').classList.add('show'); setTimeout(() => $('login-user').focus(), 300);
   }
 })();
 </script>

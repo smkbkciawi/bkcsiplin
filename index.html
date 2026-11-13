@@ -1,1004 +1,862 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BKCSiplin - Portal Terpadu SMK Bhakti Kencana Ciawi</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Presensi Gerbang — SMK Bhakti Kencana Ciawi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#050B1F;
+    --navy-800:#0A1533;
+    --navy-700:#102252;
+    --navy-600:#193070;
+    --accent:#3B82F6;
+    --accent-2:#60A5FA;
+    --success:#10B981;
+    --warning:#F59E0B;
+    --danger:#EF4444;
+    --text:#E5EEFF;
+    --muted:#8CA3C7;
+    --card:#0E1C42;
+    --border:rgba(96,165,250,.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 10% -10%, #14306B 0%, transparent 60%),
+      radial-gradient(900px 600px at 110% 110%, #0F2450 0%, transparent 55%),
+      var(--navy-900);
+    color:var(--text);
+    min-height:100vh;
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
 
-  <!-- CSS Bootstrap 5 & Font Awesome 6 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  /* ================= HEADER ================= */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.9rem 1.4rem;
+    background:linear-gradient(180deg, rgba(5,11,31,.92), rgba(5,11,31,.65));
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand{display:flex;align-items:center;gap:.8rem;min-width:0}
+  .brand-logo{
+    width:44px;height:44px;border-radius:12px;
+    background:linear-gradient(135deg,var(--accent),#1E40AF);
+    display:grid;place-items:center;flex:0 0 auto;
+    font-weight:900;font-size:1.05rem;letter-spacing:.5px;
+    box-shadow:0 6px 20px rgba(59,130,246,.35);
+  }
+  .brand-txt{display:flex;flex-direction:column;min-width:0}
+  .brand-txt b{font-size:.95rem;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand-txt span{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-  <!-- Libraries Eksternal -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  .header-right{display:flex;align-items:center;gap:.9rem}
+  .pill{
+    display:inline-flex;align-items:center;gap:.4rem;
+    padding:.4rem .75rem;border-radius:999px;
+    background:rgba(59,130,246,.14);
+    border:1px solid var(--border);
+    font-size:.75rem;font-weight:600;color:var(--accent-2);
+    white-space:nowrap;
+  }
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success)}
+  .btn-icon{
+    width:38px;height:38px;border-radius:10px;
+    background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);
+    color:#FCA5A5;cursor:pointer;display:grid;place-items:center;
+    font-size:1rem;transition:.15s;
+  }
+  .btn-icon:hover{background:rgba(239,68,68,.25)}
 
-  <style>
-    :root {
-      --primary-teal: #0f766e;
-      --accent-gold: #f59e0b;
-    }
-    body {
-      background-color: #0f172a;
-      font-family: system-ui, -apple-system, sans-serif;
-      margin: 0; padding: 0;
-      color: #334155;
-    }
-    .view-container { display: none; min-height: 100vh; }
-    .view-container.active { display: block; }
+  /* ================= MAIN ================= */
+  main{
+    height:100vh;padding:80px 1.4rem 1.4rem;
+    display:grid;grid-template-columns:1.15fr 1fr;gap:1.2rem;
+  }
 
-    /* ==================== 1. SMART LAUNCHER (PORTAL DEPAN FULL SCREEN) ==================== */
-    #portal-launcher {
-      background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      color: white;
-      padding: 2.5rem 1.5rem;
-    }
-    .launcher-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(12px);
-      border-radius: 1.5rem;
-      padding: 2.2rem 1.7rem;
-      text-align: center;
-      text-decoration: none;
-      color: white;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      display: block;
-      height: 100%;
-    }
-    .launcher-card:hover {
-      transform: translateY(-8px);
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-    .launcher-card.theme-gerbang:hover { border-color: #3b82f6; box-shadow: 0 15px 35px rgba(59, 130, 246, 0.3); }
-    .launcher-card.theme-sholat:hover { border-color: #10b981; box-shadow: 0 15px 35px rgba(16, 185, 129, 0.3); }
-    .launcher-card.theme-disiplin:hover { border-color: #ef4444; box-shadow: 0 15px 35px rgba(239, 68, 68, 0.3); }
-    .launcher-card.theme-admin:hover { border-color: #f59e0b; box-shadow: 0 15px 35px rgba(245, 158, 11, 0.3); }
+  /* ---- KIRI: JAM + STATUS ---- */
+  .left{display:flex;flex-direction:column;gap:1rem;min-height:0}
+  .clock-card{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,var(--card),var(--navy-800));
+    border:1px solid var(--border);border-radius:22px;
+    padding:1rem;text-align:center;position:relative;overflow:hidden;
+    min-height:0;
+  }
+  .clock-card::after{
+    content:"";position:absolute;inset:auto -20% -40% -20%;height:60%;
+    background:radial-gradient(closest-side, rgba(59,130,246,.18), transparent);
+    pointer-events:none;
+  }
+  .clock-label{font-size:.7rem;letter-spacing:.28em;color:var(--muted);font-weight:700;margin-bottom:.4rem}
+  .clock-time{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:clamp(3.2rem, 11vw, 12rem);
+    line-height:.92;
+    letter-spacing:-.02em;
+    background:linear-gradient(180deg,#FFFFFF,#93C5FD);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 40px rgba(96,165,250,.18);
+  }
+  .clock-seconds{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--accent-2);font-weight:700;font-size:clamp(1rem,3.6vw,2.4rem);
+    margin-left:.4rem;
+  }
+  .clock-date{
+    margin-top:.65rem;font-size:clamp(.85rem,1.6vw,1.15rem);
+    color:#DCE8FF;font-weight:600;letter-spacing:.3px;
+  }
+  .clock-tz{font-size:.72rem;color:var(--muted);letter-spacing:.25em;margin-top:.25rem;font-weight:700}
 
-    .launcher-icon-box {
-      width: 75px; height: 75px; border-radius: 1.25rem;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 2rem; margin-bottom: 1.2rem;
-    }
+  .status-card{
+    background:linear-gradient(180deg,var(--card),var(--navy-800));
+    border:1px solid var(--border);border-radius:22px;
+    padding:1rem 1.2rem;min-height:130px;
+    display:flex;flex-direction:column;justify-content:center;gap:.35rem;
+    position:relative;overflow:hidden;
+    transition:.25s;
+  }
+  .status-card .label{font-size:.7rem;letter-spacing:.25em;color:var(--muted);font-weight:700}
+  .status-card .nama{font-size:clamp(1.3rem,3vw,2.1rem);font-weight:800;letter-spacing:-.01em;line-height:1.15}
+  .status-card .sub{font-size:clamp(.8rem,1.6vw,1rem);color:#B9CDF0;font-weight:600}
+  .status-card .badge{
+    display:inline-flex;align-items:center;gap:.4rem;align-self:flex-start;
+    margin-top:.45rem;padding:.35rem .8rem;border-radius:999px;
+    font-size:.78rem;font-weight:800;letter-spacing:.05em;
+    background:rgba(59,130,246,.18);border:1px solid var(--border);color:var(--accent-2);
+  }
+  .status-card.ok{border-color:rgba(16,185,129,.5);box-shadow:0 0 0 1px rgba(16,185,129,.15), 0 12px 40px rgba(16,185,129,.12)}
+  .status-card.ok .badge{background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.5);color:#6EE7B7}
+  .status-card.warn{border-color:rgba(245,158,11,.5);box-shadow:0 0 0 1px rgba(245,158,11,.15), 0 12px 40px rgba(245,158,11,.12)}
+  .status-card.warn .badge{background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.5);color:#FCD34D}
+  .status-card.err{border-color:rgba(239,68,68,.5);box-shadow:0 0 0 1px rgba(239,68,68,.15), 0 12px 40px rgba(239,68,68,.12)}
+  .status-card.err .badge{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.5);color:#FCA5A5}
 
-    /* ==================== 2. APP MODUL STYLING ==================== */
-    .app-screen { min-height: 100vh; padding-bottom: 3rem; }
-    .app-header {
-      padding: 1rem 1.5rem;
-      background: #ffffff;
-      border-bottom: 1px solid #e2e8f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky; top: 0; z-index: 100;
-    }
+  /* ---- KANAN: SEARCH & INFO ---- */
+  .right{display:flex;flex-direction:column;gap:1rem;min-height:0}
 
-    /* KIOSK CLOCK RAKSASA GERBANG */
-    .kiosk-clock-card {
-      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
-      color: white; border-radius: 1.5rem; padding: 2.5rem 1.5rem;
-      text-align: center; box-shadow: 0 15px 30px rgba(29, 78, 216, 0.25);
-    }
-    .kiosk-time-display {
-      font-size: clamp(3rem, 8vw, 5.5rem);
-      font-weight: 800; font-family: monospace; letter-spacing: 2px;
-    }
+  .search-card{
+    background:linear-gradient(180deg,var(--card),var(--navy-800));
+    border:1px solid var(--border);border-radius:22px;padding:1.1rem;
+    display:flex;flex-direction:column;gap:.7rem;min-height:0;
+  }
+  .search-card h3{font-size:.72rem;letter-spacing:.25em;color:var(--muted);font-weight:800}
+  .search-wrap{position:relative}
+  .search-wrap input{
+    width:100%;padding:.95rem 2.6rem .95rem 2.8rem;
+    background:#081634;border:1.5px solid var(--border);border-radius:14px;
+    color:var(--text);font-size:1rem;font-family:inherit;font-weight:600;
+    outline:none;transition:.15s;
+  }
+  .search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+  .search-wrap .icon{
+    position:absolute;left:.9rem;top:50%;transform:translateY(-50%);
+    color:var(--muted);font-size:1.05rem;pointer-events:none;
+  }
+  .search-wrap .clear-btn{
+    position:absolute;right:.5rem;top:50%;transform:translateY(-50%);
+    width:28px;height:28px;border-radius:8px;border:none;
+    background:rgba(148,163,184,.14);color:#CBD5E1;cursor:pointer;
+    display:none;place-items:center;font-size:.9rem;
+  }
+  .search-wrap .clear-btn.show{display:grid}
 
-    /* PRAYER TIMES BAR KEC. CIAWI TASIKMALAYA */
-    .prayer-bar {
-      background: #ffffff; border-radius: 1rem; padding: 1rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;
-    }
-    .prayer-pill {
-      background: #f1f5f9; border-radius: 0.75rem; padding: 0.45rem 0.65rem;
-      text-align: center; min-width: 65px;
-    }
-    .prayer-pill.active {
-      background: #ccfbf1; border: 1px solid #0f766e; color: #0f766e;
-      font-weight: bold; transform: scale(1.04);
-    }
+  .results{
+    display:flex;flex-direction:column;gap:.4rem;
+    max-height:340px;overflow-y:auto;
+    padding-right:.2rem;
+  }
+  .results::-webkit-scrollbar{width:6px}
+  .results::-webkit-scrollbar-thumb{background:rgba(96,165,250,.3);border-radius:3px}
+  .result-item{
+    display:flex;align-items:center;gap:.8rem;
+    padding:.7rem .85rem;border-radius:12px;
+    background:rgba(15,35,80,.65);border:1px solid rgba(96,165,250,.14);
+    cursor:pointer;transition:.12s;text-align:left;
+  }
+  .result-item:hover{background:rgba(29,61,130,.85);border-color:var(--accent);transform:translateX(2px)}
+  .result-item .avatar{
+    width:38px;height:38px;border-radius:10px;flex:0 0 auto;
+    background:linear-gradient(135deg,#1E3A8A,#3B82F6);
+    display:grid;place-items:center;font-weight:800;font-size:.85rem;color:#DBEAFE;
+  }
+  .result-item .info{min-width:0;flex:1}
+  .result-item .info b{display:block;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .result-item .info span{font-size:.75rem;color:#93C5FD;font-weight:600}
+  .result-item .nis{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);font-weight:700}
 
-    /* KARTU CR80 DENGAN QR 100px */
-    .id-card-wrapper {
-      width: 85.6mm; height: 54mm; background: #ffffff;
-      border: 1.5px solid #0f766e; border-radius: 8px;
-      padding: 6px 10px; display: inline-block; margin: 8px;
-      page-break-inside: avoid; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.12);
-      box-sizing: border-box; vertical-align: top;
-    }
-    .qr-large-container {
-      background: #ffffff; padding: 2px; border: 1px solid #cbd5e1;
-      border-radius: 6px; display: inline-flex;
-    }
-    .qr-large-container img { display: block !important; }
+  .empty-hint{
+    padding:1rem;text-align:center;color:var(--muted);font-size:.8rem;
+    border:1px dashed rgba(96,165,250,.25);border-radius:12px;
+  }
 
-    /* SURAT DINAS A4 READY */
-    .surat-a4-page {
-      width: 210mm; min-height: 297mm; padding: 20mm 20mm;
-      margin: 0 auto; background: white; border: 1px solid #e2e8f0;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08); font-family: 'Times New Roman', Times, serif;
-      line-height: 1.45; color: #000;
-    }
-    .kop-surat { border-bottom: 3px double #000; padding-bottom: 8px; margin-bottom: 18px; }
+  .info-card{
+    background:linear-gradient(180deg,var(--card),var(--navy-800));
+    border:1px solid var(--border);border-radius:22px;padding:1rem 1.2rem;
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    flex-wrap:wrap;
+  }
+  .info-card .meta{display:flex;flex-direction:column;gap:.15rem}
+  .info-card .meta b{font-size:.85rem}
+  .info-card .meta span{font-size:.72rem;color:var(--muted);font-weight:600}
+  .reader-hint{
+    display:inline-flex;align-items:center;gap:.5rem;
+    padding:.5rem .85rem;border-radius:10px;
+    background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);
+    color:#6EE7B7;font-size:.75rem;font-weight:700;
+  }
+  .reader-hint .pulse{width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,.5)}50%{opacity:.6;box-shadow:0 0 0 8px rgba(16,185,129,0)}}
 
-    #reader, #reader-gerbang {
-      width: 100%; max-width: 400px; margin: 0 auto;
-      border-radius: 12px; overflow: hidden; border: 2px dashed #0f766e;
-    }
+  /* ================= RFID HIDDEN INPUT ================= */
+  #rfid-input{
+    position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;
+  }
 
-    @media print {
-      body * { visibility: hidden; }
-      #area-cetak-surat, #area-cetak-surat *, #print-area, #print-area * { visibility: visible; }
-      #area-cetak-surat, #print-area { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
-      .no-print, .app-header { display: none !important; }
-    }
-  </style>
+  /* ================= MODAL LOGIN ================= */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:100;
+    background:radial-gradient(800px 500px at 50% 20%, rgba(29,78,216,.35), transparent 60%), rgba(3,7,20,.92);
+    backdrop-filter:blur(10px);
+    display:none;align-items:center;justify-content:center;padding:1rem;
+  }
+  .modal-overlay.show{display:flex}
+  .modal{
+    width:100%;max-width:420px;
+    background:linear-gradient(180deg,#0E1C42,#0A1533);
+    border:1px solid var(--border);border-radius:22px;padding:2rem 1.7rem 1.7rem;
+    box-shadow:0 40px 80px rgba(0,0,0,.6);
+    animation:modalIn .3s ease;
+  }
+  @keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  .modal-logo{
+    width:56px;height:56px;border-radius:16px;margin:0 auto 1rem;
+    background:linear-gradient(135deg,var(--accent),#1E40AF);
+    display:grid;place-items:center;font-weight:900;font-size:1.2rem;
+    box-shadow:0 10px 30px rgba(59,130,246,.4);
+  }
+  .modal h2{font-size:1.25rem;text-align:center;margin-bottom:.25rem}
+  .modal p.sub{text-align:center;font-size:.82rem;color:var(--muted);margin-bottom:1.4rem}
+  .field{margin-bottom:.9rem}
+  .field label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--muted);margin-bottom:.35rem}
+  .field input{
+    width:100%;padding:.85rem 1rem;
+    background:#081634;border:1.5px solid var(--border);border-radius:12px;
+    color:var(--text);font-size:.95rem;font-family:inherit;font-weight:600;outline:none;transition:.15s;
+  }
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+  .btn-primary{
+    width:100%;padding:.95rem;margin-top:.6rem;
+    background:linear-gradient(135deg,var(--accent),#1D4ED8);
+    color:#fff;border:none;border-radius:12px;
+    font-family:inherit;font-weight:800;font-size:.95rem;letter-spacing:.3px;
+    cursor:pointer;transition:.15s;
+    box-shadow:0 10px 30px rgba(59,130,246,.35);
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 36px rgba(59,130,246,.45)}
+  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .alert{
+    padding:.7rem .9rem;border-radius:10px;font-size:.82rem;font-weight:600;
+    margin-bottom:.9rem;display:none;
+  }
+  .alert.show{display:block}
+  .alert.err{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.4);color:#FCA5A5}
+
+  /* ================= IDLE WARNING ================= */
+  #idle-modal .modal{max-width:380px;text-align:center}
+  #idle-modal .countdown{
+    font-family:'JetBrains Mono',monospace;font-size:4rem;font-weight:700;
+    color:#FCA5A5;margin:.6rem 0 1rem;letter-spacing:-.03em;
+  }
+  #idle-modal .modal .btn-secondary{
+    width:100%;padding:.85rem;margin-top:.5rem;
+    background:rgba(148,163,184,.12);color:#CBD5E1;border:1px solid rgba(148,163,184,.3);
+    border-radius:12px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;
+  }
+
+  /* ================= TOAST ================= */
+  #toast-wrap{position:fixed;top:88px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:.5rem;pointer-events:none}
+  .toast{
+    padding:.7rem 1.1rem;border-radius:12px;font-size:.85rem;font-weight:700;
+    background:rgba(16,185,129,.95);color:#022C22;
+    box-shadow:0 12px 40px rgba(16,185,129,.35);
+    animation:toastIn .25s ease;
+  }
+  .toast.err{background:rgba(239,68,68,.95);color:#fff;box-shadow:0 12px 40px rgba(239,68,68,.35)}
+  @keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 900px){
+    main{grid-template-columns:1fr;padding-top:76px;gap:.9rem;overflow-y:auto}
+    .left{order:1}
+    .right{order:2}
+    .clock-time{font-size:clamp(3rem, 18vw, 6rem)}
+    .clock-card{min-height:220px}
+  }
+  @media (max-width: 520px){
+    header{padding:.7rem .9rem}
+    .brand-txt b{font-size:.8rem}
+    .brand-txt span{font-size:.65rem}
+    .pill{display:none}
+    main{padding:72px .8rem .8rem}
+    .results{max-height:44vh}
+  }
+</style>
 </head>
 <body>
 
-  <!-- ========================================================================= -->
-  <!-- 1. SMART LAUNCHER (BERANDA UTAMA 1 HALAMAN PENUH - INSTAN 0.2 DETIK)       -->
-  <!-- ========================================================================= -->
-  <div id="portal-launcher" class="view-container active">
-    <!-- Header Lembaga -->
-    <div class="text-center">
-      <div class="d-inline-flex align-items-center gap-2 mb-2">
-        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">YAYASAN ADHI GUNA KENCANA</span>
-      </div>
-      <h2 class="fw-bold mb-1 tracking-wide">SMK BHAKTI KENCANA CIAWI</h2>
-      <p class="text-white-50 small mb-0">Sistem Ekosistem Terpadu: Gerbang, Ibadah & Kedisiplinan Siswa</p>
-    </div>
-
-    <!-- Pilihan Menu Utama (4 Kartu Elegan) -->
-    <div class="container my-auto py-4">
-      <div class="row g-4 justify-content-center">
-        <!-- Modul 1: Gerbang -->
-        <div class="col-md-6 col-lg-3">
-          <div class="launcher-card theme-gerbang" onclick="launchApp('gerbang')">
-            <div class="launcher-icon-box bg-primary bg-opacity-25 text-primary">
-              <i class="fa-solid fa-door-open"></i>
-            </div>
-            <h5 class="fw-bold mb-2">Presensi Gerbang</h5>
-            <p class="small text-white-50 mb-0">Kios Jam Raksasa, Tap RFID & Scan QR Masuk/Pulang Siswa & Guru.</p>
-          </div>
-        </div>
-
-        <!-- Modul 2: E-Sholat -->
-        <div class="col-md-6 col-lg-3">
-          <div class="launcher-card theme-sholat" onclick="launchApp('sholat')">
-            <div class="launcher-icon-box bg-success bg-opacity-25 text-success">
-              <i class="fa-solid fa-mosque"></i>
-            </div>
-            <h5 class="fw-bold mb-2">Presensi E-Sholat</h5>
-            <p class="small text-white-50 mb-0">Ibadah Sholat Berjamaah, Jadwal Sholat Ciawi Tasikmalaya & Scan Kartu.</p>
-          </div>
-        </div>
-
-        <!-- Modul 3: Poin Disiplin & BK -->
-        <div class="col-md-6 col-lg-3">
-          <div class="launcher-card theme-disiplin" onclick="launchApp('disiplin')">
-            <div class="launcher-icon-box bg-danger bg-opacity-25 text-danger">
-              <i class="fa-solid fa-scale-balanced"></i>
-            </div>
-            <h5 class="fw-bold mb-2">Poin & Buku Saku BK</h5>
-            <p class="small text-white-50 mb-0">Pencatatan Pelanggaran, Saldo Poin, & Cetak Surat SP Resmi A4.</p>
-          </div>
-        </div>
-
-        <!-- Modul 4: Administrasi Super Admin -->
-        <div class="col-md-6 col-lg-3">
-          <div class="launcher-card theme-admin" onclick="launchApp('admin')">
-            <div class="launcher-icon-box bg-warning bg-opacity-25 text-warning">
-              <i class="fa-solid fa-shield-halved"></i>
-            </div>
-            <h5 class="fw-bold mb-2">Portal Admin & Kepsek</h5>
-            <p class="small text-white-50 mb-0">Grafik Eksekutif 3 Pilar, Master Siswa, Kenaikan Kelas, & Cetak Kartu.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer Launcher -->
-    <div class="text-center text-white-50 small">
-      <div>Kec. Ciawi, Kabupaten Tasikmalaya, Jawa Barat, Indonesia</div>
-      <div class="mt-1" style="font-size: 11px;">BKCSiplin v2.0 • Serverless High Performance Architecture</div>
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="brand">
+    <div class="brand-logo">BK</div>
+    <div class="brand-txt">
+      <b>SMK Bhakti Kencana Ciawi</b>
+      <span>Presensi Gerbang &middot; Yayasan Adhi Guna Kencana</span>
     </div>
   </div>
+  <div class="header-right">
+    <div class="pill"><span class="dot"></span><span id="petugas-label">Belum login</span></div>
+    <div class="pill" id="sesi-pill" style="display:none">Sesi: <span id="sesi-timer">10:00</span></div>
+    <button class="btn-icon" id="btn-logout" title="Logout">⏻</button>
+  </div>
+</header>
 
+<!-- ================= MAIN ================= -->
+<main>
+  <!-- KIRI -->
+  <section class="left">
+    <div class="clock-card">
+      <div class="clock-label">WAKTU INDONESIA BARAT</div>
+      <div>
+        <span class="clock-time" id="clock-hm">--:--</span><span class="clock-seconds" id="clock-s">:--</span>
+      </div>
+      <div class="clock-date" id="clock-date">Memuat tanggal…</div>
+      <div class="clock-tz">WIB &middot; UTC+7</div>
+    </div>
 
-  <!-- ========================================================================= -->
-  <!-- 2. MODUL: ABSENSI GERBANG (JAM RAKSASA & SINGLE WINDOW KIOSK)             -->
-  <!-- ========================================================================= -->
-  <div id="app-gerbang" class="view-container">
-    <div class="app-screen" style="background-color: #eff6ff;">
-      <header class="app-header">
-        <button class="btn btn-outline-primary btn-sm fw-bold" onclick="backToLauncher()">
-          <i class="fa-solid fa-arrow-left me-1"></i>Kembali ke Portal
-        </button>
-        <div class="fw-bold text-primary"><i class="fa-solid fa-door-open me-2"></i>Kios Gerbang SMK Bhakti Kencana Ciawi</div>
-        <div class="small text-muted font-monospace" id="clock-gerbang-header">00:00:00 WIB</div>
-      </header>
+    <div class="status-card" id="status-card">
+      <div class="label">HASIL PEMINDAIAN TERAKHIR</div>
+      <div class="nama" id="status-nama">Menunggu kartu…</div>
+      <div class="sub" id="status-sub">Silakan tap kartu RFID atau ketik nama/NIS di kotak pencarian.</div>
+      <div class="badge" id="status-badge" style="display:none">—</div>
+    </div>
+  </section>
 
-      <div class="container py-4">
-        <div class="row justify-content-center">
-          <div class="col-lg-9">
-            <!-- Jam Kiosk Raksasa -->
-            <div class="kiosk-clock-card mb-4">
-              <div class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-2">GERBANG UTAMA - JAM RESMI SEKOLAH</div>
-              <div class="kiosk-time-display" id="kiosk-big-clock">00:00:00</div>
-              <div class="fs-5 opacity-75" id="kiosk-big-date">-</div>
-              <div class="mt-3">
-                <span class="badge bg-light text-dark px-3 py-2 fs-6 fw-bold" id="kiosk-status-shift">SESI: MASUK PAGI</span>
-              </div>
-            </div>
-
-            <!-- Area Tap Kartu RFID / Scan QR -->
-            <div class="card shadow-sm border-0 rounded-4 p-4 text-center bg-white">
-              <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-id-card-clip me-2"></i>Tempelkan Kartu RFID / Arahkan QR Siswa & Guru</h5>
-              <div class="row justify-content-center">
-                <div class="col-md-7">
-                  <div class="input-group input-group-lg mb-3">
-                    <span class="input-group-text bg-primary text-white"><i class="fa-solid fa-rss"></i></span>
-                    <input type="text" id="input-kiosk-rfid" class="form-control text-center fw-bold" placeholder="Tap Kartu RFID disini..." autofocus onkeypress="if(event.key==='Enter') handleKioskTap(this.value)">
-                  </div>
-                  <button class="btn btn-outline-primary btn-sm mb-3" onclick="toggleCameraGerbang()"><i class="fa-solid fa-camera me-1"></i>Buka Kamera Scan QR</button>
-                  <div id="reader-gerbang"></div>
-                </div>
-              </div>
-
-              <!-- Notifikasi Hasil Tap Pop-Up Cepat dengan Foto -->
-              <div id="kiosk-result-box" class="alert alert-success border-0 rounded-4 p-3 mt-3 d-none mx-auto text-start" style="max-width: 480px;">
-                <div class="d-flex align-items-center gap-3">
-                  <img id="kiosk-user-foto" src="https://via.placeholder.com/80" width="70" height="80" class="rounded-3 border object-fit-cover" alt="Foto">
-                  <div>
-                    <h5 class="fw-bold mb-1 text-dark" id="kiosk-user-nama">-</h5>
-                    <div class="small text-muted mb-1">NIS: <span id="kiosk-user-nis" class="fw-bold text-dark">-</span> • Kelas: <span class="badge bg-primary" id="kiosk-user-kelas">-</span></div>
-                    <span class="badge bg-success" id="kiosk-user-status">BERHASIL HADIR</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- KANAN -->
+  <section class="right">
+    <div class="search-card">
+      <h3>PENCARIAN MANUAL (LUPA BAWA KARTU)</h3>
+      <div class="search-wrap">
+        <span class="icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Ketik minimal 2 huruf nama atau NIS…" autocomplete="off" />
+        <button class="clear-btn" id="search-clear" title="Bersihkan">✕</button>
+      </div>
+      <div class="results" id="results">
+        <div class="empty-hint">Hasil pencarian muncul di sini — nama, kelas, dan NIS akan ditampilkan.</div>
       </div>
     </div>
-  </div>
 
-
-  <!-- ========================================================================= -->
-  <!-- 3. MODUL: E-SHOLAT SISWA (HIJAU EMERALD)                                 -->
-  <!-- ========================================================================= -->
-  <div id="app-sholat" class="view-container">
-    <div class="app-screen" style="background-color: #f0fdf4;">
-      <header class="app-header">
-        <button class="btn btn-outline-success btn-sm fw-bold" onclick="backToLauncher()">
-          <i class="fa-solid fa-arrow-left me-1"></i>Kembali ke Portal
-        </button>
-        <div class="fw-bold text-success"><i class="fa-solid fa-mosque me-2"></i>Presensi E-Sholat Berjamaah</div>
-        <div class="small text-muted font-monospace" id="clock-sholat-header">00:00:00 WIB</div>
-      </header>
-
-      <div class="container py-4">
-        <!-- Widget Jadwal Ciawi Tasikmalaya -->
-        <div class="prayer-bar mb-4">
-          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-              <div class="small text-muted fw-bold"><i class="fa-solid fa-location-dot me-1 text-danger"></i>Kec. Ciawi, Kab. Tasikmalaya, Jawa Barat</div>
-              <div class="fs-5 fw-bold text-dark font-monospace" id="sholat-clock">00:00:00 WIB</div>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-              <div class="prayer-pill" id="pill-subuh"><small class="text-muted">Subuh</small><br><strong>04:06</strong></div>
-              <div class="prayer-pill" id="pill-dhuha"><small class="text-muted">Dhuha</small><br><strong>05:48</strong></div>
-              <div class="prayer-pill" id="pill-dzuhur"><small class="text-muted">Dzuhur</small><br><strong>11:37</strong></div>
-              <div class="prayer-pill" id="pill-ashar"><small class="text-muted">Ashar</small><br><strong>14:56</strong></div>
-              <div class="prayer-pill" id="pill-maghrib"><small class="text-muted">Maghrib</small><br><strong>17:49</strong></div>
-              <div class="prayer-pill" id="pill-isya"><small class="text-muted">Isya</small><br><strong>19:01</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row justify-content-center">
-          <div class="col-md-7">
-            <div class="card shadow-sm border-0 rounded-4 bg-white">
-              <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-qrcode me-2"></i>Scan Kartu Sholat Siswa</h5>
-                <span class="badge bg-success" id="badge-guru-sholat">Petugas: Ustadz</span>
-              </div>
-              <div class="card-body p-4 text-center">
-                <div class="row g-2 mb-3">
-                  <div class="col-md-6">
-                    <select id="scan-sholat-sesi" class="form-select fw-bold">
-                      <option value="Dzuhur">Dzuhur</option><option value="Ashar">Ashar</option>
-                      <option value="Dhuha">Dhuha</option><option value="Jumat">Jumat</option>
-                      <option value="Subuh">Subuh</option><option value="Maghrib">Maghrib</option>
-                      <option value="Isya">Isya</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <button class="btn btn-success w-100 fw-bold" onclick="toggleCameraSholat()"><i class="fa-solid fa-camera me-1"></i>Buka Kamera Scan</button>
-                  </div>
-                </div>
-
-                <div id="reader"></div>
-
-                <!-- Live Search Siswa -->
-                <div class="mt-3 text-start position-relative">
-                  <label class="small fw-bold text-muted">Siswa Lupa Kartu? Cari Nama / NIS:</label>
-                  <input type="text" id="search-siswa-sholat" class="form-control" placeholder="Ketik nama siswa..." oninput="handleSearchSholat(this.value)">
-                  <div id="results-search-sholat" class="list-group position-absolute w-100 shadow-sm d-none" style="z-index: 100;"></div>
-                </div>
-
-                <!-- Log Riwayat Baru Saja Absen -->
-                <div class="mt-4 text-start">
-                  <h6 class="fw-bold text-muted border-bottom pb-2">Baru Saja Absen Sholat:</h6>
-                  <ul class="list-group list-group-flush small" id="log-recent-sholat">
-                    <li class="list-group-item text-center text-muted">Belum ada scan masuk</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div class="info-card">
+      <div class="meta">
+        <b>Mode Kios Gerbang</b>
+        <span>Tap kartu RFID / scan QR / cari manual</span>
       </div>
+      <div class="reader-hint"><span class="pulse"></span>Reader siap</div>
     </div>
-  </div>
+  </section>
+</main>
 
+<!-- Input tersembunyi untuk RFID (selalu fokus) -->
+<input id="rfid-input" type="text" autocomplete="off" inputmode="none" aria-hidden="true" />
 
-  <!-- ========================================================================= -->
-  <!-- 4. MODUL: BUKU SAKU & POIN DISIPLIN BK (MERAH MAROON)                      -->
-  <!-- ========================================================================= -->
-  <div id="app-disiplin" class="view-container">
-    <div class="app-screen" style="background-color: #fef2f2;">
-      <header class="app-header">
-        <button class="btn btn-outline-danger btn-sm fw-bold" onclick="backToLauncher()">
-          <i class="fa-solid fa-arrow-left me-1"></i>Kembali ke Portal
-        </button>
-        <div class="fw-bold text-danger"><i class="fa-solid fa-scale-balanced me-2"></i>Bimbingan Konseling & Kedisiplinan Siswa</div>
-        <button class="btn btn-danger btn-sm" onclick="openInputPelanggaranModal()"><i class="fa-solid fa-plus me-1"></i>Catat Pelanggaran</button>
-      </header>
-
-      <div class="container py-4">
-        <!-- Tabel Rekap Poin & Generator Surat -->
-        <div class="card shadow-sm border-0 rounded-4 mb-4 bg-white">
-          <div class="card-body p-4">
-            <h5 class="fw-bold text-danger mb-3">Daftar Poin Siswa & Generator Surat SP Otomatis (Format A4)</h5>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="table-light">
-                  <tr><th>NIS</th><th>Nama Siswa</th><th>Kelas</th><th>Sisa Poin</th><th>Status Sanksi</th><th class="text-center">Aksi Surat</th></tr>
-                </thead>
-                <tbody id="tbody-disiplin-siswa">
-                  <tr><td colspan="6" class="text-center py-4">Memuat data kedisiplinan...</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- PRATINJAU CETAK SURAT RESMI A4 DINAS -->
-        <div id="wrapper-pratinjau-surat" class="d-none">
-          <div class="text-center mb-3 no-print">
-            <button class="btn btn-success btn-lg px-4 me-2 shadow" onclick="window.print()"><i class="fa-solid fa-print me-2"></i>Cetak Dokumen Surat (PDF A4)</button>
-            <button class="btn btn-outline-secondary btn-lg px-3" onclick="document.getElementById('wrapper-pratinjau-surat').classList.add('d-none')">Tutup Pratinjau</button>
-          </div>
-
-          <div id="area-cetak-surat" class="surat-a4-page">
-            <div class="kop-surat text-center position-relative">
-              <img id="kop-logo-img" src="https://via.placeholder.com/60" width="65" height="65" class="position-absolute start-0 top-0 d-none" alt="Logo">
-              <h5 class="mb-0 fw-bold">YAYASAN ADHI GUNA KENCANA</h5>
-              <h4 class="mb-0 fw-bold">SMK BHAKTI KENCANA CIAWI TASIKMALAYA</h4>
-              <p class="mb-0 small fst-italic">Program Keahlian: Farmasi Klinis & Komunitas - Asisten Keperawatan</p>
-              <p class="mb-0 small" style="font-size: 11px;">Jl. Pasirhuni No. 10 Kec. Ciawi, Kab. Tasikmalaya, Jawa Barat 46156</p>
-            </div>
-
-            <div class="d-flex justify-content-between mb-3 small">
-              <div>
-                <div>Nomor : 421.5/024/SMK-BK/BK/XI/2026</div>
-                <div>Perihal : <strong id="srt-perihal">PANGGILAN ORANG TUA / WALI MURID</strong></div>
-              </div>
-              <div class="text-end">
-                <div>Tasikmalaya, <span id="srt-tanggal">-</span></div>
-                <div>Kepada Yth. Bapak/Ibu Wali dari: <strong id="srt-nama-ortu">-</strong></div>
-              </div>
-            </div>
-
-            <p class="text-justify mb-2" style="text-indent: 30px;">
-              Dengan hormat, sehubungan dengan evaluasi tata tertib dan poin pembinaan siswa di SMK Bhakti Kencana Ciawi, bersama surat ini kami memberitahukan bahwa putra/putri Bapak/Ibu:
-            </p>
-
-            <table class="table table-borderless table-sm ms-4 mb-3" style="width: 85%;">
-              <tr><td style="width: 28%;">Nama Lengkap</td><td>: <strong id="srt-nama">-</strong></td></tr>
-              <tr><td>Nomor Induk Siswa (NIS)</td><td>: <span id="srt-nis">-</span></td></tr>
-              <tr><td>Kelas / Jurusan</td><td>: <span id="srt-kelas">-</span></td></tr>
-              <tr><td>Sisa Saldo Poin</td><td>: <strong class="text-danger" id="srt-poin">-</strong> / 100 Poin</td></tr>
-              <tr><td>Status Pelanggaran</td><td>: <span class="badge bg-danger" id="srt-sanksi">-</span></td></tr>
-            </table>
-
-            <p class="text-justify mb-2" style="text-indent: 30px;">
-              Telah mencapai batas poin pembinaan kedisiplinan sekolah. Untuk itu, kami mengharapkan kehadiran Bapak/Ibu Orang Tua/Wali Murid ke sekolah pada:
-            </p>
-
-            <div class="p-2 border rounded ms-4 mb-3 small" style="width: 85%;">
-              <div><strong>Hari / Tanggal :</strong> Senin Depan, Jam 09.00 WIB</div>
-              <div><strong>Tempat :</strong> Ruang Bimbingan Konseling (BK) SMK BK Ciawi</div>
-              <div><strong>Menghadap :</strong> Guru BK, Wali Kelas & Wakasek Kesiswaan</div>
-            </div>
-
-            <p class="text-justify mb-4" style="text-indent: 30px;">
-              Demikian surat ini kami sampaikan. Kehadiran tepat waktu sangat kami harapkan demi kelancaran masa depan ananda. Atas perhatiannya kami ucapkan terima kasih.
-            </p>
-
-            <div class="row text-center mt-4 small">
-              <div class="col-4">Wali Kelas,<div style="height: 55px;"></div><strong>( ................................ )</strong></div>
-              <div class="col-4">Guru BK,<div style="height: 55px;"></div><strong>Dra. Hj. Siti Maryam</strong></div>
-              <div class="col-4">Wakasek Kesiswaan,<div style="height: 55px;"></div><strong>Ustadz Ridwan, S.Pd.I</strong></div>
-            </div>
-          </div>
-        </div>
-      </div>
+<!-- ================= MODAL LOGIN ================= -->
+<div class="modal-overlay show" id="login-modal">
+  <div class="modal">
+    <div class="modal-logo">BK</div>
+    <h2>Login Petugas Gerbang</h2>
+    <p class="sub">Masukkan ID Guru &amp; PIN untuk membuka kios presensi.</p>
+    <div class="alert err" id="login-alert"></div>
+    <div class="field">
+      <label for="login-user">ID GURU / NAMA</label>
+      <input type="text" id="login-user" placeholder="Contoh: G001" autocomplete="username" />
     </div>
-  </div>
-
-
-  <!-- ========================================================================= -->
-  <!-- 5. MODUL: PORTAL ADMINISTRASI & MASTER DATA (SUPER ADMIN / KEPSEK)         -->
-  <!-- ========================================================================= -->
-  <div id="app-admin" class="view-container">
-    <div class="app-screen" style="background-color: #f8fafc;">
-      <header class="app-header">
-        <button class="btn btn-outline-dark btn-sm fw-bold" onclick="backToLauncher()">
-          <i class="fa-solid fa-arrow-left me-1"></i>Kembali ke Portal
-        </button>
-        <div class="fw-bold text-dark"><i class="fa-solid fa-shield-halved me-2"></i>Portal Administrasi Eksekutif</div>
-        <div id="admin-user-badge" class="badge bg-dark py-2 px-3">Super Admin</div>
-      </header>
-
-      <div class="container py-4">
-        <!-- 6 Grafik Eksekutif 3 Modul -->
-        <div class="row g-4 mb-4">
-          <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-4 h-100 bg-white">
-              <div class="card-header bg-white py-3 border-0">
-                <h6 class="fw-bold mb-0 text-success"><i class="fa-solid fa-chart-pie me-2"></i>Partisipasi Sholat Hari Ini per Kelas</h6>
-              </div>
-              <div class="card-body" style="height: 270px; position:relative;">
-                <canvas id="chartSholatAdmin"></canvas>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-4 h-100 bg-white">
-              <div class="card-header bg-white py-3 border-0">
-                <h6 class="fw-bold mb-0 text-danger"><i class="fa-solid fa-chart-donut me-2"></i>Peta Zonasi Kedisiplinan Siswa (Poin)</h6>
-              </div>
-              <div class="card-body" style="height: 270px; position:relative;">
-                <canvas id="chartZonasiAdmin"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tombol Cepat Administrasi -->
-        <div class="row g-3 mb-4">
-          <div class="col-md-3">
-            <button class="btn btn-primary w-100 py-3 rounded-4 shadow-sm fw-bold" onclick="openSiswaModal()">
-              <i class="fa-solid fa-user-plus me-1"></i>Tambah Siswa Baru
-            </button>
-          </div>
-          <div class="col-md-3">
-            <button class="btn btn-success w-100 py-3 rounded-4 shadow-sm fw-bold" onclick="openNaikKelasModal()">
-              <i class="fa-solid fa-angles-up me-1"></i>Kenaikan Kelas Massal
-            </button>
-          </div>
-          <div class="col-md-3">
-            <button class="btn btn-info text-white w-100 py-3 rounded-4 shadow-sm fw-bold" onclick="generateCards()">
-              <i class="fa-solid fa-id-card me-1"></i>Cetak Kartu Siswa (100px)
-            </button>
-          </div>
-          <div class="col-md-3">
-            <button class="btn btn-secondary w-100 py-3 rounded-4 shadow-sm fw-bold" onclick="exportExcelSemua()">
-              <i class="fa-solid fa-file-excel me-1"></i>Ekspor Semua (.xlsx)
-            </button>
-          </div>
-        </div>
-
-        <!-- Tabel Siswa Lengkap -->
-        <div class="card shadow-sm border-0 rounded-4 bg-white">
-          <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-0">Master Data Siswa</h5>
-            <button id="btn-del-bulk" class="btn btn-danger btn-sm d-none" onclick="handleBulkDeleteSelected()">
-              Hapus Terpilih (<span id="count-del">0</span>)
-            </button>
-          </div>
-          <div class="card-body p-4">
-            <div class="table-responsive">
-              <table class="table table-striped align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th style="width:35px;"><input type="checkbox" onchange="toggleSelectAll(this)"></th>
-                    <th>Foto</th><th>NIS</th><th>RFID</th><th>Nama Lengkap</th><th>Kelas</th><th>Poin</th><th class="text-center">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody id="tbody-siswa-admin">
-                  <tr><td colspan="8" class="text-center py-4">Memuat data siswa...</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Area Cetak Kartu Siswa -->
-        <div id="wrapper-kartu-cetak" class="mt-4 d-none">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0">Kartu Pelajar Pintar Siap Cetak (CR80)</h5>
-            <button class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print me-1"></i>Cetak PDF</button>
-          </div>
-          <div id="print-area"><div id="kartu-container" class="d-flex flex-wrap justify-content-start"></div></div>
-        </div>
-      </div>
+    <div class="field">
+      <label for="login-pin">PIN</label>
+      <input type="password" id="login-pin" placeholder="••••••" autocomplete="current-password" inputmode="numeric" />
     </div>
+    <button class="btn-primary" id="btn-login">Masuk &amp; Buka Kios</button>
   </div>
+</div>
 
-
-  <!-- ========================================================================= -->
-  <!-- MODAL FORMS: INPUT SISWA, NAIK KELAS, PELANGGARAN                         -->
-  <!-- ========================================================================= -->
-
-  <!-- MODAL SISWA DENGAN UPLOAD FOTO VIRTUAL DRIVE -->
-  <div class="modal fade" id="modalSiswa" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title fw-bold">Form Data Siswa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-          <form onsubmit="handleSaveSiswa(event)">
-            <div class="text-center mb-3">
-              <img id="m-preview-foto" src="https://via.placeholder.com/90" width="80" height="90" class="rounded-3 border object-fit-cover shadow-sm mb-2" alt="Foto">
-              <div>
-                <label class="btn btn-outline-secondary btn-sm">
-                  <i class="fa-solid fa-camera me-1"></i>Upload Foto Siswa
-                  <input type="file" accept="image/*" class="d-none" onchange="handleUploadFotoSiswa(this)">
-                </label>
-              </div>
-              <input type="hidden" id="m-foto-url">
-            </div>
-            <div class="row g-2 mb-2">
-              <div class="col-md-6"><label class="small fw-bold">NIS (Nomor Induk)</label><input type="text" id="m-nis" class="form-control" required></div>
-              <div class="col-md-6"><label class="small fw-bold">UID RFID</label><input type="text" id="m-rfid" class="form-control" placeholder="Tap reader / kosong"></div>
-            </div>
-            <div class="mb-2"><label class="small fw-bold">Nama Lengkap Siswa</label><input type="text" id="m-nama" class="form-control" required></div>
-            <div class="row g-2 mb-2">
-              <div class="col-md-6"><label class="small fw-bold">Kelas</label><select id="m-kelas" class="form-select" required></select></div>
-              <div class="col-md-6"><label class="small fw-bold">Gender</label><select id="m-gender" class="form-select"><option value="L">L</option><option value="P">P</option></select></div>
-            </div>
-            <div class="mb-3"><label class="small fw-bold">No WhatsApp Ortu</label><input type="text" id="m-nohp" class="form-control" placeholder="08xxxxxxxxxx"></div>
-            <button type="submit" class="btn btn-primary w-100 fw-bold">Simpan Siswa</button>
-          </form>
-        </div>
-      </div>
-    </div>
+<!-- ================= MODAL IDLE WARNING ================= -->
+<div class="modal-overlay" id="idle-modal">
+  <div class="modal">
+    <h2>Sesi Akan Berakhir</h2>
+    <p class="sub">Tidak ada aktivitas terdeteksi. Sesi akan logout otomatis.</p>
+    <div class="countdown" id="idle-countdown">30</div>
+    <button class="btn-primary" id="btn-stay">Saya Masih Di Sini</button>
+    <button class="btn-secondary" id="btn-logout-now" style="margin-top:.5rem;width:100%">Logout Sekarang</button>
   </div>
+</div>
 
-  <!-- MODAL CATAT PELANGGARAN -->
-  <div class="modal fade" id="modalPelanggaran" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title fw-bold text-danger">Catat Pelanggaran / Prestasi</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-          <form onsubmit="handleSavePelanggaran(event)">
-            <input type="hidden" id="p-nis">
-            <div class="mb-2"><label class="small fw-bold">Siswa</label><input type="text" id="p-nama-disp" class="form-control" readonly disabled></div>
-            <div class="mb-3">
-              <label class="small fw-bold">Jenis Pelanggaran / Prestasi</label>
-              <select id="p-select" class="form-select" required onchange="handleSelectPelanggaran(this)"></select>
-            </div>
-            <div class="alert alert-light border text-center">
-              <small class="text-muted">Poin:</small>
-              <h4 class="fw-bold text-danger mb-0" id="p-poin-disp">-0</h4>
-            </div>
-            <input type="hidden" id="p-poin-val" value="0">
-            <button type="submit" class="btn btn-danger w-100 fw-bold">Simpan ke Buku Saku Siswa</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+<div id="toast-wrap"></div>
 
-  <!-- MODAL NAIK KELAS MASSAL -->
-  <div class="modal fade" id="modalNaikKelas" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title fw-bold text-success">Kenaikan Kelas Massal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-          <div class="row g-2 mb-3 align-items-end">
-            <div class="col-md-5"><label class="small fw-bold">Kelas Asal</label><select id="nk-asal" class="form-select" onchange="loadSiswaNaikKelas()"></select></div>
-            <div class="col-md-5"><label class="small fw-bold">Kelas Tujuan / Lulus</label><select id="nk-tujuan" class="form-select"></select></div>
-            <div class="col-md-2"><button class="btn btn-success w-100 fw-bold" onclick="executeNaikKelas()">Proses</button></div>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle">
-              <thead class="table-light"><tr><th style="width:40px;"><input type="checkbox" id="check-all-nk" checked onchange="toggleSelectAllNk(this)"></th><th>NIS</th><th>Nama Siswa</th><th>Kelas</th></tr></thead>
-              <tbody id="tbody-nk"><tr><td colspan="4" class="text-center py-3 text-muted">Pilih kelas asal terlebih dahulu</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<script>
+/* ============================================================
+ * KONFIGURASI
+ * ============================================================ */
+const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec'; // <-- WAJIB GANTI
+const MODUL   = 'gerbang';
+const IDLE_TOTAL_MS   = 10 * 60 * 1000;   // 10 menit
+const IDLE_WARN_MS    = 30 * 1000;        // 30 detik terakhir
+const HEARTBEAT_MS    = 2 * 60 * 1000;    // 2 menit
+const ANTI_DUP_MS     = 5 * 1000;         // 5 detik
+const FETCH_TIMEOUT   = 12000;
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+/* ============================================================
+ * STATE
+ * ============================================================ */
+const state = {
+  token: sessionStorage.getItem('bkc_token') || '',
+  petugas: sessionStorage.getItem('bkc_petugas') || '',
+  role: sessionStorage.getItem('bkc_role') || '',
+  lastTapAt: 0,
+  lastTapNis: '',
+  idleTimer: null,
+  idleWarnTimer: null,
+  idleDeadline: 0,
+  heartbeatTimer: null,
+  searchTimer: null,
+  searchAbort: null,
+  voiceReady: false
+};
 
-  <!-- ========================================================================= -->
-  <!-- JAVASCRIPT LOGIC CLIENT SIDE (LAZY LOADING ARCHITECTURE)                  -->
-  <!-- ========================================================================= -->
-  <script>
-    // ==============================================================
-    // KONFIGURASI BACKEND URL GOOGLE APPS SCRIPT
-    // ==============================================================
-    const DEFAULT_GAS_URL = 'PASTE_URL_APPS_SCRIPT_ANDA_DISINI';
-    let gasEndpoint = localStorage.getItem('esholat_gas_url') || (DEFAULT_GAS_URL !== 'PASTE_URL_APPS_SCRIPT_ANDA_DISINI' ? DEFAULT_GAS_URL : '');
+/* ============================================================
+ * UTIL
+ * ============================================================ */
+const $ = (id) => document.getElementById(id);
 
-    let siswaCache = [], kelasCache = [], pelanggaranCache = [];
-    let html5QrCode = null, html5QrGerbang = null;
-    let chartSholatInst = null, chartZonasiInst = null;
+function toast(msg, isErr) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (isErr ? ' err' : '');
+  el.textContent = msg;
+  $('toast-wrap').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = '.3s'; }, 2600);
+  setTimeout(() => el.remove(), 3200);
+}
 
-    // LAUNCHER NAVIGATION (SUPER RINGAN 0.2 DETIK)
-    function launchApp(appName) {
-      document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-      const target = document.getElementById('app-' + appName);
-      if (target) {
-        target.classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      }
+async function apiGet(action, params = {}) {
+  const q = new URLSearchParams({ action, token: state.token, ...params });
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT);
+  try {
+    const res = await fetch(`${API_URL}?${q}`, { signal: ctrl.signal });
+    return await res.json();
+  } finally { clearTimeout(t); }
+}
 
-      // LAZY LOAD: DATA HANYA DITARIK KETIKA MODUL TERSEBUT DIBUKA!
-      if (appName === 'gerbang') {
-        document.getElementById('input-kiosk-rfid').focus();
-      } else if (appName === 'sholat') {
-        ensureSiswaLoaded();
-      } else if (appName === 'disiplin') {
-        loadDisiplinTable();
-      } else if (appName === 'admin') {
-        loadAdminDashboard();
-      }
-    }
-
-    function backToLauncher() {
-      if (html5QrCode) { try { html5QrCode.stop(); } catch(e){} }
-      if (html5QrGerbang) { try { html5QrGerbang.stop(); } catch(e){} }
-      document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-      document.getElementById('portal-launcher').classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    }
-
-    // ADAPTER API CALL
-    async function callApi(action, payload = {}, params = {}) {
-      if (!gasEndpoint) { promptConfigUrl(); throw new Error('Konfigurasi URL Apps Script terlebih dahulu.'); }
-      try {
-        if (action.startsWith('get')) {
-          const q = new URLSearchParams({ action, ...params }).toString();
-          const res = await fetch(`${gasEndpoint}?${q}`, { method: 'GET', mode: 'cors', redirect: 'follow' });
-          return await res.json();
-        } else {
-          const res = await fetch(gasEndpoint, {
-            method: 'POST', mode: 'cors', redirect: 'follow',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action, payload, ...payload })
-          });
-          return await res.json();
-        }
-      } catch (err) {
-        throw new Error('Gagal terhubung ke database: ' + err.message);
-      }
-    }
-
-    function promptConfigUrl() {
-      Swal.fire({
-        title: 'Konfigurasi URL Apps Script', input: 'text', inputValue: gasEndpoint, showCancelButton: true
-      }).then(r => {
-        if (r.isConfirmed && r.value) {
-          gasEndpoint = r.value.trim();
-          localStorage.setItem('esholat_gas_url', gasEndpoint);
-          location.reload();
-        }
-      });
-    }
-
-    // CLOCK RUNNER
-    function updateClocks() {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('id-ID', { hour12: false }) + ' WIB';
-      const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-
-      document.getElementById('clock-gerbang-header').innerText = timeStr;
-      document.getElementById('clock-sholat-header').innerText = timeStr;
-      document.getElementById('sholat-clock').innerText = timeStr;
-      document.getElementById('kiosk-big-clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
-      document.getElementById('kiosk-big-date').innerText = dateStr;
-
-      // Status Shift Gerbang
-      const h = now.getHours();
-      const sEl = document.getElementById('kiosk-status-shift');
-      if (h < 7) { sEl.innerText = 'SESI: MASUK PAGI (TEPAT WAKTU)'; sEl.className = 'badge bg-success px-3 py-2 fs-6'; }
-      else if (h < 11) { sEl.innerText = 'SESI: MASUK PAGI (TERLAMBAT)'; sEl.className = 'badge bg-warning text-dark px-3 py-2 fs-6'; }
-      else { sEl.innerText = 'SESI: KEPULANGAN SORE'; sEl.className = 'badge bg-info text-dark px-3 py-2 fs-6'; }
-    }
-    setInterval(updateClocks, 1000);
-
-    // KIOSK AUTO-DETECT TAP GERBANG
-    let kioskThrottle = false;
-    async function handleKioskTap(val) {
-      const input = val.trim();
-      if (!input || kioskThrottle) return;
-      kioskThrottle = true;
-      document.getElementById('input-kiosk-rfid').value = '';
-
-      try {
-        const res = await callApi('submitAbsensi', { nis: input, rfid: input, jenis_sholat: 'Gerbang_Masuk', petugas: 'Kiosk Gerbang' });
-        if (res.success) {
-          const s = res.siswa;
-          speakText(`${s.nama}, Berhasil Hadir.`);
-          showKioskSuccess(s.nama, s.nis, s.kelas, s.foto);
-        } else {
-          speakText("Kartu tidak terdaftar.");
-          Swal.fire({ icon: 'warning', title: 'Perhatian', text: res.message, timer: 1800, showConfirmButton: false });
-        }
-      } catch(e) {}
-      setTimeout(() => { kioskThrottle = false; document.getElementById('input-kiosk-rfid').focus(); }, 1800);
-    }
-
-    function showKioskSuccess(nama, nis, kelas, foto) {
-      const b = document.getElementById('kiosk-result-box');
-      document.getElementById('kiosk-user-nama').innerText = nama;
-      document.getElementById('kiosk-user-nis').innerText = nis;
-      document.getElementById('kiosk-user-kelas').innerText = kelas;
-      document.getElementById('kiosk-user-foto').src = foto || 'https://via.placeholder.com/80';
-      b.classList.remove('d-none');
-      setTimeout(() => b.classList.add('d-none'), 3000);
-    }
-
-    function speakText(txt) {
-      if ('speechSynthesis' in window) {
-        const u = new SpeechSynthesisUtterance(txt);
-        u.lang = 'id-ID'; window.speechSynthesis.speak(u);
-      }
-    }
-
-    // MODUL E-SHOLAT CAMERA
-    function toggleCameraSholat() {
-      html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (decoded) => {
-        processAbsensiSholat(decoded);
-      }).catch(() => Swal.fire('Izin Kamera', 'Aktifkan izin kamera di browser.', 'info'));
-    }
-
-    async function processAbsensiSholat(nis) {
-      const sholat = document.getElementById('scan-sholat-sesi').value;
-      const res = await callApi('submitAbsensi', { nis: nis, jenis_sholat: sholat, petugas: 'Guru Pembina' });
-      if (res.success) {
-        Swal.fire({ icon: 'success', title: 'Hadir!', text: res.message, timer: 1500, showConfirmButton: false });
-        addRecentSholat(res.siswa.nama, res.siswa.kelas, sholat, res.siswa.waktu);
-      } else {
-        Swal.fire({ icon: 'warning', title: 'Perhatian', text: res.message });
-      }
-    }
-
-    function addRecentSholat(nama, kelas, sholat, waktu) {
-      const l = document.getElementById('log-recent-sholat');
-      if (l.innerHTML.includes('Belum ada')) l.innerHTML = '';
-      const li = document.createElement('li');
-      li.className = 'list-group-item d-flex justify-content-between align-items-center';
-      li.innerHTML = `<div><strong>${nama}</strong> <span class="badge bg-secondary ms-1">${kelas}</span></div><span class="badge bg-success">${sholat} • ${waktu}</span>`;
-      l.prepend(li);
-    }
-
-    // LIVE SEARCH SISWA
-    async function ensureSiswaLoaded() {
-      if (siswaCache.length === 0) {
-        try { siswaCache = await callApi('getSiswa'); } catch(e){}
-      }
-    }
-
-    function handleSearchSholat(val) {
-      const q = val.trim().toLowerCase();
-      const b = document.getElementById('results-search-sholat');
-      if (q.length < 2) { b.classList.add('d-none'); return; }
-      ensureSiswaLoaded();
-      const filtered = siswaCache.filter(s => s.nama_siswa.toLowerCase().includes(q) || s.nis.includes(q)).slice(0, 6);
-      if (filtered.length === 0) { b.innerHTML = '<div class="p-2 text-muted text-center small">Siswa tidak ditemukan</div>'; b.classList.remove('d-none'); return; }
-      let h = '';
-      filtered.forEach(s => {
-        h += `<button type="button" class="list-group-item list-group-item-action text-start" onclick="processAbsensiSholat('${s.nis}'); document.getElementById('results-search-sholat').classList.add('d-none'); document.getElementById('search-siswa-sholat').value='';">
-                <strong>${s.nama_siswa}</strong> <small class="text-muted">(NIS: ${s.nis} • ${s.kelas})</small>
-              </button>`;
-      });
-      b.innerHTML = h; b.classList.remove('d-none');
-    }
-
-    // MODUL POIN BK & CETAK SURAT
-    async function loadDisiplinTable() {
-      await ensureSiswaLoaded();
-      const tbody = document.getElementById('tbody-disiplin-siswa');
-      let html = '';
-      siswaCache.forEach(s => {
-        let badge = '<span class="badge bg-success">AMAN</span>';
-        if (s.saldo_poin <= 25) badge = '<span class="badge bg-dark">SP 3 (SKORSING)</span>';
-        else if (s.saldo_poin <= 50) badge = '<span class="badge bg-danger">SP 2 (PANGGILAN ORTU)</span>';
-        else if (s.saldo_poin <= 75) badge = '<span class="badge bg-warning text-dark">SP 1</span>';
-
-        html += `<tr>
-          <td><strong>${s.nis}</strong></td><td>${s.nama_siswa}</td><td><span class="badge bg-secondary">${s.kelas}</span></td>
-          <td><strong class="text-danger">${s.saldo_poin}</strong></td><td>${badge}</td>
-          <td class="text-center">
-            <button class="btn btn-sm btn-outline-danger me-1" onclick="openCatatPelanggaran('${s.nis}', '${s.nama_siswa}')"><i class="fa-solid fa-gavel"></i></button>
-            <button class="btn btn-sm btn-outline-primary" onclick="previewSuratSanksi('${s.nis}')"><i class="fa-solid fa-file-signature"></i> Cetak SP</button>
-          </td>
-        </tr>`;
-      });
-      tbody.innerHTML = html;
-    }
-
-    function previewSuratSanksi(nis) {
-      const s = siswaCache.find(x => x.nis === nis);
-      if (!s) return;
-      document.getElementById('srt-nama').innerText = s.nama_siswa;
-      document.getElementById('srt-nis').innerText = s.nis;
-      document.getElementById('srt-kelas').innerText = s.kelas;
-      document.getElementById('srt-poin').innerText = s.saldo_poin;
-      document.getElementById('srt-nama-ortu').innerText = s.nama_siswa;
-      document.getElementById('srt-tanggal').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-
-      let status = 'PERINGATAN SP 1';
-      if (s.saldo_poin <= 25) status = 'SKORSING & PERJANJIAN BERMATERAI (SP 3)';
-      else if (s.saldo_poin <= 50) status = 'PEMANGGILAN ORANG TUA / WALI (SP 2)';
-      document.getElementById('srt-sanksi').innerText = status;
-
-      document.getElementById('wrapper-pratinjau-surat').classList.remove('d-none');
-      window.scrollTo({ top: document.getElementById('wrapper-pratinjau-surat').offsetTop - 20, behavior: 'smooth' });
-    }
-
-    async function openCatatPelanggaran(nis, nama) {
-      document.getElementById('p-nis').value = nis;
-      document.getElementById('p-nama-disp').value = `${nama} (${nis})`;
-      pelanggaranCache = await callApi('getMasterPelanggaran');
-      const sel = document.getElementById('p-select');
-      let opt = '<option value="">-- Pilih Jenis --</option>';
-      pelanggaranCache.forEach(p => opt += `<option value="${p.nama}" data-poin="${p.poin}">[${p.poin > 0 ? '-' : '+'}${Math.abs(p.poin)}] ${p.nama}</option>`);
-      sel.innerHTML = opt;
-      new bootstrap.Modal(document.getElementById('modalPelanggaran')).show();
-    }
-
-    function handleSelectPelanggaran(sel) {
-      const p = sel.options[sel.selectedIndex].dataset.poin || 0;
-      document.getElementById('p-poin-val').value = p;
-      document.getElementById('p-poin-disp').innerText = (p > 0 ? '-' : '+') + Math.abs(p);
-    }
-
-    async function handleSavePelanggaran(e) {
-      e.preventDefault();
-      const payload = {
-        nis: document.getElementById('p-nis').value,
-        nama_pelanggaran: document.getElementById('p-select').value,
-        poin_minus: document.getElementById('p-poin-val').value,
-        guru_bk: 'Guru BK'
-      };
-      await callApi('submitPelanggaran', payload);
-      bootstrap.Modal.getInstance(document.getElementById('modalPelanggaran')).hide();
-      Swal.fire('Tersimpan', 'Poin berhasil diubah', 'success');
-      siswaCache = [];
-      loadDisiplinTable();
-    }
-
-    // MODUL ADMIN: CHARTS & SISWA
-    async function loadAdminDashboard() {
-      await ensureSiswaLoaded();
-      await loadKelas();
-      loadTabelSiswaAdmin();
-      renderChartsAdmin();
-    }
-
-    async function loadKelas() {
-      kelasCache = await callApi('getKelas');
-      const mK = document.getElementById('m-kelas');
-      if (mK) {
-        let opt = '';
-        kelasCache.forEach(k => opt += `<option value="${k}">${k}</option>`);
-        mK.innerHTML = opt;
-      }
-      const nkA = document.getElementById('nk-asal'), nkT = document.getElementById('nk-tujuan');
-      if (nkA && nkT) {
-        let oA = '<option value="">-- Pilih Asal --</option>', oT = '<option value="">-- Pilih Tujuan --</option><option value="LULUS" class="text-danger fw-bold">★ LULUS / ALUMNI ★</option>';
-        kelasCache.forEach(k => { oA += `<option value="${k}">${k}</option>`; oT += `<option value="${k}">${k}</option>`; });
-        nkA.innerHTML = oA; nkT.innerHTML = oT;
-      }
-    }
-
-    function loadTabelSiswaAdmin() {
-      const tbody = document.getElementById('tbody-siswa-admin');
-      let html = '';
-      siswaCache.forEach(s => {
-        html += `<tr>
-          <td><input type="checkbox" class="check-item-s" value="${s.nis}" onchange="updateDelBtn()"></td>
-          <td><img src="${s.url_foto || 'https://via.placeholder.com/40'}" width="35" height="40" class="rounded border object-fit-cover"></td>
-          <td><strong>${s.nis}</strong></td><td><code>${s.no_rfid || '-'}</code></td>
-          <td>${s.nama_siswa}</td><td><span class="badge bg-secondary">${s.kelas}</span></td>
-          <td><span class="badge bg-danger">${s.saldo_poin}</span></td>
-          <td class="text-center">
-            <button class="btn btn-sm btn-outline-warning" onclick="editSiswa('${s.nis}')"><i class="fa-solid fa-pen"></i></button>
-          </td>
-        </tr>`;
-      });
-      tbody.innerHTML = html;
-    }
-
-    async function renderChartsAdmin() {
-      try {
-        const rekap = await callApi('getRekap', {}, { filterType: 'HARIAN', filterKelas: 'SEMUA' });
-        const d = await callApi('getStatsDisiplin');
-
-        const kCount = {};
-        kelasCache.forEach(k => kCount[k] = 0);
-        rekap.forEach(r => { if (kCount[r.kelas] !== undefined) kCount[r.kelas]++; });
-
-        if (chartSholatInst) chartSholatInst.destroy();
-        chartSholatInst = new Chart(document.getElementById('chartSholatAdmin'), {
-          type: 'pie',
-          data: { labels: Object.keys(kCount), datasets: [{ data: Object.values(kCount), backgroundColor: ['#0f766e', '#059669', '#10b981', '#14b8a6', '#f59e0b', '#64748b'] }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
-
-        if (chartZonasiInst) chartZonasiInst.destroy();
-        chartZonasiInst = new Chart(document.getElementById('chartZonasiAdmin'), {
-          type: 'doughnut',
-          data: { labels: ['Aman (76-100)', 'SP 1 (51-75)', 'SP 2 (26-50)', 'SP 3 (0-25)'], datasets: [{ data: [d.aman, d.sp1, d.sp2, d.sp3], backgroundColor: ['#059669', '#f59e0b', '#dc2626', '#111827'] }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
-      } catch(e){}
-    }
-
-    // CETAK KARTU DENGAN QR BESAR 100px
-    async function generateCards() {
-      const c = document.getElementById('kartu-container');
-      c.innerHTML = '<div class="text-center py-4 w-100">Membuat kartu siswa...</div>';
-      await ensureSiswaLoaded();
-      c.innerHTML = '';
-      siswaCache.forEach(s => {
-        const card = document.createElement('div');
-        card.className = 'id-card-wrapper';
-        card.innerHTML = `
-          <div class="d-flex align-items-center justify-content-between border-bottom pb-1 mb-1">
-            <div>
-              <h6 class="fw-bold mb-0 text-success" style="font-size:10px;">SMK BHAKTI KENCANA CIAWI</h6>
-              <span style="font-size:7.5px;" class="text-muted">YAYASAN ADHI GUNA KENCANA</span>
-            </div>
-            <i class="fa-solid fa-graduation-cap text-success"></i>
-          </div>
-          <div class="d-flex align-items-center justify-content-between mt-1">
-            <div style="font-size:9.5px; line-height:1.3; max-width:170px;">
-              <div class="fw-bold text-dark text-truncate mb-1" style="font-size:11px;">${s.nama_siswa}</div>
-              <div class="text-muted">NIS: <strong class="text-dark">${s.nis}</strong></div>
-              <div class="text-muted">Kelas: <span class="badge bg-secondary" style="font-size:8px;">${s.kelas}</span></div>
-              <span class="badge bg-success mt-2" style="font-size:7.5px;">SMART CARD HYBRID</span>
-            </div>
-            <div class="qr-large-container" id="qr-${s.nis}"></div>
-          </div>`;
-        c.appendChild(card);
-        new QRCode(document.getElementById('qr-' + s.nis), { text: String(s.nis), width: 100, height: 100, correctLevel: QRCode.CorrectLevel.H });
-      });
-      document.getElementById('wrapper-kartu-cetak').classList.remove('d-none');
-    }
-
-    window.addEventListener('load', () => {
-      updateClocks();
+async function apiPost(action, payload = {}) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT);
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, token: state.token, payload }),
+      signal: ctrl.signal
     });
-  </script>
+    return await res.json();
+  } finally { clearTimeout(t); }
+}
+
+/* ============================================================
+ * JAM & TANGGAL
+ * ============================================================ */
+const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function tickClock() {
+  const now = new Date();
+  // Konversi ke WIB (UTC+7) secara eksplisit, apa pun timezone browser
+  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
+  const hh = String(wib.getHours()).padStart(2, '0');
+  const mm = String(wib.getMinutes()).padStart(2, '0');
+  const ss = String(wib.getSeconds()).padStart(2, '0');
+  $('clock-hm').textContent = `${hh}:${mm}`;
+  $('clock-s').textContent = `:${ss}`;
+  $('clock-date').textContent =
+    `${HARI[wib.getDay()]}, ${wib.getDate()} ${BULAN[wib.getMonth()]} ${wib.getFullYear()}`;
+}
+setInterval(tickClock, 1000); tickClock();
+
+/* ============================================================
+ * AUDIO TTS BAHASA INDONESIA
+ * ============================================================ */
+function siapkanVoice() {
+  if (!('speechSynthesis' in window)) return;
+  const load = () => {
+    const voices = speechSynthesis.getVoices();
+    if (voices.length) state.voiceReady = true;
+  };
+  load();
+  speechSynthesis.onvoiceschanged = load;
+}
+siapkanVoice();
+
+function ucapkan(teks) {
+  if (!('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(teks);
+    u.lang = 'id-ID';
+    u.rate = 1.0;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    const voices = speechSynthesis.getVoices();
+    const v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith('id'));
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (_) {}
+}
+
+/* ============================================================
+ * STATUS CARD
+ * ============================================================ */
+function tampilStatus(kelas, nama, sub, badge) {
+  const c = $('status-card');
+  c.classList.remove('ok','warn','err');
+  if (kelas) c.classList.add(kelas);
+  $('status-nama').textContent = nama;
+  $('status-sub').textContent = sub;
+  const b = $('status-badge');
+  if (badge) { b.style.display = 'inline-flex'; b.textContent = badge; }
+  else b.style.display = 'none';
+}
+
+/* ============================================================
+ * LOGIN
+ * ============================================================ */
+async function doLogin() {
+  const username = $('login-user').value.trim();
+  const pin = $('login-pin').value.trim();
+  const alertEl = $('login-alert');
+  alertEl.classList.remove('show');
+
+  if (!username || !pin) {
+    alertEl.textContent = 'ID/Username dan PIN wajib diisi.';
+    alertEl.classList.add('show');
+    return;
+  }
+
+  const btn = $('btn-login');
+  btn.disabled = true; btn.textContent = 'Memeriksa…';
+
+  try {
+    const res = await apiPost('login', { username, pin, modul: MODUL });
+    if (!res.ok) {
+      alertEl.textContent = res.message || 'Login gagal.';
+      alertEl.classList.add('show');
+      return;
+    }
+    state.token = res.data.token;
+    state.petugas = res.data.nama;
+    state.role = res.data.role;
+    sessionStorage.setItem('bkc_token', state.token);
+    sessionStorage.setItem('bkc_petugas', state.petugas);
+    sessionStorage.setItem('bkc_role', state.role);
+
+    $('petugas-label').textContent = state.petugas;
+    $('sesi-pill').style.display = 'inline-flex';
+    $('login-modal').classList.remove('show');
+    $('login-user').value = '';
+    $('login-pin').value = '';
+
+    tampilStatus('ok', 'Siap menerima presensi', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
+    ucapkan('Login berhasil. Selamat bertugas, ' + state.petugas);
+    mulaiIdleWatcher();
+    mulaiHeartbeat();
+    fokusRFID();
+  } catch (err) {
+    alertEl.textContent = 'Tidak dapat menghubungi server. Periksa koneksi.';
+    alertEl.classList.add('show');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Masuk & Buka Kios';
+  }
+}
+
+$('btn-login').addEventListener('click', doLogin);
+$('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+$('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-pin').focus(); });
+
+/* ============================================================
+ * LOGOUT
+ * ============================================================ */
+async function doLogout(reason) {
+  try { await apiPost('logout', { alasan: reason || 'Logout manual' }); } catch (_) {}
+  sessionStorage.removeItem('bkc_token');
+  sessionStorage.removeItem('bkc_petugas');
+  sessionStorage.removeItem('bkc_role');
+  state.token = ''; state.petugas = ''; state.role = '';
+  hentikanIdleWatcher();
+  hentikanHeartbeat();
+  $('petugas-label').textContent = 'Belum login';
+  $('sesi-pill').style.display = 'none';
+  $('idle-modal').classList.remove('show');
+  $('login-modal').classList.add('show');
+  $('login-user').focus();
+  tampilStatus('', 'Menunggu kartu…', 'Silakan login untuk membuka kios.', '');
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+}
+
+$('btn-logout').addEventListener('click', () => { if (confirm('Logout dari kios?')) doLogout('Logout manual'); });
+$('btn-logout-now').addEventListener('click', () => doLogout('Logout dari peringatan idle'));
+
+/* ============================================================
+ * IDLE WATCHER (10 MENIT)
+ * ============================================================ */
+function resetIdle() {
+  if (!state.token) return;
+  state.idleDeadline = Date.now() + IDLE_TOTAL_MS;
+  clearTimeout(state.idleWarnTimer);
+  $('idle-modal').classList.remove('show');
+
+  state.idleWarnTimer = setTimeout(() => {
+    if (!state.token) return;
+    $('idle-modal').classList.add('show');
+    let sisa = Math.ceil(IDLE_WARN_MS / 1000);
+    $('idle-countdown').textContent = sisa;
+    const iv = setInterval(() => {
+      sisa--;
+      $('idle-countdown').textContent = sisa;
+      if (sisa <= 0) {
+        clearInterval(iv);
+        doLogout('Idle timeout');
+      }
+    }, 1000);
+  }, IDLE_TOTAL_MS - IDLE_WARN_MS);
+}
+
+function mulaiIdleWatcher() {
+  resetIdle();
+  ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(ev =>
+    document.addEventListener(ev, resetIdle, { passive: true })
+  );
+  state.idleTimer = setInterval(() => {
+    if (!state.token) return;
+    const sisa = Math.max(0, state.idleDeadline - Date.now());
+    const mm = String(Math.floor(sisa / 60000)).padStart(2,'0');
+    const ss = String(Math.floor((sisa % 60000) / 1000)).padStart(2,'0');
+    $('sesi-timer').textContent = `${mm}:${ss}`;
+  }, 1000);
+}
+
+function hentikanIdleWatcher() {
+  clearTimeout(state.idleWarnTimer);
+  clearInterval(state.idleTimer);
+}
+
+$('btn-stay').addEventListener('click', () => {
+  resetIdle();
+  apiPost('heartbeat').catch(() => {});
+  toast('Sesi diperpanjang');
+  fokusRFID();
+});
+
+/* ============================================================
+ * HEARTBEAT (SINKRON IDLE SERVER)
+ * ============================================================ */
+function mulaiHeartbeat() {
+  hentikanHeartbeat();
+  state.heartbeatTimer = setInterval(() => {
+    if (!state.token) return;
+    apiPost('heartbeat').then(r => {
+      if (!r.ok) doLogout('Sesi server berakhir');
+    }).catch(() => {});
+  }, HEARTBEAT_MS);
+}
+function hentikanHeartbeat() { clearInterval(state.heartbeatTimer); }
+
+/* ============================================================
+ * RFID AUTO-FOCUS LOCK
+ * ============================================================ */
+function fokusRFID() {
+  const inp = $('rfid-input');
+  if (!inp) return;
+  try { inp.focus({ preventScroll: true }); } catch (_) { inp.focus(); }
+}
+setInterval(() => {
+  if (!state.token) return;
+  const active = document.activeElement;
+  if (active && (active.id === 'search-input' || active.id === 'login-user' || active.id === 'login-pin')) return;
+  fokusRFID();
+}, 800);
+
+$('rfid-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const val = e.target.value.trim();
+    e.target.value = '';
+    if (val) prosesPresensi(val, 'RFID');
+  }
+});
+
+/* ============================================================
+ * PRESENSI (RFID / MANUAL)
+ * ============================================================ */
+async function prosesPresensi(nis, sumber) {
+  if (!state.token) return;
+  if (Date.now() - state.lastTapAt < ANTI_DUP_MS && state.lastTapNis === nis) {
+    return;
+  }
+  state.lastTapAt = Date.now();
+  state.lastTapNis = nis;
+
+  tampilStatus('', 'Memproses…', `NIS ${nis}`, 'MEMUAT');
+  resetIdle();
+
+  try {
+    const res = await apiPost('presensiGerbang', { nis, sumber, tipe: 'SISWA' });
+    if (!res.ok) {
+      tampilStatus('err', 'Gagal', res.message || 'Presensi gagal', 'DITOLAK');
+      toast(res.message || 'Gagal', true);
+      ucapkan('Presensi gagal. ' + (res.message || ''));
+      return;
+    }
+    const d = res.data;
+    const st = (d.status || '').replace('_', ' ');
+    const kelasCss = d.status === 'TERLAMBAT' ? 'warn' : 'ok';
+    tampilStatus(kelasCss, d.nama, `${d.kelas} · NIS ${d.nis} · ${d.jam} WIB`, st);
+    toast(`${d.nama} — ${st}`);
+    ucapkan(`${d.nama}, ${st}`);
+  } catch (err) {
+    tampilStatus('err', 'Koneksi gagal', 'Periksa jaringan Anda', 'ERROR');
+    toast('Tidak dapat menghubungi server', true);
+  } finally {
+    fokusRFID();
+  }
+}
+
+/* ============================================================
+ * LIVE SEARCH (AUTOCOMPLETE)
+ * ============================================================ */
+const searchInput = $('search-input');
+const resultsEl = $('results');
+const clearBtn = $('search-clear');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim();
+  clearBtn.classList.toggle('show', q.length > 0);
+
+  if (state.searchTimer) clearTimeout(state.searchTimer);
+  if (state.searchAbort) state.searchAbort.abort();
+
+  if (q.length < 2) {
+    resultsEl.innerHTML = '<div class="empty-hint">Ketik minimal 2 huruf nama atau NIS…</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = '<div class="empty-hint">Mencari…</div>';
+
+  state.searchTimer = setTimeout(async () => {
+    try {
+      const res = await apiGet('searchSiswa', { q });
+      if (!res.ok) {
+        resultsEl.innerHTML = `<div class="empty-hint">${res.message || 'Gagal mencari.'}</div>`;
+        return;
+      }
+      if (!res.data.length) {
+        resultsEl.innerHTML = '<div class="empty-hint">Tidak ada siswa cocok.</div>';
+        return;
+      }
+      resultsEl.innerHTML = '';
+      res.data.forEach(s => {
+        const btn = document.createElement('button');
+        btn.className = 'result-item';
+        btn.innerHTML = `
+          <div class="avatar">${(s.nama || '?').slice(0,2).toUpperCase()}</div>
+          <div class="info">
+            <b>${escapeHtml(s.nama)}</b>
+            <span>${escapeHtml(s.kelas)}</span>
+          </div>
+          <div class="nis">${escapeHtml(String(s.nis))}</div>
+        `;
+        btn.addEventListener('click', () => {
+          searchInput.value = '';
+          clearBtn.classList.remove('show');
+          resultsEl.innerHTML = '<div class="empty-hint">Hasil pencarian muncul di sini.</div>';
+          prosesPresensi(String(s.nis), 'MANUAL');
+        });
+        resultsEl.appendChild(btn);
+      });
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        resultsEl.innerHTML = '<div class="empty-hint">Koneksi bermasalah.</div>';
+      }
+    }
+  }, 280);
+});
+
+clearBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  clearBtn.classList.remove('show');
+  resultsEl.innerHTML = '<div class="empty-hint">Hasil pencarian muncul di sini.</div>';
+  fokusRFID();
+});
+
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    searchInput.value = '';
+    clearBtn.classList.remove('show');
+    fokusRFID();
+  }
+});
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+/* ============================================================
+ * INIT
+ * ============================================================ */
+(function init() {
+  if (API_URL.indexOf('ISI_URL') === 0) {
+    alert('API_URL belum diisi di gerbang.html. Buka file, cari baris API_URL, ganti dengan URL /exec dari Apps Script.');
+  }
+  if (state.token) {
+    // Validasi token saat halaman dibuka ulang
+    apiPost('heartbeat').then(r => {
+      if (r.ok) {
+        $('petugas-label').textContent = state.petugas;
+        $('sesi-pill').style.display = 'inline-flex';
+        $('login-modal').classList.remove('show');
+        tampilStatus('ok', 'Siap menerima presensi', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
+        mulaiIdleWatcher();
+        mulaiHeartbeat();
+        fokusRFID();
+      } else {
+        doLogout('Token tidak valid');
+      }
+    }).catch(() => {
+      // Offline: tetap tampilkan login agar tidak stuck
+      $('login-modal').classList.add('show');
+    });
+  } else {
+    $('login-modal').classList.add('show');
+    setTimeout(() => $('login-user').focus(), 300);
+  }
+})();
+</script>
 </body>
 </html>

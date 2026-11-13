@@ -184,10 +184,10 @@
   <div id="tab-laporan" class="tab-content hidden">
     <div class="card">
       <h2><i class="fas fa-chart-bar"></i> Laporan Sholat</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:1rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.5rem;margin-bottom:1rem">
         <div class="field" style="margin:0"><label>Dari</label><input type="date" id="lap-dari"></div>
         <div class="field" style="margin:0"><label>Sampai</label><input type="date" id="lap-sampai"></div>
-        <div class="field" style="margin:0"><label>Kelas</label><select id="lap-kelas"><option value="">Semua Kelas</option></select></div>
+        <div class="field" style="margin:0"><label>Kelas</label><select id="lap-kelas"><option value="">Semua</option></select></div>
         <div class="field" style="margin:0"><label>Mode</label><select id="lap-mode"><option value="siswa">Per Siswa</option><option value="hari">Per Hari</option></select></div>
       </div>
       <button class="btn btn-primary" id="btn-load-laporan"><i class="fas fa-search"></i> Tampilkan</button>
@@ -232,11 +232,12 @@ const state = {
   waktuSholat: 'DZUHUR', stream: null, scanInterval: null, currentFacing: 'environment',
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null, searchTimer: null,
   konfirmasiNis: null, konfirmasiWaktu: null,
-  scannedNis: {} // <-- PENYIMPAN NIS YANG SUDAH SCAN
+  scannedNis: {}, // Memori NIS sudah scan
+  riwayat: []
 };
 const $ = (id) => document.getElementById(id);
 
-// --- SUARA BEEP SCANNER (FREKUENSI TINGGI) ---
+// --- SUARA BEEP SCANNER ---
 function bunyi(freq, dur, type = 'sine') {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -245,13 +246,13 @@ function bunyi(freq, dur, type = 'sine') {
     osc.type = type;
     osc.frequency.value = freq;
     osc.connect(gain); gain.connect(ctx.destination);
-    gain.gain.setValueAtTime(0.3, ctx.currentTime); // Volume lebih keras
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + dur);
     osc.start(); osc.stop(ctx.currentTime + dur);
   } catch (e) {}
 }
-function bunyiBeep() { bunyi(2000, 0.15, 'square'); } // Sukses (Biiip tajam)
-function bunyiTetot() { bunyi(300, 0.4, 'sawtooth'); } // Gagal (Tetot rendah)
+function bunyiBeep() { bunyi(2000, 0.15, 'square'); } // Sukses
+function bunyiTetot() { bunyi(300, 0.4, 'sawtooth'); } // Gagal
 
 function toast(msg, isErr) {
   const el = document.createElement('div'); el.className = 'toast' + (isErr ? ' err' : ''); el.textContent = msg;
@@ -297,7 +298,7 @@ async function doLogin() {
     if (!bolehAdmin) { $('tab-btn-udzur').style.display = 'none'; $('tab-btn-laporan').style.display = 'none'; }
     else { $('tab-btn-udzur').style.display = 'flex'; $('tab-btn-laporan').style.display = 'flex'; }
     toast('Selamat datang, ' + state.nama);
-    mulaiIdleWatcher(); mulaiHeartbeat(); loadJadwal(); loadUdzurAktif(); loadCounterHariIni();
+    mulaiIdleWatcher(); mulaiHeartbeat(); loadJadwal(); loadUdzurAktif(); loadCounterHariIni(); loadKelasLaporan();
     if (state.riwayat.length === 0) renderRiwayat();
   } catch (err) { alertEl.textContent = 'Koneksi gagal.'; alertEl.style.display = 'block'; }
   finally { btn.disabled = false; btn.textContent = 'Masuk'; }
@@ -341,12 +342,21 @@ async function loadJadwal() {
   }
 }
 
+async function loadKelasLaporan() {
+  try {
+    const res = await apiCall('getDaftarKelas');
+    if (res.ok) {
+      $('lap-kelas').innerHTML = '<option value="">Semua Kelas</option>' + res.data.map(k => `<option value="${k}">${k}</option>`).join('');
+    }
+  } catch (e) {}
+}
+
 document.querySelectorAll('.jadwal-item').forEach(item => {
   item.addEventListener('click', () => {
     document.querySelectorAll('.jadwal-item').forEach(i => i.classList.remove('active'));
     item.classList.add('active'); 
     state.waktuSholat = item.dataset.waktu; 
-    state.scannedNis = {}; // Reset memori scan saat ganti waktu
+    state.scannedNis = {}; // Reset memori scan
     toast('Waktu: ' + state.waktuSholat);
   });
 });
@@ -366,7 +376,6 @@ function stopKamera() {
   $('btn-start-cam').style.display = 'flex'; $('btn-switch-cam').style.display = 'none'; $('btn-stop-cam').style.display = 'none';
 }
 
-// LOGIKA ANTI DOUBLE (0 DETIK)
 function scanQR() {
   const video = $('video'); if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
   const canvas = document.createElement('canvas'); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
@@ -377,15 +386,8 @@ function scanQR() {
   if (code) { 
     const nis = code.data.trim(); 
     if (nis.length >= 4) {
-      // LAPIS 1: Kunci Memori NIS (Jika sudah scan, abaikan seketika)
-      if (state.scannedNis[nis]) {
-        return; 
-      }
-      
-      // Tandai sudah scan
-      state.scannedNis[nis] = true;
-      
-      // Proses ke server
+      if (state.scannedNis[nis]) return; // Abaikan jika sudah scan
+      state.scannedNis[nis] = true; // Tandai sudah scan
       prosesPresensi(nis, 'QR');
     }
   }
@@ -441,7 +443,7 @@ async function prosesPresensi(kode, sumber) {
     } else {
       statusBox.className = 'status-box show ok'; statusBox.innerHTML = `<i class="fas fa-check-circle"></i> ${d.nama} — Hadir ${d.waktu}`;
       toast(d.nama + ' Hadir ' + d.waktu);
-      bunyiBeep(); // SUARA SUKSES
+      bunyiBeep();
       tambahRiwayat(d.nama, d.waktu, false);
       loadCounterHariIni();
       setTimeout(() => { statusBox.classList.remove('show'); }, 3000);
@@ -585,7 +587,7 @@ if (state.token) {
   const roles = String(state.role).toUpperCase().split(',').map(r => r.trim());
   const bolehAdmin = roles.includes('SUPER_ADMIN') || roles.includes('GURU_BK') || roles.includes('KEPSEK');
   if (!bolehAdmin) { $('tab-btn-udzur').style.display = 'none'; $('tab-btn-laporan').style.display = 'none'; }
-  mulaiIdleWatcher(); mulaiHeartbeat(); loadJadwal(); loadUdzurAktif(); loadCounterHariIni();
+  mulaiIdleWatcher(); mulaiHeartbeat(); loadJadwal(); loadUdzurAktif(); loadCounterHariIni(); loadKelasLaporan();
 }
 </script>
 </body>

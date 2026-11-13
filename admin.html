@@ -149,7 +149,7 @@
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="tatib"><i class="nav-icon fas fa-book"></i><p>Tata Tertib</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="rfid"><i class="nav-icon fas fa-wifi"></i><p>Pendaftaran RFID</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="naikkelas"><i class="nav-icon fas fa-arrow-up"></i><p>Naik Kelas</p></a></li>
-          <li class="nav-item" data-role="all"><a href="#" class="nav-link" data-page="laporan"><i class="nav-icon fas fa-file-alt"></i><p>Laporan</p></a></li>
+          <li class="nav-item" data-role="all"><a href="#" class="nav-link" data-page="laporan-siswa"><i class="nav-icon fas fa-user-graduate"></i><p>Laporan Siswa</p></a></li> <li class="nav-item" data-role="all"><a href="#" class="nav-link" data-page="laporan-guru"><i class="nav-icon fas fa-chalkboard-teacher"></i><p>Laporan Guru</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="pengaturan"><i class="nav-icon fas fa-cog"></i><p>Pengaturan</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="kartu"><i class="nav-icon fas fa-id-card"></i><p>Cetak Kartu</p></a></li>
         </ul>
@@ -387,10 +387,11 @@
       </div>
 
       <!-- LAPORAN -->
-      <div id="page-laporan" style="display:none">
+            <!-- LAPORAN SISWA -->
+      <div id="page-laporan-siswa" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
-            <h3 class="card-title mb-0"><i class="fas fa-file-alt text-primary mr-2"></i>Laporan & Rekap</h3>
+            <h3 class="card-title mb-0"><i class="fas fa-user-graduate text-primary mr-2"></i>Laporan Siswa</h3>
             <div class="d-flex align-items-center no-print-laporan" style="gap:.5rem">
               <button class="btn btn-sm btn-primary" id="btn-lap-cari"><i class="fas fa-search mr-1"></i>Tampilkan</button>
               <button class="btn btn-sm btn-success" id="btn-lap-export"><i class="fas fa-file-excel mr-1"></i>Export Excel</button>
@@ -402,7 +403,6 @@
               <button class="active" data-jenis="gerbang">Presensi Gerbang</button>
               <button data-jenis="sholat">Presensi Sholat</button>
               <button data-jenis="poin">Pelanggaran / Poin</button>
-              <button data-jenis="guru">Rekap Guru</button>
               <button data-jenis="siswa">Data Siswa</button>
             </div>
             <div class="filter-bar no-print-laporan">
@@ -421,6 +421,29 @@
               <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Analisis Kedisiplinan</h3></div><div class="card-body"><canvas id="chart-lap-disiplin" style="max-height:200px"></canvas></div></div></div>
             </div>
             <div class="mt-2 text-muted small print-laporan-only" id="ai-insight" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAPORAN GURU -->
+      <div id="page-laporan-guru" style="display:none">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
+            <h3 class="card-title mb-0"><i class="fas fa-chalkboard-teacher text-primary mr-2"></i>Laporan Guru</h3>
+            <div class="d-flex align-items-center no-print-laporan" style="gap:.5rem">
+              <button class="btn btn-sm btn-primary" id="btn-lap-guru-cari"><i class="fas fa-search mr-1"></i>Tampilkan</button>
+              <button class="btn btn-sm btn-success" id="btn-lap-guru-export"><i class="fas fa-file-excel mr-1"></i>Export Excel</button>
+              <button class="btn btn-sm btn-danger" id="btn-lap-guru-print"><i class="fas fa-file-pdf mr-1"></i>Cetak PDF</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="filter-bar no-print-laporan">
+              <div class="field"><label>Dari Tanggal</label><input type="date" id="lap-guru-dari"></div>
+              <div class="field"><label>Sampai Tanggal</label><input type="date" id="lap-guru-sampai"></div>
+            </div>
+            <div class="table-responsive" style="max-height:400px;overflow-y:auto" id="lap-guru-table-wrap">
+              <table class="table table-sm table-hover" id="tabel-laporan-guru"><thead id="lap-guru-thead"></thead><tbody id="lap-guru-tbody"></tbody></table>
+            </div>
           </div>
         </div>
       </div>
@@ -795,8 +818,8 @@ document.querySelectorAll('.nav-sidebar .nav-link[data-page]').forEach(link => {
 });
 
 function loadPage(page) {
-  ['dashboard','siswa','kelas','guru','tatib','rfid','naikkelas','laporan','pengaturan','kartu'].forEach(p => { const el = $('page-' + p); if (el) el.style.display = (p === page) ? '' : 'none'; });
-  const titles = { dashboard:'Dashboard', siswa:'Master Siswa', kelas:'Master Kelas', guru:'Master Guru', tatib:'Tata Tertib', rfid:'Pendaftaran RFID', naikkelas:'Naik Kelas', laporan:'Laporan', pengaturan:'Pengaturan', kartu:'Cetak Kartu' };
+  ['dashboard','siswa','kelas','guru','tatib','rfid','naikkelas','laporan-siswa','laporan-guru','pengaturan','kartu'].forEach(p => { const el = $('page-' + p); if (el) el.style.display = (p === page) ? '' : 'none'; });
+  const titles = { dashboard:'Dashboard', siswa:'Master Siswa', kelas:'Master Kelas', guru:'Master Guru', tatib:'Tata Tertib', rfid:'Pendaftaran RFID', naikkelas:'Naik Kelas', 'laporan-siswa':'Laporan Siswa', 'laporan-guru':'Laporan Guru', pengaturan:'Pengaturan', kartu:'Cetak Kartu' };
   $('page-title').textContent = titles[page] || page; $('breadcrumb-active').textContent = titles[page] || page;
   if (page === 'dashboard') loadDashboard();
   if (page === 'siswa') loadSiswa();
@@ -805,7 +828,8 @@ function loadPage(page) {
   if (page === 'tatib') loadTatib();
   if (page === 'rfid') loadRfid();
   if (page === 'naikkelas') initNaikKelas();
-  if (page === 'laporan') initLaporan();
+  if (page === 'laporan-siswa') initLaporan();
+  if (page === 'laporan-guru') initLaporanGuru();
   if (page === 'pengaturan') loadPengaturan();
   if (page === 'kartu') initKartu();
 }

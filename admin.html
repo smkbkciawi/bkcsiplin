@@ -596,9 +596,12 @@ async function apiPost(action, payload = {}) {
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
+      // KUNCI PERBAIKAN: Gunakan text/plain, bukan application/json
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      // Data tetap dikirim sebagai string JSON, tapi tipenya dianggap teks biasa oleh browser
       body: JSON.stringify({ action, token: state.token, payload }),
-      signal: ctrl.signal
+      signal: ctrl.signal,
+      redirect: 'follow' // Penting: ikuti redirect dari Google
     });
     return await res.json();
   } finally { clearTimeout(t); }

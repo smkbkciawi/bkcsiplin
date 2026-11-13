@@ -102,6 +102,10 @@
     @page{size:A4;margin:10mm}
     .overlay-modal{background:#fff!important;position:static!important;display:block!important;padding:0!important}
     .no-print{display:none!important}
+    
+    /* Print Laporan Only */
+    .print-laporan-only { display: block !important; }
+    .no-print-laporan { display: none !important; }
   }
   @media (max-width: 992px) {
     .kartu-grid { grid-template-columns: repeat(2, 1fr); }
@@ -176,7 +180,7 @@
         </div>
         <div class="row">
           <div class="col-lg-6"><div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-fire text-danger mr-2"></i>Top 5 Pelanggaran Bulan Ini</h3></div><div class="card-body"><canvas id="chart-top" style="max-height:280px"></canvas></div></div></div>
-          <div class="col-lg-6"><div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-school text-primary mr-2"></i>Rapor Kelas</h3></div><div class="card-body"><canvas id="chart-kelas" style="max-height:280px"></canvas></div></div></div>
+          <div class="col-lg-6"><div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-school text-primary mr-2"></i>Rapor Kelas (Partisipasi Sholat)</h3></div><div class="card-body"><canvas id="chart-kelas" style="max-height:280px"></canvas></div></div></div>
           <div class="col-lg-6"><div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-heart text-success mr-2"></i>Peta Kesehatan Karakter</h3></div><div class="card-body"><canvas id="chart-zonasi" style="max-height:280px"></canvas></div></div></div>
           <div class="col-lg-6"><div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-hourglass-half text-info mr-2"></i>Ketepatan Waktu Hari Ini</h3></div><div class="card-body"><canvas id="chart-ketepatan" style="max-height:280px"></canvas></div></div></div>
         </div>
@@ -381,27 +385,36 @@
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
             <h3 class="card-title mb-0"><i class="fas fa-file-alt text-primary mr-2"></i>Laporan & Rekap</h3>
+            <div class="d-flex align-items-center no-print-laporan" style="gap:.5rem">
+              <button class="btn btn-sm btn-primary" id="btn-lap-cari"><i class="fas fa-search mr-1"></i>Tampilkan</button>
+              <button class="btn btn-sm btn-success" id="btn-lap-export"><i class="fas fa-file-excel mr-1"></i>Export Excel</button>
+              <button class="btn btn-sm btn-danger" id="btn-lap-print"><i class="fas fa-file-pdf mr-1"></i>Cetak PDF</button>
+            </div>
           </div>
           <div class="card-body">
-            <div class="tabs-nav" id="laporan-tabs">
+            <div class="tabs-nav no-print-laporan" id="laporan-tabs">
               <button class="active" data-jenis="gerbang">Presensi Gerbang</button>
               <button data-jenis="sholat">Presensi Sholat</button>
               <button data-jenis="poin">Pelanggaran / Poin</button>
               <button data-jenis="guru">Rekap Guru</button>
               <button data-jenis="siswa">Data Siswa</button>
             </div>
-            <div class="filter-bar">
+            <div class="filter-bar no-print-laporan">
               <div class="field"><label>Dari Tanggal</label><input type="date" id="lap-dari"></div>
               <div class="field"><label>Sampai Tanggal</label><input type="date" id="lap-sampai"></div>
               <div class="field"><label>Kelas</label><select id="lap-kelas"><option value="">Semua</option></select></div>
-              <div class="field"><button class="btn btn-primary" id="btn-lap-cari"><i class="fas fa-search mr-1"></i>Tampilkan</button></div>
-              <div class="field"><button class="btn btn-success" id="btn-lap-export"><i class="fas fa-file-excel mr-1"></i>Export</button></div>
-              <div class="field"><button class="btn btn-secondary" id="btn-lap-print"><i class="fas fa-print mr-1"></i>Cetak</button></div>
             </div>
-            <div id="lap-ringkasan" style="margin-bottom:1rem"></div>
-            <div class="table-responsive" style="max-height:520px;overflow-y:auto" id="lap-table-wrap">
+            <div id="lap-ringkasan" style="margin-bottom:1rem" class="no-print-laporan"></div>
+            <div class="table-responsive" style="max-height:400px;overflow-y:auto" id="lap-table-wrap">
               <table class="table table-sm table-hover" id="tabel-laporan"><thead id="lap-thead"></thead><tbody id="lap-tbody"></tbody></table>
             </div>
+            
+            <!-- CHART LAPORAN -->
+            <div class="row mt-4 print-laporan-only" id="chart-laporan-wrap" style="display:none">
+              <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Analisis Kehadiran</h3></div><div class="card-body"><canvas id="chart-lap-hadir" style="max-height:200px"></canvas></div></div></div>
+              <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Analisis Kedisiplinan</h3></div><div class="card-body"><canvas id="chart-lap-disiplin" style="max-height:200px"></canvas></div></div></div>
+            </div>
+            <div class="mt-2 text-muted small print-laporan-only" id="ai-insight" style="display:none"></div>
           </div>
         </div>
       </div>
@@ -471,7 +484,7 @@
   </div>
 
   <footer class="main-footer text-sm">
-    <div class="float-right d-none d-sm-inline">v3.0</div>
+    <div class="float-right d-none d-sm-inline">v3.5</div>
     <strong>BKCSiplin</strong> &middot; SMK Bhakti Kencana Ciawi &middot; Yayasan Adhi Guna Kencana
   </footer>
 </div>
@@ -751,7 +764,6 @@ function mulaiHeartbeat() {
 }
 function hentikanHeartbeat() { clearInterval(state.heartbeatTimer); }
 
-// LOAD KELAS GLOBAL
 async function loadMasterKelas() {
   try {
     const res = await apiCall('getMasterKelas');
@@ -792,6 +804,7 @@ function loadPage(page) {
   if (page === 'kartu') initKartu();
 }
 
+// DASHBOARD
 async function loadDashboard() {
   try {
     const res = await apiCall('getDashboardSummary');
@@ -814,7 +827,7 @@ function renderCharts(d) {
   const kelasLabel = (d.rapor_kelas || []).map(x => x.kelas);
   const kelasData = (d.rapor_kelas || []).map(x => x.jumlah);
   if (state.charts.kelas) state.charts.kelas.destroy();
-  state.charts.kelas = new Chart($('chart-kelas'), { type: 'bar', data: { labels: kelasLabel.length ? kelasLabel : ['Belum ada'], datasets: [{ label: 'Mangkir', data: kelasData.length ? kelasData : [0], backgroundColor: '#3B82F6', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
+  state.charts.kelas = new Chart($('chart-kelas'), { type: 'bar', data: { labels: kelasLabel.length ? kelasLabel : ['Belum ada'], datasets: [{ label: 'Hadir Sholat', data: kelasData.length ? kelasData : [0], backgroundColor: '#3B82F6', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
   const z = d.zonasi || {};
   if (state.charts.zonasi) state.charts.zonasi.destroy();
   state.charts.zonasi = new Chart($('chart-zonasi'), { type: 'doughnut', data: { labels: ['Hijau','Kuning','Oranye','Merah','Kritis'], datasets: [{ data: [z.hijau||0, z.kuning||0, z.oranye||0, z.merah||0, z.kritis||0], backgroundColor: ['#10B981','#FCD34D','#F59E0B','#EF4444','#7F1D1D'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
@@ -1039,12 +1052,10 @@ async function loadGuruTanpaRfid() {
 $('btn-refresh-tanpa-rfid').addEventListener('click', loadSiswaTanpaRfid);
 $('btn-refresh-tanpa-rfid-guru').addEventListener('click', loadGuruTanpaRfid);
 
-// RFID SCAN LISTENER
 function fokusRfid() { const el = $('rfid-input-hidden'); try { el.focus({ preventScroll: true }); } catch (_) { el.focus(); } }
 setInterval(() => {
   const pageRfid = $('page-rfid').style.display !== 'none';
-  const modalScan = document.querySelector('.overlay-modal.show#modal-scan');
-  if (!pageRfid && !modalScan) return;
+  if (!pageRfid) return;
   const active = document.activeElement;
   if (active && (active.id === 'search-input' || active.id === 'login-user' || active.id === 'login-pin')) return;
   fokusRfid();
@@ -1154,7 +1165,7 @@ $('btn-proses-lulus').addEventListener('click', async () => {
   finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-graduation-cap mr-1"></i> Luluskan Siswa Terpilih'; }
 });
 
-// LAPORAN
+// LAPORAN + CHART + PDF
 async function initLaporan() {
   if (!$('lap-dari').value) $('lap-dari').value = todayISO();
   if (!$('lap-sampai').value) $('lap-sampai').value = todayISO();
@@ -1175,6 +1186,7 @@ async function loadLaporan() {
     if (!res.ok) { toast(res.message, true); return; }
     state.laporanData = res.data;
     renderLaporan();
+    renderLaporanCharts();
   } catch (err) { toast('Gagal memuat laporan', true); }
 }
 function renderLaporan() {
@@ -1184,12 +1196,45 @@ function renderLaporan() {
   if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
   else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
   else if (jenis === 'poin') { headers = ['Tanggal','NIS','Nama','Kelas','Jenis','Pasal','Deskripsi','Poin','Saldo','Petugas']; rows = data.map(r => [r.tanggal, r.nis, r.nama, r.kelas, r.jenis, r.pasal, r.deskripsi, r.poin, r.saldo_setelah, r.petugas]); }
-  else if (jenis === 'guru') { headers = ['Tanggal','ID Guru','Jam Masuk','Jam Pulang','Status','Total Jam']; rows = data.map(r => [r.tanggal, r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]); }
+  else if (jenis === 'guru') { headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam']; rows = data.map(r => [r.tanggal, r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]); }
   else { headers = ['NIS','Nama','Kelas','JK','Status','UID RFID']; rows = data.map(r => [r.nis, r.nama, r.kelas, r.jk, r.status, r.uid_rfid]); }
 
   $('lap-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
   if (!data.length) { $('lap-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`; return; }
   $('lap-tbody').innerHTML = rows.map(r => '<tr>' + r.map(c => `<td>${escapeHtml(c)}</td>`).join('') + '</tr>').join('');
+}
+
+function renderLaporanCharts() {
+  const data = state.laporanData;
+  $('chart-laporan-wrap').style.display = 'flex';
+  $('ai-insight').style.display = 'block';
+  
+  // Chart Kehadiran (Berdasarkan status)
+  const statusCount = {};
+  data.forEach(r => { if (r.status) statusCount[r.status] = (statusCount[r.status] || 0) + 1; });
+  if (state.charts.lapHadir) state.charts.lapHadir.destroy();
+  state.charts.lapHadir = new Chart($('chart-lap-hadir'), {
+    type: 'bar',
+    data: { labels: Object.keys(statusCount), datasets: [{ label: 'Jumlah', data: Object.values(statusCount), backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#3B82F6'], borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  // Chart Kedisiplinan (Berdasarkan kelas atau tipe pelanggaran)
+  const kelasCount = {};
+  data.forEach(r => { if (r.kelas) kelasCount[r.kelas] = (kelasCount[r.kelas] || 0) + 1; });
+  if (state.charts.lapDisiplin) state.charts.lapDisiplin.destroy();
+  state.charts.lapDisiplin = new Chart($('chart-lap-disiplin'), {
+    type: 'bar',
+    data: { labels: Object.keys(kelasCount).slice(0, 5), datasets: [{ label: 'Kejadian', data: Object.values(kelasCount).slice(0, 5), backgroundColor: '#3B82F6', borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  // AI Insight Sederhana
+  let insight = `<strong>Analisis Otomatis:</strong> Dari ${data.length} data yang ditemukan. `;
+  if (statusCount['TERLAMBAT']) insight += `Terdapat ${statusCount['TERLAMBAT']} siswa terlambat. `;
+  if (statusCount['BOLOS']) insight += `Terdapat ${statusCount['BOLOS']} siswa bolos. `;
+  insight += `Kelas dengan aktivitas tertinggi adalah ${Object.keys(kelasCount)[0] || '-'}.`;
+  $('ai-insight').innerHTML = insight;
 }
 
 $('btn-lap-export').addEventListener('click', () => {
@@ -1198,7 +1243,7 @@ $('btn-lap-export').addEventListener('click', () => {
   if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
   else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
   else if (jenis === 'poin') { headers = ['Tanggal','NIS','Nama','Kelas','Jenis','Pasal','Deskripsi','Poin','Saldo','Petugas']; rows = state.laporanData.map(r => [r.tanggal, r.nis, r.nama, r.kelas, r.jenis, r.pasal, r.deskripsi, r.poin, r.saldo_setelah, r.petugas]); }
-  else if (jenis === 'guru') { headers = ['Tanggal','ID Guru','Jam Masuk','Jam Pulang','Status','Total Jam']; rows = state.laporanData.map(r => [r.tanggal, r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]); }
+  else if (jenis === 'guru') { headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam']; rows = state.laporanData.map(r => [r.tanggal, r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]); }
   else { headers = ['NIS','Nama','Kelas','JK','Status','UID RFID']; rows = state.laporanData.map(r => [r.nis, r.nama, r.kelas, r.jk, r.status, r.uid_rfid]); }
 
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, jenis); XLSX.writeFile(wb, `Laporan_${jenis}_${$('lap-dari').value}_sd_${$('lap-sampai').value}.xlsx`); toast('File Excel diunduh');

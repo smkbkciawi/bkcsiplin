@@ -529,9 +529,9 @@
 <!-- ============================================================
      BAGIAN B (JavaScript) DITEMPEL DI BAWAH INI
      ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/js/adminlte.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
@@ -607,7 +607,18 @@ async function apiPost(action, payload = {}) {
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 }
-
+function bersihkanJam_(val, fallback) {
+  if (!val) return fallback;
+  const str = String(val).trim();
+  // Kalau sudah format HH:mm, pakai langsung
+  if (/^\d{2}:\d{2}$/.test(str)) return str;
+  // Kalau HH:mm:ss, potong detiknya
+  if (/^\d{2}:\d{2}:\d{2}/.test(str)) return str.slice(0, 5);
+  // Kalau Date object / string Date, ekstrak jam-menit
+  const m = str.match(/(\d{2}):(\d{2})/);
+  if (m) return m[1] + ':' + m[2];
+  return fallback;
+}
 function todayISO() {
   const d = new Date();
   const wib = new Date(d.getTime() + d.getTimezoneOffset() * 60000 + 7 * 3600000);
@@ -1379,14 +1390,14 @@ async function fetchPengaturan() {
 
 async function loadPengaturan() {
   const s = await fetchPengaturan();
-  $('set-jam-masuk').value = s.jam_masuk || '07:00';
-  $('set-jam-pulang').value = s.jam_pulang || '15:00';
+  $('set-jam-masuk').value = bersihkanJam_(s.jam_masuk, '07:00');
+$('set-jam-pulang').value = bersihkanJam_(s.jam_pulang, '15:00');
   $('set-toleransi').value = s.toleransi_menit || '0';
-  $('set-subuh').value = s.jam_subuh || '04:30';
-  $('set-dzuhur').value = s.jam_dzuhur || '12:00';
-  $('set-ashar').value = s.jam_ashar || '15:15';
-  $('set-maghrib').value = s.jam_maghrib || '18:00';
-  $('set-isya').value = s.jam_isya || '19:15';
+$('set-subuh').value = bersihkanJam_(s.jam_subuh, '04:30');
+$('set-dzuhur').value = bersihkanJam_(s.jam_dzuhur, '12:00');
+$('set-ashar').value = bersihkanJam_(s.jam_ashar, '15:15');
+$('set-maghrib').value = bersihkanJam_(s.jam_maghrib, '18:00');
+$('set-isya').value = bersihkanJam_(s.jam_isya, '19:15');
   $('set-nama-sekolah').value = s.nama_sekolah || '';
   $('set-nama-yayasan').value = s.nama_yayasan || '';
   $('set-alamat').value = s.alamat_sekolah || '';

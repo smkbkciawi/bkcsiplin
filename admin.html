@@ -480,7 +480,16 @@
     </div>
     <div class="field"><label>Nama Lengkap</label><input type="text" id="guru-nama" placeholder="Nama, S.Pd."></div>
     <div class="form-row">
-      <div class="field"><label>Role</label><select id="guru-role"><option value="GURU_PIKET">GURU_PIKET</option><option value="GURU_BK">GURU_BK</option><option value="SUPER_ADMIN">SUPER_ADMIN</option><option value="KEPSEK">KEPSEK</option></select></div>
+      <div class="field">
+  <label>Role (Bisa pilih lebih dari 1)</label>
+  <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:.3rem">
+    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-piket" value="GURU_PIKET"> Guru Piket</label>
+    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-bk" value="GURU_BK"> Guru BK</label>
+    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-admin" value="SUPER_ADMIN"> Super Admin</label>
+    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-kepsek" value="KEPSEK"> Kepsek</label>
+    <label style="font-weight:600;display:flex;align-items:center;gap:.3rem;text-transform:none;letter-spacing:0"><input type="checkbox" id="role-wali" value="WALI_KELAS"> Wali Kelas</label>
+  </div>
+</div>
       <div class="field"><label>Status</label><select id="guru-status"><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
     </div>
     <div class="field"><label>No HP</label><input type="text" id="guru-hp"></div>
@@ -934,19 +943,70 @@ async function loadGuru() {
   } catch (err) { toast('Gagal memuat guru', true); }
 }
 function openTambahGuru() {
-  $('guru-mode').value = 'tambah'; $('guru-id-lama').value = ''; $('guru-id').value = ''; $('guru-id').disabled = false; $('guru-nama').value = ''; $('guru-pin').value = ''; $('guru-role').value = 'GURU_PIKET'; $('guru-hp').value = ''; $('guru-status').value = 'AKTIF';
-  $('modal-guru-title').textContent = 'Tambah Guru'; $('guru-alert').style.display = 'none'; $('modal-guru').classList.add('show');
+  $('guru-mode').value = 'tambah'; $('guru-id-lama').value = '';
+  $('guru-id').value = ''; $('guru-id').disabled = false;
+  $('guru-nama').value = ''; $('guru-pin').value = '';
+  $('guru-hp').value = ''; $('guru-status').value = 'AKTIF';
+  document.querySelectorAll('.field input[type="checkbox"]').forEach(cb => cb.checked = false);
+  $('role-piket').checked = true; // Default Guru Piket
+  $('modal-guru-title').textContent = 'Tambah Guru';
+  $('guru-alert').style.display = 'none';
+  $('modal-guru').classList.add('show');
 }
 function openEditGuru(g) {
-  $('guru-mode').value = 'edit'; $('guru-id-lama').value = g.id_guru; $('guru-id').value = g.id_guru; $('guru-id').disabled = true; $('guru-nama').value = g.nama || ''; $('guru-pin').value = ''; $('guru-role').value = g.role || 'GURU_PIKET'; $('guru-hp').value = g.no_hp || ''; $('guru-status').value = g.status || 'AKTIF';
-  $('modal-guru-title').textContent = 'Edit Guru — ' + g.nama; $('guru-alert').style.display = 'none'; $('modal-guru').classList.add('show');
+  $('guru-mode').value = 'edit'; $('guru-id-lama').value = g.id_guru;
+  $('guru-id').value = g.id_guru; $('guru-id').disabled = true;
+  $('guru-nama').value = g.nama || ''; $('guru-pin').value = '';
+  $('guru-hp').value = g.no_hp || ''; $('guru-status').value = g.status || 'AKTIF';
+  
+  // Centang role yang sesuai
+  document.querySelectorAll('.field input[type="checkbox"]').forEach(cb => cb.checked = false);
+  const roles = String(g.role || '').toUpperCase().split(',').map(r => r.trim());
+  if (roles.includes('GURU_PIKET')) $('role-piket').checked = true;
+  if (roles.includes('GURU_BK')) $('role-bk').checked = true;
+  if (roles.includes('SUPER_ADMIN')) $('role-admin').checked = true;
+  if (roles.includes('KEPSEK')) $('role-kepsek').checked = true;
+  if (roles.includes('WALI_KELAS')) $('role-wali').checked = true;
+
+  $('modal-guru-title').textContent = 'Edit Guru — ' + g.nama;
+  $('guru-alert').style.display = 'none';
+  $('modal-guru').classList.add('show');
 }
 async function simpanGuru() {
-  const mode = $('guru-mode').value; const payload = { id_guru: mode === 'edit' ? $('guru-id-lama').value : $('guru-id').value.trim(), nama: $('guru-nama').value.trim(), pin: $('guru-pin').value.trim(), role: $('guru-role').value, no_hp: $('guru-hp').value.trim(), status: $('guru-status').value };
+  const mode = $('guru-mode').value;
+  
+  // Kumpulkan role yang dicentang
+  const roles = [];
+  if ($('role-piket').checked) roles.push('GURU_PIKET');
+  if ($('role-bk').checked) roles.push('GURU_BK');
+  if ($('role-admin').checked) roles.push('SUPER_ADMIN');
+  if ($('role-kepsek').checked) roles.push('KEPSEK');
+  if ($('role-wali').checked) roles.push('WALI_KELAS');
+
+  const payload = { 
+    id_guru: mode === 'edit' ? $('guru-id-lama').value : $('guru-id').value.trim(),
+    nama: $('guru-nama').value.trim(),
+    pin: $('guru-pin').value.trim(),
+    role: roles.join(', '), // <-- Gabungkan dengan koma
+    no_hp: $('guru-hp').value.trim(),
+    status: $('guru-status').value
+  };
   if (mode === 'edit' && !payload.pin) delete payload.pin;
-  if (!payload.id_guru || !payload.nama || (mode === 'tambah' && !payload.pin)) { $('guru-alert').textContent = 'Lengkapi data.'; $('guru-alert').style.display = 'block'; return; }
-  const action = mode === 'edit' ? 'editGuru' : 'tambahGuru'; const btn = $('btn-simpan-guru'); btn.disabled = true; btn.textContent = 'Menyimpan…';
-  try { const res = await apiCall(action, payload, true); if (!res.ok) { $('guru-alert').textContent = res.message; $('guru-alert').style.display = 'block'; return; } $('modal-guru').classList.remove('show'); toast(res.message); loadGuru(); } catch (err) { $('guru-alert').textContent = err.message; $('guru-alert').style.display = 'block'; } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
+  if (!payload.id_guru || !payload.nama || (mode === 'tambah' && !payload.pin) || roles.length === 0) {
+    $('guru-alert').textContent = 'Lengkapi data & pilih minimal 1 role.';
+    $('guru-alert').style.display = 'block'; return;
+  }
+  
+  const action = mode === 'edit' ? 'editGuru' : 'tambahGuru';
+  const btn = $('btn-simpan-guru'); btn.disabled = true; btn.textContent = 'Menyimpan…';
+  
+  try {
+    const res = await apiCall(action, payload, true);
+    if (!res.ok) { $('guru-alert').textContent = res.message; $('guru-alert').style.display = 'block'; return; }
+    $('modal-guru').classList.remove('show'); toast(res.message); loadGuru();
+  } catch (err) {
+    $('guru-alert').textContent = err.message; $('guru-alert').style.display = 'block';
+  } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 $('btn-tambah-guru').addEventListener('click', openTambahGuru);
 $('btn-simpan-guru').addEventListener('click', simpanGuru);

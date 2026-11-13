@@ -223,7 +223,6 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9Qp
 const MODUL = 'sholat';
 const IDLE_TOTAL_MS = 10 * 60 * 1000;
 const IDLE_WARN_MS = 30 * 1000;
-const ANTI_DUP_MS = 2000; // Jeda 2 detik
 
 const state = {
   token: sessionStorage.getItem('bkc_sholat_token') || '',
@@ -231,12 +230,12 @@ const state = {
   role: sessionStorage.getItem('bkc_sholat_role') || '',
   waktuSholat: 'DZUHUR', stream: null, scanInterval: null, currentFacing: 'environment',
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null, searchTimer: null,
-  konfirmasiNis: null, konfirmasiWaktu: null, lastScanAt: 0, lastScanNis: '',
-  riwayat: [], sedangProses: false // Kunci anti-double
+  konfirmasiNis: null, konfirmasiWaktu: null,
+  scannedNis: {} // <-- PENYIMPAN NIS YANG SUDAH SCAN
 };
 const $ = (id) => document.getElementById(id);
 
-// --- SUARA BEEP & TETOT (MENGGANTIKAN TTS) ---
+// --- SUARA BEEP SCANNER (FREKUENSI TINGGI) ---
 function bunyi(freq, dur, type = 'sine') {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -245,13 +244,13 @@ function bunyi(freq, dur, type = 'sine') {
     osc.type = type;
     osc.frequency.value = freq;
     osc.connect(gain); gain.connect(ctx.destination);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime); // Volume lebih keras
     gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + dur);
     osc.start(); osc.stop(ctx.currentTime + dur);
   } catch (e) {}
 }
-function bunyiBeep() { bunyi(1000, 0.1); setTimeout(() => bunyi(1500, 0.15), 120); } // Sukses
-function bunyiTetot() { bunyi(300, 0.4, 'square'); } // Gagal
+function bunyiBeep() { bunyi(2000, 0.15, 'square'); } // Sukses (Biiip tajam)
+function bunyiTetot() { bunyi(300, 0.4, 'sawtooth'); } // Gagal (Tetot rendah)
 
 function toast(msg, isErr) {
   const el = document.createElement('div'); el.className = 'toast' + (isErr ? ' err' : ''); el.textContent = msg;
@@ -344,7 +343,10 @@ async function loadJadwal() {
 document.querySelectorAll('.jadwal-item').forEach(item => {
   item.addEventListener('click', () => {
     document.querySelectorAll('.jadwal-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active'); state.waktuSholat = item.dataset.waktu; toast('Waktu: ' + state.waktuSholat);
+    item.classList.add('active'); 
+    state.waktuSholat = item.dataset.waktu; 
+    state.scannedNis = {}; // Reset memori scan saat ganti waktu
+    toast('Waktu: ' + state.waktuSholat);
   });
 });
 
@@ -362,23 +364,32 @@ function stopKamera() {
   $('video').style.display = 'none'; $('scanner-placeholder').style.display = 'block'; $('scan-overlay').style.display = 'none';
   $('btn-start-cam').style.display = 'flex'; $('btn-switch-cam').style.display = 'none'; $('btn-stop-cam').style.display = 'none';
 }
+
+// LOGIKA ANTI DOUBLE (0 DETIK)
 function scanQR() {
-  if (state.sedangProses) return; // KUNCI: Jangan scan jika sedang memproses
   const video = $('video'); if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
   const canvas = document.createElement('canvas'); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
   const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const code = jsQR(imageData.data, imageData.width, imageData.height);
+  
   if (code) { 
     const nis = code.data.trim(); 
     if (nis.length >= 4) {
-      if (Date.now() - state.lastScanAt < ANTI_DUP_MS && state.lastScanNis === nis) return;
-      state.lastScanAt = Date.now(); state.lastScanNis = nis;
-      state.sedangProses = true; // Kunci layar
-      prosesPresensi(nis, 'QR').finally(() => { state.sedangProses = false; }); // Buka kunci setelah selesai
+      // LAPIS 1: Kunci Memori NIS (Jika sudah scan, abaikan seketika)
+      if (state.scannedNis[nis]) {
+        return; 
+      }
+      
+      // Tandai sudah scan
+      state.scannedNis[nis] = true;
+      
+      // Proses ke server
+      prosesPresensi(nis, 'QR');
     }
   }
 }
+
 $('btn-start-cam').addEventListener('click', startKamera);
 $('btn-stop-cam').addEventListener('click', stopKamera);
 $('btn-switch-cam').addEventListener('click', () => { state.currentFacing = state.currentFacing === 'environment' ? 'user' : 'environment'; stopKamera(); startKamera(); });
@@ -393,7 +404,13 @@ $('search-input').addEventListener('input', () => {
       if (res.ok && res.data.length) {
         $('result-box').innerHTML = res.data.map(s => `<div class="result-item" data-nis="${s.id}"><div><div class="nama">${s.nama}</div><div class="kelas">${s.kelas} · ${s.tipe}</div></div><i class="fas fa-chevron-right" style="opacity:.5"></i></div>`).join('');
         $('result-box').querySelectorAll('.result-item').forEach(el => {
-          el.addEventListener('click', () => { $('result-box').innerHTML = ''; $('search-input').value = ''; prosesPresensi(el.dataset.nis, 'MANUAL'); });
+          el.addEventListener('click', () => { 
+            const nis = el.dataset.nis;
+            if (state.scannedNis[nis]) { toast('Siswa ini sudah discan.', true); bunyiTetot(); return; }
+            state.scannedNis[nis] = true;
+            $('result-box').innerHTML = ''; $('search-input').value = ''; 
+            prosesPresensi(nis, 'MANUAL'); 
+          });
         });
       } else { $('result-box').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem">Tidak ditemukan.</div>'; }
     } catch (e) { $('result-box').innerHTML = ''; }
@@ -411,7 +428,7 @@ async function prosesPresensi(kode, sumber) {
     if (!res.ok) {
       statusBox.className = 'status-box show err'; statusBox.textContent = res.message; 
       toast(res.message, true); 
-      bunyiTetot(); // SUARA GAGAL
+      bunyiTetot(); 
       return;
     }
     const d = res.data;

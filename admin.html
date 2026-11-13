@@ -1,4 +1,200 @@
-<!DOCTYPE html>
+const SPREADSHEET_ID = '1Qal6IxJ9_qqEP1Z-w49pcUsQPx94MmIK4W1ghOm7jPU'; // <-- GANTI ID ANDA
+const TZ = 'Asia/Jakarta';
+
+const SHEET = {
+  SISWA: 'MASTER_SISWA', GURU: 'MASTER_GURU', GERBANG: 'PRESENSI_GERBANG',
+  SHOLAT: 'PRESENSI_SHOLAT', POIN: 'POIN_BK', PENGATURAN: 'PENGATURAN',
+  TATA_TERTIB: 'MASTER_TATA_TERTIB', KELAS: 'MASTER_KELAS', AUDIT: 'LOG_AUDIT'
+};
+
+function doGet(e) { return handleRequest_(e); }
+function doPost(e) { return handleRequest_(e); }
+
+function handleRequest_(e) {
+  try {
+    let params = e.parameter || {};
+    if (e.postData && e.postData.contents) {
+      try { Object.assign(params, JSON.parse(e.postData.contents)); } catch(err){}
+    }
+    
+    const action = params.action || '';
+    const token = params.token || '';
+    let payload = params.payload || params; 
+    if (typeof payload === 'string') { try { payload = JSON.parse(payload); } catch(err){} }
+    
+    let result;
+    // AUTH & DASHBOARD
+    if (action === 'ping') result = { ok: true, message: 'pong' };
+    else if (action === 'login') result = login_(payload);
+    else if (action === 'logout') result = { ok: true, message: 'Logout' };
+    else if (action === 'heartbeat') result = heartbeat_(token);
+    else if (action === 'getDashboardSummary') result = getDashboardSummary_(token);
+    
+    // MASTER SISWA
+    else if (action === 'getMasterSiswa') result = getMasterSiswa_(token, payload);
+    else if (action === 'tambahSiswa') result = tambahSiswa_(token, payload);
+    else if (action === 'editSiswa') result = editSiswa_(token, payload);
+    else if (action === 'hapusSiswa') result = hapusSiswa_(token, payload);
+    else if (action === 'importSiswa') result = importSiswa_(token, payload);
+    
+    // MASTER KELAS
+    else if (action === 'getMasterKelas') result = getMasterKelas_(token);
+    else if (action === 'tambahKelas') result = tambahKelas_(token, payload);
+    else if (action === 'editKelas') result = editKelas_(token, payload);
+    else if (action === 'hapusKelas') result = hapusKelas_(token, payload);
+    
+    // TATA TERTIB
+    else if (action === 'getTataTertib') result = getTataTertib_(token);
+    else if (action === 'tambahTataTertib') result = tambahTataTertib_(token, payload);
+    else if (action === 'editTataTertib') result = editTataTertib_(token, payload);
+    else if (action === 'hapusTataTertib') result = hapusTataTertib_(token, payload);
+    else if (action === 'importTatib') result = importTatib_(token, payload);
+    
+    // FITUR BARU: KENAIKAN KELAS & KELULUSAN
+    else if (action === 'getSiswaPerKelas') result = getSiswaPerKelas_(token, payload);
+    else if (action === 'prosesNaikKelas') result = prosesNaikKelas_(token, payload);
+    else if (action === 'prosesLulus') result = prosesLulus_(token, payload);
+    
+    // LAINNYA
+    else if (action === 'getMasterGuruFull') result = getMasterGuruFull_(token);
+    else if (action === 'daftarRfid') result = daftarRfid_(token, payload);
+    else if (action === 'getSiswaTanpaRfid') result = getSiswaTanpaRfid_(token);
+    else if (action === 'getLaporan') result = getLaporan_(token, payload);
+    else if (action === 'getDaftarKelas') result = getDaftarKelas_(token);
+    else if (action === 'getKartuKelas') result = getKartuKelas_(token, payload);
+    else if (action === 'getPengaturan') result = getPengaturan_(token);
+    else if (action === 'simpanPengaturan') result = simpanPengaturan_(token, payload);
+    
+    else result = { ok: false, message: 'Aksi tidak dikenal: ' + action };
+
+    const callback = params.callback;
+    if (callback) {
+      return ContentService.createTextOutput(callback + '(' + JSON.stringify(result) + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, message: 'Server error: ' + err.message })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function readAll_(name) {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sh = ss.getSheetByName(name);
+    if (!sh) return [];
+    const values = sh.getDataRange().getValues();
+    if (values.length < 2) return [];
+    const headers = values[0].map(h => String(h).trim());
+    const rows = [];
+    for (let i = 1; i < values.length; i++) {
+      const obj = { _row: i + 1 };
+      for (let j = 0; j < headers.length; j++) obj[headers[j]] = values[i][j];
+      rows.push(obj);
+    }
+    return rows;
+  } catch(e) { return []; }
+}
+function appendRow_(name, obj) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID); const sh = ss.getSheetByName(name);
+  if(!sh) return;
+  const headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(h => String(h).trim());
+  sh.appendRow(headers.map(h => (obj[h] !== undefined ? obj[h] : '')));
+}
+function verifikasiToken_(token) {
+  if (!token) throw new Error('Token kosong.');
+  const raw = CacheService.getScriptCache().get('sess_' + token);
+  if (!raw) throw new Error('Sesi kedaluwarsa / tidak valid.');
+  return JSON.parse(raw);
+}
+function login_(p) {
+  const username = String(p.username || '').trim(); const pin = String(p.pin || '').trim(); const modul = String(p.modul || 'admin');
+  if (!username || !pin) return { ok: false, message: 'ID dan PIN wajib diisi.' };
+  const guru = readAll_(SHEET.GURU).find(g => (String(g.id_guru).trim() === username || String(g.nama).trim().toLowerCase() === username.toLowerCase()) && String(g.pin).trim() === pin && String(g.status).trim().toUpperCase() === 'AKTIF');
+  if (!guru) return { ok: false, message: 'ID/PIN salah atau akun nonaktif.' };
+  const token = Utilities.getUuid(); const sesi = { id_guru: guru.id_guru, nama: guru.nama, role: guru.role, modul: modul };
+  CacheService.getScriptCache().put('sess_' + token, JSON.stringify(sesi), 21600);
+  return { ok: true, message: 'Login berhasil', data: { token: token, nama: sesi.nama, role: sesi.role } };
+}
+function heartbeat_(token) { try { verifikasiToken_(token); return { ok: true, message: 'OK' }; } catch (e) { return { ok: false, message: e.message }; } }
+
+// FITUR BARU: KENAIKAN & KELULUSAN
+function getSiswaPerKelas_(token, p) {
+  try {
+    verifikasiToken_(token);
+    const list = readAll_(SHEET.SISWA).filter(s => s.kelas === p.kelas && String(s.status).toUpperCase() === 'AKTIF');
+    return { ok: true, data: list };
+  } catch (err) { return { ok: false, message: err.message }; }
+}
+function prosesNaikKelas_(token, p) {
+  try {
+    verifikasiToken_(token);
+    const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA);
+    const data = sh.getDataRange().getValues(); const headers = data[0];
+    const idxKelas = headers.indexOf('kelas');
+    let count = 0;
+    
+    p.nisList.forEach(nis => {
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).trim() === String(nis).trim()) {
+          data[i][idxKelas] = p.kelasTujuan;
+          sh.getRange(i+1, 1, 1, headers.length).setValues([data[i]]);
+          count++; break;
+        }
+      }
+    });
+    return { ok: true, message: count + ' siswa berhasil dinaikkan ke ' + p.kelasTujuan };
+  } catch (err) { return { ok: false, message: err.message }; }
+}
+function prosesLulus_(token, p) {
+  try {
+    verifikasiToken_(token);
+    const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA);
+    const data = sh.getDataRange().getValues(); const headers = data[0];
+    const idxStatus = headers.indexOf('status');
+    let count = 0;
+    
+    p.nisList.forEach(nis => {
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).trim() === String(nis).trim()) {
+          data[i][idxStatus] = 'LULUS';
+          sh.getRange(i+1, 1, 1, headers.length).setValues([data[i]]);
+          count++; break;
+        }
+      }
+    });
+    return { ok: true, message: count + ' siswa berhasil diluluskan.' };
+  } catch (err) { return { ok: false, message: err.message }; }
+}
+
+// MASTER KELAS
+function getMasterKelas_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.KELAS) }; } catch (err) { return { ok: false, message: err.message }; } }
+function tambahKelas_(token, p) { try { verifikasiToken_(token); appendRow_(SHEET.KELAS, { id_kelas: p.id_kelas, nama_kelas: p.nama_kelas, tingkat: p.tingkat, jurusan: p.jurusan, wali_kelas: p.wali_kelas, status: 'AKTIF' }); return { ok: true, message: 'Kelas ditambahkan.' }; } catch (err) { return { ok: false, message: err.message }; } }
+function editKelas_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.KELAS); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.id_kelas)){d[i][1]=p.nama_kelas;d[i][2]=p.tingkat;d[i][3]=p.jurusan;d[i][4]=p.wali_kelas;sh.getRange(i+1,1,1,d[0].length).setValues([d[i]]);break;}} return { ok: true, message: 'Kelas diperbarui.' }; } catch (e) { return { ok: false, message: e.message }; } }
+function hapusKelas_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.KELAS); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.id_kelas)){sh.deleteRow(i+1);break;}} return { ok: true, message: 'Kelas dihapus.' }; } catch (e) { return { ok: false, message: e.message }; } }
+
+// TATA TERTIB
+function getTataTertib_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.TATA_TERTIB) }; } catch (err) { return { ok: false, message: err.message }; } }
+function tambahTataTertib_(token, p) { try { verifikasiToken_(token); appendRow_(SHEET.TATA_TERTIB, p); return { ok: true, message: 'Tatib ditambahkan.' }; } catch (err) { return { ok: false, message: err.message }; } }
+function editTataTertib_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.TATA_TERTIB); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.kode)){d[i][1]=p.kategori;d[i][2]=p.deskripsi;d[i][3]=p.poin;d[i][4]=p.jenis;sh.getRange(i+1,1,1,d[0].length).setValues([d[i]]);break;}} return { ok: true, message: 'Tatib diperbarui.' }; } catch (e) { return { ok: false, message: e.message }; } }
+function hapusTataTertib_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.TATA_TERTIB); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.kode)){sh.deleteRow(i+1);break;}} return { ok: true, message: 'Tatib dihapus.' }; } catch (e) { return { ok: false, message: e.message }; } }
+function importTatib_(token, p) { try { verifikasiToken_(token); (p.rows||[]).forEach(r => appendRow_(SHEET.TATA_TERTIB, r)); return { ok: true, message: 'Tatib diimport.' }; } catch (e) { return { ok: false, message: e.message }; } }
+
+// FUNGSI LAINNYA
+function getDashboardSummary_(token) { try { verifikasiToken_(token); return { ok: true, data: { info_box: { total_siswa: readAll_(SHEET.SISWA).length, hadir_gerbang: 0, partisipasi_sholat: 0, zona_merah: 0 }, top_pelanggaran: [], zonasi: {}, ketepatan: {}, rapor_kelas: [] } }; } catch (err) { return { ok: false, message: err.message }; } }
+function getMasterSiswa_(token, p) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.SISWA) }; } catch (err) { return { ok: false, message: err.message }; } }
+function tambahSiswa_(token, p) { try { verifikasiToken_(token); appendRow_(SHEET.SISWA, p); return { ok: true, message: 'Siswa ditambahkan.' }; } catch (e) { return { ok: false, message: e.message }; } }
+function editSiswa_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.nis)){d[i][1]=p.nama;d[i][2]=p.kelas;d[i][3]=p.jk;d[i][4]=p.status;sh.getRange(i+1,1,1,d[0].length).setValues([d[i]]);break;}} return { ok: true, message: 'Siswa diperbarui.' }; } catch (e) { return { ok: false, message: e.message }; } }
+function hapusSiswa_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.nis)){sh.deleteRow(i+1);break;}} return { ok: true, message: 'Siswa dihapus.' }; } catch (e) { return { ok: false, message: e.message }; } }
+function importSiswa_(token, p) { try { verifikasiToken_(token); (p.rows||[]).forEach(r => appendRow_(SHEET.SISWA, r)); return { ok: true, message: 'Siswa diimport.' }; } catch (e) { return { ok: false, message: e.message }; } }
+function getMasterGuruFull_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.GURU) }; } catch (e) { return { ok: false, message: e.message }; } }
+function daftarRfid_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA); const d = sh.getDataRange().getValues(); for(let i=1;i<d.length;i++){if(String(d[i][0])===String(p.nis)){d[i][5]=String(p.uid_rfid).toUpperCase();sh.getRange(i+1,1,1,d[0].length).setValues([d[i]]);break;}} return { ok: true, message: 'Kartu didaftarkan.' }; } catch (e) { return { ok: false, message: e.message }; } }
+function getSiswaTanpaRfid_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.SISWA).filter(s => !s.uid_rfid) }; } catch (e) { return { ok: false, message: e.message }; } }
+function getLaporan_(token, p) { try { verifikasiToken_(token); let d = []; if(p.jenis==='gerbang') d = readAll_(SHEET.GERBANG); else if(p.jenis==='poin') d = readAll_(SHEET.POIN); else d = readAll_(SHEET.SISWA); return { ok: true, data: d, ringkasan: {} }; } catch (e) { return { ok: false, message: e.message }; } }
+function getDaftarKelas_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.KELAS).map(k => k.nama_kelas) }; } catch (e) { return { ok: false, message: e.message }; } }
+function getKartuKelas_(token, p) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.SISWA).filter(s => s.kelas === p.kelas), sekolah: 'SMK Bhakti Kencana Ciawi' }; } catch (e) { return { ok: false, message: e.message }; } }
+function getPengaturan_(token) { try { verifikasiToken_(token); const m={}; readAll_(SHEET.PENGATURAN).forEach(r=>m[r.kunci]=r.nilai); return { ok: true, data: m }; } catch (e) { return { ok: false, message: e.message }; } }
+function simpanPengaturan_(token, p) { try { verifikasiToken_(token); const sh=SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.PENGATURAN); const d=sh.getDataRange().getValues(); for(let k in p){let f=false;for(let i=1;i<d.length;i++){if(d[i][0]===k){sh.getRange(i+1,2).setValue(p[k]);f=true;break;}} if(!f)sh.appendRow([k,p[k],'']);} return { ok: true, message: 'Disimpan.' }; } catch (e) { return { ok: false, message: e.message }; } }
+  <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -36,72 +232,71 @@
   .btn-ghost:hover{background:#F8FAFF;color:#1E3A8A}
   .btn-danger-soft{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#B91C1C;border-radius:8px;font-weight:700;padding:.35rem .7rem;font-size:.78rem}
   .btn-danger-soft:hover{background:rgba(239,68,68,.2);color:#B91C1C}
-  .overlay-modal{position:fixed;inset:0;z-index:2000;background:radial-gradient(800px 500px at 50% 20%,rgba(29,78,216,.35),transparent 60%),rgba(3,7,20,.88);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
+  
+  /* MODAL LEBIH KECIL */
+  .overlay-modal{position:fixed;inset:0;z-index:2000;background:rgba(3,7,20,.88);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
   .overlay-modal.show{display:flex}
-  .overlay-box{width:100%;max-width:440px;background:#fff;border-radius:20px;padding:2rem 1.7rem 1.7rem;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:boxIn .3s ease;margin:auto}
-  .overlay-box.wide{max-width:560px}
-  .overlay-box.xwide{max-width:900px}
+  .overlay-box{width:100%;max-width:450px;background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:boxIn .3s ease;margin:auto;max-height:90vh;overflow-y:auto}
+  .overlay-box.wide{max-width:650px}
   @keyframes boxIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
-  .overlay-logo{width:56px;height:56px;border-radius:16px;margin:0 auto 1rem;background:linear-gradient(135deg,var(--brand-2),#1E40AF);display:grid;place-items:center;font-weight:900;font-size:1.2rem;color:#fff;box-shadow:0 10px 30px rgba(59,130,246,.4)}
-  .overlay-box h2{font-size:1.25rem;text-align:center;color:#0A1533;font-weight:800}
-  .overlay-box p.sub{text-align:center;font-size:.85rem;color:#64748B;margin-bottom:1.4rem}
-  .field label{display:block;font-size:.72rem;font-weight:800;letter-spacing:.1em;color:#64748B;margin-bottom:.35rem;text-transform:uppercase}
-  .field input,.field select,.field textarea{width:100%;padding:.8rem 1rem;border:1.5px solid #E5EEFF;border-radius:12px;font-size:.95rem;font-family:inherit;font-weight:600;outline:none;transition:.15s}
+  .overlay-box h2{font-size:1.15rem;text-align:center;color:#0A1533;font-weight:800;margin-bottom:.2rem}
+  .overlay-box p.sub{text-align:center;font-size:.8rem;color:#64748B;margin-bottom:1rem}
+  .field label{display:block;font-size:.7rem;font-weight:800;letter-spacing:.1em;color:#64748B;margin-bottom:.25rem;text-transform:uppercase}
+  .field input,.field select,.field textarea{width:100%;padding:.6rem .8rem;border:1.5px solid #E5EEFF;border-radius:8px;font-size:.9rem;font-family:inherit;font-weight:600;outline:none;transition:.15s}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
-  .field{margin-bottom:.9rem}
-  .btn-primary-full{width:100%;padding:.95rem;margin-top:.6rem;background:linear-gradient(135deg,var(--brand-2),#1D4ED8);color:#fff;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;transition:.15s;box-shadow:0 10px 30px rgba(59,130,246,.35)}
+  .field{margin-bottom:.7rem}
+  
+  /* FORM 2 KOLOM */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+  .form-row.full{grid-template-columns:1fr}
+  
+  .btn-primary-full{width:100%;padding:.8rem;margin-top:.4rem;background:linear-gradient(135deg,var(--brand-2),#1D4ED8);color:#fff;border:none;border-radius:8px;font-family:inherit;font-weight:800;font-size:.9rem;cursor:pointer;transition:.15s;box-shadow:0 6px 20px rgba(59,130,246,.3)}
   .btn-primary-full:hover{transform:translateY(-1px);color:#fff}
-  .btn-secondary-full{width:100%;padding:.85rem;margin-top:.5rem;background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:12px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer}
-  .alert-box{padding:.7rem .9rem;border-radius:10px;font-size:.85rem;font-weight:600;margin-bottom:.9rem;display:none}
-  .alert-box.show{display:block}
-  .alert-box.err{background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C}
-  .scan-area{background:linear-gradient(180deg,#0A1533,#102252);border-radius:16px;padding:1.6rem 1.2rem;text-align:center;color:#DBEAFE;margin-bottom:1rem}
-  .scan-area .label{font-size:.7rem;letter-spacing:.25em;color:#93C5FD;font-weight:800}
-  .scan-area .uid{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:800;color:#fff;margin:.5rem 0 .3rem;min-height:2.6rem;letter-spacing:.05em}
-  .scan-area .hint{font-size:.8rem;color:#93C5FD}
+  .btn-secondary-full{width:100%;padding:.75rem;margin-top:.4rem;background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:8px;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
+  
+  .scan-area{background:linear-gradient(180deg,#0A1533,#102252);border-radius:12px;padding:1.2rem;text-align:center;color:#DBEAFE;margin-bottom:1rem}
+  .scan-area .label{font-size:.65rem;letter-spacing:.25em;color:#93C5FD;font-weight:800}
+  .scan-area .uid{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:#fff;margin:.4rem 0 .2rem;letter-spacing:.05em}
+  .scan-area .hint{font-size:.75rem;color:#93C5FD}
   .scan-area.scanning .uid{color:#FCD34D;animation:blink 1s infinite}
   @keyframes blink{50%{opacity:.4}}
   .scan-area.ok .uid{color:#6EE7B7}
   .scan-area.err .uid{color:#FCA5A5}
+  
   #rfid-input-hidden{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0}
   .toast-wrap{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:.5rem}
-  .toast-item{padding:.75rem 1.1rem;border-radius:12px;font-size:.88rem;font-weight:700;background:#10B981;color:#fff;box-shadow:0 12px 40px rgba(16,185,129,.35);animation:toastIn .25s ease}
+  .toast-item{padding:.7rem 1rem;border-radius:10px;font-size:.85rem;font-weight:700;background:#10B981;color:#fff;box-shadow:0 12px 40px rgba(16,185,129,.35);animation:toastIn .25s ease}
   .toast-item.err{background:#EF4444;box-shadow:0 12px 40px rgba(239,68,68,.35)}
   @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
   .user-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .8rem;background:#F1F5F9;border-radius:999px;font-size:.82rem;font-weight:700;color:#1E3A8A}
-  .tabs-nav{display:flex;gap:.5rem;border-bottom:2px solid #E5EEFF;margin-bottom:1rem;flex-wrap:wrap}
-  .tabs-nav button{background:none;border:none;padding:.7rem 1.1rem;font-weight:700;color:#64748B;border-bottom:3px solid transparent;cursor:pointer;font-size:.9rem}
-  .tabs-nav button.active{color:#1E3A8A;border-bottom-color:#3B82F6}
-  .filter-bar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:end;margin-bottom:1rem}
-  .filter-bar .field{margin-bottom:0;min-width:140px}
-  .filter-bar label{font-size:.7rem}
-  .stat-mini{display:inline-flex;flex-direction:column;padding:.6rem .9rem;background:#F8FAFF;border:1px solid #E5EEFF;border-radius:10px;margin-right:.5rem;margin-bottom:.5rem;min-width:110px}
-  .stat-mini b{font-size:1.3rem;color:#1E3A8A;font-weight:800}
-  .stat-mini span{font-size:.7rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-  .kartu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8mm;padding:5mm}
-  .kartu-item{border:1.5px dashed #94A3B8;border-radius:10px;padding:5mm;background:linear-gradient(135deg,#fff,#F8FAFF);display:grid;grid-template-columns:auto 1fr;gap:4mm;align-items:center;width:85.6mm;height:54mm;box-sizing:border-box}
-  .kartu-item .qr-box{width:35mm;height:35mm;background:#fff;border-radius:6px;padding:1mm;display:grid;place-items:center}
+  
+  /* GRID KARTU: 3 KE SAMPING (HORIZONTAL) */
+  .kartu-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:6mm;padding:5mm;justify-items:center}
+  .kartu-item{border:1.5px dashed #94A3B8;border-radius:10px;padding:4mm;background:linear-gradient(135deg,#fff,#F8FAFF);display:grid;grid-template-columns:auto 1fr;gap:3mm;align-items:center;width:85.6mm;height:54mm;box-sizing:border-box}
+  .kartu-item .qr-box{width:30mm;height:30mm;background:#fff;border-radius:6px;padding:1mm;display:grid;place-items:center}
   .kartu-item .qr-box img{width:100%;height:100%}
-  .kartu-item .info-kartu b{display:block;font-size:11pt;color:#0A1533;font-weight:800;line-height:1.15;margin-bottom:1mm}
-  .kartu-item .info-kartu .nis{font-family:monospace;font-size:9pt;color:#1E3A8A;font-weight:700;margin-bottom:1mm}
-  .kartu-item .info-kartu .kelas{font-size:8pt;color:#64748B;font-weight:600}
-  .kartu-item .info-kartu .sekolah{font-size:6.5pt;color:#3B82F6;font-weight:700;margin-top:2mm;border-top:1px solid #E5EEFF;padding-top:1mm}
+  .kartu-item .info-kartu b{display:block;font-size:10pt;color:#0A1533;font-weight:800;line-height:1.15;margin-bottom:1mm}
+  .kartu-item .info-kartu .nis{font-family:monospace;font-size:8pt;color:#1E3A8A;font-weight:700;margin-bottom:1mm}
+  .kartu-item .info-kartu .kelas{font-size:7pt;color:#64748B;font-weight:600}
+  .kartu-item .info-kartu .sekolah{font-size:6pt;color:#3B82F6;font-weight:700;margin-top:1.5mm;border-top:1px solid #E5EEFF;padding-top:1mm}
+  
   @media print{
     body *{visibility:hidden}
     #print-area,#print-area *{visibility:visible}
     #print-area{position:absolute;left:0;top:0;width:100%}
+    .kartu-grid{grid-template-columns:repeat(3, 1fr) !important}
     .kartu-item{border:1px solid #CBD5E1 !important;page-break-inside:avoid}
     @page{size:A4;margin:10mm}
     .overlay-modal{background:#fff!important;position:static!important;display:block!important;padding:0!important}
     .no-print{display:none!important}
   }
-  @media (max-width:768px){
-    .content-header h1{font-size:1.3rem}
-    .small-box h3{font-size:1.5rem}
-    .overlay-box{padding:1.5rem 1.2rem 1.2rem}
-    .kartu-grid{grid-template-columns:1fr}
-    .kartu-item{width:100%;max-width:85.6mm;margin:0 auto}
-    .filter-bar .field{min-width:calc(50% - .25rem)}
+  @media (max-width: 992px) {
+    .kartu-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 576px) {
+    .kartu-grid { grid-template-columns: 1fr; }
+    .kartu-item { width: 100%; max-width: 85.6mm; margin: 0 auto; }
+    .form-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -128,9 +323,11 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
           <li class="nav-item"><a href="#" class="nav-link active" data-page="dashboard"><i class="nav-icon fas fa-chart-line"></i><p>Dashboard</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="siswa"><i class="nav-icon fas fa-user-graduate"></i><p>Master Siswa</p></a></li>
+          <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="kelas"><i class="nav-icon fas fa-door-open"></i><p>Master Kelas</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="guru"><i class="nav-icon fas fa-chalkboard-teacher"></i><p>Master Guru</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="tatib"><i class="nav-icon fas fa-book"></i><p>Tata Tertib</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="rfid"><i class="nav-icon fas fa-wifi"></i><p>Pendaftaran RFID</p></a></li>
+          <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="naikkelas"><i class="nav-icon fas fa-arrow-up"></i><p>Naik Kelas</p></a></li>
           <li class="nav-item" data-role="all"><a href="#" class="nav-link" data-page="laporan"><i class="nav-icon fas fa-file-alt"></i><p>Laporan</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="pengaturan"><i class="nav-icon fas fa-cog"></i><p>Pengaturan</p></a></li>
           <li class="nav-item" data-role="admin"><a href="#" class="nav-link" data-page="kartu"><i class="nav-icon fas fa-id-card"></i><p>Cetak Kartu</p></a></li>
@@ -185,6 +382,22 @@
           <div class="card-footer text-muted small" id="footer-siswa">Memuat…</div>
         </div>
       </div>
+      <div id="page-kelas" style="display:none">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0"><i class="fas fa-door-open text-primary mr-2"></i>Master Kelas</h3>
+            <button class="btn btn-sm btn-primary" id="btn-tambah-kelas"><i class="fas fa-plus mr-1"></i>Tambah</button>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr><th>ID Kelas</th><th>Nama Kelas</th><th>Tingkat</th><th>Jurusan</th><th>Wali Kelas</th><th style="width:150px">Aksi</th></tr></thead>
+                <tbody id="tbody-kelas"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <div id="page-guru" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
@@ -214,7 +427,7 @@
           <div class="card-body p-0">
             <div class="table-responsive">
               <table class="table table-hover mb-0">
-                <thead><tr><th style="width:90px">Kode</th><th>Kategori</th><th>Deskripsi</th><th style="width:70px">Poin</th><th>Jenis</th><th>Status</th></tr></thead>
+                <thead><tr><th style="width:90px">Kode</th><th>Kategori</th><th>Deskripsi</th><th style="width:70px">Poin</th><th>Jenis</th><th>Status</th><th style="width:120px">Aksi</th></tr></thead>
                 <tbody id="tbody-tatib"></tbody>
               </table>
             </div>
@@ -248,6 +461,40 @@
                   <table class="table table-sm table-hover mb-0">
                     <thead><tr><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
                     <tbody id="tbody-tanpa-rfid"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="page-naikkelas" style="display:none">
+        <div class="row">
+          <div class="col-lg-5">
+            <div class="card">
+              <div class="card-header"><h3 class="card-title"><i class="fas fa-arrow-up text-primary mr-2"></i>Proses Naik Kelas / Lulus</h3></div>
+              <div class="card-body">
+                <div class="field"><label>Pilih Kelas Asal</label><select id="naik-kelas-asal"><option value="">— Pilih Kelas —</option></select></div>
+                <button class="btn btn-outline-primary w-100 mb-3" id="btn-load-siswa-naik"><i class="fas fa-search mr-1"></i> Tampilkan Siswa</button>
+                <div class="field"><label>Pilih Kelas Tujuan (Untuk Naik)</label><select id="naik-kelas-tujuan"><option value="">— Pilih Kelas Tujuan —</option></select></div>
+                <button class="btn-primary-full" id="btn-proses-naik" disabled><i class="fas fa-level-up-alt mr-1"></i> Proses Naik Kelas</button>
+                <hr>
+                <p class="text-muted small mb-2">Jika siswa kelas XII, gunakan tombol ini:</p>
+                <button class="btn btn-warning w-100" id="btn-proses-lulus" disabled><i class="fas fa-graduation-cap mr-1"></i> Luluskan Siswa Terpilih</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-7">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0"><i class="fas fa-users text-primary mr-2"></i>Daftar Siswa</h3>
+                <div class="form-check"><input type="checkbox" id="check-all-naik" class="form-check-input"><label class="form-check-label font-weight-bold" for="check-all-naik">Centang Semua</label></div>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive" style="max-height:500px;overflow-y:auto">
+                  <table class="table table-sm table-hover mb-0">
+                    <thead><tr><th style="width:40px">Pilih</th><th>NIS</th><th>Nama</th><th>Kelas</th></tr></thead>
+                    <tbody id="tbody-naik-kelas"><tr><td colspan="4" class="text-center text-muted">Pilih kelas asal terlebih dahulu.</td></tr></tbody>
                   </table>
                 </div>
               </div>
@@ -340,19 +587,19 @@
     </div></section>
   </div>
   <footer class="main-footer text-sm">
-    <div class="float-right d-none d-sm-inline">v2.0</div>
+    <div class="float-right d-none d-sm-inline">v2.1</div>
     <strong>BKCSiplin</strong> &middot; SMK Bhakti Kencana Ciawi &middot; Yayasan Adhi Guna Kencana
   </footer>
 </div>
 <input id="rfid-input-hidden" type="text" autocomplete="off" inputmode="none" aria-hidden="true">
 <div class="overlay-modal show" id="modal-login">
   <div class="overlay-box">
-    <div class="overlay-logo">BK</div>
+    <div class="text-center mb-3"><div style="width:50px;height:50px;border-radius:12px;margin:0 auto;background:linear-gradient(135deg,#3B82F6,#1E40AF);display:grid;place-items:center;font-weight:900;color:#fff;font-size:1.2rem">BK</div></div>
     <h2>Login Admin</h2>
-    <p class="sub">Super Admin, Kepala Sekolah, atau Guru BK.</p>
-    <div class="alert-box err" id="login-alert"></div>
-    <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="Contoh: G002" autocomplete="username"></div>
-    <div class="field"><label>PIN</label><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric" autocomplete="current-password"></div>
+    <p class="sub">Masukkan ID dan PIN Anda.</p>
+    <div id="login-alert" class="text-danger mb-2 text-center" style="display:none;font-size:.85rem;font-weight:700"></div>
+    <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="G002"></div>
+    <div class="field"><label>PIN</label><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric"></div>
     <button class="btn-primary-full" id="btn-login">Masuk</button>
   </div>
 </div>
@@ -375,47 +622,75 @@
 <div class="overlay-modal" id="modal-siswa">
   <div class="overlay-box">
     <h2 id="modal-siswa-title">Tambah Siswa</h2>
-    <p class="sub">Isi data siswa.</p>
-    <div class="alert-box err" id="siswa-alert"></div>
+    <div class="alert-box err" id="siswa-alert" style="display:none"></div>
     <input type="hidden" id="siswa-mode" value="tambah">
     <input type="hidden" id="siswa-nis-lama" value="">
-    <div class="field"><label>NIS</label><input type="text" id="siswa-nis" placeholder="24001"></div>
-    <div class="field"><label>Nama Lengkap</label><input type="text" id="siswa-nama" placeholder="Aisyah Nur Fadilah"></div>
-    <div class="field"><label>Kelas</label><input type="text" id="siswa-kelas" placeholder="X Farmasi 1"></div>
-    <div class="field"><label>Jenis Kelamin</label><select id="siswa-jk"><option value="">— Pilih —</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-    <div class="field"><label>Status</label><select id="siswa-status"><option value="AKTIF">AKTIF</option><option value="LULUS">LULUS</option><option value="KELUAR">KELUAR</option></select></div>
-    <div class="field"><label>Catatan</label><input type="text" id="siswa-catatan" placeholder="—"></div>
+    <div class="form-row">
+      <div class="field"><label>NIS</label><input type="text" id="siswa-nis" placeholder="24001"></div>
+      <div class="field"><label>Kelas</label><select id="siswa-kelas"></select></div>
+    </div>
+    <div class="field"><label>Nama Lengkap</label><input type="text" id="siswa-nama" placeholder="Aisyah"></div>
+    <div class="form-row">
+      <div class="field"><label>Jenis Kelamin</label><select id="siswa-jk"><option value="">— Pilih —</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+      <div class="field"><label>Status</label><select id="siswa-status"><option value="AKTIF">AKTIF</option><option value="LULUS">LULUS</option><option value="KELUAR">KELUAR</option></select></div>
+    </div>
+    <div class="field"><label>Catatan (Opsional)</label><input type="text" id="siswa-catatan" placeholder="—"></div>
     <button class="btn-primary-full" id="btn-simpan-siswa">Simpan</button>
     <button class="btn-secondary-full" id="btn-batal-siswa">Batal</button>
+  </div>
+</div>
+<div class="overlay-modal" id="modal-kelas">
+  <div class="overlay-box">
+    <h2 id="modal-kelas-title">Tambah Kelas</h2>
+    <div class="alert-box err" id="kelas-alert" style="display:none"></div>
+    <input type="hidden" id="kelas-mode" value="tambah">
+    <input type="hidden" id="kelas-id-lama" value="">
+    <div class="form-row">
+      <div class="field"><label>ID Kelas</label><input type="text" id="kelas-id" placeholder="K001"></div>
+      <div class="field"><label>Tingkat</label><select id="kelas-tingkat"><option value="X">X</option><option value="XI">XI</option><option value="XII">XII</option></select></div>
+    </div>
+    <div class="field"><label>Nama Kelas</label><input type="text" id="kelas-nama" placeholder="X Farmasi 1"></div>
+    <div class="field"><label>Jurusan</label><input type="text" id="kelas-jurusan" placeholder="Farmasi"></div>
+    <div class="field"><label>Wali Kelas</label><input type="text" id="kelas-wali" placeholder="Nama Wali Kelas"></div>
+    <button class="btn-primary-full" id="btn-simpan-kelas">Simpan</button>
+    <button class="btn-secondary-full" id="btn-batal-kelas">Batal</button>
   </div>
 </div>
 <div class="overlay-modal" id="modal-guru">
   <div class="overlay-box">
     <h2 id="modal-guru-title">Tambah Guru</h2>
-    <p class="sub">Isi data guru/staf.</p>
-    <div class="alert-box err" id="guru-alert"></div>
+    <div class="alert-box err" id="guru-alert" style="display:none"></div>
     <input type="hidden" id="guru-mode" value="tambah">
     <input type="hidden" id="guru-id-lama" value="">
-    <div class="field"><label>ID Guru</label><input type="text" id="guru-id" placeholder="G005"></div>
-    <div class="field"><label>Nama</label><input type="text" id="guru-nama" placeholder="Nama, S.Pd."></div>
-    <div class="field"><label>PIN</label><input type="text" id="guru-pin" placeholder="123456" inputmode="numeric"></div>
-    <div class="field"><label>Role</label><select id="guru-role"><option value="GURU_PIKET">GURU_PIKET</option><option value="GURU_BK">GURU_BK</option><option value="SUPER_ADMIN">SUPER_ADMIN</option><option value="KEPSEK">KEPSEK</option></select></div>
+    <div class="form-row">
+      <div class="field"><label>ID Guru</label><input type="text" id="guru-id" placeholder="G005"></div>
+      <div class="field"><label>PIN</label><input type="text" id="guru-pin" placeholder="123456"></div>
+    </div>
+    <div class="field"><label>Nama Lengkap</label><input type="text" id="guru-nama" placeholder="Nama, S.Pd."></div>
+    <div class="form-row">
+      <div class="field"><label>Role</label><select id="guru-role"><option value="GURU_PIKET">GURU_PIKET</option><option value="GURU_BK">GURU_BK</option><option value="SUPER_ADMIN">SUPER_ADMIN</option><option value="KEPSEK">KEPSEK</option></select></div>
+      <div class="field"><label>Status</label><select id="guru-status"><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
+    </div>
     <div class="field"><label>No HP</label><input type="text" id="guru-hp"></div>
-    <div class="field"><label>Status</label><select id="guru-status"><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
     <button class="btn-primary-full" id="btn-simpan-guru">Simpan</button>
     <button class="btn-secondary-full" id="btn-batal-guru">Batal</button>
   </div>
 </div>
 <div class="overlay-modal" id="modal-tatib">
   <div class="overlay-box">
-    <h2>Tambah Tata Tertib</h2>
-    <p class="sub">Kode unik (TT-05).</p>
-    <div class="alert-box err" id="tatib-alert"></div>
-    <div class="field"><label>Kode</label><input type="text" id="tatib-kode" placeholder="TT-05"></div>
-    <div class="field"><label>Kategori</label><input type="text" id="tatib-kategori" placeholder="KETERLAMBATAN"></div>
+    <h2 id="modal-tatib-title">Tambah Tata Tertib</h2>
+    <div class="alert-box err" id="tatib-alert" style="display:none"></div>
+    <input type="hidden" id="tatib-mode" value="tambah">
+    <input type="hidden" id="tatib-kode-lama" value="">
+    <div class="form-row">
+      <div class="field"><label>Kode</label><input type="text" id="tatib-kode" placeholder="TT-05"></div>
+      <div class="field"><label>Kategori</label><input type="text" id="tatib-kategori" placeholder="KETERLAMBATAN"></div>
+    </div>
     <div class="field"><label>Deskripsi</label><input type="text" id="tatib-deskripsi"></div>
-    <div class="field"><label>Poin</label><input type="number" id="tatib-poin"></div>
-    <div class="field"><label>Jenis</label><select id="tatib-jenis"><option value="PELANGGARAN">PELANGGARAN</option><option value="PRESTASI">PRESTASI</option></select></div>
+    <div class="form-row">
+      <div class="field"><label>Poin</label><input type="number" id="tatib-poin"></div>
+      <div class="field"><label>Jenis</label><select id="tatib-jenis"><option value="PELANGGARAN">PELANGGARAN</option><option value="PRESTASI">PRESTASI</option></select></div>
+    </div>
     <button class="btn-primary-full" id="btn-simpan-tatib">Simpan</button>
     <button class="btn-secondary-full" id="btn-batal-tatib">Batal</button>
   </div>
@@ -424,7 +699,7 @@
   <div class="overlay-box wide">
     <h2 id="import-title">Import Excel</h2>
     <p class="sub" id="import-sub">Pilih file .xlsx.</p>
-    <div class="alert-box err" id="import-alert"></div>
+    <div class="alert-box err" id="import-alert" style="display:none"></div>
     <div class="field"><label>Pilih File Excel</label><input type="file" id="import-file" accept=".xlsx,.xls,.csv"></div>
     <div id="import-preview" style="font-size:.85rem;color:#64748B;margin-bottom:1rem"></div>
     <button class="btn-primary-full" id="btn-do-import" disabled>Import</button>
@@ -455,8 +730,7 @@
   </div>
 </div>
 <div class="toast-wrap" id="toast-wrap"></div>
-<!-- BAGIAN B DITEMPEL DI BAWAH SINI -->
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/js/adminlte.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -476,12 +750,12 @@ const state = {
   role: sessionStorage.getItem('bkc_admin_role') || '',
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null,
   searchTimer: null,
-  siswaList: [], guruList: [], tatibList: [],
+  siswaList: [], guruList: [], tatibList: [], kelasList: [],
   scan: { nis: '', nama: '', kelas: '', uid: '', mode: 'row' },
   lastUidAt: 0, lastUid: '',
   laporanJenis: 'gerbang', laporanData: [],
   importMode: 'siswa', importRows: [],
-  charts: {}, pengaturan: {}
+  charts: {}, pengaturan: {}, naikKelasList: []
 };
 const $ = (id) => document.getElementById(id);
 
@@ -538,13 +812,13 @@ async function doLogin() {
   const username = $('login-user').value.trim();
   const pin = $('login-pin').value.trim();
   const alertEl = $('login-alert');
-  alertEl.classList.remove('show');
-  if (!username || !pin) { alertEl.textContent = 'ID dan PIN wajib diisi.'; alertEl.classList.add('show'); return; }
+  alertEl.style.display = 'none';
+  if (!username || !pin) { alertEl.textContent = 'ID dan PIN wajib diisi.'; alertEl.style.display = 'block'; return; }
   
   const btn = $('btn-login'); btn.disabled = true; btn.textContent = 'Memeriksa…';
   try {
     const res = await apiCall('login', { username, pin, modul: MODUL }, true);
-    if (!res.ok) { alertEl.textContent = res.message; alertEl.classList.add('show'); return; }
+    if (!res.ok) { alertEl.textContent = res.message; alertEl.style.display = 'block'; return; }
     
     state.token = res.data.token; state.petugas = res.data.nama; state.role = res.data.role;
     sessionStorage.setItem('bkc_admin_token', state.token);
@@ -559,7 +833,7 @@ async function doLogin() {
     
     terapkanRoleMenu(); mulaiIdleWatcher(); mulaiHeartbeat(); loadPage('dashboard');
     toast('Selamat datang, ' + state.petugas);
-  } catch (err) { alertEl.textContent = err.message; alertEl.classList.add('show'); }
+  } catch (err) { alertEl.textContent = err.message; alertEl.style.display = 'block'; }
   finally { btn.disabled = false; btn.textContent = 'Masuk'; }
 }
 
@@ -591,7 +865,7 @@ function terapkanRoleMenu() {
     else li.style.display = '';
   });
   if (role !== 'SUPER_ADMIN') {
-    ['siswa','guru','tatib','rfid','pengaturan'].forEach(p => {
+    ['siswa','kelas','guru','tatib','rfid','naikkelas','pengaturan'].forEach(p => {
       const li = document.querySelector('.nav-sidebar .nav-link[data-page="' + p + '"]');
       if (li) li.parentElement.style.display = 'none';
     });
@@ -639,14 +913,16 @@ document.querySelectorAll('.nav-sidebar .nav-link[data-page]').forEach(link => {
 });
 
 function loadPage(page) {
-  ['dashboard','siswa','guru','tatib','rfid','laporan','pengaturan','kartu'].forEach(p => { const el = $('page-' + p); if (el) el.style.display = (p === page) ? '' : 'none'; });
-  const titles = { dashboard:'Dashboard', siswa:'Master Siswa', guru:'Master Guru', tatib:'Tata Tertib', rfid:'Pendaftaran RFID', laporan:'Laporan', pengaturan:'Pengaturan', kartu:'Cetak Kartu' };
+  ['dashboard','siswa','kelas','guru','tatib','rfid','naikkelas','laporan','pengaturan','kartu'].forEach(p => { const el = $('page-' + p); if (el) el.style.display = (p === page) ? '' : 'none'; });
+  const titles = { dashboard:'Dashboard', siswa:'Master Siswa', kelas:'Master Kelas', guru:'Master Guru', tatib:'Tata Tertib', rfid:'Pendaftaran RFID', naikkelas:'Naik Kelas', laporan:'Laporan', pengaturan:'Pengaturan', kartu:'Cetak Kartu' };
   $('page-title').textContent = titles[page] || page; $('breadcrumb-active').textContent = titles[page] || page;
   if (page === 'dashboard') loadDashboard();
   if (page === 'siswa') loadSiswa();
+  if (page === 'kelas') loadKelas();
   if (page === 'guru') loadGuru();
   if (page === 'tatib') loadTatib();
   if (page === 'rfid') loadRfid();
+  if (page === 'naikkelas') initNaikKelas();
   if (page === 'laporan') initLaporan();
   if (page === 'pengaturan') loadPengaturan();
   if (page === 'kartu') initKartu();
@@ -723,23 +999,23 @@ $('filter-kelas').addEventListener('change', loadSiswa);
 function openTambahSiswa() {
   $('siswa-mode').value = 'tambah'; $('siswa-nis-lama').value = ''; $('siswa-nis').value = ''; $('siswa-nis').disabled = false;
   $('siswa-nama').value = ''; $('siswa-kelas').value = ''; $('siswa-jk').value = ''; $('siswa-status').value = 'AKTIF'; $('siswa-catatan').value = '';
-  $('modal-siswa-title').textContent = 'Tambah Siswa'; $('siswa-alert').classList.remove('show'); $('modal-siswa').classList.add('show');
+  $('modal-siswa-title').textContent = 'Tambah Siswa'; $('siswa-alert').style.display = 'none'; $('modal-siswa').classList.add('show');
 }
 function openEditSiswa(s) {
   $('siswa-mode').value = 'edit'; $('siswa-nis-lama').value = s.nis; $('siswa-nis').value = s.nis; $('siswa-nis').disabled = true;
   $('siswa-nama').value = s.nama || ''; $('siswa-kelas').value = s.kelas || ''; $('siswa-jk').value = s.jk || ''; $('siswa-status').value = s.status || 'AKTIF'; $('siswa-catatan').value = s.catatan || '';
-  $('modal-siswa-title').textContent = 'Edit Siswa — ' + s.nama; $('siswa-alert').classList.remove('show'); $('modal-siswa').classList.add('show');
+  $('modal-siswa-title').textContent = 'Edit Siswa — ' + s.nama; $('siswa-alert').style.display = 'none'; $('modal-siswa').classList.add('show');
 }
 async function simpanSiswa() {
   const mode = $('siswa-mode').value;
-  const payload = { nis: mode === 'edit' ? $('siswa-nis-lama').value : $('siswa-nis').value.trim(), nama: $('siswa-nama').value.trim(), kelas: $('siswa-kelas').value.trim(), jk: $('siswa-jk').value, status: $('siswa-status').value, catatan: $('siswa-catatan').value.trim() };
-  if (!payload.nis || !payload.nama || !payload.kelas) { $('siswa-alert').textContent = 'NIS, Nama, Kelas wajib.'; $('siswa-alert').classList.add('show'); return; }
+  const payload = { nis: mode === 'edit' ? $('siswa-nis-lama').value : $('siswa-nis').value.trim(), nama: $('siswa-nama').value.trim(), kelas: $('siswa-kelas').value, jk: $('siswa-jk').value, status: $('siswa-status').value, catatan: $('siswa-catatan').value.trim() };
+  if (!payload.nis || !payload.nama || !payload.kelas) { $('siswa-alert').textContent = 'NIS, Nama, Kelas wajib.'; $('siswa-alert').style.display = 'block'; return; }
   const action = mode === 'edit' ? 'editSiswa' : 'tambahSiswa'; const btn = $('btn-simpan-siswa'); btn.disabled = true; btn.textContent = 'Menyimpan…';
   try {
     const res = await apiCall(action, payload, true);
-    if (!res.ok) { $('siswa-alert').textContent = res.message; $('siswa-alert').classList.add('show'); return; }
+    if (!res.ok) { $('siswa-alert').textContent = res.message; $('siswa-alert').style.display = 'block'; return; }
     $('modal-siswa').classList.remove('show'); toast(res.message); loadSiswa();
-  } catch (err) { $('siswa-alert').textContent = err.message; $('siswa-alert').classList.add('show'); }
+  } catch (err) { $('siswa-alert').textContent = err.message; $('siswa-alert').style.display = 'block'; }
   finally { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 async function hapusSiswa(nis, nama) {
@@ -749,6 +1025,55 @@ async function hapusSiswa(nis, nama) {
 $('btn-tambah-siswa').addEventListener('click', openTambahSiswa);
 $('btn-simpan-siswa').addEventListener('click', simpanSiswa);
 $('btn-batal-siswa').addEventListener('click', () => $('modal-siswa').classList.remove('show'));
+
+// ============================================================
+// MASTER KELAS
+// ============================================================
+async function loadKelas() {
+  try {
+    const res = await apiCall('getMasterKelas');
+    if (!res.ok) { toast(res.message, true); return; }
+    state.kelasList = res.data; const tbody = $('tbody-kelas');
+    if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Tidak ada data.</td></tr>'; return; }
+    tbody.innerHTML = res.data.map(k => `<tr><td class="font-weight-bold">${escapeHtml(k.id_kelas)}</td><td>${escapeHtml(k.nama_kelas)}</td><td>${escapeHtml(k.tingkat)}</td><td>${escapeHtml(k.jurusan)}</td><td>${escapeHtml(k.wali_kelas)}</td><td><button class="btn-ghost ml-1" data-act="edit" data-id="${escapeHtml(k.id_kelas)}"><i class="fas fa-edit"></i></button><button class="btn-danger-soft ml-1" data-act="hapus" data-id="${escapeHtml(k.id_kelas)}"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+    tbody.querySelectorAll('[data-act]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id; const kelas = state.kelasList.find(x => x.id_kelas === id);
+        if (btn.dataset.act === 'edit') openEditKelas(kelas);
+        if (btn.dataset.act === 'hapus') hapusKelas(id, kelas.nama_kelas);
+      });
+    });
+  } catch (err) { toast('Gagal memuat kelas', true); }
+}
+function openTambahKelas() {
+  $('kelas-mode').value = 'tambah'; $('kelas-id-lama').value = ''; $('kelas-id').value = ''; $('kelas-id').disabled = false;
+  $('kelas-nama').value = ''; $('kelas-tingkat').value = 'X'; $('kelas-jurusan').value = ''; $('kelas-wali').value = '';
+  $('modal-kelas-title').textContent = 'Tambah Kelas'; $('kelas-alert').style.display = 'none'; $('modal-kelas').classList.add('show');
+}
+function openEditKelas(k) {
+  $('kelas-mode').value = 'edit'; $('kelas-id-lama').value = k.id_kelas; $('kelas-id').value = k.id_kelas; $('kelas-id').disabled = true;
+  $('kelas-nama').value = k.nama_kelas || ''; $('kelas-tingkat').value = k.tingkat || 'X'; $('kelas-jurusan').value = k.jurusan || ''; $('kelas-wali').value = k.wali_kelas || '';
+  $('modal-kelas-title').textContent = 'Edit Kelas — ' + k.nama_kelas; $('kelas-alert').style.display = 'none'; $('modal-kelas').classList.add('show');
+}
+async function simpanKelas() {
+  const mode = $('kelas-mode').value;
+  const payload = { id_kelas: mode === 'edit' ? $('kelas-id-lama').value : $('kelas-id').value.trim(), nama_kelas: $('kelas-nama').value.trim(), tingkat: $('kelas-tingkat').value, jurusan: $('kelas-jurusan').value.trim(), wali_kelas: $('kelas-wali').value.trim() };
+  if (!payload.id_kelas || !payload.nama_kelas) { $('kelas-alert').textContent = 'ID dan Nama Kelas wajib.'; $('kelas-alert').style.display = 'block'; return; }
+  const action = mode === 'edit' ? 'editKelas' : 'tambahKelas'; const btn = $('btn-simpan-kelas'); btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    const res = await apiCall(action, payload, true);
+    if (!res.ok) { $('kelas-alert').textContent = res.message; $('kelas-alert').style.display = 'block'; return; }
+    $('modal-kelas').classList.remove('show'); toast(res.message); loadKelas();
+  } catch (err) { $('kelas-alert').textContent = err.message; $('kelas-alert').style.display = 'block'; }
+  finally { btn.disabled = false; btn.textContent = 'Simpan'; }
+}
+async function hapusKelas(id, nama) {
+  if (!confirm('Hapus kelas ' + nama + '?')) return;
+  try { const res = await apiCall('hapusKelas', { id_kelas: id }, true); if (!res.ok) { toast(res.message, true); return; } toast(res.message); loadKelas(); } catch (err) { toast(err.message, true); }
+}
+$('btn-tambah-kelas').addEventListener('click', openTambahKelas);
+$('btn-simpan-kelas').addEventListener('click', simpanKelas);
+$('btn-batal-kelas').addEventListener('click', () => $('modal-kelas').classList.remove('show'));
 
 // ============================================================
 // SCAN RFID
@@ -802,18 +1127,18 @@ async function loadGuru() {
 }
 function openTambahGuru() {
   $('guru-mode').value = 'tambah'; $('guru-id-lama').value = ''; $('guru-id').value = ''; $('guru-id').disabled = false; $('guru-nama').value = ''; $('guru-pin').value = ''; $('guru-role').value = 'GURU_PIKET'; $('guru-hp').value = ''; $('guru-status').value = 'AKTIF';
-  $('modal-guru-title').textContent = 'Tambah Guru'; $('guru-alert').classList.remove('show'); $('modal-guru').classList.add('show');
+  $('modal-guru-title').textContent = 'Tambah Guru'; $('guru-alert').style.display = 'none'; $('modal-guru').classList.add('show');
 }
 function openEditGuru(g) {
   $('guru-mode').value = 'edit'; $('guru-id-lama').value = g.id_guru; $('guru-id').value = g.id_guru; $('guru-id').disabled = true; $('guru-nama').value = g.nama || ''; $('guru-pin').value = ''; $('guru-role').value = g.role || 'GURU_PIKET'; $('guru-hp').value = g.no_hp || ''; $('guru-status').value = g.status || 'AKTIF';
-  $('modal-guru-title').textContent = 'Edit Guru — ' + g.nama; $('guru-alert').classList.remove('show'); $('modal-guru').classList.add('show');
+  $('modal-guru-title').textContent = 'Edit Guru — ' + g.nama; $('guru-alert').style.display = 'none'; $('modal-guru').classList.add('show');
 }
 async function simpanGuru() {
   const mode = $('guru-mode').value; const payload = { id_guru: mode === 'edit' ? $('guru-id-lama').value : $('guru-id').value.trim(), nama: $('guru-nama').value.trim(), pin: $('guru-pin').value.trim(), role: $('guru-role').value, no_hp: $('guru-hp').value.trim(), status: $('guru-status').value };
   if (mode === 'edit' && !payload.pin) delete payload.pin;
-  if (!payload.id_guru || !payload.nama || (mode === 'tambah' && !payload.pin)) { $('guru-alert').textContent = 'Lengkapi data.'; $('guru-alert').classList.add('show'); return; }
+  if (!payload.id_guru || !payload.nama || (mode === 'tambah' && !payload.pin)) { $('guru-alert').textContent = 'Lengkapi data.'; $('guru-alert').style.display = 'block'; return; }
   const action = mode === 'edit' ? 'editGuru' : 'tambahGuru'; const btn = $('btn-simpan-guru'); btn.disabled = true; btn.textContent = 'Menyimpan…';
-  try { const res = await apiCall(action, payload, true); if (!res.ok) { $('guru-alert').textContent = res.message; $('guru-alert').classList.add('show'); return; } $('modal-guru').classList.remove('show'); toast(res.message); loadGuru(); } catch (err) { $('guru-alert').textContent = err.message; $('guru-alert').classList.add('show'); } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
+  try { const res = await apiCall(action, payload, true); if (!res.ok) { $('guru-alert').textContent = res.message; $('guru-alert').style.display = 'block'; return; } $('modal-guru').classList.remove('show'); toast(res.message); loadGuru(); } catch (err) { $('guru-alert').textContent = err.message; $('guru-alert').style.display = 'block'; } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
 }
 $('btn-tambah-guru').addEventListener('click', openTambahGuru);
 $('btn-simpan-guru').addEventListener('click', simpanGuru);
@@ -824,23 +1149,101 @@ async function loadTatib() {
     const res = await apiCall('getTataTertib');
     if (!res.ok) { toast(res.message, true); return; }
     state.tatibList = res.data; const tbody = $('tbody-tatib');
-    if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Tidak ada data.</td></tr>'; return; }
-    tbody.innerHTML = res.data.map(t => `<tr><td class="font-weight-bold">${escapeHtml(t.kode)}</td><td>${escapeHtml(t.kategori)}</td><td>${escapeHtml(t.deskripsi)}</td><td>${t.jenis === 'PELANGGARAN' ? '<span class="badge badge-danger">-' + t.poin + '</span>' : '<span class="badge badge-success">+' + t.poin + '</span>'}</td><td>${escapeHtml(t.jenis)}</td><td>${String(t.aktif).toUpperCase() === 'YA' ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">NONAKTIF</span>'}</td></tr>`).join('');
+    if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Tidak ada data.</td></tr>'; return; }
+    tbody.innerHTML = res.data.map(t => `<tr><td class="font-weight-bold">${escapeHtml(t.kode)}</td><td>${escapeHtml(t.kategori)}</td><td>${escapeHtml(t.deskripsi)}</td><td>${t.jenis === 'PELANGGARAN' ? '<span class="badge badge-danger">-' + t.poin + '</span>' : '<span class="badge badge-success">+' + t.poin + '</span>'}</td><td>${escapeHtml(t.jenis)}</td><td>${String(t.aktif).toUpperCase() === 'YA' ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">NONAKTIF</span>'}</td><td><button class="btn-ghost ml-1" data-act="edit" data-kode="${escapeHtml(t.kode)}"><i class="fas fa-edit"></i></button><button class="btn-danger-soft ml-1" data-act="hapus" data-kode="${escapeHtml(t.kode)}"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+    tbody.querySelectorAll('[data-act]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const kode = btn.dataset.kode; const tatib = state.tatibList.find(x => x.kode === kode);
+        if (btn.dataset.act === 'edit') openEditTatib(tatib);
+        if (btn.dataset.act === 'hapus') hapusTatib(kode, tatib.deskripsi);
+      });
+    });
   } catch (err) { toast('Gagal memuat tata tertib', true); }
 }
 function openTambahTatib() {
-  $('tatib-kode').value = ''; $('tatib-kategori').value = ''; $('tatib-deskripsi').value = ''; $('tatib-poin').value = ''; $('tatib-jenis').value = 'PELANGGARAN';
-  $('tatib-alert').classList.remove('show'); $('modal-tatib').classList.add('show');
+  $('tatib-mode').value = 'tambah'; $('tatib-kode-lama').value = ''; $('tatib-kode').value = ''; $('tatib-kode').disabled = false; $('tatib-kategori').value = ''; $('tatib-deskripsi').value = ''; $('tatib-poin').value = ''; $('tatib-jenis').value = 'PELANGGARAN';
+  $('modal-tatib-title').textContent = 'Tambah Tata Tertib'; $('tatib-alert').style.display = 'none'; $('modal-tatib').classList.add('show');
+}
+function openEditTatib(t) {
+  $('tatib-mode').value = 'edit'; $('tatib-kode-lama').value = t.kode; $('tatib-kode').value = t.kode; $('tatib-kode').disabled = true; $('tatib-kategori').value = t.kategori || ''; $('tatib-deskripsi').value = t.deskripsi || ''; $('tatib-poin').value = t.poin; $('tatib-jenis').value = t.jenis || 'PELANGGARAN';
+  $('modal-tatib-title').textContent = 'Edit Tata Tertib — ' + t.kode; $('tatib-alert').style.display = 'none'; $('modal-tatib').classList.add('show');
 }
 async function simpanTatib() {
-  const payload = { kode: $('tatib-kode').value.trim().toUpperCase(), kategori: $('tatib-kategori').value.trim(), deskripsi: $('tatib-deskripsi').value.trim(), poin: parseInt($('tatib-poin').value, 10), jenis: $('tatib-jenis').value, aktif: 'YA' };
-  if (!payload.kode || !payload.deskripsi || isNaN(payload.poin)) { $('tatib-alert').textContent = 'Lengkapi data.'; $('tatib-alert').classList.add('show'); return; }
-  const btn = $('btn-simpan-tatib'); btn.disabled = true; btn.textContent = 'Menyimpan…';
-  try { const res = await apiCall('tambahTataTertib', payload, true); if (!res.ok) { $('tatib-alert').textContent = res.message; $('tatib-alert').classList.add('show'); return; } $('modal-tatib').classList.remove('show'); toast(res.message); loadTatib(); } catch (err) { $('tatib-alert').textContent = err.message; $('tatib-alert').classList.add('show'); } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
+  const mode = $('tatib-mode').value;
+  const payload = { kode: mode === 'edit' ? $('tatib-kode-lama').value : $('tatib-kode').value.trim().toUpperCase(), kategori: $('tatib-kategori').value.trim(), deskripsi: $('tatib-deskripsi').value.trim(), poin: parseInt($('tatib-poin').value, 10), jenis: $('tatib-jenis').value };
+  if (!payload.kode || !payload.deskripsi || isNaN(payload.poin)) { $('tatib-alert').textContent = 'Lengkapi data.'; $('tatib-alert').style.display = 'block'; return; }
+  const action = mode === 'edit' ? 'editTataTertib' : 'tambahTataTertib'; const btn = $('btn-simpan-tatib'); btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try { const res = await apiCall(action, payload, true); if (!res.ok) { $('tatib-alert').textContent = res.message; $('tatib-alert').style.display = 'block'; return; } $('modal-tatib').classList.remove('show'); toast(res.message); loadTatib(); } catch (err) { $('tatib-alert').textContent = err.message; $('tatib-alert').style.display = 'block'; } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
+}
+async function hapusTatib(kode, desc) {
+  if (!confirm('Hapus tata tertib ini?\n' + desc)) return;
+  try { const res = await apiCall('hapusTataTertib', { kode }, true); if (!res.ok) { toast(res.message, true); return; } toast(res.message); loadTatib(); } catch (err) { toast(err.message, true); }
 }
 $('btn-tambah-tatib').addEventListener('click', openTambahTatib);
 $('btn-simpan-tatib').addEventListener('click', simpanTatib);
 $('btn-batal-tatib').addEventListener('click', () => $('modal-tatib').classList.remove('show'));
+
+// ============================================================
+// NAIK KELAS
+// ============================================================
+async function initNaikKelas() {
+  const [resKelas] = await Promise.all([apiCall('getDaftarKelas')]);
+  if (resKelas.ok) {
+    $('naik-kelas-asal').innerHTML = '<option value="">— Pilih Kelas —</option>' + resKelas.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+    $('naik-kelas-tujuan').innerHTML = '<option value="">— Pilih Kelas Tujuan —</option>' + resKelas.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+  }
+}
+$('btn-load-siswa-naik').addEventListener('click', async () => {
+  const kelas = $('naik-kelas-asal').value;
+  if (!kelas) { toast('Pilih kelas asal dulu', true); return; }
+  const btn = $('btn-load-siswa-naik'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat…';
+  try {
+    const res = await apiCall('getSiswaPerKelas', { kelas });
+    if (!res.ok) { toast(res.message, true); return; }
+    state.naikKelasList = res.data;
+    const tbody = $('tbody-naik-kelas');
+    if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Tidak ada siswa di kelas ini.</td></tr>'; return; }
+    tbody.innerHTML = res.data.map(s => `<tr><td><input type="checkbox" class="form-check-input check-siswa" value="${escapeHtml(s.nis)}" checked></td><td>${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td></tr>`).join('');
+    $('check-all-naik').checked = true;
+    $('btn-proses-naik').disabled = false;
+    $('btn-proses-lulus').disabled = false;
+  } catch (err) { toast(err.message, true); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-search mr-1"></i> Tampilkan Siswa'; }
+});
+$('check-all-naik').addEventListener('change', (e) => {
+  document.querySelectorAll('.check-siswa').forEach(cb => cb.checked = e.target.checked);
+});
+async function prosesNaik() {
+  const kelasTujuan = $('naik-kelas-tujuan').value;
+  if (!kelasTujuan) { toast('Pilih kelas tujuan dulu', true); return; }
+  const checked = document.querySelectorAll('.check-siswa:checked');
+  if (!checked.length) { toast('Pilih minimal 1 siswa', true); return; }
+  if (!confirm(`Naikkan ${checked.length} siswa terpilih ke ${kelasTujuan}?`)) return;
+  const nisList = Array.from(checked).map(cb => cb.value);
+  const btn = $('btn-proses-naik'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses…';
+  try {
+    const res = await apiCall('prosesNaikKelas', { nisList, kelasTujuan }, true);
+    if (!res.ok) { toast(res.message, true); return; }
+    toast(res.message); $('btn-load-siswa-naik').click();
+  } catch (err) { toast(err.message, true); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-level-up-alt mr-1"></i> Proses Naik Kelas'; }
+}
+$('btn-proses-naik').addEventListener('click', prosesNaik);
+
+async function prosesLulus() {
+  const checked = document.querySelectorAll('.check-siswa:checked');
+  if (!checked.length) { toast('Pilih minimal 1 siswa', true); return; }
+  if (!confirm(`Luluskan ${checked.length} siswa terpilih? Status akan berubah menjadi LULUS dan tidak muncul di daftar aktif.`)) return;
+  const nisList = Array.from(checked).map(cb => cb.value);
+  const btn = $('btn-proses-lulus'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses…';
+  try {
+    const res = await apiCall('prosesLulus', { nisList }, true);
+    if (!res.ok) { toast(res.message, true); return; }
+    toast(res.message); $('btn-load-siswa-naik').click();
+  } catch (err) { toast(err.message, true); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-graduation-cap mr-1"></i> Luluskan Siswa Terpilih'; }
+}
+$('btn-proses-lulus').addEventListener('click', prosesLulus);
 
 // ============================================================
 // RFID MAIN & LAPORAN & LAINNYA
@@ -955,18 +1358,18 @@ function openImport(mode) {
   state.importMode = mode; state.importRows = [];
   $('import-title').textContent = mode === 'siswa' ? 'Import Data Siswa' : 'Import Tata Tertib';
   $('import-sub').textContent = mode === 'siswa' ? 'File .xlsx dengan header: nis, nama, kelas, jk, uid_rfid.' : 'File .xlsx dengan header: kode, kategori, deskripsi, poin, jenis.';
-  $('import-preview').textContent = ''; $('import-alert').classList.remove('show'); $('import-file').value = ''; $('btn-do-import').disabled = true; $('modal-import').classList.add('show');
+  $('import-preview').textContent = ''; $('import-alert').style.display = 'none'; $('import-file').value = ''; $('btn-do-import').disabled = true; $('modal-import').classList.add('show');
 }
 $('import-file').addEventListener('change', (e) => {
   const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
   reader.onload = (ev) => {
-    try { const data = new Uint8Array(ev.target.result); const wb = XLSX.read(data, { type: 'array' }); const ws = wb.Sheets[wb.SheetNames[0]]; const json = XLSX.utils.sheet_to_json(ws, { defval: '' }); state.importRows = json; $('import-preview').textContent = `Terbaca ${json.length} baris.`; $('btn-do-import').disabled = json.length === 0; } catch (err) { $('import-alert').textContent = 'Gagal membaca file: ' + err.message; $('import-alert').classList.add('show'); }
+    try { const data = new Uint8Array(ev.target.result); const wb = XLSX.read(data, { type: 'array' }); const ws = wb.Sheets[wb.SheetNames[0]]; const json = XLSX.utils.sheet_to_json(ws, { defval: '' }); state.importRows = json; $('import-preview').textContent = `Terbaca ${json.length} baris.`; $('btn-do-import').disabled = json.length === 0; } catch (err) { $('import-alert').textContent = 'Gagal membaca file: ' + err.message; $('import-alert').style.display = 'block'; }
   };
   reader.readAsArrayBuffer(file);
 });
 $('btn-do-import').addEventListener('click', async () => {
   if (!state.importRows.length) return; const btn = $('btn-do-import'); btn.disabled = true; btn.textContent = 'Mengimport…';
-  try { const action = state.importMode === 'siswa' ? 'importSiswa' : 'importTatib'; const res = await apiCall(action, { rows: state.importRows }, true); if (!res.ok) { $('import-alert').textContent = res.message; $('import-alert').classList.add('show'); return; } $('modal-import').classList.remove('show'); toast(res.message); if (state.importMode === 'siswa') loadSiswa(); else loadTatib(); } catch (err) { $('import-alert').textContent = err.message; $('import-alert').classList.add('show'); } finally { btn.disabled = false; btn.textContent = 'Import'; }
+  try { const action = state.importMode === 'siswa' ? 'importSiswa' : 'importTatib'; const res = await apiCall(action, { rows: state.importRows }, true); if (!res.ok) { $('import-alert').textContent = res.message; $('import-alert').style.display = 'block'; return; } $('modal-import').classList.remove('show'); toast(res.message); if (state.importMode === 'siswa') loadSiswa(); else loadTatib(); } catch (err) { $('import-alert').textContent = err.message; $('import-alert').style.display = 'block'; } finally { btn.disabled = false; btn.textContent = 'Import'; }
 });
 $('btn-cancel-import').addEventListener('click', () => $('modal-import').classList.remove('show'));
 

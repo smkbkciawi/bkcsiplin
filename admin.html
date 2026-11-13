@@ -67,6 +67,14 @@
   .scan-area.ok .uid{color:#6EE7B7}
   .scan-area.err .uid{color:#FCA5A5}
 
+  /* CHECK LIST UNTUK PILIHAN */
+  .check-list{max-height:250px;overflow-y:auto;border:1.5px solid #E5EEFF;border-radius:8px;padding:.5rem}
+  .check-item{display:flex;align-items:center;gap:.6rem;padding:.4rem .6rem;border-radius:6px;cursor:pointer}
+  .check-item:hover{background:#F8FAFF}
+  .check-item input{width:16px;height:16px;cursor:pointer}
+  .check-item .info{flex:1;font-size:.85rem;font-weight:600}
+  .check-item .info span{font-size:.75rem;color:#64748B;font-weight:400}
+
   #rfid-input-hidden{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0}
   .toast-wrap{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:.5rem}
   .toast-item{padding:.7rem 1rem;border-radius:10px;font-size:.85rem;font-weight:700;background:#10B981;color:#fff;box-shadow:0 12px 40px rgba(16,185,129,.35);animation:toastIn .25s ease}
@@ -93,28 +101,20 @@
   .kartu-item .info-kartu .kelas{font-size:7pt;color:#64748B;font-weight:600}
   .kartu-item .info-kartu .sekolah{font-size:6pt;color:#3B82F6;font-weight:700;margin-top:1.5mm;border-top:1px solid #E5EEFF;padding-top:1mm}
 
-  @media print{
-    body *{visibility:hidden}
-    #print-area,#print-area *{visibility:visible}
-    #print-area{position:absolute;left:0;top:0;width:100%}
-    .kartu-grid{grid-template-columns:repeat(3, 1fr) !important}
-    .kartu-item{border:1px solid #CBD5E1 !important;page-break-inside:avoid}
-    @page{size:A4;margin:10mm}
-    .overlay-modal{background:#fff!important;position:static!important;display:block!important;padding:0!important}
-    .no-print{display:none!important}
-    
-    /* Print Laporan Only */
+  /* CSS CETAK: Hanya mencetak area laporan */
+  @media print {
+    body * { visibility: hidden; }
+    #page-laporan, #page-laporan * { visibility: visible; }
+    #page-laporan { position: absolute; left: 0; top: 0; width: 100%; }
+    .no-print, .no-print-laporan, .main-sidebar, .main-header, .main-footer { display: none !important; }
+    .content-wrapper { margin: 0 !important; padding: 0 !important; }
+    .card { border: none !important; box-shadow: none !important; }
+    .table-responsive { max-height: none !important; overflow: visible !important; }
     .print-laporan-only { display: block !important; }
-    .no-print-laporan { display: none !important; }
+    @page { size: A4 landscape; margin: 10mm; }
   }
-  @media (max-width: 992px) {
-    .kartu-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 576px) {
-    .kartu-grid { grid-template-columns: 1fr; }
-    .kartu-item { width: 100%; max-width: 85.6mm; margin: 0 auto; }
-    .form-row { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 992px) { .kartu-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 576px) { .kartu-grid { grid-template-columns: 1fr; } .kartu-item { width: 100%; max-width: 85.6mm; margin: 0 auto; } .form-row { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -288,7 +288,10 @@
                     <div class="uid" id="scan-uid-siswa">—</div>
                     <div class="hint" id="scan-hint-siswa">Dekatkan kartu ke reader USB.</div>
                   </div>
-                  <div class="field"><label>Pilih Siswa</label><select id="rfid-siswa-select"><option value="">— Pilih siswa —</option></select></div>
+                  <div class="field">
+                    <label>Centang Siswa yang Sesuai</label>
+                    <div class="check-list" id="rfid-siswa-list"><div class="text-muted" style="font-size:.85rem;text-align:center;padding:1rem">Memuat…</div></div>
+                  </div>
                   <button class="btn-primary-full" id="btn-save-rfid-siswa" disabled>Simpan Kartu Siswa</button>
                 </div>
                 <div class="col-lg-7">
@@ -319,7 +322,10 @@
                     <div class="uid" id="scan-uid-guru">—</div>
                     <div class="hint" id="scan-hint-guru">Dekatkan kartu ke reader USB.</div>
                   </div>
-                  <div class="field"><label>Pilih Guru</label><select id="rfid-guru-select"><option value="">— Pilih guru —</option></select></div>
+                  <div class="field">
+                    <label>Centang Guru yang Sesuai</label>
+                    <div class="check-list" id="rfid-guru-list"><div class="text-muted" style="font-size:.85rem;text-align:center;padding:1rem">Memuat…</div></div>
+                  </div>
                   <button class="btn-primary-full" id="btn-save-rfid-guru" disabled>Simpan Kartu Guru</button>
                 </div>
                 <div class="col-lg-7">
@@ -484,7 +490,7 @@
   </div>
 
   <footer class="main-footer text-sm">
-    <div class="float-right d-none d-sm-inline">v3.5</div>
+    <div class="float-right d-none d-sm-inline">v4.1</div>
     <strong>BKCSiplin</strong> &middot; SMK Bhakti Kencana Ciawi &middot; Yayasan Adhi Guna Kencana
   </footer>
 </div>
@@ -634,7 +640,7 @@ const state = {
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null,
   searchTimer: null,
   siswaList: [], guruList: [], tatibList: [], kelasList: [],
-  scan: { tipe: 'siswa', nis: '', id_guru: '', uid: '' },
+  scan: { tipe: 'siswa', uid: '' },
   laporanJenis: 'gerbang', laporanData: [],
   importMode: 'siswa', importRows: [],
   charts: {}, pengaturan: {}
@@ -1031,21 +1037,35 @@ async function loadRfid() {
 async function loadSiswaTanpaRfid() {
   try {
     const res = await apiCall('getSiswaTanpaRfid');
-    const sel = $('rfid-siswa-select'); const tbody = $('tbody-tanpa-rfid');
+    const list = $('rfid-siswa-list'); const tbody = $('tbody-tanpa-rfid');
     if (!res.ok) { toast(res.message, true); return; }
-    if (!res.data.length) { sel.innerHTML = '<option value="">— Semua siswa sudah punya kartu —</option>'; tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Semua siswa sudah punya kartu ✓</td></tr>'; return; }
-    sel.innerHTML = '<option value="">— Pilih siswa (' + res.data.length + ' belum punya kartu) —</option>' + res.data.map(s => `<option value="${escapeHtml(s.nis)}">${escapeHtml(s.nis)} - ${escapeHtml(s.nama)} (${escapeHtml(s.kelas)})</option>`).join('');
+    
+    // Sisi Kanan: Tabel
+    if (!res.data.length) { 
+      list.innerHTML = '<div class="text-muted" style="font-size:.85rem;text-align:center;padding:1rem">Semua siswa sudah punya kartu ✓</div>'; 
+      tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Semua siswa sudah punya kartu ✓</td></tr>'; 
+      return; 
+    }
     tbody.innerHTML = res.data.map(s => `<tr><td class="font-weight-bold">${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td></tr>`).join('');
+    
+    // Sisi Kiri: Check List
+    list.innerHTML = res.data.map(s => `<label class="check-item"><input type="checkbox" class="rfid-siswa-cb" value="${escapeHtml(s.nis)}"><div class="info">${escapeHtml(s.nama)} <br><span>${escapeHtml(s.nis)} · ${escapeHtml(s.kelas)}</span></div></label>`).join('');
   } catch (err) { toast('Gagal memuat', true); }
 }
 async function loadGuruTanpaRfid() {
   try {
     const res = await apiCall('getGuruTanpaRfid');
-    const sel = $('rfid-guru-select'); const tbody = $('tbody-tanpa-rfid-guru');
+    const list = $('rfid-guru-list'); const tbody = $('tbody-tanpa-rfid-guru');
     if (!res.ok) { toast(res.message, true); return; }
-    if (!res.data.length) { sel.innerHTML = '<option value="">— Semua guru sudah punya kartu —</option>'; tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Semua guru sudah punya kartu ✓</td></tr>'; return; }
-    sel.innerHTML = '<option value="">— Pilih guru (' + res.data.length + ' belum punya kartu) —</option>' + res.data.map(g => `<option value="${escapeHtml(g.id_guru)}">${escapeHtml(g.id_guru)} - ${escapeHtml(g.nama)}</option>`).join('');
+    
+    if (!res.data.length) { 
+      list.innerHTML = '<div class="text-muted" style="font-size:.85rem;text-align:center;padding:1rem">Semua guru sudah punya kartu ✓</div>'; 
+      tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Semua guru sudah punya kartu ✓</td></tr>'; 
+      return; 
+    }
     tbody.innerHTML = res.data.map(g => `<tr><td class="font-weight-bold">${escapeHtml(g.id_guru)}</td><td>${escapeHtml(g.nama)}</td><td>${escapeHtml(g.role)}</td></tr>`).join('');
+    
+    list.innerHTML = res.data.map(g => `<label class="check-item"><input type="checkbox" class="rfid-guru-cb" value="${escapeHtml(g.id_guru)}"><div class="info">${escapeHtml(g.nama)} <br><span>${escapeHtml(g.id_guru)} · ${escapeHtml(g.role)}</span></div></label>`).join('');
   } catch (err) { toast('Gagal memuat', true); }
 }
 
@@ -1057,7 +1077,8 @@ setInterval(() => {
   const pageRfid = $('page-rfid').style.display !== 'none';
   if (!pageRfid) return;
   const active = document.activeElement;
-  if (active && (active.id === 'search-input' || active.id === 'login-user' || active.id === 'login-pin')) return;
+  // Jangan fokus paksa jika user sedang mengisi sesuatu
+  if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) return;
   fokusRfid();
 }, 600);
 
@@ -1071,12 +1092,12 @@ $('rfid-input-hidden').addEventListener('keydown', (e) => {
   
   if (state.scan.tipe === 'siswa') {
     $('scan-uid-siswa').textContent = uid;
-    $('scan-hint-siswa').textContent = 'Kartu terbaca. Pilih siswa lalu simpan.';
+    $('scan-hint-siswa').textContent = 'Kartu terbaca. Centang siswa lalu simpan.';
     $('scan-area-siswa').classList.remove('scanning'); $('scan-area-siswa').classList.add('ok');
     $('btn-save-rfid-siswa').disabled = false;
   } else {
     $('scan-uid-guru').textContent = uid;
-    $('scan-hint-guru').textContent = 'Kartu terbaca. Pilih guru lalu simpan.';
+    $('scan-hint-guru').textContent = 'Kartu terbaca. Centang guru lalu simpan.';
     $('scan-area-guru').classList.remove('scanning'); $('scan-area-guru').classList.add('ok');
     $('btn-save-rfid-guru').disabled = false;
   }
@@ -1084,10 +1105,12 @@ $('rfid-input-hidden').addEventListener('keydown', (e) => {
 });
 
 $('btn-save-rfid-siswa').addEventListener('click', async () => {
-  const nis = $('rfid-siswa-select').value;
-  if (!nis) { toast('Pilih siswa dulu', true); return; }
+  const checkboxes = document.querySelectorAll('.rfid-siswa-cb:checked');
+  if (!checkboxes.length) { toast('Centang minimal 1 siswa', true); return; }
   if (!state.scan.uid) { toast('Tap kartu dulu', true); return; }
   const btn = $('btn-save-rfid-siswa'); btn.disabled = true; btn.textContent = 'Menyimpan…';
+  
+  const nis = checkboxes[0].value; // Ambil yang pertama dicentang
   try {
     const res = await apiCall('daftarRfid', { nis, uid_rfid: state.scan.uid }, true);
     if (!res.ok) { toast(res.message, true); return; }
@@ -1100,10 +1123,12 @@ $('btn-save-rfid-siswa').addEventListener('click', async () => {
 });
 
 $('btn-save-rfid-guru').addEventListener('click', async () => {
-  const id_guru = $('rfid-guru-select').value;
-  if (!id_guru) { toast('Pilih guru dulu', true); return; }
+  const checkboxes = document.querySelectorAll('.rfid-guru-cb:checked');
+  if (!checkboxes.length) { toast('Centang minimal 1 guru', true); return; }
   if (!state.scan.uid) { toast('Tap kartu dulu', true); return; }
   const btn = $('btn-save-rfid-guru'); btn.disabled = true; btn.textContent = 'Menyimpan…';
+  
+  const id_guru = checkboxes[0].value;
   try {
     const res = await apiCall('daftarRfidGuru', { id_guru, uid_rfid: state.scan.uid }, true);
     if (!res.ok) { toast(res.message, true); return; }
@@ -1177,6 +1202,11 @@ document.querySelectorAll('#laporan-tabs button').forEach(btn => {
     btn.classList.add('active'); state.laporanJenis = btn.dataset.jenis; loadLaporan();
   });
 });
+// Filter kelas memicu pencarian otomatis saat diubah
+$('lap-kelas').addEventListener('change', loadLaporan);
+$('lap-dari').addEventListener('change', loadLaporan);
+$('lap-sampai').addEventListener('change', loadLaporan);
+
 $('btn-lap-cari').addEventListener('click', loadLaporan);
 async function loadLaporan() {
   const dari = $('lap-dari').value; const sampai = $('lap-sampai').value; const kelas = $('lap-kelas').value;
@@ -1209,7 +1239,6 @@ function renderLaporanCharts() {
   $('chart-laporan-wrap').style.display = 'flex';
   $('ai-insight').style.display = 'block';
   
-  // Chart Kehadiran (Berdasarkan status)
   const statusCount = {};
   data.forEach(r => { if (r.status) statusCount[r.status] = (statusCount[r.status] || 0) + 1; });
   if (state.charts.lapHadir) state.charts.lapHadir.destroy();
@@ -1219,7 +1248,6 @@ function renderLaporanCharts() {
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
   });
 
-  // Chart Kedisiplinan (Berdasarkan kelas atau tipe pelanggaran)
   const kelasCount = {};
   data.forEach(r => { if (r.kelas) kelasCount[r.kelas] = (kelasCount[r.kelas] || 0) + 1; });
   if (state.charts.lapDisiplin) state.charts.lapDisiplin.destroy();
@@ -1229,7 +1257,6 @@ function renderLaporanCharts() {
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
   });
 
-  // AI Insight Sederhana
   let insight = `<strong>Analisis Otomatis:</strong> Dari ${data.length} data yang ditemukan. `;
   if (statusCount['TERLAMBAT']) insight += `Terdapat ${statusCount['TERLAMBAT']} siswa terlambat. `;
   if (statusCount['BOLOS']) insight += `Terdapat ${statusCount['BOLOS']} siswa bolos. `;

@@ -117,7 +117,6 @@
 </div>
 
 <main>
-  <!-- TAB SCAN -->
   <div id="tab-scan" class="tab-content">
     <div>
       <div class="card">
@@ -162,7 +161,6 @@
     </div>
   </div>
 
-  <!-- TAB UDZUR -->
   <div id="tab-udzur" class="tab-content hidden">
     <div class="card">
       <h2><i class="fas fa-plus-circle"></i> Tambah Udzur</h2>
@@ -183,7 +181,6 @@
     </div>
   </div>
 
-  <!-- TAB LAPORAN -->
   <div id="tab-laporan" class="tab-content hidden">
     <div class="card">
       <h2><i class="fas fa-chart-bar"></i> Laporan Sholat</h2>
@@ -226,7 +223,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9Qp
 const MODUL = 'sholat';
 const IDLE_TOTAL_MS = 10 * 60 * 1000;
 const IDLE_WARN_MS = 30 * 1000;
-const ANTI_DUP_MS = 1500;
+const ANTI_DUP_MS = 2000; // Jeda 2 detik
 
 const state = {
   token: sessionStorage.getItem('bkc_sholat_token') || '',
@@ -235,9 +232,26 @@ const state = {
   waktuSholat: 'DZUHUR', stream: null, scanInterval: null, currentFacing: 'environment',
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null, searchTimer: null,
   konfirmasiNis: null, konfirmasiWaktu: null, lastScanAt: 0, lastScanNis: '',
-  riwayat: [], voiceReady: false
+  riwayat: [], sedangProses: false // Kunci anti-double
 };
 const $ = (id) => document.getElementById(id);
+
+// --- SUARA BEEP & TETOT (MENGGANTIKAN TTS) ---
+function bunyi(freq, dur, type = 'sine') {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    osc.connect(gain); gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + dur);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+  } catch (e) {}
+}
+function bunyiBeep() { bunyi(1000, 0.1); setTimeout(() => bunyi(1500, 0.15), 120); } // Sukses
+function bunyiTetot() { bunyi(300, 0.4, 'square'); } // Gagal
 
 function toast(msg, isErr) {
   const el = document.createElement('div'); el.className = 'toast' + (isErr ? ' err' : ''); el.textContent = msg;
@@ -255,25 +269,6 @@ function apiCall(action, payload = {}, isPost = false) {
     window[cbName] = function(res) { document.body.removeChild(script); delete window[cbName]; resolve(res); };
     script.src = url; script.onerror = () => reject(new Error('Gagal koneksi')); document.body.appendChild(script);
   });
-}
-
-// TTS
-function siapkanVoice() {
-  if (!('speechSynthesis' in window)) return;
-  const load = () => { if (speechSynthesis.getVoices().length) state.voiceReady = true; };
-  load(); speechSynthesis.onvoiceschanged = load;
-}
-siapkanVoice();
-function ucapkan(teks) {
-  if (!('speechSynthesis' in window)) return;
-  try {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(teks);
-    u.lang = 'id-ID'; u.rate = 1.0; u.pitch = 1.0; u.volume = 1.0;
-    const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.toLowerCase().startsWith('id'));
-    if (v) u.voice = v;
-    speechSynthesis.speak(u);
-  } catch (_) {}
 }
 
 function tickClock() {
@@ -368,6 +363,7 @@ function stopKamera() {
   $('btn-start-cam').style.display = 'flex'; $('btn-switch-cam').style.display = 'none'; $('btn-stop-cam').style.display = 'none';
 }
 function scanQR() {
+  if (state.sedangProses) return; // KUNCI: Jangan scan jika sedang memproses
   const video = $('video'); if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
   const canvas = document.createElement('canvas'); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
   const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -378,7 +374,8 @@ function scanQR() {
     if (nis.length >= 4) {
       if (Date.now() - state.lastScanAt < ANTI_DUP_MS && state.lastScanNis === nis) return;
       state.lastScanAt = Date.now(); state.lastScanNis = nis;
-      prosesPresensi(nis, 'QR');
+      state.sedangProses = true; // Kunci layar
+      prosesPresensi(nis, 'QR').finally(() => { state.sedangProses = false; }); // Buka kunci setelah selesai
     }
   }
 }
@@ -411,7 +408,12 @@ async function prosesPresensi(kode, sumber) {
 
   try {
     const res = await apiCall('presensiSholat', { kode, waktu_sholat: state.waktuSholat, sumber }, true);
-    if (!res.ok) { statusBox.className = 'status-box show err'; statusBox.textContent = res.message; toast(res.message, true); return; }
+    if (!res.ok) {
+      statusBox.className = 'status-box show err'; statusBox.textContent = res.message; 
+      toast(res.message, true); 
+      bunyiTetot(); // SUARA GAGAL
+      return;
+    }
     const d = res.data;
     if (d.status === 'UDZUR') {
       state.konfirmasiNis = kode; state.konfirmasiWaktu = state.waktuSholat;
@@ -421,12 +423,16 @@ async function prosesPresensi(kode, sumber) {
     } else {
       statusBox.className = 'status-box show ok'; statusBox.innerHTML = `<i class="fas fa-check-circle"></i> ${d.nama} — Hadir ${d.waktu}`;
       toast(d.nama + ' Hadir ' + d.waktu);
-      ucapkan(d.nama + ', hadir ' + d.waktu);
+      bunyiBeep(); // SUARA SUKSES
       tambahRiwayat(d.nama, d.waktu, false);
       loadCounterHariIni();
       setTimeout(() => { statusBox.classList.remove('show'); }, 3000);
     }
-  } catch (e) { statusBox.className = 'status-box show err'; statusBox.textContent = 'Koneksi gagal.'; toast('Koneksi gagal', true); }
+  } catch (e) { 
+    statusBox.className = 'status-box show err'; statusBox.textContent = 'Koneksi gagal.'; 
+    toast('Koneksi gagal', true); 
+    bunyiTetot();
+  }
 }
 
 function tambahRiwayat(nama, waktu, isUdzur) {
@@ -452,7 +458,6 @@ async function loadCounterHariIni() {
   } catch (e) {}
 }
 
-// KONFIRMASI UDZUR
 $('btn-udzur-beres').addEventListener('click', async () => {
   $('modal-konfirmasi-udzur').classList.remove('show');
   try {
@@ -470,7 +475,6 @@ $('btn-udzur-belum').addEventListener('click', () => {
   toast('Siswa tetap dalam masa udzur.');
 });
 
-// TAB NAV
 document.querySelectorAll('.tabs-nav button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tabs-nav button').forEach(b => b.classList.remove('active'));
@@ -530,7 +534,6 @@ async function hapusUdzur(row) {
   try { const res = await apiCall('hapusUdzur', { row }, true); if (res.ok) { toast(res.message); loadUdzurAktif(); } else toast(res.message, true); } catch (e) { toast('Gagal hapus', true); }
 }
 
-// LAPORAN
 $('btn-load-laporan').addEventListener('click', async () => {
   const dari = $('lap-dari').value; const sampai = $('lap-sampai').value; const mode = $('lap-mode').value;
   if (!dari || !sampai) { toast('Isi tanggal.', true); return; }

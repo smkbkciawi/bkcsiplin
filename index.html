@@ -42,7 +42,7 @@
 
   /* HEADER */
   header {
-    padding: 1.5rem 2rem 1rem;
+    padding: 1.4rem 2rem 1rem;
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
@@ -51,6 +51,7 @@
     justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
   }
   .brand {
     display: flex;
@@ -71,6 +72,7 @@
   .brand-txt { display: flex; flex-direction: column; min-width: 0; }
   .brand-txt b { font-size: 1.15rem; font-weight: 800; color: var(--brand); letter-spacing: .2px; }
   .brand-txt span { font-size: .78rem; color: var(--muted); font-weight: 600; }
+
   .clock {
     text-align: right;
     display: flex;
@@ -79,15 +81,14 @@
   }
   .clock-time {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+    font-size: clamp(2rem, 4.4vw, 3.2rem);
     font-weight: 700;
     color: var(--text);
     line-height: 1;
-    letter-spacing: -.01em;
+    letter-spacing: -.02em;
   }
-  .clock-time .sec { color: #3B82F6; font-size: .7em; }
-  .clock-date { font-size: .8rem; color: var(--muted); font-weight: 600; margin-top: .3rem; }
-
+  .clock-time .sec { color: #3B82F6; font-size: .65em; }
+  .clock-date { font-size: .8rem; color: var(--muted); font-weight: 600; margin-top: .35rem; }
   .user-pill {
     display: inline-flex;
     align-items: center;
@@ -99,7 +100,7 @@
     font-size: .8rem;
     font-weight: 700;
     color: #047857;
-    margin-top: .45rem;
+    margin-top: .55rem;
   }
   .user-pill .dot {
     width: 7px; height: 7px;
@@ -114,17 +115,27 @@
     margin-left: .2rem;
   }
 
-  /* MAIN — 4 KARTU */
+  /* MAIN */
   main {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem 2rem 2rem;
+    padding: 1.5rem 2rem 2rem;
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
   }
+  .wrap { width: 100%; }
+  .sapaan {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 1.1rem;
+    letter-spacing: -.01em;
+  }
+  .sapaan span { color: var(--muted); font-weight: 600; font-size: .82rem; display: block; margin-top: .2rem; letter-spacing: 0; }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -157,6 +168,17 @@
     transform: translateY(-2px);
     box-shadow: 0 10px 28px rgba(30, 58, 138, 0.12);
     border-color: transparent;
+  }
+  .card-num {
+    position: absolute;
+    top: .9rem;
+    right: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--muted);
+    opacity: .55;
+    letter-spacing: .05em;
   }
   .card-icon {
     width: 48px;
@@ -205,36 +227,65 @@
   /* FOOTER */
   footer {
     padding: 1.2rem 2rem;
-    text-align: center;
-    font-size: .78rem;
-    color: var(--muted);
-    font-weight: 600;
     border-top: 1px solid var(--border);
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(6px);
+    font-size: .78rem;
+    color: var(--muted);
+    font-weight: 600;
   }
-  footer .server-warn {
-    display: none;
-    color: #B91C1C;
-    font-weight: 800;
-    margin-left: .5rem;
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
-  footer .server-warn.show { display: inline; }
+  .footer-left { display: flex; flex-direction: column; gap: .15rem; }
+  .footer-left b { color: var(--text); font-weight: 800; font-size: .82rem; }
+  .footer-right { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
+  .server-status {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .72rem;
+    font-weight: 700;
+  }
+  .server-status .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #94A3B8;
+  }
+  .server-status.ok { color: #047857; }
+  .server-status.ok .dot { background: #10B981; box-shadow: 0 0 6px #10B981; }
+  .server-status.err { color: #B91C1C; }
+  .server-status.err .dot { background: #EF4444; }
+  .footer-ver {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem;
+    color: var(--muted);
+    opacity: .8;
+  }
 
   /* RESPONSIF */
   @media (max-width: 900px) {
-    header { padding: 1rem 1.2rem .5rem; }
+    header { padding: 1rem 1.2rem .8rem; }
+    main { padding: 1.2rem 1.2rem 1.6rem; }
     .grid { grid-template-columns: repeat(2, 1fr); gap: .9rem; }
-    main { padding: 1rem 1.2rem 2rem; }
     .brand-logo { width: 44px; height: 44px; }
     .brand-txt b { font-size: 1rem; }
+    .clock-time { font-size: clamp(1.8rem, 6vw, 2.4rem); }
   }
   @media (max-width: 480px) {
-    .grid { grid-template-columns: 1fr; }
-    .clock { text-align: left; align-items: flex-start; }
     header { flex-direction: column; align-items: flex-start; }
+    .clock { text-align: left; align-items: flex-start; }
+    .grid { grid-template-columns: 1fr; }
     .card { padding: 1.3rem 1.2rem; }
     .card-icon { width: 42px; height: 42px; font-size: 1.15rem; }
+    .sapaan { font-size: 1rem; }
+    .footer-inner { flex-direction: column; align-items: flex-start; }
   }
 </style>
 </head>
@@ -260,40 +311,62 @@
   </header>
 
   <main>
-    <div class="grid">
-      <a href="gerbang.html" class="card navy">
-        <div class="card-icon"><i class="fas fa-door-open"></i></div>
-        <div class="card-title">Gerbang</div>
-        <div class="card-sub">Presensi masuk & pulang via RFID atau QR.</div>
-        <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
-      </a>
+    <div class="wrap">
+      <div class="sapaan">
+        <span id="sapaan-waktu">Selamat datang</span>, Bapak/Ibu
+        <span>Pilih modul yang ingin Anda akses:</span>
+      </div>
 
-      <a href="sholat.html" class="card emerald">
-        <div class="card-icon"><i class="fas fa-mosque"></i></div>
-        <div class="card-title">Sholat</div>
-        <div class="card-sub">Presensi ibadah berjamaah dengan udzur syar'i.</div>
-        <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
-      </a>
+      <div class="grid">
+        <a href="gerbang.html" class="card navy">
+          <span class="card-num">01</span>
+          <div class="card-icon"><i class="fas fa-door-open"></i></div>
+          <div class="card-title">Gerbang</div>
+          <div class="card-sub">Presensi masuk & pulang via RFID atau QR.</div>
+          <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
+        </a>
 
-      <a href="disiplin.html" class="card maroon">
-        <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
-        <div class="card-title">Disiplin</div>
-        <div class="card-sub">Poin tata tertib, zona karakter, dan surat SP.</div>
-        <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
-      </a>
+        <a href="sholat.html" class="card emerald">
+          <span class="card-num">02</span>
+          <div class="card-icon"><i class="fas fa-mosque"></i></div>
+          <div class="card-title">Sholat</div>
+          <div class="card-sub">Presensi ibadah berjamaah dengan udzur syar'i.</div>
+          <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
+        </a>
 
-      <a href="admin.html" class="card blue">
-        <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-        <div class="card-title">Admin</div>
-        <div class="card-sub">Portal eksekutif & dashboard sekolah.</div>
-        <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
-      </a>
+        <a href="disiplin.html" class="card maroon">
+          <span class="card-num">03</span>
+          <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
+          <div class="card-title">Disiplin</div>
+          <div class="card-sub">Poin tata tertib, zona karakter, dan surat SP.</div>
+          <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
+        </a>
+
+        <a href="admin.html" class="card blue">
+          <span class="card-num">04</span>
+          <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+          <div class="card-title">Admin</div>
+          <div class="card-sub">Portal eksekutif & dashboard sekolah.</div>
+          <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
+        </a>
+      </div>
     </div>
   </main>
 
   <footer>
-    © 2026 Yayasan Adhi Guna Kencana · SMK Bhakti Kencana Ciawi
-    <span class="server-warn" id="server-warn">⚠ Server tidak terhubung</span>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <b>BKCSiplin</b>
+        <span>© 2026 Yayasan Adhi Guna Kencana · SMK Bhakti Kencana Ciawi</span>
+      </div>
+      <div class="footer-right">
+        <span class="server-status" id="server-status">
+          <span class="dot"></span>
+          <span id="server-text">Memeriksa server…</span>
+        </span>
+        <span class="footer-ver">v1.1</span>
+      </div>
+    </div>
   </footer>
 
 <script>
@@ -311,6 +384,14 @@ function tickClock() {
   document.getElementById('clock-time').innerHTML = hh + ':' + mm + '<span class="sec" id="clock-sec">:' + ss + '</span>';
   document.getElementById('clock-date').textContent =
     HARI[wib.getDay()] + ', ' + wib.getDate() + ' ' + BULAN[wib.getMonth()] + ' ' + wib.getFullYear();
+
+  const jam = wib.getHours();
+  let sapaan = 'Selamat malam';
+  if (jam >= 4 && jam < 10) sapaan = 'Selamat pagi';
+  else if (jam >= 10 && jam < 14) sapaan = 'Selamat siang';
+  else if (jam >= 14 && jam < 17) sapaan = 'Selamat sore';
+  const el = document.getElementById('sapaan-waktu');
+  if (el && el.textContent !== sapaan) el.textContent = sapaan;
 }
 setInterval(tickClock, 1000);
 tickClock();
@@ -330,7 +411,7 @@ function cekLogin() {
   return null;
 }
 
-function renderUserPill() {
+(function renderUserPill() {
   const user = cekLogin();
   if (!user) return;
   const pill = document.getElementById('user-pill');
@@ -340,28 +421,35 @@ function renderUserPill() {
   lanjut.href = user.url;
   lanjut.textContent = 'Lanjut ke ' + user.modul.charAt(0).toUpperCase() + user.modul.slice(1) + ' →';
   pill.style.display = 'inline-flex';
-}
-renderUserPill();
+})();
 
 (function cekServer() {
+  const wrap = document.getElementById('server-status');
+  const text = document.getElementById('server-text');
   const cbName = 'ping_' + Math.round(100000 * Math.random());
   const script = document.createElement('script');
+  let selesai = false;
+  const selesaiCek = function(ok) {
+    if (selesai) return;
+    selesai = true;
+    wrap.classList.remove('ok', 'err');
+    wrap.classList.add(ok ? 'ok' : 'err');
+    text.textContent = ok ? 'Server aktif' : 'Server tidak terhubung';
+    try { script.remove(); } catch (e) {}
+  };
   script.src = API_URL + '?action=ping&callback=' + cbName;
   window[cbName] = function(res) {
     delete window[cbName];
-    if (!res || !res.ok) document.getElementById('server-warn').classList.add('show');
-    script.remove();
+    selesaiCek(res && res.ok);
   };
   script.onerror = function() {
     delete window[cbName];
-    document.getElementById('server-warn').classList.add('show');
-    script.remove();
+    selesaiCek(false);
   };
   setTimeout(function() {
     if (window[cbName]) {
       delete window[cbName];
-      document.getElementById('server-warn').classList.add('show');
-      script.remove();
+      selesaiCek(false);
     }
   }, 6000);
   document.body.appendChild(script);

@@ -244,9 +244,14 @@
   <div style="margin-bottom:1rem"><button class="btn-action outline" id="btn-back-rekap"><i class="fas fa-arrow-left"></i> Kembali</button></div>
   <div class="clean-search" style="text-align:left">
     <h2>Rekap Siswa</h2>
-    <div class="search-box" style="max-width:100%">
-      <span class="icon">🔍</span>
-      <input type="text" id="search-rekap" placeholder="Ketik nama atau NIS…" autocomplete="off">
+    <div style="display:grid;grid-template-columns:1fr auto;gap:.5rem;margin-bottom:1rem">
+      <div class="search-box" style="max-width:100%;margin:0">
+        <span class="icon">🔍</span>
+        <input type="text" id="search-rekap" placeholder="Ketik nama atau NIS…" autocomplete="off">
+      </div>
+      <select id="filter-kelas-rekap" style="padding:.8rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-weight:600;min-width:150px;font-family:inherit">
+        <option value="">Semua Kelas</option>
+      </select>
     </div>
     <div class="result-box" id="result-rekap" style="max-width:100%"></div>
   </div>
@@ -293,7 +298,6 @@
   </div>
 </main>
 
-<!-- MODAL SCANNER (untuk guru) -->
 <div class="modal-overlay" id="modal-scanner">
   <div class="modal" style="max-width:450px">
     <button class="modal-close" id="close-scanner">×</button>
@@ -307,7 +311,6 @@
   </div>
 </div>
 
-<!-- MODAL CETAK SURAT -->
 <div class="modal-overlay" id="modal-cetak-surat">
   <div class="modal">
     <button class="modal-close" id="close-cetak-surat">×</button>
@@ -325,7 +328,6 @@
   </div>
 </div>
 
-<!-- MODAL RIWAYAT -->
 <div class="modal-overlay" id="modal-riwayat">
   <div class="modal" style="max-width:600px">
     <button class="modal-close" id="close-riwayat">×</button>
@@ -334,7 +336,6 @@
   </div>
 </div>
 
-<!-- MODAL KOREKSI -->
 <div class="modal-overlay" id="modal-koreksi">
   <div class="modal">
     <button class="modal-close" id="close-koreksi">×</button>
@@ -348,7 +349,6 @@
   </div>
 </div>
 
-<!-- MODAL LOGIN (Dengan Tombol Cek Poin) -->
 <div class="modal-overlay show" id="modal-login">
   <div class="modal">
     <h2><i class="fas fa-balance-scale"></i> Login Petugas</h2>
@@ -360,7 +360,6 @@
   </div>
 </div>
 
-<!-- MODAL CEK POIN SISWA -->
 <div class="modal-overlay" id="modal-cek-poin">
   <div class="modal" style="max-width:480px">
     <button class="modal-close" id="close-cek-poin">×</button>
@@ -409,7 +408,8 @@ const state = {
   keranjang: [],
   riwayatCepat: [],
   stream: null, scanInterval: null, currentFacing: 'environment',
-  idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null, searchTimer: null
+  idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null, searchTimer: null,
+  scanMode: null, kelasList: []
 };
 const $ = (id) => document.getElementById(id);
 
@@ -421,19 +421,28 @@ function toast(msg, isErr) {
   setTimeout(() => { el.style.opacity = '0'; el.style.transition = '.3s'; }, 2800);
   setTimeout(() => el.remove(), 3400);
 }
-function apiCall(action, payload = {}, isPost = false) {
+
+// MODIFIKASI APICALL: Mendukung mode publik (tanpa token)
+function apiCall(action, payload = {}, isPost = false, useToken = true) {
   return new Promise((resolve, reject) => {
     const cbName = 'jsonp_' + Math.round(100000 * Math.random());
     const script = document.createElement('script');
-    let url = `${API_URL}?callback=${cbName}&action=${action}&token=${state.token}`;
-    if (isPost) { url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`; }
-    else { for (let k in payload) { if (payload[k]) url += `&${k}=${encodeURIComponent(payload[k])}`; } }
+    let url = `${API_URL}?callback=${cbName}&action=${action}`;
+    if (useToken && state.token) url += `&token=${state.token}`;
+    
+    if (isPost) {
+      url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`;
+    } else {
+      for (let k in payload) { if (payload[k] !== undefined) url += `&${k}=${encodeURIComponent(payload[k])}`; }
+    }
+    
     window[cbName] = function(res) { document.body.removeChild(script); delete window[cbName]; resolve(res); };
     script.src = url;
     script.onerror = () => reject(new Error('Gagal koneksi ke server'));
     document.body.appendChild(script);
   });
 }
+
 function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 function todayISO() { const d = new Date(); const wib = new Date(d.getTime() + d.getTimezoneOffset() * 60000 + 7 * 3600000); return wib.toISOString().slice(0, 10); }
 function bunyi(freq, dur, type = 'sine') { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = type; osc.frequency.value = freq; osc.connect(gain); gain.connect(ctx.destination); gain.gain.setValueAtTime(0.3, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + dur); osc.start(); osc.stop(ctx.currentTime + dur); } catch (e) {} }
@@ -461,7 +470,7 @@ async function doLogin() {
       $('menu-validasi').style.display = 'none';
     }
     toast('Selamat datang, ' + state.nama);
-    mulaiIdleWatcher(); mulaiHeartbeat(); loadTataTertibSelect();
+    mulaiIdleWatcher(); mulaiHeartbeat(); loadTataTertibSelect(); loadFilterKelasRekap();
   } catch (err) { alertEl.textContent = 'Koneksi gagal.'; alertEl.style.display = 'block'; }
   finally { btn.disabled = false; btn.textContent = 'Masuk'; }
 }
@@ -482,7 +491,7 @@ function hentikanIdleWatcher() { clearTimeout(state.idleWarnTimer); }
 function mulaiHeartbeat() { hentikanHeartbeat(); state.heartbeatTimer = setInterval(() => { if (!state.token) return; apiCall('heartbeat').then(r => { if (!r.ok) doLogout(); }).catch(()=>{}); }, 2 * 60 * 1000); }
 function hentikanHeartbeat() { clearInterval(state.heartbeatTimer); }
 
-// LOAD TATIB
+// LOAD TATIB & KELAS
 let semuaTatib = [];
 async function loadTataTertibSelect() {
   try {
@@ -497,7 +506,16 @@ async function loadTataTertibSelect() {
   } catch (e) {}
 }
 
-// PENCARIAN
+async function loadFilterKelasRekap() {
+  try {
+    const res = await apiCall('getDaftarKelas');
+    if (!res.ok) return;
+    const sel = $('filter-kelas-rekap');
+    sel.innerHTML = '<option value="">Semua Kelas</option>' + res.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+  } catch (e) {}
+}
+
+// PENCARIAN UTAMA (GURU)
 $('search-input').addEventListener('input', () => {
   const q = $('search-input').value.trim();
   if (state.searchTimer) clearTimeout(state.searchTimer);
@@ -522,7 +540,6 @@ async function pilihSiswa(nis, nama, kelas) {
   state.selectedSiswa = { nis, nama, kelas };
   state.keranjang = [];
   renderKeranjang();
-  
   $('profil-nama').textContent = nama;
   $('profil-kelas').textContent = kelas + ' · NIS ' + nis;
   $('profil-avatar').textContent = nama.substring(0, 2).toUpperCase();
@@ -532,7 +549,6 @@ async function pilihSiswa(nis, nama, kelas) {
     let saldo = 100;
     if (res.ok) res.data.forEach(r => saldo += (Number(r.poin) || 0));
     $('profil-poin').textContent = saldo;
-    
     let zona = 'Zona Hijau', css = 'chip-hijau';
     if (saldo <= 0) { zona = 'Kritis'; css = 'chip-kritis'; }
     else if (saldo <= 25) { zona = 'Zona Merah'; css = 'chip-merah'; }
@@ -543,7 +559,6 @@ async function pilihSiswa(nis, nama, kelas) {
   } catch (e) { $('profil-poin').textContent = '?'; }
   
   $('profil-card').style.display = 'block';
-  
   if (!state.riwayatCepat.find(r => r.nis === nis)) {
     state.riwayatCepat.unshift({ nis, nama, kelas });
     if (state.riwayatCepat.length > 5) state.riwayatCepat.pop();
@@ -595,40 +610,28 @@ $('btn-simpan-poin').addEventListener('click', async () => {
   if (!state.keranjang.length) { toast('Tambahkan minimal 1 pelanggaran', true); return; }
   const deskripsi = $('deskripsi').value.trim();
   if (!deskripsi) { toast('Deskripsi kronologi wajib diisi', true); return; }
-  
   const btn = $('btn-simpan-poin'); btn.disabled = true; btn.textContent = 'Menyimpan…';
   try {
     const res = await apiCall('catatPoin', { nis: state.selectedSiswa.nis, pasal: state.keranjang, deskripsi: deskripsi }, true);
     if (!res.ok) { toast(res.message, true); return; }
-    toast(res.message);
-    bunyiBeep();
-    
+    toast(res.message); bunyiBeep();
     $('profil-card').style.display = 'none';
-    state.selectedSiswa = null;
-    state.keranjang = [];
-    renderKeranjang();
-    $('deskripsi').value = '';
-    
-    if (res.data.saldo <= 75) {
-      toast('Sisa poin: ' + res.data.saldo + '. Cek menu Rekap Siswa untuk cetak surat.', true);
-    }
+    state.selectedSiswa = null; state.keranjang = [];
+    renderKeranjang(); $('deskripsi').value = '';
+    if (res.data.saldo <= 75) toast('Sisa poin: ' + res.data.saldo + '. Cek menu Rekap Siswa untuk cetak surat.', true);
   } catch (err) { toast(err.message, true); }
   finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Pencatatan'; }
 });
 
-// TUTUP PROFIL
 $('btn-tutup-profil').addEventListener('click', () => {
   $('profil-card').style.display = 'none';
-  state.selectedSiswa = null;
-  state.keranjang = [];
-  renderKeranjang();
-  $('deskripsi').value = '';
-  $('search-input').value = '';
+  state.selectedSiswa = null; state.keranjang = [];
+  renderKeranjang(); $('deskripsi').value = ''; $('search-input').value = '';
 });
 
 // SCANNER (GURU)
-$('btn-scan-qr').addEventListener('click', () => $('modal-scanner').classList.add('show'));
-$('btn-tap-rfid').addEventListener('click', () => { toast('Silakan tap kartu ke reader USB', false); fokusRfid(); });
+$('btn-scan-qr').addEventListener('click', () => { state.scanMode = 'guru'; $('modal-scanner').classList.add('show'); });
+$('btn-tap-rfid').addEventListener('click', () => { toast('Silakan tap kartu ke reader USB', false); state.scanMode = 'guru'; fokusRfid(); });
 function fokusRfid() { const el = $('rfid-input-hidden'); try { el.focus({ preventScroll: true }); } catch (_) { el.focus(); } }
 $('rfid-input-hidden').addEventListener('keydown', (e) => { if (e.key !== 'Enter') return; e.preventDefault(); const val = e.target.value.trim(); e.target.value = ''; if (val) cariSiswaByNis(val); });
 async function cariSiswaByNis(nis) {
@@ -636,11 +639,15 @@ async function cariSiswaByNis(nis) {
     const res = await apiCall('searchOrang', { q: nis });
     if (res.ok && res.data.length) {
       const siswa = res.data.find(s => s.tipe === 'SISWA');
-      if (siswa) { pilihSiswa(siswa.id, siswa.nama, siswa.kelas); bunyiBeep(); }
-      else { toast('Kartu tidak dikenali sebagai siswa', true); bunyiTetot(); }
+      if (siswa) {
+        if (state.scanMode === 'cekpoin') cekPoinSiswa(siswa.id, siswa.nama, siswa.kelas);
+        else pilihSiswa(siswa.id, siswa.nama, siswa.kelas);
+        bunyiBeep();
+      } else { toast('Kartu tidak dikenali sebagai siswa', true); bunyiTetot(); }
     } else { toast('Siswa tidak ditemukan', true); bunyiTetot(); }
   } catch (e) { toast('Koneksi gagal', true); bunyiTetot(); }
 }
+
 async function startKamera() {
   try {
     state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.currentFacing } });
@@ -761,14 +768,9 @@ $('btn-simpan-koreksi').addEventListener('click', async () => {
   const poin = parseInt($('koreksi-poin').value, 10);
   const alasan = $('koreksi-alasan').value.trim();
   if (isNaN(poin) || !alasan) { toast('Lengkapi data koreksi', true); return; }
-  
   const poinVal = jenis === 'PRESTASI' ? Math.abs(poin) : -Math.abs(poin);
   try {
-    const res = await apiCall('catatPoin', {
-      nis: state.selectedSiswa.nis,
-      pasal: [{ kode: 'KOREKSI', deskripsi: alasan, poin: poinVal }],
-      deskripsi: alasan
-    }, true);
+    const res = await apiCall('catatPoin', { nis: state.selectedSiswa.nis, pasal: [{ kode: 'KOREKSI', deskripsi: alasan, poin: poinVal }], deskripsi: alasan }, true);
     if (!res.ok) { toast(res.message, true); return; }
     toast(res.message);
     $('modal-koreksi').classList.remove('show');
@@ -790,20 +792,14 @@ document.querySelectorAll('.drawer-menu a').forEach(link => {
     $('page-' + page).classList.remove('hidden');
     if (page === 'validasi') loadValidasiBolos();
     if (page === 'udzur') loadUdzurList();
+    if (page === 'rekap') loadFilterKelasRekap();
   });
 });
 $('btn-back-rekap').addEventListener('click', () => { $('page-rekap').classList.add('hidden'); $('page-home').classList.remove('hidden'); });
-  // Filter Kelas di Rekap
-async function loadFilterKelasRekap() {
-  try {
-    const res = await apiCall('getDaftarKelas');
-    if (!res.ok) return;
-    const sel = $('filter-kelas-rekap');
-    sel.innerHTML = '<option value="">Semua Kelas</option>' + res.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
-  } catch (e) {}
-}
+$('btn-back-validasi').addEventListener('click', () => { $('page-validasi').classList.add('hidden'); $('page-home').classList.remove('hidden'); });
+$('btn-back-udzur').addEventListener('click', () => { $('page-udzur').classList.add('hidden'); $('page-home').classList.remove('hidden'); });
 
-// Pencarian Rekap dengan Filter Kelas
+// REKAP SISWA
 $('search-rekap').addEventListener('input', () => {
   const q = $('search-rekap').value.trim();
   const kelas = $('filter-kelas-rekap').value;
@@ -818,61 +814,23 @@ $('search-rekap').addEventListener('input', () => {
         if (!siswaList.length) { $('result-rekap').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem">Tidak ditemukan.</div>'; return; }
         $('result-rekap').innerHTML = siswaList.map(s => `<div class="result-item" data-nis="${s.id}" data-nama="${escapeHtml(s.nama)}" data-kelas="${escapeHtml(s.kelas)}"><div><div class="nama">${escapeHtml(s.nama)}</div><div class="kelas">${escapeHtml(s.kelas)} · ${escapeHtml(s.id)}</div></div><i class="fas fa-chevron-right" style="opacity:.5"></i></div>`).join('');
         $('result-rekap').querySelectorAll('.result-item').forEach(el => {
-          el.addEventListener('click', () => {
-            $('result-rekap').innerHTML = ''; $('search-rekap').value = '';
-            tampilRekap(el.dataset.nis, el.dataset.nama, el.dataset.kelas);
-          });
+          el.addEventListener('click', () => { $('result-rekap').innerHTML = ''; $('search-rekap').value = ''; tampilRekap(el.dataset.nis, el.dataset.nama, el.dataset.kelas); });
         });
       } else { $('result-rekap').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem">Tidak ditemukan.</div>'; }
     } catch (e) { $('result-rekap').innerHTML = ''; }
   }, 300);
 });
-
-$('filter-kelas-rekap').addEventListener('change', () => {
-  $('search-rekap').dispatchEvent(new Event('input'));
-});
-
-// Panggil saat halaman rekap dibuka
-document.querySelector('.drawer-menu a[data-page="rekap"]').addEventListener('click', () => {
-  loadFilterKelasRekap();
-});
-$('btn-back-validasi').addEventListener('click', () => { $('page-validasi').classList.add('hidden'); $('page-home').classList.remove('hidden'); });
-$('btn-back-udzur').addEventListener('click', () => { $('page-udzur').classList.add('hidden'); $('page-home').classList.remove('hidden'); });
-
-// REKAP SISWA
-$('search-rekap').addEventListener('input', () => {
-  const q = $('search-rekap').value.trim();
-  if (state.searchTimer) clearTimeout(state.searchTimer);
-  if (q.length < 2) { $('result-rekap').innerHTML = ''; return; }
-  state.searchTimer = setTimeout(async () => {
-    try {
-      const res = await apiCall('searchOrang', { q });
-      if (res.ok && res.data.length) {
-        const siswaList = res.data.filter(s => s.tipe === 'SISWA');
-        if (!siswaList.length) { $('result-rekap').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem">Siswa tidak ditemukan.</div>'; return; }
-        $('result-rekap').innerHTML = siswaList.map(s => `<div class="result-item" data-nis="${s.id}" data-nama="${escapeHtml(s.nama)}" data-kelas="${escapeHtml(s.kelas)}"><div><div class="nama">${escapeHtml(s.nama)}</div><div class="kelas">${escapeHtml(s.kelas)} · ${escapeHtml(s.id)}</div></div><i class="fas fa-chevron-right" style="opacity:.5"></i></div>`).join('');
-        $('result-rekap').querySelectorAll('.result-item').forEach(el => {
-          el.addEventListener('click', () => {
-            $('result-rekap').innerHTML = ''; $('search-rekap').value = '';
-            tampilRekap(el.dataset.nis, el.dataset.nama, el.dataset.kelas);
-          });
-        });
-      } else { $('result-rekap').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem">Tidak ditemukan.</div>'; }
-    } catch (e) { $('result-rekap').innerHTML = ''; }
-  }, 300);
-});
+$('filter-kelas-rekap').addEventListener('change', () => { $('search-rekap').dispatchEvent(new Event('input')); });
 
 async function tampilRekap(nis, nama, kelas) {
   state.selectedSiswa = { nis, nama, kelas };
   $('rekap-nama').textContent = nama;
   $('rekap-kelas').textContent = kelas + ' · NIS ' + nis;
-  
   try {
     const res = await apiCall('getRiwayatPoin', { nis });
     let saldo = 100;
     if (res.ok) res.data.forEach(r => saldo += (Number(r.poin) || 0));
     $('rekap-poin').textContent = saldo;
-    
     let zona = 'Zona Hijau', css = 'chip-hijau';
     if (saldo <= 0) { zona = 'Kritis'; css = 'chip-kritis'; }
     else if (saldo <= 25) { zona = 'Zona Merah'; css = 'chip-merah'; }
@@ -881,7 +839,6 @@ async function tampilRekap(nis, nama, kelas) {
     $('rekap-zona').textContent = zona;
     $('rekap-zona').className = 'zona-badge ' + css;
   } catch (e) { $('rekap-poin').textContent = '?'; }
-  
   $('rekap-card').style.display = 'block';
 }
 
@@ -932,7 +889,7 @@ async function hapusUdzur(row) {
   try { const res = await apiCall('hapusUdzur', { row }, true); toast(res.message); loadUdzurList(); } catch (e) { toast(e.message, true); }
 }
 
-// CEK POIN MANDIRI (DENGAN PENCARIAN NAMA, QR, RFID)
+// CEK POIN MANDIRI
 $('btn-cek-poin-login').addEventListener('click', () => {
   $('modal-cek-poin').classList.add('show');
   $('cek-input').focus();
@@ -948,11 +905,10 @@ $('cek-input').addEventListener('input', () => {
   if (q.length < 2) { $('cek-result').innerHTML = ''; return; }
   state.searchTimer = setTimeout(async () => {
     try {
-      const res = await apiCall('searchOrang', { q });
+      // Panggil endpoint publik (tanpa token)
+      const res = await apiCall('searchOrangPublik', { q }, false, false);
       if (res.ok && res.data.length) {
-        const siswaList = res.data.filter(s => s.tipe === 'SISWA');
-        if (!siswaList.length) { $('cek-result').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem">Siswa tidak ditemukan.</div>'; return; }
-        $('cek-result').innerHTML = siswaList.map(s => `<div class="result-item" data-nis="${s.id}" data-nama="${escapeHtml(s.nama)}" data-kelas="${escapeHtml(s.kelas)}"><div><div class="nama">${escapeHtml(s.nama)}</div><div class="kelas">${escapeHtml(s.kelas)} · ${escapeHtml(s.id)}</div></div><i class="fas fa-chevron-right" style="opacity:.5"></i></div>`).join('');
+        $('cek-result').innerHTML = res.data.map(s => `<div class="result-item" data-nis="${s.id}" data-nama="${escapeHtml(s.nama)}" data-kelas="${escapeHtml(s.kelas)}"><div><div class="nama">${escapeHtml(s.nama)}</div><div class="kelas">${escapeHtml(s.kelas)} · ${escapeHtml(s.id)}</div></div><i class="fas fa-chevron-right" style="opacity:.5"></i></div>`).join('');
         $('cek-result').querySelectorAll('.result-item').forEach(el => {
           el.addEventListener('click', () => {
             $('cek-result').innerHTML = ''; $('cek-input').value = '';
@@ -964,11 +920,10 @@ $('cek-input').addEventListener('input', () => {
   }, 300);
 });
 
-// Scanner untuk Cek Poin
 $('btn-cek-scan-qr').addEventListener('click', () => {
   $('modal-cek-poin').classList.remove('show');
-  $('modal-scanner').classList.add('show');
   state.scanMode = 'cekpoin';
+  $('modal-scanner').classList.add('show');
 });
 $('btn-cek-tap-rfid').addEventListener('click', () => {
   $('modal-cek-poin').classList.remove('show');
@@ -979,7 +934,8 @@ $('btn-cek-tap-rfid').addEventListener('click', () => {
 
 async function cekPoinSiswa(nis, nama, kelas) {
   try {
-    const res = await apiCall('getRiwayatPoin', { nis });
+    // Panggil endpoint publik (tanpa token)
+    const res = await apiCall('getRiwayatPoinPublik', { nis }, false, false);
     const dataRiwayat = res.ok ? res.data : [];
     let saldo = 100;
     dataRiwayat.forEach(r => saldo += (Number(r.poin) || 0));
@@ -1013,7 +969,7 @@ if (state.token) {
   $('modal-login').classList.remove('show');
   $('user-label').textContent = state.nama;
   $('btn-logout').style.display = 'inline-block';
-  mulaiIdleWatcher(); mulaiHeartbeat(); loadTataTertibSelect();
+  mulaiIdleWatcher(); mulaiHeartbeat(); loadTataTertibSelect(); loadFilterKelasRekap();
 }
 </script>
 </body>

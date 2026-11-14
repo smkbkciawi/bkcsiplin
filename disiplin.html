@@ -383,6 +383,40 @@ const state = {
 };
 const $ = (id) => document.getElementById(id);
 
+// --- FUNGSI FORMAT TANGGAL (WIB) ---
+function formatTanggal(val, withTime = false) {
+  if (!val) return '-';
+  try {
+    let d;
+    if (val instanceof Date) {
+      d = val;
+    } else {
+      const str = String(val).trim();
+      if (str.includes('T')) {
+        d = new Date(str);
+      } else if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        d = new Date(str + 'T00:00:00+07:00');
+      } else {
+        return str;
+      }
+    }
+    if (isNaN(d.getTime())) return String(val);
+    
+    // Konversi ke WIB (UTC+7)
+    const wib = new Date(d.getTime() + (7 * 3600000));
+    
+    const hari = wib.getUTCDate();
+    const bulanArr = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const bulan = bulanArr[wib.getUTCMonth()];
+    const tahun = wib.getUTCFullYear();
+    const jam = String(wib.getUTCHours()).padStart(2, '0');
+    const menit = String(wib.getUTCMinutes()).padStart(2, '0');
+    
+    if (withTime) return `${hari} ${bulan} ${tahun}, ${jam}:${menit} WIB`;
+    return `${hari} ${bulan} ${tahun}`;
+  } catch (e) { return String(val); }
+}
+
 function toast(msg, isErr) {
   const el = document.createElement('div');
   el.className = 'toast' + (isErr ? ' err' : '');
@@ -519,21 +553,19 @@ async function pilihSiswa(nis, nama, kelas) {
   
   $('profil-card').style.display = 'block';
   
-  // Tambah ke riwayat cepat
   tambahRiwayatCepat(nis, nama, kelas);
 }
 
 function tambahRiwayatCepat(nis, nama, kelas) {
   const now = new Date();
-  const jam = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
+  const jam = `${String(wib.getHours()).padStart(2,'0')}:${String(wib.getMinutes()).padStart(2,'0')} WIB`;
   
-  // Cek apakah siswa sudah ada di tabel
   const rows = document.querySelectorAll('#tbody-riwayat-cepat tr');
   let exists = false;
   rows.forEach(r => { if (r.dataset.nis === nis) exists = true; });
   
   if (!exists && rows.length < 5) {
-    // Hapus baris "Belum ada"
     const emptyRow = document.querySelector('#tbody-riwayat-cepat tr td[colspan]');
     if (emptyRow) emptyRow.parentElement.remove();
     
@@ -661,7 +693,6 @@ function bukaModalRekap(nis, nama, kelas) {
   state.selectedSiswaRekap = { nis, nama, kelas };
   $('detail-nama').textContent = nama + ' (' + kelas + ')';
   
-  // Ambil riwayat poin
   apiCall('getRiwayatPoin', { nis }).then(res => {
     let saldo = 100;
     if (res.ok) res.data.forEach(r => saldo += (Number(r.poin) || 0));
@@ -679,7 +710,7 @@ function bukaModalRekap(nis, nama, kelas) {
     if (!res.data.length) {
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1rem;color:var(--muted)">Belum ada riwayat.</td></tr>';
     } else {
-      tbody.innerHTML = res.data.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.5rem">${escapeHtml(r.tanggal)}</td><td style="padding:.5rem">${escapeHtml(r.pasal)}</td><td style="padding:.5rem">${escapeHtml(r.deskripsi)}</td><td style="padding:.5rem;text-align:center;font-weight:800;color:${Number(r.poin) < 0 ? 'var(--danger)' : 'var(--success)'}">${r.poin > 0 ? '+' : ''}${r.poin}</td></tr>`).join('');
+      tbody.innerHTML = res.data.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.5rem">${formatTanggal(r.tanggal, true)}</td><td style="padding:.5rem">${escapeHtml(r.pasal)}</td><td style="padding:.5rem">${escapeHtml(r.deskripsi)}</td><td style="padding:.5rem;text-align:center;font-weight:800;color:${Number(r.poin) < 0 ? 'var(--danger)' : 'var(--success)'}">${r.poin > 0 ? '+' : ''}${r.poin}</td></tr>`).join('');
     }
   });
   
@@ -706,7 +737,7 @@ async function cetakSuratFinal() {
   const riwayat = await apiCall('getRiwayatPoin', { nis: state.selectedSiswaRekap.nis });
   const riwayatData = riwayat.ok ? riwayat.data : [];
   const saldo = riwayatData.reduce((s, r) => s + (Number(r.poin) || 0), 100);
-  const rowsRiwayat = riwayatData.filter(r => Number(r.poin) < 0).map(r => `<tr><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.tanggal)}</td><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.pasal)}</td><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.deskripsi)}</td><td style="border:1px solid #CBD5E1;padding:4px;text-align:center">${escapeHtml(r.poin)}</td></tr>`).join('');
+  const rowsRiwayat = riwayatData.filter(r => Number(r.poin) < 0).map(r => `<tr><td style="border:1px solid #CBD5E1;padding:4px">${formatTanggal(r.tanggal)}</td><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.pasal)}</td><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.deskripsi)}</td><td style="border:1px solid #CBD5E1;padding:4px;text-align:center">${escapeHtml(r.poin)}</td></tr>`).join('');
 
   const html = `
     <div style="font-family:serif;color:#000;padding:20mm;background:#fff;font-size:11pt;line-height:1.5">
@@ -871,7 +902,7 @@ async function loadUdzurList() {
     const res = await apiCall('getUdzurAktif');
     if (!res.ok) { tbody.innerHTML = `<tr><td colspan="5" style="color:var(--danger)">${res.message}</td></tr>`; return; }
     if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted)">Tidak ada udzur aktif.</td></tr>'; return; }
-    tbody.innerHTML = res.data.map(u => `<tr><td style="padding:.6rem">${escapeHtml(u.nis)}</td><td style="padding:.6rem">${escapeHtml(u.nama)}</td><td style="padding:.6rem">${escapeHtml(u.tgl_mulai)}</td><td style="padding:.6rem">${escapeHtml(u.tgl_selesai)}</td><td style="padding:.6rem"><button style="background:#FEE2E2;border:none;color:#B91C1C;padding:.4rem .6rem;border-radius:6px;cursor:pointer" onclick="hapusUdzur(${u._row})"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+    tbody.innerHTML = res.data.map(u => `<tr><td style="padding:.6rem">${escapeHtml(u.nis)}</td><td style="padding:.6rem">${escapeHtml(u.nama)}</td><td style="padding:.6rem">${formatTanggal(u.tgl_mulai)}</td><td style="padding:.6rem">${formatTanggal(u.tgl_selesai)}</td><td style="padding:.6rem"><button style="background:#FEE2E2;border:none;color:#B91C1C;padding:.4rem .6rem;border-radius:6px;cursor:pointer" onclick="hapusUdzur(${u._row})"><i class="fas fa-trash"></i></button></td></tr>`).join('');
   } catch (e) { tbody.innerHTML = '<tr><td colspan="5" style="color:var(--danger)">Koneksi gagal.</td></tr>'; }
 }
 async function hapusUdzur(row) {
@@ -925,12 +956,39 @@ async function cekPoinSiswa(nis, nama, kelas) {
     if (!riwayatTerakhir.length) {
       tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:1rem;color:var(--muted)">Belum ada riwayat.</td></tr>';
     } else {
-      tbody.innerHTML = riwayatTerakhir.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.5rem">${escapeHtml(r.tanggal)}</td><td style="padding:.5rem">${escapeHtml(r.deskripsi || r.pasal)}</td><td style="padding:.5rem;text-align:center;font-weight:800;color:${Number(r.poin) < 0 ? 'var(--danger)' : 'var(--success)'}">${r.poin > 0 ? '+' : ''}${r.poin}</td></tr>`).join('');
+      tbody.innerHTML = riwayatTerakhir.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.5rem">${formatTanggal(r.tanggal, true)}</td><td style="padding:.5rem">${escapeHtml(r.deskripsi || r.pasal)}</td><td style="padding:.5rem;text-align:center;font-weight:800;color:${Number(r.poin) < 0 ? 'var(--danger)' : 'var(--success)'}">${r.poin > 0 ? '+' : ''}${r.poin}</td></tr>`).join('');
     }
     
     $('cek-poin-result').style.display = 'block';
     $('modal-cek-poin').classList.add('show');
   } catch (e) { toast('Gagal memuat poin', true); }
+}
+
+// KOREKSI MANUAL
+function bukaKoreksi() {
+  if (!state.selectedSiswa) return;
+  $('modal-koreksi').classList.add('show');
+}
+async function simpanKoreksi() {
+  if (!state.selectedSiswa) return;
+  const jenis = $('koreksi-jenis').value;
+  const poin = parseInt($('koreksi-poin').value, 10);
+  const alasan = $('koreksi-alasan').value.trim();
+  if (isNaN(poin) || !alasan) { toast('Lengkapi data koreksi', true); return; }
+  
+  const poinVal = jenis === 'PRESTASI' ? Math.abs(poin) : -Math.abs(poin);
+  try {
+    const res = await apiCall('catatPoin', {
+      nis: state.selectedSiswa.nis,
+      pasal: [{ kode: 'KOREKSI', deskripsi: alasan, poin: poinVal }],
+      deskripsi: alasan
+    }, true);
+    if (!res.ok) { toast(res.message, true); return; }
+    toast(res.message);
+    tutupModal('modal-koreksi');
+    $('koreksi-poin').value = ''; $('koreksi-alasan').value = '';
+    pilihSiswa(state.selectedSiswa.nis, state.selectedSiswa.nama, state.selectedSiswa.kelas);
+  } catch (e) { toast(e.message, true); }
 }
 
 // INIT

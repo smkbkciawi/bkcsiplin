@@ -31,36 +31,33 @@
   .drawer-header h3{font-size:.95rem;font-weight:800}
   .drawer-close{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:1.3rem;cursor:pointer;width:32px;height:32px;border-radius:8px;display:grid;place-items:center}
   .drawer-menu{padding:1rem 0}
-  .drawer-menu a{display:flex;align-items:center;gap:.9rem;padding:.9rem 1.2rem;color:var(--text);text-decoration:none;font-weight:600;font-size:.9rem;transition:.15s;border-left:3px solid transparent;margin:0 .5rem;border-radius:8px}
+  .drawer-menu a{display:flex;align-items:center;gap:.9rem;padding:.9rem 1.2rem;color:var(--text);text-decoration:none;font-weight:600;font-size:.9rem;transition:.15s;border-left:3px solid transparent;margin:0 .5rem;border-radius:8px;cursor:pointer}
   .drawer-menu a:hover{background:#FDF2F4;border-left-color:var(--maroon-l);color:var(--maroon)}
   .drawer-menu a i{width:22px;color:var(--maroon);font-size:1rem}
   .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:none;backdrop-filter:blur(2px)}
   .drawer-overlay.show{display:block}
 
-  main{padding:1.5rem;max-width:900px;margin:0 auto;width:100%;animation:fadeIn .4s ease}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-
-  .clean-search{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem 1.5rem;box-shadow:var(--shadow);text-align:center;margin-top:1rem;position:relative;overflow:hidden}
-  .clean-search h2{font-size:1.25rem;font-weight:800;color:var(--maroon);margin-bottom:1.5rem;position:relative}
+  main{padding:1.5rem;max-width:900px;margin:0 auto;width:100%}
+  .hidden{display:none!important}
+  
+  .clean-search{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem 1.5rem;box-shadow:var(--shadow);text-align:center;margin-top:1rem}
+  .clean-search h2{font-size:1.25rem;font-weight:800;color:var(--maroon);margin-bottom:1.5rem}
   .search-box{position:relative;max-width:500px;margin:0 auto 1.2rem}
-  .search-box input{width:100%;padding:1rem 1rem 1rem 3rem;border:2px solid var(--border);border-radius:16px;font-family:inherit;font-size:1rem;font-weight:600;outline:none;transition:.2s;background:#fff}
-  .search-box input:focus{border-color:var(--maroon-l);box-shadow:0 0 0 4px rgba(190,18,60,.1)}
+  .search-box input{width:100%;padding:1rem 1rem 1rem 3rem;border:2px solid var(--border);border-radius:16px;font-family:inherit;font-size:1rem;font-weight:600;outline:none;background:#fff}
   .search-box .icon{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.1rem}
   .action-btns{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
   .btn-action{padding:.85rem 1.4rem;border:none;border-radius:99px;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:.2s}
-  .btn-action.primary{background:var(--maroon);color:#fff;box-shadow:0 6px 20px rgba(136,19,55,.3)}
-  .btn-action.primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(136,19,55,.4)}
+  .btn-action.primary{background:var(--maroon);color:#fff}
   .btn-action.outline{background:#fff;border:2px solid var(--border);color:var(--maroon)}
-  .btn-action.outline:hover{background:#FDF2F4;border-color:var(--maroon-l)}
 
   .result-box{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;max-width:500px;margin:1rem auto 0;text-align:left}
-  .result-item{padding:.8rem 1rem;border-radius:14px;background:#FDF2F4;border:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.15s}
-  .result-item:hover{background:var(--maroon);color:#fff;border-color:var(--maroon);transform:translateX(3px)}
+  .result-item{padding:.8rem 1rem;border-radius:14px;background:#FDF2F4;border:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .result-item:hover{background:var(--maroon);color:#fff}
   .result-item .nama{font-weight:700;font-size:.92rem}
   .result-item .kelas{font-size:.75rem;opacity:.7}
 
-  .legenda{margin-top:1.5rem;padding:1rem 1.2rem;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
-  .legenda h3{font-size:.72rem;letter-spacing:.15em;color:var(--muted);font-weight:800;margin-bottom:.7rem;text-transform:uppercase}
+  .legenda{margin-top:1.5rem;padding:1rem 1.2rem;background:#fff;border:1px solid var(--border);border-radius:16px}
+  .legenda h3{font-size:.72rem;color:var(--muted);font-weight:800;margin-bottom:.7rem;text-transform:uppercase}
   .legenda-chips{display:flex;flex-wrap:wrap;gap:.5rem}
   .chip{padding:.4rem .8rem;border-radius:99px;font-size:.75rem;font-weight:800}
   .chip-hijau{background:#D1FAE5;color:#047857}
@@ -69,61 +66,49 @@
   .chip-merah{background:#FEE2E2;color:#B91C1C}
   .chip-kritis{background:#1F2937;color:#fff}
 
-  .profil-card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:1.5rem;margin-top:1.5rem;box-shadow:var(--shadow);display:none;animation:slideUp .3s ease}
-  @keyframes slideUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:none}}
+  .profil-card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:1.5rem;margin-top:1.5rem;display:none}
   .profil-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
-  .avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--maroon),var(--maroon-d));color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.3rem;flex-shrink:0;box-shadow:0 4px 15px rgba(136,19,55,.3)}
-  .profil-info{flex:1}
-  .profil-info h2{font-size:1.15rem;font-weight:800;color:var(--maroon);line-height:1.2}
-  .profil-info .kelas{font-size:.82rem;color:var(--muted);font-weight:600;margin-top:.1rem}
+  .avatar{width:56px;height:56px;border-radius:50%;background:var(--maroon);color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.3rem}
+  .profil-info h2{font-size:1.15rem;font-weight:800;color:var(--maroon)}
+  .profil-info .kelas{font-size:.82rem;color:var(--muted)}
   
-  .poin-display{text-align:center;margin-bottom:1.5rem;padding:1.2rem;background:linear-gradient(135deg,#FDF2F4,#FFF);border-radius:16px;border:1px solid var(--border)}
-  .poin-display .label{font-size:.7rem;letter-spacing:.2em;color:var(--muted);font-weight:800;margin-bottom:.4rem}
+  .poin-display{text-align:center;margin-bottom:1.5rem;padding:1.2rem;background:#FDF2F4;border-radius:16px}
   .poin-display .angka{font-size:3.5rem;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;color:var(--maroon)}
   .zona-badge{display:inline-block;padding:.4rem 1.1rem;border-radius:99px;font-size:.8rem;font-weight:800;margin-top:.6rem}
 
   .field{margin-bottom:1rem}
-  .field label{display:block;font-size:.72rem;font-weight:800;letter-spacing:.1em;color:var(--muted);margin-bottom:.35rem;text-transform:uppercase}
-  .field input,.field select,.field textarea{width:100%;padding:.8rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-family:inherit;font-size:.9rem;font-weight:600;outline:none;transition:.15s;background:#fff}
-  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--maroon-l);box-shadow:0 0 0 3px rgba(190,18,60,.1)}
+  .field label{display:block;font-size:.72rem;font-weight:800;color:var(--muted);margin-bottom:.35rem;text-transform:uppercase}
+  .field input,.field select,.field textarea{width:100%;padding:.8rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-family:inherit;font-size:.9rem;font-weight:600;outline:none}
 
   .keranjang{background:#FDF2F4;border:1px solid var(--border);border-radius:14px;padding:.8rem;margin:1rem 0;max-height:220px;overflow-y:auto}
-  .keranjang-empty{text-align:center;font-size:.85rem;color:var(--muted);padding:1rem}
-  .keranjang-item{display:flex;justify-content:space-between;align-items:center;padding:.6rem .8rem;background:#fff;border-radius:10px;margin-bottom:.4rem;font-size:.85rem;border:1px solid var(--border)}
-  .keranjang-item .kode{font-weight:800;font-size:.75rem;color:var(--maroon);text-transform:uppercase}
-  .keranjang-item .desc{font-size:.8rem;color:var(--muted);margin-top:.1rem}
-  .keranjang-item .hapus{background:none;border:none;color:var(--danger);cursor:pointer;font-size:.9rem;padding:.3rem}
-  .total-poin{display:flex;justify-content:space-between;padding:.9rem 1.1rem;background:linear-gradient(135deg,var(--maroon),var(--maroon-d));color:#fff;border-radius:12px;font-weight:800;font-size:.95rem;margin-bottom:1rem}
+  .keranjang-item{display:flex;justify-content:space-between;padding:.6rem;background:#fff;border-radius:10px;margin-bottom:.4rem;border:1px solid var(--border)}
+  .total-poin{display:flex;justify-content:space-between;padding:.9rem 1.1rem;background:var(--maroon);color:#fff;border-radius:12px;font-weight:800;margin-bottom:1rem}
 
-  .btn-full{width:100%;padding:.95rem;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;margin-top:.5rem;transition:.15s;display:flex;align-items:center;justify-content:center;gap:.5rem}
-  .btn-primary-full{background:linear-gradient(135deg,var(--maroon-l),var(--maroon));color:#fff}
+  .btn-full{width:100%;padding:.95rem;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;margin-top:.5rem}
+  .btn-primary-full{background:var(--maroon);color:#fff}
   .btn-secondary-full{background:#F1F5F9;color:#475569}
 
-  .table-wrap{overflow-x:auto;background:#fff;border-radius:16px;box-shadow:var(--shadow);margin-top:1rem}
+  .table-wrap{overflow-x:auto;background:#fff;border-radius:16px;margin-top:1rem}
   table{width:100%;border-collapse:collapse;font-size:.85rem}
-  th{background:#FDF2F4;padding:.7rem;text-align:left;font-weight:800;color:var(--maroon);border-bottom:2px solid var(--border);font-size:.72rem;text-transform:uppercase}
+  th{background:#FDF2F4;padding:.7rem;text-align:left;font-weight:800;color:var(--maroon);border-bottom:2px solid var(--border)}
   td{padding:.7rem;border-bottom:1px solid #FDF2F4;font-weight:600}
-  tr:hover td{background:#FDF2F4}
   .btn-mini{padding:.3rem .6rem;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--maroon)}
-  .btn-mini:hover{background:var(--maroon);color:#fff}
 
-  .modal-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1rem}
+  .modal-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:1rem}
   .modal-overlay.show{display:flex}
-  .modal{width:100%;max-width:500px;background:#fff;border-radius:20px;padding:1.5rem;box-shadow:0 20px 60px rgba(0,0,0,.4);max-height:90vh;overflow-y:auto;position:relative}
+  .modal{width:100%;max-width:500px;background:#fff;border-radius:20px;padding:1.5rem;max-height:90vh;overflow-y:auto;position:relative}
   .modal h2{font-size:1.1rem;color:var(--maroon);margin-bottom:1.2rem;text-align:center;font-weight:800}
-  .modal-close{position:absolute;top:1rem;right:1rem;background:#FDF2F4;border:none;width:32px;height:32px;border-radius:8px;font-size:1.1rem;cursor:pointer;color:var(--maroon);display:grid;place-items:center;z-index:10}
-  .modal-close:hover{background:var(--maroon);color:#fff}
+  .modal-close{position:absolute;top:1rem;right:1rem;background:#FDF2F4;border:none;width:32px;height:32px;border-radius:8px;font-size:1.1rem;cursor:pointer;color:var(--maroon);display:grid;place-items:center}
 
   .scanner-box{background:#000;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:4/3;margin-bottom:1rem;display:flex;align-items:center;justify-content:center}
   .scanner-box video{width:100%;height:100%;object-fit:cover}
   .scanner-placeholder{color:#fff;text-align:center;padding:2rem}
 
   .toast-wrap{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:.5rem}
-  .toast{padding:.8rem 1.2rem;border-radius:12px;font-size:.85rem;font-weight:700;background:var(--success);color:#fff;box-shadow:0 8px 24px rgba(16,185,129,.4)}
+  .toast{padding:.8rem 1.2rem;border-radius:12px;font-size:.85rem;font-weight:700;background:var(--success);color:#fff}
   .toast.err{background:var(--danger)}
 
   #rfid-input-hidden{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0}
-  .hidden{display:none!important}
 </style>
 </head>
 <body>
@@ -132,22 +117,23 @@
   <h1><i class="fas fa-balance-scale"></i> Kedisiplinan</h1>
   <div class="header-right">
     <span class="user-pill" id="user-label">Belum login</span>
-    <button class="btn-icon" id="btn-menu" type="button"><i class="fas fa-bars"></i></button>
-    <button class="btn-icon" id="btn-logout" style="display:none"><i class="fas fa-sign-out-alt"></i></button>
+    <!-- Menggunakan onclick langsung agar pasti berfungsi -->
+    <button class="btn-icon" onclick="bukaDrawer()" type="button"><i class="fas fa-bars"></i></button>
+    <button class="btn-icon" id="btn-logout" style="display:none" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i></button>
   </div>
 </header>
 
-<div class="drawer-overlay" id="drawer-overlay"></div>
+<div class="drawer-overlay" id="drawer-overlay" onclick="tutupDrawer()"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-header">
     <h3><i class="fas fa-balance-scale"></i> Menu Kedisiplinan</h3>
-    <button class="drawer-close" id="drawer-close">×</button>
+    <button class="drawer-close" onclick="tutupDrawer()">×</button>
   </div>
   <nav class="drawer-menu">
-    <a href="#" data-page="home"><i class="fas fa-search"></i> Halaman Utama</a>
-    <a href="#" data-page="rekap"><i class="fas fa-user-graduate"></i> Rekap Siswa</a>
-    <a href="#" data-page="validasi" id="menu-validasi"><i class="fas fa-mosque"></i> Validasi Bolos Sholat</a>
-    <a href="#" data-page="udzur"><i class="fas fa-hand-holding-heart"></i> Manajemen Udzur</a>
+    <a onclick="bukaHalaman('home')"><i class="fas fa-search"></i> Halaman Utama</a>
+    <a onclick="bukaHalaman('rekap')"><i class="fas fa-user-graduate"></i> Rekap Siswa</a>
+    <a onclick="bukaHalaman('validasi')" id="menu-validasi"><i class="fas fa-mosque"></i> Validasi Bolos Sholat</a>
+    <a onclick="bukaHalaman('udzur')"><i class="fas fa-hand-holding-heart"></i> Manajemen Udzur</a>
   </nav>
 </div>
 
@@ -159,17 +145,10 @@
       <input type="text" id="search-input" placeholder="Ketik nama atau NIS…" autocomplete="off">
     </div>
     <div class="action-btns">
-      <button class="btn-action primary" id="btn-scan-qr"><i class="fas fa-camera"></i> Scan QR</button>
-      <button class="btn-action outline" id="btn-tap-rfid"><i class="fas fa-wifi"></i> Tap RFID</button>
+      <button class="btn-action primary" onclick="openScanner('guru')"><i class="fas fa-camera"></i> Scan QR</button>
+      <button class="btn-action outline" onclick="tapRfid('guru')"><i class="fas fa-wifi"></i> Tap RFID</button>
     </div>
     <div class="result-box" id="result-box"></div>
-  </div>
-
-  <div class="riwayat-cepat" style="margin-top:1.5rem;background:#fff;border:1px solid var(--border);border-radius:16px;padding:1rem 1.2rem;box-shadow:var(--shadow)">
-    <h3 style="font-size:.72rem;letter-spacing:.15em;color:var(--muted);font-weight:800;margin-bottom:.6rem;text-transform:uppercase"><i class="fas fa-history"></i> Siswa Terakhir</h3>
-    <div class="riwayat-list" id="riwayat-cepat-list" style="display:flex;flex-wrap:wrap;gap:.5rem">
-      <div style="font-size:.8rem;color:var(--muted)">Belum ada siswa yang diproses hari ini.</div>
-    </div>
   </div>
 
   <div class="legenda">
@@ -190,11 +169,11 @@
         <h2 id="profil-nama">Nama Siswa</h2>
         <div class="kelas" id="profil-kelas">Kelas · NIS</div>
       </div>
-      <button class="modal-close" id="btn-tutup-profil" style="position:static"><i class="fas fa-times"></i></button>
+      <button class="modal-close" onclick="tutupProfil()" style="position:static"><i class="fas fa-times"></i></button>
     </div>
     
     <div class="poin-display">
-      <div class="label">SALDO POIN SAAT INI</div>
+      <div style="font-size:.7rem;letter-spacing:.2em;color:var(--muted);font-weight:800;margin-bottom:.4rem">SALDO POIN SAAT INI</div>
       <div class="angka" id="profil-poin">100</div>
       <div class="zona-badge" id="profil-zona">Zona Hijau</div>
     </div>
@@ -203,10 +182,10 @@
       <label>Tambah Pelanggaran / Prestasi</label>
       <select id="select-pasal"><option value="">— Pilih Pasal —</option></select>
     </div>
-    <button class="btn-action primary" id="btn-tambah-keranjang" style="width:100%;margin-bottom:.5rem;border-radius:12px"><i class="fas fa-plus"></i> Tambah ke Daftar</button>
+    <button class="btn-action primary" onclick="tambahKeranjang()" style="width:100%;margin-bottom:.5rem;border-radius:12px"><i class="fas fa-plus"></i> Tambah ke Daftar</button>
 
     <div class="keranjang" id="keranjang">
-      <div class="keranjang-empty">Belum ada pelanggaran dipilih.</div>
+      <div style="text-align:center;font-size:.85rem;color:var(--muted);padding:1rem">Belum ada pelanggaran dipilih.</div>
     </div>
     <div class="total-poin" id="total-poin" style="display:none">
       <span>Total Poin:</span>
@@ -215,17 +194,17 @@
 
     <div class="field" style="margin-top:1rem">
       <label>Deskripsi Kronologi (Wajib)</label>
-      <textarea id="deskripsi" rows="3" placeholder="Jelaskan kejadian secara singkat..."></textarea>
+      <textarea id="deskripsi" rows="3" placeholder="Jelaskan kejadian..."></textarea>
     </div>
-    <button class="btn-primary-full" id="btn-simpan-poin"><i class="fas fa-save"></i> Simpan Pencatatan</button>
+    <button class="btn-primary-full" onclick="simpanPoin()"><i class="fas fa-save"></i> Simpan Pencatatan</button>
     
     <hr style="margin:1.2rem 0;border:none;border-top:1px solid var(--border)">
-    <button class="btn-action outline" id="btn-koreksi-poin" style="width:100%"><i class="fas fa-edit"></i> Koreksi Manual / Poin Prestasi</button>
+    <button class="btn-action outline" onclick="bukaKoreksi()" style="width:100%"><i class="fas fa-edit"></i> Koreksi Manual / Poin Prestasi</button>
   </div>
 </main>
 
 <main id="page-rekap" class="hidden">
-  <div style="margin-bottom:1rem"><button class="btn-action outline" id="btn-back-rekap"><i class="fas fa-arrow-left"></i> Kembali</button></div>
+  <div style="margin-bottom:1rem"><button class="btn-action outline" onclick="bukaHalaman('home')"><i class="fas fa-arrow-left"></i> Kembali</button></div>
   <div class="clean-search" style="text-align:left">
     <h2>Rekap Siswa</h2>
     <div style="display:grid;grid-template-columns:1fr auto;gap:.5rem;margin-bottom:1rem">
@@ -249,17 +228,17 @@
 </main>
 
 <main id="page-validasi" class="hidden">
-  <div style="margin-bottom:1rem"><button class="btn-action outline" id="btn-back-validasi"><i class="fas fa-arrow-left"></i> Kembali</button></div>
+  <div style="margin-bottom:1rem"><button class="btn-action outline" onclick="bukaHalaman('home')"><i class="fas fa-arrow-left"></i> Kembali</button></div>
   <div class="clean-search" style="text-align:left">
     <h2><i class="fas fa-mosque"></i> Validasi Bolos Sholat</h2>
-    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem">Siswa hadir gerbang tapi tidak scan sholat (Udzur dikecualikan otomatis).</p>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem">Siswa hadir gerbang tapi tidak scan sholat (Udzur dikecualikan).</p>
     <div id="validasi-list" style="max-height:400px;overflow-y:auto"></div>
-    <button class="btn-primary-full" id="btn-validasi-bolos" style="display:none;margin-top:1rem">Validasi & Potong Poin (<span id="validasi-count">0</span> siswa)</button>
+    <button class="btn-primary-full" id="btn-validasi-bolos" onclick="validasiBolos()" style="display:none;margin-top:1rem">Validasi & Potong Poin (<span id="validasi-count">0</span> siswa)</button>
   </div>
 </main>
 
 <main id="page-udzur" class="hidden">
-  <div style="margin-bottom:1rem"><button class="btn-action outline" id="btn-back-udzur"><i class="fas fa-arrow-left"></i> Kembali</button></div>
+  <div style="margin-bottom:1rem"><button class="btn-action outline" onclick="bukaHalaman('home')"><i class="fas fa-arrow-left"></i> Kembali</button></div>
   <div class="clean-search" style="text-align:left">
     <h2><i class="fas fa-hand-holding-heart"></i> Manajemen Udzur Syar'i</h2>
     <div class="table-wrap" style="overflow-x:auto;margin-top:1rem">
@@ -271,22 +250,24 @@
   </div>
 </main>
 
+<!-- MODAL SCANNER -->
 <div class="modal-overlay" id="modal-scanner">
   <div class="modal" style="max-width:450px">
-    <button class="modal-close" id="close-scanner">×</button>
+    <button class="modal-close" onclick="closeScanner()">×</button>
     <h2>Scan QR Kartu Siswa</h2>
     <div class="scanner-box" id="scanner-container">
       <div class="scanner-placeholder" id="scanner-placeholder"><i class="fas fa-camera"></i><p style="margin-top:.5rem">Kamera belum aktif</p></div>
       <video id="video" style="display:none" playsinline></video>
     </div>
-    <button class="btn-primary-full" id="btn-start-cam">Mulai Kamera</button>
-    <button class="btn-secondary-full" id="btn-stop-cam" style="display:none">Stop Kamera</button>
+    <button class="btn-primary-full" id="btn-start-cam" onclick="startKamera()">Mulai Kamera</button>
+    <button class="btn-secondary-full" id="btn-stop-cam" onclick="stopKamera()" style="display:none">Stop Kamera</button>
   </div>
 </div>
 
+<!-- MODAL CETAK SURAT -->
 <div class="modal-overlay" id="modal-cetak-surat">
   <div class="modal">
-    <button class="modal-close" id="close-cetak-surat">×</button>
+    <button class="modal-close" onclick="tutupModal('modal-cetak-surat')">×</button>
     <h2>Pilih Kategori Surat</h2>
     <div class="field"><label>Kategori</label>
       <select id="kategori-surat">
@@ -297,59 +278,63 @@
         <option value="KONFERENSI">Konferensi Kasus</option>
       </select>
     </div>
-    <button class="btn-primary-full" id="btn-cetak-surat-final">Cetak Surat</button>
+    <button class="btn-primary-full" onclick="cetakSuratFinal()">Cetak Surat</button>
   </div>
 </div>
 
+<!-- MODAL RIWAYAT -->
 <div class="modal-overlay" id="modal-riwayat">
   <div class="modal" style="max-width:600px">
-    <button class="modal-close" id="close-riwayat">×</button>
+    <button class="modal-close" onclick="tutupModal('modal-riwayat')">×</button>
     <h2>Riwayat Poin Siswa</h2>
     <div id="riwayat-content" style="max-height:400px;overflow-y:auto"></div>
   </div>
 </div>
 
+<!-- MODAL KOREKSI -->
 <div class="modal-overlay" id="modal-koreksi">
   <div class="modal">
-    <button class="modal-close" id="close-koreksi">×</button>
+    <button class="modal-close" onclick="tutupModal('modal-koreksi')">×</button>
     <h2>Koreksi / Poin Manual</h2>
     <div class="field"><label>Jenis</label>
       <select id="koreksi-jenis"><option value="PRESTASI">Prestasi (+)</option><option value="PELANGGARAN">Pelanggaran (-)</option></select>
     </div>
     <div class="field"><label>Poin (Angka)</label><input type="number" id="koreksi-poin" placeholder="5"></div>
     <div class="field"><label>Alasan Koreksi</label><input type="text" id="koreksi-alasan" placeholder="Salah sasaran / kesalahan sistem"></div>
-    <button class="btn-primary-full" id="btn-simpan-koreksi">Simpan Koreksi</button>
+    <button class="btn-primary-full" onclick="simpanKoreksi()">Simpan Koreksi</button>
   </div>
 </div>
 
+<!-- MODAL LOGIN -->
 <div class="modal-overlay show" id="modal-login">
   <div class="modal">
     <h2><i class="fas fa-balance-scale"></i> Login Petugas</h2>
     <div id="login-alert" style="color:#EF4444;font-size:.85rem;font-weight:700;text-align:center;margin-bottom:.8rem;display:none"></div>
     <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="G003"></div>
     <div class="field"><label>PIN</label><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric"></div>
-    <button class="btn-primary-full" id="btn-login">Masuk</button>
-    <button class="btn-secondary-full" id="btn-cek-poin-login" style="margin-top:.6rem"><i class="fas fa-search"></i> Cek Poin Saya (Siswa)</button>
+    <button class="btn-primary-full" onclick="doLogin()">Masuk</button>
+    <button class="btn-secondary-full" onclick="bukaCekPoin()" style="margin-top:.6rem"><i class="fas fa-search"></i> Cek Poin Saya (Siswa)</button>
   </div>
 </div>
 
+<!-- MODAL CEK POIN -->
 <div class="modal-overlay" id="modal-cek-poin">
   <div class="modal" style="max-width:480px">
-    <button class="modal-close" id="close-cek-poin">×</button>
+    <button class="modal-close" onclick="tutupModal('modal-cek-poin')">×</button>
     <h2><i class="fas fa-search"></i> Cek Poin Siswa</h2>
     <div class="search-box" style="margin-bottom:1rem">
       <span class="icon">🔍</span>
       <input type="text" id="cek-input" placeholder="Ketik nama atau NIS…" autocomplete="off">
     </div>
     <div style="display:flex;gap:.5rem;margin-bottom:1rem">
-      <button class="btn-action outline" id="btn-cek-scan-qr" style="flex:1"><i class="fas fa-camera"></i> Scan QR</button>
-      <button class="btn-action outline" id="btn-cek-tap-rfid" style="flex:1"><i class="fas fa-wifi"></i> Tap RFID</button>
+      <button class="btn-action outline" onclick="openScanner('cekpoin')" style="flex:1"><i class="fas fa-camera"></i> Scan QR</button>
+      <button class="btn-action outline" onclick="tapRfid('cekpoin')" style="flex:1"><i class="fas fa-wifi"></i> Tap RFID</button>
     </div>
     <div class="result-box" id="cek-result" style="max-height:200px"></div>
     
     <div id="cek-poin-result" style="display:none;margin-top:1.5rem">
       <div class="poin-display" style="margin-bottom:1rem">
-        <div class="label">SALDO POIN</div>
+        <div style="font-size:.7rem;letter-spacing:.2em;color:var(--muted);font-weight:800;margin-bottom:.4rem">SALDO POIN</div>
         <div class="angka" id="cek-poin-angka">100</div>
         <div class="zona-badge" id="cek-poin-zona">Zona Hijau</div>
       </div>
@@ -370,8 +355,6 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 const MODUL = 'disiplin';
-const IDLE_TOTAL_MS = 10 * 60 * 1000;
-const IDLE_WARN_MS = 30 * 1000;
 
 const state = {
   token: sessionStorage.getItem('bkc_disiplin_token') || '',
@@ -379,10 +362,10 @@ const state = {
   role: sessionStorage.getItem('bkc_disiplin_role') || '',
   selectedSiswa: null,
   keranjang: [],
-  riwayatCepat: [],
   stream: null, scanInterval: null, currentFacing: 'environment',
-  idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null, searchTimer: null,
-  scanMode: null
+  scanMode: null,
+  searchTimer: null,
+  selectedSiswaRekap: null
 };
 const $ = (id) => document.getElementById(id);
 
@@ -410,7 +393,7 @@ function apiCall(action, payload = {}, isPost = false, useToken = true) {
 }
 
 function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
-function bunyi(freq, dur, type = 'sine') { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = type; osc.frequency.value = freq; osc.connect(gain); gain.connect(ctx.destination); gain.gain.setValueAtTime(0.3, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + dur); osc.start(); osc.stop(ctx.currentTime + dur); } catch (e) {} }
+function bunyi(freq, dur, type = 'sine') { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type = type; osc.frequency.value = freq; osc.connect(gain); gain.connect(ctx.destination); gain.gain.setValueAtTime(0.3, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + dur); } catch (e) {} }
 function bunyiBeep() { bunyi(2000, 0.15, 'square'); }
 function bunyiTetot() { bunyi(300, 0.4, 'sawtooth'); }
 
@@ -421,28 +404,41 @@ async function doLogin() {
   const alertEl = $('login-alert');
   alertEl.style.display = 'none';
   if (!username || !pin) { alertEl.textContent = 'ID dan PIN wajib diisi.'; alertEl.style.display = 'block'; return; }
-  const btn = $('btn-login'); btn.disabled = true; btn.textContent = 'Memeriksa…';
+  
+  const btn = event ? event.target : null;
+  if(btn) { btn.disabled = true; btn.textContent = 'Memeriksa…'; }
   try {
     const res = await apiCall('login', { username, pin, modul: MODUL }, true);
     if (!res.ok) { alertEl.textContent = res.message; alertEl.style.display = 'block'; return; }
     state.token = res.data.token; state.nama = res.data.nama; state.role = res.data.role;
     sessionStorage.setItem('bkc_disiplin_token', state.token); sessionStorage.setItem('bkc_disiplin_nama', state.nama); sessionStorage.setItem('bkc_disiplin_role', state.role);
-    $('modal-login').classList.remove('show');
+    tutupModal('modal-login');
     $('user-label').textContent = state.nama;
     $('btn-logout').style.display = 'inline-block';
     toast('Selamat datang, ' + state.nama);
     loadTataTertibSelect(); loadFilterKelasRekap();
   } catch (err) { alertEl.textContent = 'Koneksi gagal.'; alertEl.style.display = 'block'; }
-  finally { btn.disabled = false; btn.textContent = 'Masuk'; }
+  finally { if(btn) { btn.disabled = false; btn.textContent = 'Masuk'; } }
 }
-$('btn-login').addEventListener('click', doLogin);
 
 function doLogout() {
   sessionStorage.removeItem('bkc_disiplin_token'); sessionStorage.removeItem('bkc_disiplin_nama'); sessionStorage.removeItem('bkc_disiplin_role');
   state.token = '';
   $('modal-login').classList.add('show'); $('user-label').textContent = 'Belum login'; $('btn-logout').style.display = 'none'; $('login-user').focus();
 }
-$('btn-logout').addEventListener('click', () => { if (confirm('Logout?')) doLogout(); });
+
+function tutupModal(id) { $(id).classList.remove('show'); }
+function bukaDrawer() { $('drawer').classList.add('open'); $('drawer-overlay').classList.add('show'); }
+function tutupDrawer() { $('drawer').classList.remove('open'); $('drawer-overlay').classList.remove('show'); }
+
+function bukaHalaman(page) {
+  ['home','rekap','validasi','udzur'].forEach(p => $('page-' + p).classList.add('hidden'));
+  $('page-' + page).classList.remove('hidden');
+  tutupDrawer();
+  if (page === 'validasi') loadValidasiBolos();
+  if (page === 'udzur') loadUdzurList();
+  if (page === 'rekap') { loadFilterKelasRekap(); loadRekapAll(); }
+}
 
 // LOAD TATIB & KELAS
 let semuaTatib = [];
@@ -485,7 +481,7 @@ $('search-input').addEventListener('input', () => {
   }, 300);
 });
 
-// PILIH SISWA
+// PILIH SISWA (Untuk input pelanggaran)
 async function pilihSiswa(nis, nama, kelas) {
   state.selectedSiswa = { nis, nama, kelas };
   state.keranjang = [];
@@ -511,8 +507,14 @@ async function pilihSiswa(nis, nama, kelas) {
   $('profil-card').style.display = 'block';
 }
 
+function tutupProfil() {
+  $('profil-card').style.display = 'none';
+  state.selectedSiswa = null; state.keranjang = [];
+  renderKeranjang(); $('deskripsi').value = ''; $('search-input').value = '';
+}
+
 // KERANJANG
-$('btn-tambah-keranjang').addEventListener('click', () => {
+function tambahKeranjang() {
   const kode = $('select-pasal').value;
   if (!kode) { toast('Pilih pasal dulu', true); return; }
   const tatib = semuaTatib.find(t => String(t.kode) === kode);
@@ -522,19 +524,6 @@ $('btn-tambah-keranjang').addEventListener('click', () => {
   state.keranjang.push({ kode: tatib.kode, deskripsi: tatib.deskripsi, poin: poinVal });
   renderKeranjang();
   $('select-pasal').value = '';
-});
-
-function renderKeranjang() {
-  const box = $('keranjang');
-  if (!state.keranjang.length) {
-    box.innerHTML = '<div class="keranjang-empty">Belum ada pelanggaran dipilih.</div>';
-    $('total-poin').style.display = 'none';
-    return;
-  }
-  box.innerHTML = state.keranjang.map((k, i) => `<div class="keranjang-item"><div><div class="kode">${escapeHtml(k.kode)}</div><div class="desc">${escapeHtml(k.deskripsi)} (${k.poin} poin)</div></div><button class="hapus" onclick="hapusKeranjang(${i})"><i class="fas fa-trash"></i></button></div>`).join('');
-  const total = state.keranjang.reduce((s, k) => s + k.poin, 0);
-  $('total-poin').style.display = 'flex';
-  $('total-poin-angka').textContent = (total > 0 ? '+' : '') + total + ' Poin';
 }
 
 function hapusKeranjang(idx) {
@@ -542,33 +531,47 @@ function hapusKeranjang(idx) {
   renderKeranjang();
 }
 
+function renderKeranjang() {
+  const box = $('keranjang');
+  if (!state.keranjang.length) {
+    box.innerHTML = '<div style="text-align:center;font-size:.85rem;color:var(--muted);padding:1rem">Belum ada pelanggaran dipilih.</div>';
+    $('total-poin').style.display = 'none';
+    return;
+  }
+  box.innerHTML = state.keranjang.map((k, i) => `<div class="keranjang-item"><div><div style="font-weight:800;font-size:.75rem;color:var(--maroon)">${escapeHtml(k.kode)}</div><div style="font-size:.8rem;color:var(--muted)">${escapeHtml(k.deskripsi)} (${k.poin} poin)</div></div><button style="background:none;border:none;color:var(--danger);cursor:pointer" onclick="hapusKeranjang(${i})"><i class="fas fa-trash"></i></button></div>`).join('');
+  const total = state.keranjang.reduce((s, k) => s + k.poin, 0);
+  $('total-poin').style.display = 'flex';
+  $('total-poin-angka').textContent = (total > 0 ? '+' : '') + total + ' Poin';
+}
+
 // SIMPAN POIN
-$('btn-simpan-poin').addEventListener('click', async () => {
+async function simpanPoin() {
   if (!state.selectedSiswa) return;
   if (!state.keranjang.length) { toast('Tambahkan minimal 1 pelanggaran', true); return; }
   const deskripsi = $('deskripsi').value.trim();
   if (!deskripsi) { toast('Deskripsi kronologi wajib diisi', true); return; }
-  const btn = $('btn-simpan-poin'); btn.disabled = true; btn.textContent = 'Menyimpan…';
   try {
     const res = await apiCall('catatPoin', { nis: state.selectedSiswa.nis, pasal: state.keranjang, deskripsi: deskripsi }, true);
     if (!res.ok) { toast(res.message, true); return; }
     toast(res.message); bunyiBeep();
-    $('profil-card').style.display = 'none';
-    state.selectedSiswa = null; state.keranjang = [];
-    renderKeranjang(); $('deskripsi').value = '';
+    tutupProfil();
   } catch (err) { toast(err.message, true); }
-  finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Pencatatan'; }
-});
-
-$('btn-tutup-profil').addEventListener('click', () => {
-  $('profil-card').style.display = 'none';
-  state.selectedSiswa = null; state.keranjang = [];
-  renderKeranjang(); $('deskripsi').value = ''; $('search-input').value = '';
-});
+}
 
 // SCANNER
-$('btn-scan-qr').addEventListener('click', () => { state.scanMode = 'guru'; $('modal-scanner').classList.add('show'); });
-$('btn-tap-rfid').addEventListener('click', () => { toast('Silakan tap kartu ke reader USB', false); state.scanMode = 'guru'; fokusRfid(); });
+function openScanner(mode) {
+  state.scanMode = mode;
+  $('modal-scanner').classList.add('show');
+}
+function closeScanner() {
+  stopKamera();
+  tutupModal('modal-scanner');
+}
+function tapRfid(mode) {
+  state.scanMode = mode;
+  toast('Silakan tap kartu ke reader USB', false);
+  fokusRfid();
+}
 function fokusRfid() { const el = $('rfid-input-hidden'); try { el.focus({ preventScroll: true }); } catch (_) { el.focus(); } }
 $('rfid-input-hidden').addEventListener('keydown', (e) => { if (e.key !== 'Enter') return; e.preventDefault(); const val = e.target.value.trim(); e.target.value = ''; if (val) cariSiswaByNis(val); });
 async function cariSiswaByNis(nis) {
@@ -580,7 +583,7 @@ async function cariSiswaByNis(nis) {
         if (state.scanMode === 'cekpoin') cekPoinSiswa(siswa.id, siswa.nama, siswa.kelas);
         else pilihSiswa(siswa.id, siswa.nama, siswa.kelas);
         bunyiBeep();
-      } else { toast('Kartu tidak dikenali sebagai siswa', true); bunyiTetot(); }
+      } else { toast('Kartu tidak dikenali', true); bunyiTetot(); }
     } else { toast('Siswa tidak ditemukan', true); bunyiTetot(); }
   } catch (e) { toast('Koneksi gagal', true); bunyiTetot(); }
 }
@@ -611,22 +614,20 @@ function scanQR() {
     if (nis.length >= 4) {
       if (Date.now() - lastScanAt < 2000 && lastScanData === nis) return;
       lastScanAt = Date.now(); lastScanData = nis;
-      stopKamera(); $('modal-scanner').classList.remove('show'); cariSiswaByNis(nis);
+      stopKamera(); closeScanner(); cariSiswaByNis(nis);
     }
   }
 }
-$('btn-start-cam').addEventListener('click', startKamera);
-$('btn-stop-cam').addEventListener('click', stopKamera);
-$('close-scanner').addEventListener('click', () => { stopKamera(); $('modal-scanner').classList.remove('show'); });
 
 // CETAK SURAT
-let selectedSiswaRekap = null;
-$('btn-cetak-dari-rekap').addEventListener('click', () => { if (!selectedSiswaRekap) return; $('modal-cetak-surat').classList.add('show'); });
-$('close-cetak-surat').addEventListener('click', () => $('modal-cetak-surat').classList.remove('show'));
-$('btn-cetak-surat-final').addEventListener('click', async () => {
-  if (!selectedSiswaRekap) return;
+function bukaModalRekap(nis, nama, kelas) {
+  state.selectedSiswaRekap = { nis, nama, kelas };
+  $('modal-cetak-surat').classList.add('show');
+}
+async function cetakSuratFinal() {
+  if (!state.selectedSiswaRekap) return;
   const kategori = $('kategori-surat').value;
-  $('modal-cetak-surat').classList.remove('show');
+  tutupModal('modal-cetak-surat');
   
   const setting = await apiCall('getPengaturan');
   const s = setting.ok ? setting.data : {};
@@ -640,7 +641,7 @@ $('btn-cetak-surat-final').addEventListener('click', async () => {
   else if (kategori === 'PEMANGGILAN') judul = 'SURAT PEMANGGILAN ORANG TUA';
   else if (kategori === 'KONFERENSI') judul = 'SURAT UNDANGAN KONFERENSI KASUS';
 
-  const riwayat = await apiCall('getRiwayatPoin', { nis: selectedSiswaRekap.nis });
+  const riwayat = await apiCall('getRiwayatPoin', { nis: state.selectedSiswaRekap.nis });
   const riwayatData = riwayat.ok ? riwayat.data : [];
   const saldo = riwayatData.reduce((s, r) => s + (Number(r.poin) || 0), 100);
   const rowsRiwayat = riwayatData.filter(r => Number(r.poin) < 0).map(r => `<tr><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.tanggal)}</td><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.pasal)}</td><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.deskripsi)}</td><td style="border:1px solid #CBD5E1;padding:4px;text-align:center">${escapeHtml(r.poin)}</td></tr>`).join('');
@@ -658,9 +659,9 @@ $('btn-cetak-surat-final').addEventListener('click', async () => {
       </div>
       <p style="margin-bottom:10px">Yang bertanda tangan di bawah ini, Kepala ${escapeHtml(s.nama_sekolah || 'SMK Bhakti Kencana Ciawi')}, dengan ini memberikan peringatan kepada:</p>
       <table style="margin-left:20px;margin-bottom:15px;font-size:10pt">
-        <tr><td style="padding:2px 10px 2px 0">Nama</td><td>: <b>${escapeHtml(selectedSiswaRekap.nama)}</b></td></tr>
-        <tr><td style="padding:2px 10px 2px 0">NIS</td><td>: ${escapeHtml(selectedSiswaRekap.nis)}</td></tr>
-        <tr><td style="padding:2px 10px 2px 0">Kelas</td><td>: ${escapeHtml(selectedSiswaRekap.kelas)}</td></tr>
+        <tr><td style="padding:2px 10px 2px 0">Nama</td><td>: <b>${escapeHtml(state.selectedSiswaRekap.nama)}</b></td></tr>
+        <tr><td style="padding:2px 10px 2px 0">NIS</td><td>: ${escapeHtml(state.selectedSiswaRekap.nis)}</td></tr>
+        <tr><td style="padding:2px 10px 2px 0">Kelas</td><td>: ${escapeHtml(state.selectedSiswaRekap.kelas)}</td></tr>
       </table>
       <p style="margin-bottom:10px">Sehubungan dengan pelanggaran tata tertib yang dilakukan siswa tersebut:</p>
       <table style="width:100%;border-collapse:collapse;margin-bottom:15px;font-size:9pt">
@@ -681,24 +682,7 @@ $('btn-cetak-surat-final').addEventListener('click', async () => {
   printWindow.document.write('<html><head><title>Cetak Surat</title><style>@page{size:A4;margin:0}body{margin:0}</style></head><body>' + html + '</body></html>');
   printWindow.document.close();
   printWindow.onload = () => { printWindow.print(); };
-});
-
-// NAVIGASI (Gunakan onclick langsung)
-function bukaHalaman(page) {
-  ['home','rekap','validasi','udzur'].forEach(p => $('page-' + p).classList.add('hidden'));
-  $('page-' + page).classList.remove('hidden');
-  $('drawer').classList.remove('open');
-  $('drawer-overlay').classList.remove('show');
-  if (page === 'validasi') loadValidasiBolos();
-  if (page === 'udzur') loadUdzurList();
-  if (page === 'rekap') { loadFilterKelasRekap(); loadRekapAll(); }
 }
-$('btn-menu').onclick = () => { $('drawer').classList.add('open'); $('drawer-overlay').classList.add('show'); };
-$('drawer-close').onclick = () => { $('drawer').classList.remove('open'); $('drawer-overlay').classList.remove('show'); };
-$('drawer-overlay').onclick = () => { $('drawer').classList.remove('open'); $('drawer-overlay').classList.remove('show'); };
-$('btn-back-rekap').onclick = () => bukaHalaman('home');
-$('btn-back-validasi').onclick = () => bukaHalaman('home');
-$('btn-back-udzur').onclick = () => bukaHalaman('home');
 
 // REKAP SISWA
 async function loadRekapAll() {
@@ -738,12 +722,7 @@ async function loadRekapAll() {
         }
       } catch (e) {}
     }
-  } catch (e) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--danger)">Koneksi gagal.</td></tr>'; }
-}
-
-function bukaModalRekap(nis, nama, kelas) {
-  selectedSiswaRekap = { nis, nama, kelas };
-  $('modal-cetak-surat').classList.add('show');
+  } catch (e) {}
 }
 
 $('search-rekap').addEventListener('input', () => {
@@ -751,11 +730,6 @@ $('search-rekap').addEventListener('input', () => {
   const kelas = $('filter-kelas-rekap').value;
   const tbody = $('tbody-rekap');
   
-  // Filter langsung di client-side dari state.siswaList (butuh load awal dulu)
-  // Sederhananya, kita panggil ulang loadRekapAll tapi dengan filter query
-  // Untuk saat ini, kita pakai pendekatan simpel: reload tabel berdasarkan input.
-  // Karena loadRekapAll melakukan loop untuk saldo, ini bisa berat jika sering dipanggil.
-  // Kita batasi dengan debounce.
   if (state.searchTimer) clearTimeout(state.searchTimer);
   state.searchTimer = setTimeout(async () => {
     try {
@@ -815,7 +789,7 @@ function updateValidasiCount() {
   const count = document.querySelectorAll('.cb-bolos:checked').length;
   $('validasi-count').textContent = count;
 }
-$('btn-validasi-bolos').addEventListener('click', async () => {
+async function validasiBolos() {
   const checked = document.querySelectorAll('.cb-bolos:checked');
   if (!checked.length) return;
   if (!confirm('Validasi ' + checked.length + ' siswa bolos sholat dan potong poin?')) return;
@@ -825,7 +799,7 @@ $('btn-validasi-bolos').addEventListener('click', async () => {
     toast(res.message);
     loadValidasiBolos();
   } catch (e) { toast(e.message, true); }
-});
+}
 
 // UDZUR
 async function loadUdzurList() {
@@ -844,14 +818,13 @@ async function hapusUdzur(row) {
 }
 
 // CEK POIN MANDIRI
-$('btn-cek-poin-login').addEventListener('click', () => {
+function bukaCekPoin() {
   $('modal-cek-poin').classList.add('show');
   $('cek-input').focus();
   $('cek-poin-result').style.display = 'none';
   $('cek-result').innerHTML = '';
   $('cek-input').value = '';
-});
-$('close-cek-poin').addEventListener('click', () => $('modal-cek-poin').classList.remove('show'));
+}
 
 $('cek-input').addEventListener('input', () => {
   const q = $('cek-input').value.trim();
@@ -865,18 +838,6 @@ $('cek-input').addEventListener('input', () => {
       } else { $('cek-result').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem">Tidak ditemukan.</div>'; }
     } catch (e) { $('cek-result').innerHTML = ''; }
   }, 300);
-});
-
-$('btn-cek-scan-qr').addEventListener('click', () => {
-  $('modal-cek-poin').classList.remove('show');
-  state.scanMode = 'cekpoin';
-  $('modal-scanner').classList.add('show');
-});
-$('btn-cek-tap-rfid').addEventListener('click', () => {
-  $('modal-cek-poin').classList.remove('show');
-  toast('Silakan tap kartu ke reader USB', false);
-  state.scanMode = 'cekpoin';
-  fokusRfid();
 });
 
 async function cekPoinSiswa(nis, nama, kelas) {
@@ -912,7 +873,7 @@ async function cekPoinSiswa(nis, nama, kelas) {
 
 // INIT
 if (state.token) {
-  $('modal-login').classList.remove('show');
+  tutupModal('modal-login');
   $('user-label').textContent = state.nama;
   $('btn-logout').style.display = 'inline-block';
   loadTataTertibSelect(); loadFilterKelasRekap();

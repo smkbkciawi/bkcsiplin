@@ -1,9 +1,7 @@
 /* =========================================================
-   NAVBAR UNIVERSAL BKCSIPLIN
-   Cukup panggil <script src="navbar.js"></script> di setiap HTML
+   NAVBAR UNIVERSAL (AUTO-THEME) BKCSIPLIN
    ========================================================= */
 (function() {
-  // 1. Ambil data sesi (fleksibel dari modul mana pun)
   const token = sessionStorage.getItem('bkc_token') || 
                 sessionStorage.getItem('bkc_sholat_token') || 
                 sessionStorage.getItem('bkc_disiplin_token') || 
@@ -20,90 +18,104 @@
                sessionStorage.getItem('bkc_admin_role') || '';
                
   const roleUpper = String(role).toUpperCase();
+  const page = window.location.pathname.split('/').pop() || 'index.html';
 
-  // 2. Jangan tampilkan navbar jika belum login (di halaman login)
-  const halamanSaatIni = window.location.pathname.split('/').pop() || 'index.html';
-  if (!token && halamanSaatIni !== 'index.html') return;
+  // Jangan tampilkan di halaman login (jika belum ada token)
+  if (!token && page !== 'index.html') return;
 
-  // 3. Daftar menu & hak akses
-  const menuAll = [
-    { href: 'gerbang.html', label: 'Gerbang', icon: '🚪', roles: ['GURU_PIKET','SUPER_ADMIN'] },
-    { href: 'sholat.html', label: 'Sholat', icon: '🕌', roles: ['GURU_PIKET','GURU_BK','WALI_KELAS','KEPSEK','SUPER_ADMIN'] },
-    { href: 'disiplin.html', label: 'Disiplin', icon: '⚖️', roles: ['GURU_BK','WAKA_KESISWAAN','SUPER_ADMIN','KEPSEK'] },
-    { href: 'admin.html', label: 'Admin', icon: '⚙️', roles: ['SUPER_ADMIN','KEPSEK','GURU_BK','WAKA_KESISWAAN'] }
+  // Deteksi Tema Berdasarkan Halaman
+  let themeColor = '#0A1533'; // Default Biru Gelap
+  if (page.includes('sholat')) themeColor = '#059669'; // Hijau
+  if (page.includes('disiplin')) themeColor = '#881337'; // Maroon
+
+  // Daftar Menu
+  const menu = [
+    { href: 'gerbang.html', label: 'Gerbang', roles: ['GURU_PIKET','SUPER_ADMIN'] },
+    { href: 'sholat.html', label: 'Sholat', roles: ['GURU_PIKET','GURU_BK','WALI_KELAS','KEPSEK','SUPER_ADMIN'] },
+    { href: 'disiplin.html', label: 'Disiplin', roles: ['GURU_BK','WAKA_KESISWAAN','SUPER_ADMIN','KEPSEK'] },
+    { href: 'admin.html', label: 'Admin', roles: ['SUPER_ADMIN','KEPSEK','GURU_BK','WAKA_KESISWAAN'] }
   ];
 
-  const allowed = menuAll.filter(m => !m.roles || m.roles.some(r => roleUpper.includes(r)));
-
-  // 4. Buat elemen Navbar
-  const nav = document.createElement('nav');
-  nav.className = 'bkc-navbar';
+  const allowed = menu.filter(m => !m.roles || m.roles.some(r => roleUpper.includes(r)));
   
   let linksHtml = '';
   allowed.forEach(m => {
-    const active = (halamanSaatIni === m.href) ? 'bkc-active' : '';
-    linksHtml += `<a href="${m.href}" class="bkc-link ${active}">${m.icon} ${m.label}</a>`;
+    const active = (page === m.href) ? 'active' : '';
+    linksHtml += `<a href="${m.href}" class="${active}">${m.label}</a>`;
   });
 
+  // Buat HTML Navbar
+  const nav = document.createElement('nav');
+  nav.className = 'bkc-navbar';
+  nav.style.backgroundColor = themeColor;
   nav.innerHTML = `
     <div class="bkc-brand">
       <div class="bkc-logo">BK</div>
-      <span class="bkc-brand-txt">BKCSiplin</span>
+      <span class="bkc-title">BKCSiplin</span>
     </div>
     <div class="bkc-links">${linksHtml}</div>
     <div class="bkc-user">
-      <span class="bkc-badge">${nama}</span>
-      <button class="bkc-logout" onclick="bkcDoLogout()">Logout</button>
-      <button class="bkc-hamburger" onclick="bkcToggleMenu()">☰</button>
+      <span class="bkc-pill">${nama}</span>
+      <button class="bkc-btn" onclick="bkcLogout()">Keluar</button>
+      <button class="bkc-hamburger" onclick="bkcToggleNav()">☰</button>
     </div>
   `;
 
-  // 5. Buat elemen Menu Mobile
-  const mobileMenu = document.createElement('div');
-  mobileMenu.className = 'bkc-mobile-menu';
-  mobileMenu.id = 'bkc-mobile-menu';
-  mobileMenu.innerHTML = linksHtml;
+  // Buat HTML Menu Mobile
+  const mobileNav = document.createElement('div');
+  mobileNav.className = 'bkc-mobile-nav';
+  mobileNav.id = 'bkc-mobile-nav';
+  mobileNav.innerHTML = linksHtml;
 
-  // 6. Suntikkan CSS & HTML ke halaman
+  // Suntikkan CSS
   const style = document.createElement('style');
   style.innerHTML = `
-    body { padding-top: 56px !important; }
+    /* Tambah jarak atas agar tidak menutupi konten */
+    body { padding-top: 60px !important; }
+    
     .bkc-navbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
-      background: linear-gradient(135deg, #0A1533, #102252);
-      color: #fff; display: flex; align-items: center; justify-content: space-between;
-      padding: 0 1rem; height: 56px; box-shadow: 0 4px 12px rgba(0,0,0,.2);
-      font-family: 'Inter', system-ui, sans-serif;
+      position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 99999;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.2rem; color: #fff; font-family: 'Inter', sans-serif;
+      box-shadow: 0 4px 15px rgba(0,0,0,.15);
     }
-    .bkc-navbar .bkc-brand { display: flex; align-items: center; gap: .6rem; font-weight: 800; font-size: .95rem; }
-    .bkc-navbar .bkc-logo { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #3B82F6, #1E40AF); display: grid; place-items: center; font-weight: 900; font-size: .85rem; }
-    .bkc-navbar .bkc-links { display: flex; gap: .3rem; align-items: center; }
-    .bkc-navbar .bkc-link { color: #B9CDF0; text-decoration: none; font-weight: 600; padding: .5rem .8rem; border-radius: 8px; font-size: .85rem; transition: .15s; }
-    .bkc-navbar .bkc-link:hover, .bkc-navbar .bkc-link.bkc-active { background: rgba(59,130,246,.25); color: #fff; }
-    .bkc-navbar .bkc-user { display: flex; align-items: center; gap: .6rem; font-size: .78rem; font-weight: 700; }
-    .bkc-navbar .bkc-badge { background: rgba(255,255,255,.15); padding: .35rem .7rem; border-radius: 99px; }
-    .bkc-navbar .bkc-logout { background: rgba(239,68,68,.2); border: 1px solid rgba(239,68,68,.4); color: #FCA5A5; padding: .35rem .7rem; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: .78rem; }
-    .bkc-navbar .bkc-hamburger { display: none; background: rgba(255,255,255,.15); border: none; color: #fff; font-size: 1.2rem; width: 38px; height: 38px; border-radius: 8px; cursor: pointer; }
-    .bkc-mobile-menu { position: fixed; top: 56px; left: 0; right: 0; background: #0A1533; z-index: 99998; padding: .5rem; display: none; flex-direction: column; gap: .2rem; border-bottom: 1px solid rgba(96,165,250,.2); font-family: 'Inter', sans-serif; }
-    .bkc-mobile-menu.show { display: flex; }
-    .bkc-mobile-menu a { color: #B9CDF0; text-decoration: none; font-weight: 600; padding: .8rem 1rem; border-radius: 8px; font-size: .9rem; }
-    .bkc-mobile-menu a:hover, .bkc-mobile-menu a.bkc-active { background: #3B82F6; color: #fff; }
+    .bkc-navbar .bkc-brand { display: flex; align-items: center; gap: .6rem; font-weight: 800; }
+    .bkc-navbar .bkc-logo { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,.2); display: grid; place-items: center; font-weight: 900; font-size: .9rem; }
+    .bkc-navbar .bkc-links { display: flex; gap: .5rem; }
+    .bkc-navbar .bkc-links a { color: rgba(255,255,255,.8); text-decoration: none; font-weight: 700; font-size: .85rem; padding: .5rem .8rem; border-radius: 8px; transition: .2s; }
+    .bkc-navbar .bkc-links a:hover, .bkc-navbar .bkc-links a.active { background: rgba(255,255,255,.2); color: #fff; }
+    .bkc-navbar .bkc-user { display: flex; align-items: center; gap: .6rem; }
+    .bkc-navbar .bkc-pill { background: rgba(255,255,255,.15); padding: .35rem .7rem; border-radius: 99px; font-size: .75rem; font-weight: 700; }
+    .bkc-navbar .bkc-btn { background: rgba(239,68,68,.25); border: 1px solid rgba(239,68,68,.5); color: #fff; padding: .4rem .8rem; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: .75rem; }
+    .bkc-navbar .bkc-hamburger { display: none; background: rgba(255,255,255,.2); border: none; color: #fff; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; }
+    
+    .bkc-mobile-nav { position: fixed; top: 60px; left: 0; right: 0; z-index: 99998; padding: .5rem; display: none; flex-direction: column; gap: .2rem; box-shadow: 0 4px 10px rgba(0,0,0,.1); }
+    .bkc-mobile-nav.show { display: flex; }
+    .bkc-mobile-nav a { text-decoration: none; font-weight: 700; padding: .8rem 1rem; border-radius: 8px; font-size: .9rem; color: rgba(255,255,255,.9); }
+    .bkc-mobile-nav a.active { background: rgba(255,255,255,.25); color: #fff; }
+    
     @media (max-width: 768px) {
       .bkc-navbar .bkc-links { display: none; }
       .bkc-navbar .bkc-hamburger { display: grid; place-items: center; }
-      .bkc-navbar .bkc-brand-txt { display: none; }
+      .bkc-navbar .bkc-title { display: none; }
     }
   `;
 
+  // Suntikkan CSS ke Head (sebelum halaman render)
   document.head.appendChild(style);
-  document.body.insertBefore(nav, document.body.firstChild);
-  document.body.insertBefore(mobileMenu, nav.nextSibling);
 
-  window.bkcToggleMenu = function() {
-    document.getElementById('bkc-mobile-menu').classList.toggle('show');
+  // Suntikkan HTML ke Body saat DOM siap
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.insertBefore(nav, document.body.firstChild);
+    document.body.insertBefore(mobileNav, nav.nextSibling);
+  });
+
+  window.bkcToggleNav = function() {
+    const el = document.getElementById('bkc-mobile-nav');
+    if (el) el.classList.toggle('show');
   };
 
-  window.bkcDoLogout = function() {
+  window.bkcLogout = function() {
     if (!confirm('Logout dari sistem?')) return;
     sessionStorage.clear();
     window.location.href = 'index.html';

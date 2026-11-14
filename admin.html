@@ -73,6 +73,10 @@
   .check-item .info{flex:1;font-size:.85rem;font-weight:600}
   .check-item .info span{font-size:.75rem;color:#64748B;font-weight:400}
 
+  .check-role{display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:600;color:#1E3A8A;cursor:pointer;padding:.2rem .4rem;border-radius:6px}
+  .check-role:hover{background:rgba(59,130,246,.08)}
+  .check-role input{width:16px;height:16px;cursor:pointer}
+
   #rfid-input-hidden{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0}
   .toast-wrap{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:.5rem}
   .toast-item{padding:.7rem 1rem;border-radius:10px;font-size:.85rem;font-weight:700;background:#10B981;color:#fff;box-shadow:0 12px 40px rgba(16,185,129,.35);animation:toastIn .25s ease}
@@ -494,7 +498,7 @@
   </div>
 
   <footer class="main-footer text-sm">
-    <div class="float-right d-none d-sm-inline">v6.0</div>
+    <div class="float-right d-none d-sm-inline">v6.1</div>
     <strong>BKCSiplin</strong> &middot; SMK Bhakti Kencana Ciawi &middot; Yayasan Adhi Guna Kencana
   </footer>
 </div>
@@ -549,7 +553,7 @@
     </div>
     <div class="field"><label>Nama Kelas</label><input type="text" id="kelas-nama" placeholder="X Farmasi 1"></div>
     <div class="field"><label>Jurusan</label><input type="text" id="kelas-jurusan" placeholder="Farmasi"></div>
-    <div class="field"><label>Wali Kelas</label><input type="text" id="kelas-wali" placeholder="Nama Wali Kelas"></div>
+    <div class="field"><label>Wali Kelas</label><select id="kelas-wali"><option value="">— Pilih Wali Kelas —</option></select></div>
     <button class="btn-primary-full" id="btn-simpan-kelas">Simpan</button>
     <button class="btn-secondary-full" id="btn-batal-kelas">Batal</button>
   </div>
@@ -567,10 +571,18 @@
       <div class="field"><label>PIN</label><input type="text" id="guru-pin" placeholder="123456"></div>
     </div>
     <div class="field"><label>Nama Lengkap</label><input type="text" id="guru-nama" placeholder="Nama, S.Pd."></div>
-    <div class="form-row">
-      <div class="field"><label>Role</label><select id="guru-role"><option value="GURU_PIKET">GURU_PIKET</option><option value="GURU_BK">GURU_BK</option><option value="WAKA_KESISWAAN">WAKA_KESISWAAN</option><option value="SUPER_ADMIN">SUPER_ADMIN</option><option value="KEPSEK">KEPSEK</option><option value="WALI_KELAS">WALI_KELAS</option></select></div>
-      <div class="field"><label>Status</label><select id="guru-status"><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
+    <div class="field">
+      <label>Role (bisa lebih dari 1)</label>
+      <div id="guru-role-checkboxes" style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;padding:.6rem;border:1.5px solid #E5EEFF;border-radius:8px;background:#F8FAFF">
+        <label class="check-role"><input type="checkbox" value="GURU_PIKET"> GURU_PIKET</label>
+        <label class="check-role"><input type="checkbox" value="GURU_BK"> GURU_BK</label>
+        <label class="check-role"><input type="checkbox" value="WAKA_KESISWAAN"> WAKA_KESISWAAN</label>
+        <label class="check-role"><input type="checkbox" value="SUPER_ADMIN"> SUPER_ADMIN</label>
+        <label class="check-role"><input type="checkbox" value="KEPSEK"> KEPSEK</label>
+        <label class="check-role"><input type="checkbox" value="WALI_KELAS"> WALI_KELAS</label>
+      </div>
     </div>
+    <div class="field"><label>Status</label><select id="guru-status"><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
     <div class="field"><label>No HP</label><input type="text" id="guru-hp"></div>
     <button class="btn-primary-full" id="btn-simpan-guru">Simpan</button>
     <button class="btn-secondary-full" id="btn-batal-guru">Batal</button>
@@ -750,15 +762,16 @@ $('btn-logout').addEventListener('click', () => { if (confirm('Logout?')) doLogo
 $('btn-logout-now').addEventListener('click', () => doLogout('Idle'));
 
 function terapkanRoleMenu() {
-  const role = state.role;
+  const rolesArr = String(state.role || '').toUpperCase().split(',').map(r => r.trim());
+  const isSuperAdmin = rolesArr.includes('SUPER_ADMIN');
+  const bolehAdmin = rolesArr.some(r => ['SUPER_ADMIN','KEPSEK','GURU_BK','WAKA_KESISWAAN'].includes(r));
   document.querySelectorAll('.nav-sidebar .nav-item[data-role]').forEach(li => {
     const need = li.dataset.role;
     if (need === 'all') li.style.display = '';
-    else if (need === 'admin' && (role === 'SUPER_ADMIN' || role === 'KEPSEK' || role === 'GURU_BK' || role === 'WAKA_KESISWAAN')) li.style.display = '';
-    else if (need === 'admin' && role !== 'SUPER_ADMIN') li.style.display = 'none';
+    else if (need === 'admin') li.style.display = bolehAdmin ? '' : 'none';
     else li.style.display = '';
   });
-  if (role !== 'SUPER_ADMIN') {
+  if (!isSuperAdmin) {
     ['siswa','kelas','guru','tatib','rfid','naikkelas','pengaturan'].forEach(p => {
       const li = document.querySelector('.nav-sidebar .nav-link[data-page="' + p + '"]');
       if (li) li.parentElement.style.display = 'none';
@@ -809,6 +822,19 @@ async function loadMasterKelas() {
       if ($('naik-kelas-tujuan')) $('naik-kelas-tujuan').innerHTML = '<option value="">— Pilih Kelas Tujuan —</option>' + opts;
     }
   } catch (err) { console.error('Gagal load kelas:', err); }
+}
+
+async function loadGuruWaliKelas() {
+  try {
+    const res = await apiCall('getGuruWaliKelas');
+    if (!res.ok) return;
+    const sel = $('kelas-wali');
+    if (!sel) return;
+    const opts = res.data.map(g => `<option value="${escapeHtml(g.nama)}">${escapeHtml(g.nama)}${g.role ? ' — ' + escapeHtml(g.role) : ''}</option>`).join('');
+    const current = sel.value;
+    sel.innerHTML = '<option value="">— Pilih Wali Kelas —</option>' + opts;
+    if (current) sel.value = current;
+  } catch (e) {}
 }
 
 document.querySelectorAll('.nav-sidebar .nav-link[data-page]').forEach(link => {
@@ -945,15 +971,18 @@ async function loadKelas() {
     loadMasterKelas();
   } catch (err) { toast('Gagal memuat kelas', true); }
 }
-function openTambahKelas() {
+async function openTambahKelas() {
   $('kelas-mode').value = 'tambah'; $('kelas-id-lama').value = ''; $('kelas-id').value = ''; $('kelas-id').disabled = false;
   $('kelas-nama').value = ''; $('kelas-tingkat').value = 'X'; $('kelas-jurusan').value = ''; $('kelas-wali').value = '';
   $('modal-kelas-title').textContent = 'Tambah Kelas'; $('kelas-alert').classList.remove('show'); $('modal-kelas').classList.add('show');
+  await loadGuruWaliKelas();
 }
-function openEditKelas(k) {
+async function openEditKelas(k) {
   $('kelas-mode').value = 'edit'; $('kelas-id-lama').value = k.id_kelas; $('kelas-id').value = k.id_kelas; $('kelas-id').disabled = true;
   $('kelas-nama').value = k.nama_kelas || ''; $('kelas-tingkat').value = k.tingkat || 'X'; $('kelas-jurusan').value = k.jurusan || ''; $('kelas-wali').value = k.wali_kelas || '';
   $('modal-kelas-title').textContent = 'Edit Kelas — ' + k.nama_kelas; $('kelas-alert').classList.remove('show'); $('modal-kelas').classList.add('show');
+  await loadGuruWaliKelas();
+  $('kelas-wali').value = k.wali_kelas || '';
 }
 async function simpanKelas() {
   const mode = $('kelas-mode').value;
@@ -982,20 +1011,29 @@ async function loadGuru() {
     if (!res.ok) { toast(res.message, true); return; }
     state.guruList = res.data; const tbody = $('tbody-guru');
     if (!res.data.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Tidak ada data.</td></tr>'; return; }
-    tbody.innerHTML = res.data.map(g => `<tr><td class="font-weight-bold">${escapeHtml(g.id_guru)}</td><td>${escapeHtml(g.nama)}</td><td><span class="badge-role">${escapeHtml(g.role)}</span></td><td>${String(g.status).toUpperCase() === 'AKTIF' ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">NONAKTIF</span>'}</td><td>${escapeHtml(g.no_hp || '-')}</td><td><button class="btn-ghost" data-guru="${escapeHtml(g.id_guru)}"><i class="fas fa-edit"></i></button></td></tr>`).join('');
+    tbody.innerHTML = res.data.map(g => {
+      const rolesBadge = String(g.role || '').split(',').map(r => `<span class="badge-role" style="margin-right:.25rem">${escapeHtml(r.trim())}</span>`).join('');
+      return `<tr><td class="font-weight-bold">${escapeHtml(g.id_guru)}</td><td>${escapeHtml(g.nama)}</td><td>${rolesBadge}</td><td>${String(g.status).toUpperCase() === 'AKTIF' ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">NONAKTIF</span>'}</td><td>${escapeHtml(g.no_hp || '-')}</td><td><button class="btn-ghost" data-guru="${escapeHtml(g.id_guru)}"><i class="fas fa-edit"></i></button></td></tr>`;
+    }).join('');
     tbody.querySelectorAll('[data-guru]').forEach(btn => btn.addEventListener('click', () => openEditGuru(state.guruList.find(x => x.id_guru === btn.dataset.guru))));
   } catch (err) { toast('Gagal memuat guru', true); }
 }
 function openTambahGuru() {
-  $('guru-mode').value = 'tambah'; $('guru-id-lama').value = ''; $('guru-id').value = ''; $('guru-id').disabled = false; $('guru-nama').value = ''; $('guru-pin').value = ''; $('guru-role').value = 'GURU_PIKET'; $('guru-hp').value = ''; $('guru-status').value = 'AKTIF';
+  $('guru-mode').value = 'tambah'; $('guru-id-lama').value = ''; $('guru-id').value = ''; $('guru-id').disabled = false; $('guru-nama').value = ''; $('guru-pin').value = ''; $('guru-hp').value = ''; $('guru-status').value = 'AKTIF';
+  document.querySelectorAll('#guru-role-checkboxes input').forEach(cb => cb.checked = (cb.value === 'GURU_PIKET'));
   $('modal-guru-title').textContent = 'Tambah Guru'; $('guru-alert').classList.remove('show'); $('modal-guru').classList.add('show');
 }
 function openEditGuru(g) {
-  $('guru-mode').value = 'edit'; $('guru-id-lama').value = g.id_guru; $('guru-id').value = g.id_guru; $('guru-id').disabled = true; $('guru-nama').value = g.nama || ''; $('guru-pin').value = ''; $('guru-role').value = g.role || 'GURU_PIKET'; $('guru-hp').value = g.no_hp || ''; $('guru-status').value = g.status || 'AKTIF';
+  $('guru-mode').value = 'edit'; $('guru-id-lama').value = g.id_guru; $('guru-id').value = g.id_guru; $('guru-id').disabled = true; $('guru-nama').value = g.nama || ''; $('guru-pin').value = ''; $('guru-hp').value = g.no_hp || ''; $('guru-status').value = g.status || 'AKTIF';
+  const rolesArr = String(g.role || '').split(',').map(r => r.trim().toUpperCase());
+  document.querySelectorAll('#guru-role-checkboxes input').forEach(cb => cb.checked = rolesArr.includes(cb.value));
   $('modal-guru-title').textContent = 'Edit Guru — ' + g.nama; $('guru-alert').classList.remove('show'); $('modal-guru').classList.add('show');
 }
 async function simpanGuru() {
-  const mode = $('guru-mode').value; const payload = { id_guru: mode === 'edit' ? $('guru-id-lama').value : $('guru-id').value.trim(), nama: $('guru-nama').value.trim(), pin: $('guru-pin').value.trim(), role: $('guru-role').value, no_hp: $('guru-hp').value.trim(), status: $('guru-status').value };
+  const mode = $('guru-mode').value;
+  const roleChecked = Array.from(document.querySelectorAll('#guru-role-checkboxes input:checked')).map(cb => cb.value);
+  if (!roleChecked.length) { $('guru-alert').textContent = 'Pilih minimal 1 role.'; $('guru-alert').classList.add('show'); return; }
+  const payload = { id_guru: mode === 'edit' ? $('guru-id-lama').value : $('guru-id').value.trim(), nama: $('guru-nama').value.trim(), pin: $('guru-pin').value.trim(), role: roleChecked.join(','), no_hp: $('guru-hp').value.trim(), status: $('guru-status').value };
   if (mode === 'edit' && !payload.pin) delete payload.pin;
   if (!payload.id_guru || !payload.nama || (mode === 'tambah' && !payload.pin)) { $('guru-alert').textContent = 'Lengkapi data.'; $('guru-alert').classList.add('show'); return; }
   const action = mode === 'edit' ? 'editGuru' : 'tambahGuru'; const btn = $('btn-simpan-guru'); btn.disabled = true; btn.textContent = 'Menyimpan…';

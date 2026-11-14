@@ -52,7 +52,6 @@
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
   .field{margin-bottom:.7rem}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
-  .form-row.full{grid-template-columns:1fr}
 
   .btn-primary-full{width:100%;padding:.8rem;margin-top:.4rem;background:linear-gradient(135deg,var(--brand-2),#1D4ED8);color:#fff;border:none;border-radius:8px;font-family:inherit;font-weight:800;font-size:.9rem;cursor:pointer;transition:.15s;box-shadow:0 6px 20px rgba(59,130,246,.3)}
   .btn-primary-full:hover{transform:translateY(-1px);color:#fff}
@@ -87,10 +86,7 @@
   .filter-bar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:end;margin-bottom:1rem}
   .filter-bar .field{margin-bottom:0;min-width:140px}
   .filter-bar label{font-size:.7rem}
-  .stat-mini{display:inline-flex;flex-direction:column;padding:.6rem .9rem;background:#F8FAFF;border:1px solid #E5EEFF;border-radius:10px;margin-right:.5rem;margin-bottom:.5rem;min-width:110px}
-  .stat-mini b{font-size:1.3rem;color:#1E3A8A;font-weight:800}
-  .stat-mini span{font-size:.7rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-
+  
   .kartu-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:6mm;padding:5mm;justify-items:center}
   .kartu-item{border:1.5px dashed #94A3B8;border-radius:10px;padding:4mm;background:linear-gradient(135deg,#fff,#F8FAFF);display:grid;grid-template-columns:auto 1fr;gap:3mm;align-items:center;width:85.6mm;height:54mm;box-sizing:border-box}
   .kartu-item .qr-box{width:30mm;height:30mm;background:#fff;border-radius:6px;padding:1mm;display:grid;place-items:center}
@@ -381,11 +377,11 @@
         </div>
       </div>
 
-      <!-- LAPORAN SISWA -->
+      <!-- LAPORAN SISWA (REKAP LENGKAP) -->
       <div id="page-laporan-siswa" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
-            <h3 class="card-title mb-0"><i class="fas fa-user-graduate text-primary mr-2"></i>Laporan Siswa</h3>
+            <h3 class="card-title mb-0"><i class="fas fa-user-graduate text-primary mr-2"></i>Laporan Siswa (Rekap Kehadiran)</h3>
             <div class="d-flex align-items-center no-print-laporan" style="gap:.5rem">
               <button class="btn btn-sm btn-primary" id="btn-lap-cari"><i class="fas fa-search mr-1"></i>Tampilkan</button>
               <button class="btn btn-sm btn-success" id="btn-lap-export"><i class="fas fa-file-excel mr-1"></i>Export Excel</button>
@@ -393,27 +389,19 @@
             </div>
           </div>
           <div class="card-body">
-            <div class="tabs-nav no-print-laporan" id="laporan-tabs">
-              <button class="active" data-jenis="gerbang">Presensi Gerbang</button>
-              <button data-jenis="sholat">Presensi Sholat</button>
-              <button data-jenis="poin">Pelanggaran / Poin</button>
-              <button data-jenis="siswa">Data Siswa</button>
-            </div>
             <div class="filter-bar no-print-laporan">
               <div class="field"><label>Dari Tanggal</label><input type="date" id="lap-dari"></div>
               <div class="field"><label>Sampai Tanggal</label><input type="date" id="lap-sampai"></div>
               <div class="field"><label>Kelas</label><select id="lap-kelas"><option value="">Semua</option></select></div>
+              <div class="field"><label>Cari Individu (Nama/NIS)</label><input type="text" id="lap-individu" placeholder="Ketik nama/NIS (kosongkan untuk semua)" style="width:250px"></div>
             </div>
-            <div id="lap-ringkasan" style="margin-bottom:1rem" class="no-print-laporan"></div>
-            <div class="table-responsive" style="max-height:400px;overflow-y:auto" id="lap-table-wrap">
-              <table class="table table-sm table-hover" id="tabel-laporan"><thead id="lap-thead"></thead><tbody id="lap-tbody"></tbody></table>
+
+            <div class="table-responsive" style="max-height:500px;overflow-y:auto" id="lap-table-wrap">
+              <table class="table table-sm table-hover" id="tabel-laporan">
+                <thead id="lap-thead"></thead>
+                <tbody id="lap-tbody"></tbody>
+              </table>
             </div>
-            
-            <div class="row mt-4 print-laporan-only" id="chart-laporan-wrap" style="display:none">
-              <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Analisis Kehadiran</h3></div><div class="card-body"><canvas id="chart-lap-hadir" style="max-height:200px"></canvas></div></div></div>
-              <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Analisis Kedisiplinan</h3></div><div class="card-body"><canvas id="chart-lap-disiplin" style="max-height:200px"></canvas></div></div></div>
-            </div>
-            <div class="mt-2 text-muted small print-laporan-only" id="ai-insight" style="display:none"></div>
           </div>
         </div>
       </div>
@@ -506,7 +494,7 @@
   </div>
 
   <footer class="main-footer text-sm">
-    <div class="float-right d-none d-sm-inline">v5.0</div>
+    <div class="float-right d-none d-sm-inline">v6.0</div>
     <strong>BKCSiplin</strong> &middot; SMK Bhakti Kencana Ciawi &middot; Yayasan Adhi Guna Kencana
   </footer>
 </div>
@@ -580,7 +568,7 @@
     </div>
     <div class="field"><label>Nama Lengkap</label><input type="text" id="guru-nama" placeholder="Nama, S.Pd."></div>
     <div class="form-row">
-      <div class="field"><label>Role</label><select id="guru-role"><option value="GURU_PIKET">GURU_PIKET</option><option value="GURU_BK">GURU_BK</option><option value="SUPER_ADMIN">SUPER_ADMIN</option><option value="KEPSEK">KEPSEK</option><option value="WALI_KELAS">WALI_KELAS</option><option value="WAKA_KESISWAAN">WAKA_KESISWAAN</option></select></div>
+      <div class="field"><label>Role</label><select id="guru-role"><option value="GURU_PIKET">GURU_PIKET</option><option value="GURU_BK">GURU_BK</option><option value="WAKA_KESISWAAN">WAKA_KESISWAAN</option><option value="SUPER_ADMIN">SUPER_ADMIN</option><option value="KEPSEK">KEPSEK</option><option value="WALI_KELAS">WALI_KELAS</option></select></div>
       <div class="field"><label>Status</label><select id="guru-status"><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
     </div>
     <div class="field"><label>No HP</label><input type="text" id="guru-hp"></div>
@@ -688,14 +676,35 @@ function bersihkanJam_(val, fallback) {
   if (m) return m[1] + ':' + m[2];
   return fallback;
 }
+function formatTanggal(val) {
+  if (!val) return '-';
+  try {
+    let d;
+    if (val instanceof Date) d = val;
+    else {
+      const str = String(val).trim();
+      if (str.includes('T')) d = new Date(str);
+      else if (/^\d{4}-\d{2}-\d{2}$/.test(str)) d = new Date(str + 'T00:00:00+07:00');
+      else return str;
+    }
+    if (isNaN(d.getTime())) return String(val);
+    const wib = new Date(d.getTime() + (7 * 3600000));
+    const hari = wib.getUTCDate();
+    const bulanArr = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const bulan = bulanArr[wib.getUTCMonth()];
+    const tahun = wib.getUTCFullYear();
+    return `${hari} ${bulan} ${tahun}`;
+  } catch (e) { return String(val); }
+}
 
-function apiCall(action, payload = {}, isPost = false) {
+function apiCall(action, payload = {}, isPost = false, useToken = true) {
   return new Promise((resolve, reject) => {
     const cbName = 'jsonp_' + Math.round(100000 * Math.random());
     const script = document.createElement('script');
-    let url = `${API_URL}?callback=${cbName}&action=${action}&token=${state.token}`;
+    let url = `${API_URL}?callback=${cbName}&action=${action}`;
+    if (useToken && state.token) url += `&token=${state.token}`;
     if (isPost) { url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`; }
-    else { for (let k in payload) { if (payload[k]) url += `&${k}=${encodeURIComponent(payload[k])}`; } }
+    else { for (let k in payload) { if (payload[k] !== undefined) url += `&${k}=${encodeURIComponent(payload[k])}`; } }
     window[cbName] = function(res) { document.body.removeChild(script); delete window[cbName]; resolve(res); };
     script.src = url;
     script.onerror = () => reject(new Error('Gagal koneksi ke server'));
@@ -745,7 +754,7 @@ function terapkanRoleMenu() {
   document.querySelectorAll('.nav-sidebar .nav-item[data-role]').forEach(li => {
     const need = li.dataset.role;
     if (need === 'all') li.style.display = '';
-    else if (need === 'admin' && (role === 'SUPER_ADMIN' || role === 'KEPSEK' || role === 'GURU_BK')) li.style.display = '';
+    else if (need === 'admin' && (role === 'SUPER_ADMIN' || role === 'KEPSEK' || role === 'GURU_BK' || role === 'WAKA_KESISWAAN')) li.style.display = '';
     else if (need === 'admin' && role !== 'SUPER_ADMIN') li.style.display = 'none';
     else li.style.display = '';
   });
@@ -1149,9 +1158,7 @@ $('btn-save-rfid-guru').addEventListener('click', async () => {
 });
 
 // NAIK KELAS
-async function initNaikKelas() {
-  // Dropdown sudah diisi oleh loadMasterKelas()
-}
+async function initNaikKelas() { /* Dropdown sudah diisi oleh loadMasterKelas() */ }
 $('btn-load-siswa-naik').addEventListener('click', async () => {
   const kelas = $('naik-kelas-asal').value;
   if (!kelas) { toast('Pilih kelas asal dulu', true); return; }
@@ -1198,7 +1205,7 @@ $('btn-proses-lulus').addEventListener('click', async () => {
   finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-graduation-cap mr-1"></i> Luluskan Siswa Terpilih'; }
 });
 
-// LAPORAN SISWA
+// LAPORAN SISWA (REKAP LENGKAP)
 async function initLaporan() {
   if (!$('lap-dari').value) $('lap-dari').value = todayISO();
   if (!$('lap-sampai').value) $('lap-sampai').value = todayISO();
@@ -1229,96 +1236,97 @@ function handleTabLaporan(e) {
   state.laporanJenis = e.target.dataset.jenis;
   loadLaporan();
 }
+
 async function loadLaporan() {
-  const dari = $('lap-dari').value; const sampai = $('lap-sampai').value; const kelas = $('lap-kelas').value;
+  const dari = $('lap-dari').value;
+  const sampai = $('lap-sampai').value;
+  const kelas = $('lap-kelas').value;
+  const individu = $('lap-individu').value.trim().toLowerCase();
+  
   if (!dari || !sampai) { toast('Isi tanggal', true); return; }
+  
   try {
-    const res = await apiCall('getLaporan', { jenis: state.laporanJenis, dari, sampai, kelas });
-    if (!res.ok) { toast(res.message, true); return; }
-    state.laporanData = res.data;
+    // Ambil Data Siswa
+    const resSiswa = await apiCall('getMasterSiswa');
+    if (!resSiswa.ok) { toast(resSiswa.message, true); return; }
+    let listSiswa = resSiswa.data.filter(s => String(s.status).toUpperCase() === 'AKTIF');
+    if (kelas) listSiswa = listSiswa.filter(s => String(s.kelas) === kelas);
+    if (individu) listSiswa = listSiswa.filter(s => String(s.nama).toLowerCase().includes(individu) || String(s.nis).toLowerCase().includes(individu));
+
+    // Ambil Data Gerbang (Hadir)
+    const resGerbang = await apiCall('getLaporan', { jenis: 'gerbang', dari, sampai, kelas });
+    const dataGerbang = resGerbang.ok ? resGerbang.data : [];
+
+    // Ambil Data Keterangan (Izin/Sakit/Alpa)
+    const resKet = await apiCall('getLaporan', { jenis: 'keterangan', dari, sampai, kelas });
+    const dataKet = resKet.ok ? resKet.data : [];
+
+    // Proses Rekap per Siswa
+    const rekap = {};
+    listSiswa.forEach(s => {
+      rekap[s.nis] = { nis: s.nis, nama: s.nama, kelas: s.kelas, hadir: 0, izin: 0, sakit: 0, alpa: 0 };
+    });
+
+    // Hitung Hadir dari Gerbang (Sesi PAGI saja)
+    dataGerbang.forEach(r => {
+      if (String(r.sesi).toUpperCase() === 'PAGI' && rekap[r.nis]) {
+        rekap[r.nis].hadir++;
+      }
+    });
+
+    // Hitung Izin/Sakit/Alpa dari Keterangan
+    dataKet.forEach(r => {
+      if (rekap[r.nis]) {
+        const st = String(r.status).toUpperCase();
+        if (st === 'IZIN') rekap[r.nis].izin++;
+        if (st === 'SAKIT') rekap[r.nis].sakit++;
+        if (st === 'ALPA') rekap[r.nis].alpa++;
+      }
+    });
+
+    state.laporanData = Object.values(rekap);
     renderLaporan();
-    renderLaporanCharts();
+
   } catch (err) { toast('Gagal memuat laporan', true); }
 }
+
 function renderLaporan() {
-  const data = state.laporanData; const jenis = state.laporanJenis;
-  let headers = [], rows = [];
-  
-  if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
-  else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = data.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
-  else if (jenis === 'poin') { headers = ['Tanggal','NIS','Nama','Kelas','Jenis','Pasal','Deskripsi','Poin','Saldo','Petugas']; rows = data.map(r => [r.tanggal, r.nis, r.nama, r.kelas, r.jenis, r.pasal, r.deskripsi, r.poin, r.saldo_setelah, r.petugas]); }
-  else { headers = ['NIS','Nama','Kelas','JK','Status','UID RFID']; rows = data.map(r => [r.nis, r.nama, r.kelas, r.jk, r.status, r.uid_rfid]); }
+  const data = state.laporanData;
+  const headers = ['NIS', 'Nama', 'Kelas', 'Hadir', 'Izin', 'Sakit', 'Alpa', 'Total Hari', '% Kehadiran'];
+  const rows = data.map(r => {
+    const total = r.hadir + r.izin + r.sakit + r.alpa;
+    const persen = total > 0 ? ((r.hadir / total) * 100).toFixed(1) + '%' : '0%';
+    return [r.nis, r.nama, r.kelas, r.hadir, r.izin, r.sakit, r.alpa, total, persen];
+  });
 
   $('lap-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-  if (!data.length) { $('lap-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`; return; }
+  if (!rows.length) { $('lap-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`; return; }
   $('lap-tbody').innerHTML = rows.map(r => '<tr>' + r.map(c => `<td>${escapeHtml(c)}</td>`).join('') + '</tr>').join('');
-}
-
-function renderLaporanCharts() {
-  const data = state.laporanData;
-  $('chart-laporan-wrap').style.display = 'flex';
-  $('ai-insight').style.display = 'block';
-  
-  const statusCount = {};
-  data.forEach(r => { if (r.status) statusCount[r.status] = (statusCount[r.status] || 0) + 1; });
-  if (state.charts.lapHadir) state.charts.lapHadir.destroy();
-  state.charts.lapHadir = new Chart($('chart-lap-hadir'), {
-    type: 'bar',
-    data: { labels: Object.keys(statusCount), datasets: [{ label: 'Jumlah', data: Object.values(statusCount), backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#3B82F6'], borderRadius: 8 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-  });
-
-  const kelasCount = {};
-  data.forEach(r => { if (r.kelas) kelasCount[r.kelas] = (kelasCount[r.kelas] || 0) + 1; });
-  if (state.charts.lapDisiplin) state.charts.lapDisiplin.destroy();
-  state.charts.lapDisiplin = new Chart($('chart-lap-disiplin'), {
-    type: 'bar',
-    data: { labels: Object.keys(kelasCount).slice(0, 5), datasets: [{ label: 'Kejadian', data: Object.values(kelasCount).slice(0, 5), backgroundColor: '#3B82F6', borderRadius: 8 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-  });
-
-  let insight = `<strong>Analisis Otomatis:</strong> Dari ${data.length} data yang ditemukan. `;
-  if (statusCount['TERLAMBAT']) insight += `Terdapat ${statusCount['TERLAMBAT']} siswa terlambat. `;
-  if (statusCount['BOLOS']) insight += `Terdapat ${statusCount['BOLOS']} siswa bolos. `;
-  insight += `Kelas dengan aktivitas tertinggi adalah ${Object.keys(kelasCount)[0] || '-'}.`;
-  $('ai-insight').innerHTML = insight;
 }
 
 function exportLaporanSiswa() {
   if (!state.laporanData.length) { toast('Tidak ada data', true); return; }
-  const jenis = state.laporanJenis; let headers = [], rows = [];
-  if (jenis === 'gerbang') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Sesi','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.sesi, r.status, r.petugas, r.sumber]); }
-  else if (jenis === 'sholat') { headers = ['Tanggal','Jam','NIS','Nama','Kelas','Waktu','Status','Petugas','Sumber']; rows = state.laporanData.map(r => [r.tanggal, r.jam || String(r.timestamp).slice(11, 16), r.nis, r.nama, r.kelas, r.waktu_sholat, r.status, r.petugas, r.sumber]); }
-  else if (jenis === 'poin') { headers = ['Tanggal','NIS','Nama','Kelas','Jenis','Pasal','Deskripsi','Poin','Saldo','Petugas']; rows = state.laporanData.map(r => [r.tanggal, r.nis, r.nama, r.kelas, r.jenis, r.pasal, r.deskripsi, r.poin, r.saldo_setelah, r.petugas]); }
-  else { headers = ['NIS','Nama','Kelas','JK','Status','UID RFID']; rows = state.laporanData.map(r => [r.nis, r.nama, r.kelas, r.jk, r.status, r.uid_rfid]); }
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, jenis); XLSX.writeFile(wb, `Laporan_${jenis}_${$('lap-dari').value}_sd_${$('lap-sampai').value}.xlsx`); toast('File Excel diunduh');
+  const headers = ['NIS', 'Nama', 'Kelas', 'Hadir', 'Izin', 'Sakit', 'Alpa', 'Total Hari', '% Kehadiran'];
+  const rows = state.laporanData.map(r => {
+    const total = r.hadir + r.izin + r.sakit + r.alpa;
+    const persen = total > 0 ? ((r.hadir / total) * 100).toFixed(1) + '%' : '0%';
+    return [r.nis, r.nama, r.kelas, r.hadir, r.izin, r.sakit, r.alpa, total, persen];
+  });
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Laporan_Siswa'); XLSX.writeFile(wb, `Laporan_Siswa_${$('lap-dari').value}_sd_${$('lap-sampai').value}.xlsx`); toast('File Excel diunduh');
 }
-function printLaporan() {
-  const target = document.getElementById('page-laporan-siswa').style.display !== 'none' ? document.getElementById('page-laporan-siswa') : document.getElementById('page-laporan-guru');
-  const originalTitle = document.title;
-  document.title = 'Laporan';
-  window.print();
-  document.title = originalTitle;
-}
+function printLaporan() { window.print(); }
 
-// LAPORAN GURU (EVENT LISTENER DI DALAM INIT)
+// LAPORAN GURU
 async function initLaporanGuru() {
   if (!$('lap-guru-dari').value) $('lap-guru-dari').value = todayISO();
   if (!$('lap-guru-sampai').value) $('lap-guru-sampai').value = todayISO();
-  
-  $('btn-lap-guru-cari').removeEventListener('click', loadLaporanGuru);
-  $('btn-lap-guru-cari').addEventListener('click', loadLaporanGuru);
-  $('lap-guru-dari').removeEventListener('change', loadLaporanGuru);
-  $('lap-guru-dari').addEventListener('change', loadLaporanGuru);
-  $('lap-guru-sampai').removeEventListener('change', loadLaporanGuru);
-  $('lap-guru-sampai').addEventListener('change', loadLaporanGuru);
-  $('btn-lap-guru-export').removeEventListener('click', exportLaporanGuru);
-  $('btn-lap-guru-export').addEventListener('click', exportLaporanGuru);
-  $('btn-lap-guru-print').removeEventListener('click', printLaporan);
-  $('btn-lap-guru-print').addEventListener('click', printLaporan);
-  
   await loadLaporanGuru();
 }
+$('btn-lap-guru-cari').addEventListener('click', loadLaporanGuru);
+$('lap-guru-dari').addEventListener('change', loadLaporanGuru);
+$('lap-guru-sampai').addEventListener('change', loadLaporanGuru);
+$('btn-lap-guru-export').addEventListener('click', exportLaporanGuru);
+$('btn-lap-guru-print').addEventListener('click', printLaporan);
 
 async function loadLaporanGuru() {
   const dari = $('lap-guru-dari').value; const sampai = $('lap-guru-sampai').value;
@@ -1334,7 +1342,7 @@ async function loadLaporanGuru() {
 function renderLaporanGuru() {
   const data = state.laporanData;
   const headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam'];
-  const rows = data.map(r => [r.tanggal, r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
+  const rows = data.map(r => [formatTanggal(r.tanggal), r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
   $('lap-guru-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
   if (!data.length) { $('lap-guru-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`; return; }
   $('lap-guru-tbody').innerHTML = rows.map(r => '<tr>' + r.map(c => `<td>${escapeHtml(c)}</td>`).join('') + '</tr>').join('');
@@ -1343,7 +1351,7 @@ function renderLaporanGuru() {
 function exportLaporanGuru() {
   if (!state.laporanData.length) { toast('Tidak ada data', true); return; }
   const headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam'];
-  const rows = state.laporanData.map(r => [r.tanggal, r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
+  const rows = state.laporanData.map(r => [formatTanggal(r.tanggal), r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Laporan_Guru'); XLSX.writeFile(wb, `Laporan_Guru_${$('lap-guru-dari').value}_sd_${$('lap-guru-sampai').value}.xlsx`); toast('File Excel diunduh');
 }
 

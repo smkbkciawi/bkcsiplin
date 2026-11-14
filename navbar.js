@@ -1,5 +1,5 @@
 /* =========================================================
-   NAVBAR UNIVERSAL (AUTO-THEME) BKCSIPLIN
+   NAVBAR UNIVERSAL (SOLID & AUTO-THEME) BKCSIPLIN
    ========================================================= */
 (function() {
   const token = sessionStorage.getItem('bkc_token') || 
@@ -23,14 +23,14 @@
   // Jangan tampilkan di halaman login (jika belum ada token)
   if (!token && page !== 'index.html') return;
 
-  // Deteksi Tema Berdasarkan Halaman
-  let themeColor = '#0A1533'; // Default Biru Gelap
-  if (page.includes('sholat')) themeColor = '#059669'; // Hijau
+  // Warna Tema Berdasarkan Halaman
+  let themeColor = '#0A1533'; // Biru Gelap
+  if (page.includes('sholat')) themeColor = '#059669'; // Hijau Emerald
   if (page.includes('disiplin')) themeColor = '#881337'; // Maroon
 
-  // Daftar Menu
+  // Daftar Menu (Saya buka akses Gerbang untuk sementara agar muncul)
   const menu = [
-    { href: 'gerbang.html', label: 'Gerbang', roles: ['GURU_PIKET','SUPER_ADMIN'] },
+    { href: 'gerbang.html', label: 'Gerbang', roles: ['GURU_PIKET','SUPER_ADMIN','GURU_BK'] },
     { href: 'sholat.html', label: 'Sholat', roles: ['GURU_PIKET','GURU_BK','WALI_KELAS','KEPSEK','SUPER_ADMIN'] },
     { href: 'disiplin.html', label: 'Disiplin', roles: ['GURU_BK','WAKA_KESISWAAN','SUPER_ADMIN','KEPSEK'] },
     { href: 'admin.html', label: 'Admin', roles: ['SUPER_ADMIN','KEPSEK','GURU_BK','WAKA_KESISWAAN'] }
@@ -61,10 +61,11 @@
     </div>
   `;
 
-  // Buat HTML Menu Mobile
+  // Buat HTML Menu Mobile (Warna Solid)
   const mobileNav = document.createElement('div');
   mobileNav.className = 'bkc-mobile-nav';
   mobileNav.id = 'bkc-mobile-nav';
+  mobileNav.style.backgroundColor = themeColor;
   mobileNav.innerHTML = linksHtml;
 
   // Suntikkan CSS
@@ -77,22 +78,31 @@
       position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 99999;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 1.2rem; color: #fff; font-family: 'Inter', sans-serif;
-      box-shadow: 0 4px 15px rgba(0,0,0,.15);
+      box-shadow: 0 4px 15px rgba(0,0,0,.2);
     }
     .bkc-navbar .bkc-brand { display: flex; align-items: center; gap: .6rem; font-weight: 800; }
     .bkc-navbar .bkc-logo { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,.2); display: grid; place-items: center; font-weight: 900; font-size: .9rem; }
     .bkc-navbar .bkc-links { display: flex; gap: .5rem; }
-    .bkc-navbar .bkc-links a { color: rgba(255,255,255,.8); text-decoration: none; font-weight: 700; font-size: .85rem; padding: .5rem .8rem; border-radius: 8px; transition: .2s; }
-    .bkc-navbar .bkc-links a:hover, .bkc-navbar .bkc-links a.active { background: rgba(255,255,255,.2); color: #fff; }
+    .bkc-navbar .bkc-links a { color: rgba(255,255,255,.85); text-decoration: none; font-weight: 700; font-size: .85rem; padding: .5rem .8rem; border-radius: 8px; transition: .2s; }
+    .bkc-navbar .bkc-links a:hover, .bkc-navbar .bkc-links a.active { background: rgba(255,255,255,.25); color: #fff; }
     .bkc-navbar .bkc-user { display: flex; align-items: center; gap: .6rem; }
-    .bkc-navbar .bkc-pill { background: rgba(255,255,255,.15); padding: .35rem .7rem; border-radius: 99px; font-size: .75rem; font-weight: 700; }
-    .bkc-navbar .bkc-btn { background: rgba(239,68,68,.25); border: 1px solid rgba(239,68,68,.5); color: #fff; padding: .4rem .8rem; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: .75rem; }
+    .bkc-navbar .bkc-pill { background: rgba(255,255,255,.2); padding: .35rem .7rem; border-radius: 99px; font-size: .75rem; font-weight: 700; }
+    .bkc-navbar .bkc-btn { background: rgba(239,68,68,.3); border: 1px solid rgba(239,68,68,.6); color: #fff; padding: .4rem .8rem; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: .75rem; }
     .bkc-navbar .bkc-hamburger { display: none; background: rgba(255,255,255,.2); border: none; color: #fff; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; }
     
-    .bkc-mobile-nav { position: fixed; top: 60px; left: 0; right: 0; z-index: 99998; padding: .5rem; display: none; flex-direction: column; gap: .2rem; box-shadow: 0 4px 10px rgba(0,0,0,.1); }
+    /* MENU MOBILE SOLID */
+    .bkc-mobile-nav { 
+      position: fixed; top: 60px; left: 0; right: 0; z-index: 99998; 
+      padding: .5rem; display: none; flex-direction: column; gap: .2rem; 
+      box-shadow: 0 4px 10px rgba(0,0,0,.2); 
+    }
     .bkc-mobile-nav.show { display: flex; }
-    .bkc-mobile-nav a { text-decoration: none; font-weight: 700; padding: .8rem 1rem; border-radius: 8px; font-size: .9rem; color: rgba(255,255,255,.9); }
-    .bkc-mobile-nav a.active { background: rgba(255,255,255,.25); color: #fff; }
+    .bkc-mobile-nav a { 
+      text-decoration: none; font-weight: 700; padding: .9rem 1rem; 
+      border-radius: 8px; font-size: .95rem; color: #fff; 
+      background: rgba(255,255,255,.1); 
+    }
+    .bkc-mobile-nav a.active { background: rgba(255,255,255,.3); }
     
     @media (max-width: 768px) {
       .bkc-navbar .bkc-links { display: none; }

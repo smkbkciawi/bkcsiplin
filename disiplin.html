@@ -147,7 +147,7 @@
   <h1><i class="fas fa-balance-scale"></i> Kedisiplinan</h1>
   <div class="header-right">
     <span class="user-pill" id="user-label">Belum login</span>
-    <button class="btn-icon" id="btn-menu"><i class="fas fa-bars"></i></button>
+    <button class="btn-icon" id="btn-menu" type="button"><i class="fas fa-bars"></i></button>
     <button class="btn-icon" id="btn-logout" style="display:none"><i class="fas fa-sign-out-alt"></i></button>
   </div>
 </header>
@@ -252,12 +252,9 @@
         <option value="">Semua Kelas</option>
       </select>
     </div>
-    <div class="result-box" id="result-rekap" style="max-width:100%"></div>
-    
-    <!-- TABEL REKAP -->
     <div class="table-wrap" id="rekap-table-wrap">
       <table id="tabel-rekap">
-        <thead><tr><th>NIS</th><th>Nama</th><th>Kelas</th><th>Saldo Poin</th><th>Status</th><th>Aksi</th></tr></thead>
+        <thead><tr><th>NIS</th><th>Nama</th><th>Kelas</th><th>Saldo</th><th>Status</th><th>Aksi</th></tr></thead>
         <tbody id="tbody-rekap">
           <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1rem">Memuat data siswa…</td></tr>
         </tbody>
@@ -669,7 +666,7 @@ $('btn-start-cam').addEventListener('click', startKamera);
 $('btn-stop-cam').addEventListener('click', stopKamera);
 $('close-scanner').addEventListener('click', () => { stopKamera(); $('modal-scanner').classList.remove('show'); });
 
-// CETAK SURAT
+// CETAK SURAT & DETAIL REKAP
 let selectedSiswaRekap = null;
 $('btn-cetak-dari-rekap').addEventListener('click', () => { if (!selectedSiswaRekap) return; $('modal-cetak-surat').classList.add('show'); });
 $('close-cetak-surat').addEventListener('click', () => $('modal-cetak-surat').classList.remove('show'));
@@ -764,24 +761,36 @@ async function loadRekapAll() {
     let list = res.data.filter(s => String(s.status).toUpperCase() === 'AKTIF');
     if (kelasFilter) list = list.filter(s => String(s.kelas) === kelasFilter);
     
-    // Ambil semua data poin untuk efisiensi
-    const poinRes = await apiCall('getRiwayatPoin', { nis: 'all' });
-    // Kita hitung saldo per siswa secara manual karena getRiwayatPoin butuh NIS spesifik
-    // Sebagai alternatif, kita panggil satu per satu? Terlalu berat. Kita andalkan tampilan tanpa saldo dulu, atau panggil getLaporan Poin.
-    // Untuk kesederhanaan, kita tampilkan data siswa tanpa saldo poin di tabel, dan tombol "Detail" untuk lihat saldo.
-    
     if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1rem">Tidak ada siswa.</td></tr>'; return; }
     
+    // Render tabel dengan saldo placeholder
     tbody.innerHTML = list.map(s => `<tr>
       <td>${escapeHtml(s.nis)}</td>
       <td>${escapeHtml(s.nama)}</td>
       <td>${escapeHtml(s.kelas)}</td>
-      <td>-</td>
+      <td class="saldo-${s.nis}">-</td>
       <td><span class="chip chip-hijau" style="font-size:.7rem">Aktif</span></td>
-      <td>
-        <button class="btn-mini" data-rekap-nis="${escapeHtml(s.nis)}" data-rekap-nama="${escapeHtml(s.nama)}" data-rekap-kelas="${escapeHtml(s.kelas)}"><i class="fas fa-eye"></i> Detail</button>
-      </td>
+      <td><button class="btn-mini" data-rekap-nis="${escapeHtml(s.nis)}" data-rekap-nama="${escapeHtml(s.nama)}" data-rekap-kelas="${escapeHtml(s.kelas)}"><i class="fas fa-eye"></i> Detail</button></td>
     </tr>`).join('');
+    
+    // Hitung saldo per siswa secara sinkron (bisa lambat jika banyak, tapi ini JS, jadi cepat)
+    for (const s of list) {
+      try {
+        const poin = await apiCall('getRiwayatPoin', { nis: s.nis });
+        let saldo = 100;
+        if (poin.ok) poin.data.forEach(r => saldo += (Number(r.poin) || 0));
+        const cell = document.querySelector(`.saldo-${s.nis}`);
+        if (cell) {
+          cell.textContent = saldo;
+          let chipClass = 'chip-hijau';
+          if (saldo <= 0) chipClass = 'chip-kritis';
+          else if (saldo <= 25) chipClass = 'chip-merah';
+          else if (saldo <= 50) chipClass = 'chip-oranye';
+          else if (saldo <= 75) chipClass = 'chip-kuning';
+          cell.innerHTML = `<span class="chip ${chipClass}" style="font-size:.7rem">${saldo}</span>`;
+        }
+      } catch (e) {}
+    }
     
     tbody.querySelectorAll('[data-rekap-nis]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -793,10 +802,6 @@ async function loadRekapAll() {
 }
 
 function bukaModalRekap() {
-  // Tampilkan modal detail (menggunakan modal-cetak-surat? Tidak, ini butuh modal baru)
-  // Sementara kita pakai alert / fungsi cepat.
-  // Sebenarnya kita bisa arahkan ke halaman profil / cetak surat.
-  // Untuk kesederhanaan, kita pakai prompt konfirmasi.
   if (!selectedSiswaRekap) return;
   $('modal-cetak-surat').classList.add('show');
 }
@@ -820,10 +825,28 @@ $('search-rekap').addEventListener('input', async () => {
       <td>${escapeHtml(s.nis)}</td>
       <td>${escapeHtml(s.nama)}</td>
       <td>${escapeHtml(s.kelas)}</td>
-      <td>-</td>
+      <td class="saldo-${s.nis}">-</td>
       <td><span class="chip chip-hijau" style="font-size:.7rem">Aktif</span></td>
       <td><button class="btn-mini" data-rekap-nis="${escapeHtml(s.nis)}" data-rekap-nama="${escapeHtml(s.nama)}" data-rekap-kelas="${escapeHtml(s.kelas)}"><i class="fas fa-eye"></i> Detail</button></td>
     </tr>`).join('');
+    
+    for (const s of list) {
+      try {
+        const poin = await apiCall('getRiwayatPoin', { nis: s.nis });
+        let saldo = 100;
+        if (poin.ok) poin.data.forEach(r => saldo += (Number(r.poin) || 0));
+        const cell = document.querySelector(`.saldo-${s.nis}`);
+        if (cell) {
+          cell.textContent = saldo;
+          let chipClass = 'chip-hijau';
+          if (saldo <= 0) chipClass = 'chip-kritis';
+          else if (saldo <= 25) chipClass = 'chip-merah';
+          else if (saldo <= 50) chipClass = 'chip-oranye';
+          else if (saldo <= 75) chipClass = 'chip-kuning';
+          cell.innerHTML = `<span class="chip ${chipClass}" style="font-size:.7rem">${saldo}</span>`;
+        }
+      } catch (e) {}
+    }
     
     tbody.querySelectorAll('[data-rekap-nis]').forEach(btn => {
       btn.addEventListener('click', () => {

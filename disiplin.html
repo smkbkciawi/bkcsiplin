@@ -13,7 +13,6 @@
     --bg:#FDF2F4; --text:#1F2937; --muted:#6B7280;
     --card:#FFFFFF; --border:#FCE7F3;
     --danger:#EF4444; --warn:#F59E0B; --success:#10B981;
-    --radius:16px; --shadow:0 4px 20px rgba(136,19,55,.06);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
@@ -21,11 +20,10 @@
   header{background:linear-gradient(135deg,var(--maroon),var(--maroon-d));color:#fff;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 15px rgba(136,19,55,.2);position:sticky;top:0;z-index:100}
   header h1{font-size:1.1rem;font-weight:800;display:flex;align-items:center;gap:.5rem;letter-spacing:.3px}
   .header-right{display:flex;align-items:center;gap:.6rem}
-  .user-pill{background:rgba(255,255,255,.18);padding:.4rem .8rem;border-radius:99px;font-size:.78rem;font-weight:700;backdrop-filter:blur(4px)}
-  .btn-icon{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:.5rem .7rem;cursor:pointer;font-weight:700;font-size:.9rem;transition:.15s;display:grid;place-items:center}
-  .btn-icon:hover{background:rgba(255,255,255,.25)}
+  .user-pill{background:rgba(255,255,255,.18);padding:.4rem .8rem;border-radius:99px;font-size:.78rem;font-weight:700}
+  .btn-icon{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:.5rem .7rem;cursor:pointer;font-weight:700;font-size:.9rem;display:grid;place-items:center}
 
-  .drawer{position:fixed;top:0;left:-300px;width:280px;height:100vh;background:#fff;z-index:1000;box-shadow:4px 0 30px rgba(0,0,0,.15);transition:.35s cubic-bezier(.4,0,.2,1);overflow-y:auto}
+  .drawer{position:fixed;top:0;left:-300px;width:280px;height:100vh;background:#fff;z-index:1000;box-shadow:4px 0 30px rgba(0,0,0,.15);transition:.35s;overflow-y:auto}
   .drawer.open{left:0}
   .drawer-header{background:linear-gradient(135deg,var(--maroon),var(--maroon-d));color:#fff;padding:1.3rem 1.2rem;display:flex;justify-content:space-between;align-items:center}
   .drawer-header h3{font-size:.95rem;font-weight:800}
@@ -34,19 +32,19 @@
   .drawer-menu a{display:flex;align-items:center;gap:.9rem;padding:.9rem 1.2rem;color:var(--text);text-decoration:none;font-weight:600;font-size:.9rem;transition:.15s;border-left:3px solid transparent;margin:0 .5rem;border-radius:8px;cursor:pointer}
   .drawer-menu a:hover{background:#FDF2F4;border-left-color:var(--maroon-l);color:var(--maroon)}
   .drawer-menu a i{width:22px;color:var(--maroon);font-size:1rem}
-  .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:none;backdrop-filter:blur(2px)}
+  .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:none}
   .drawer-overlay.show{display:block}
 
   main{padding:1.5rem;max-width:900px;margin:0 auto;width:100%}
   .hidden{display:none!important}
   
-  .clean-search{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem 1.5rem;box-shadow:var(--shadow);text-align:center;margin-top:1rem}
+  .clean-search{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem 1.5rem;box-shadow:0 4px 20px rgba(136,19,55,.06);text-align:center;margin-top:1rem}
   .clean-search h2{font-size:1.25rem;font-weight:800;color:var(--maroon);margin-bottom:1.5rem}
   .search-box{position:relative;max-width:500px;margin:0 auto 1.2rem}
   .search-box input{width:100%;padding:1rem 1rem 1rem 3rem;border:2px solid var(--border);border-radius:16px;font-family:inherit;font-size:1rem;font-weight:600;outline:none;background:#fff}
   .search-box .icon{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.1rem}
   .action-btns{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
-  .btn-action{padding:.85rem 1.4rem;border:none;border-radius:99px;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:.2s}
+  .btn-action{padding:.85rem 1.4rem;border:none;border-radius:99px;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.5rem}
   .btn-action.primary{background:var(--maroon);color:#fff}
   .btn-action.outline{background:#fff;border:2px solid var(--border);color:var(--maroon)}
 
@@ -117,7 +115,6 @@
   <h1><i class="fas fa-balance-scale"></i> Kedisiplinan</h1>
   <div class="header-right">
     <span class="user-pill" id="user-label">Belum login</span>
-    <!-- Menggunakan onclick langsung agar pasti berfungsi -->
     <button class="btn-icon" onclick="bukaDrawer()" type="button"><i class="fas fa-bars"></i></button>
     <button class="btn-icon" id="btn-logout" style="display:none" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i></button>
   </div>
@@ -149,6 +146,17 @@
       <button class="btn-action outline" onclick="tapRfid('guru')"><i class="fas fa-wifi"></i> Tap RFID</button>
     </div>
     <div class="result-box" id="result-box"></div>
+  </div>
+
+  <!-- RIWAYAT CEPAT (TABEL) -->
+  <div class="table-wrap" style="margin-top:1.5rem" id="riwayat-cepat-wrap">
+    <div style="padding:1rem;background:#FDF2F4;border-bottom:1px solid var(--border);font-size:.72rem;font-weight:800;letter-spacing:.15em;color:var(--muted);text-transform:uppercase"><i class="fas fa-history"></i> Siswa Terakhir Diproses</div>
+    <table>
+      <thead><tr><th>NIS</th><th>Nama</th><th>Kelas</th><th>Waktu</th></tr></thead>
+      <tbody id="tbody-riwayat-cepat">
+        <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:1rem">Belum ada aktivitas hari ini.</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="legenda">
@@ -264,13 +272,28 @@
   </div>
 </div>
 
-<!-- MODAL CETAK SURAT -->
-<div class="modal-overlay" id="modal-cetak-surat">
-  <div class="modal">
-    <button class="modal-close" onclick="tutupModal('modal-cetak-surat')">×</button>
-    <h2>Pilih Kategori Surat</h2>
-    <div class="field"><label>Kategori</label>
-      <select id="kategori-surat">
+<!-- MODAL DETAIL REKAP (PROFIL & RIWAYAT) -->
+<div class="modal-overlay" id="modal-detail-rekap">
+  <div class="modal" style="max-width:600px">
+    <button class="modal-close" onclick="tutupModal('modal-detail-rekap')">×</button>
+    <h2 id="detail-nama">Nama Siswa</h2>
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="font-size:.7rem;letter-spacing:.2em;color:var(--muted);font-weight:800">SALDO POIN</div>
+      <div style="font-size:3rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--maroon);line-height:1" id="detail-poin">100</div>
+      <div class="zona-badge" id="detail-zona">Zona Hijau</div>
+    </div>
+    
+    <h3 style="font-size:.85rem;font-weight:800;color:var(--maroon);margin-bottom:.5rem">Riwayat Pelanggaran</h3>
+    <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:12px" id="detail-riwayat-wrap">
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+        <thead><tr style="background:#FDF2F4"><th style="padding:.5rem;text-align:left">Tanggal</th><th style="padding:.5rem;text-align:left">Pasal</th><th style="padding:.5rem;text-align:left">Deskripsi</th><th style="padding:.5rem;text-align:center">Poin</th></tr></thead>
+        <tbody id="detail-tbody-riwayat"><tr><td colspan="4" style="text-align:center;padding:1rem;color:var(--muted)">Memuat…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="field" style="margin-top:1rem">
+      <label>Pilih Kategori Surat (Untuk Cetak)</label>
+      <select id="detail-kategori-surat">
         <option value="SP1">Surat Peringatan 1 (SP 1)</option>
         <option value="SP2">Surat Peringatan 2 (SP 2)</option>
         <option value="SP3">Surat Peringatan 3 (SP 3)</option>
@@ -278,16 +301,7 @@
         <option value="KONFERENSI">Konferensi Kasus</option>
       </select>
     </div>
-    <button class="btn-primary-full" onclick="cetakSuratFinal()">Cetak Surat</button>
-  </div>
-</div>
-
-<!-- MODAL RIWAYAT -->
-<div class="modal-overlay" id="modal-riwayat">
-  <div class="modal" style="max-width:600px">
-    <button class="modal-close" onclick="tutupModal('modal-riwayat')">×</button>
-    <h2>Riwayat Poin Siswa</h2>
-    <div id="riwayat-content" style="max-height:400px;overflow-y:auto"></div>
+    <button class="btn-primary-full" onclick="cetakSuratFinal()"><i class="fas fa-print"></i> Cetak Surat</button>
   </div>
 </div>
 
@@ -404,7 +418,6 @@ async function doLogin() {
   const alertEl = $('login-alert');
   alertEl.style.display = 'none';
   if (!username || !pin) { alertEl.textContent = 'ID dan PIN wajib diisi.'; alertEl.style.display = 'block'; return; }
-  
   const btn = event ? event.target : null;
   if(btn) { btn.disabled = true; btn.textContent = 'Memeriksa…'; }
   try {
@@ -505,6 +518,30 @@ async function pilihSiswa(nis, nama, kelas) {
   } catch (e) { $('profil-poin').textContent = '?'; }
   
   $('profil-card').style.display = 'block';
+  
+  // Tambah ke riwayat cepat
+  tambahRiwayatCepat(nis, nama, kelas);
+}
+
+function tambahRiwayatCepat(nis, nama, kelas) {
+  const now = new Date();
+  const jam = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  
+  // Cek apakah siswa sudah ada di tabel
+  const rows = document.querySelectorAll('#tbody-riwayat-cepat tr');
+  let exists = false;
+  rows.forEach(r => { if (r.dataset.nis === nis) exists = true; });
+  
+  if (!exists && rows.length < 5) {
+    // Hapus baris "Belum ada"
+    const emptyRow = document.querySelector('#tbody-riwayat-cepat tr td[colspan]');
+    if (emptyRow) emptyRow.parentElement.remove();
+    
+    const tr = document.createElement('tr');
+    tr.dataset.nis = nis;
+    tr.innerHTML = `<td>${escapeHtml(nis)}</td><td>${escapeHtml(nama)}</td><td>${escapeHtml(kelas)}</td><td>${jam}</td>`;
+    $('tbody-riwayat-cepat').appendChild(tr);
+  }
 }
 
 function tutupProfil() {
@@ -619,15 +656,40 @@ function scanQR() {
   }
 }
 
-// CETAK SURAT
+// CETAK SURAT & MODAL DETAIL REKAP
 function bukaModalRekap(nis, nama, kelas) {
   state.selectedSiswaRekap = { nis, nama, kelas };
-  $('modal-cetak-surat').classList.add('show');
+  $('detail-nama').textContent = nama + ' (' + kelas + ')';
+  
+  // Ambil riwayat poin
+  apiCall('getRiwayatPoin', { nis }).then(res => {
+    let saldo = 100;
+    if (res.ok) res.data.forEach(r => saldo += (Number(r.poin) || 0));
+    $('detail-poin').textContent = saldo;
+    
+    let zona = 'Zona Hijau', css = 'chip-hijau';
+    if (saldo <= 0) { zona = 'Kritis'; css = 'chip-kritis'; }
+    else if (saldo <= 25) { zona = 'Zona Merah'; css = 'chip-merah'; }
+    else if (saldo <= 50) { zona = 'Zona Oranye'; css = 'chip-oranye'; }
+    else if (saldo <= 75) { zona = 'Zona Kuning'; css = 'chip-kuning'; }
+    $('detail-zona').textContent = zona;
+    $('detail-zona').className = 'zona-badge ' + css;
+    
+    const tbody = $('detail-tbody-riwayat');
+    if (!res.data.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1rem;color:var(--muted)">Belum ada riwayat.</td></tr>';
+    } else {
+      tbody.innerHTML = res.data.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.5rem">${escapeHtml(r.tanggal)}</td><td style="padding:.5rem">${escapeHtml(r.pasal)}</td><td style="padding:.5rem">${escapeHtml(r.deskripsi)}</td><td style="padding:.5rem;text-align:center;font-weight:800;color:${Number(r.poin) < 0 ? 'var(--danger)' : 'var(--success)'}">${r.poin > 0 ? '+' : ''}${r.poin}</td></tr>`).join('');
+    }
+  });
+  
+  $('modal-detail-rekap').classList.add('show');
 }
+
 async function cetakSuratFinal() {
   if (!state.selectedSiswaRekap) return;
-  const kategori = $('kategori-surat').value;
-  tutupModal('modal-cetak-surat');
+  const kategori = $('detail-kategori-surat').value;
+  tutupModal('modal-detail-rekap');
   
   const setting = await apiCall('getPengaturan');
   const s = setting.ok ? setting.data : {};

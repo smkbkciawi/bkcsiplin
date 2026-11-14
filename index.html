@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BKCSiplin — SMK Bhakti Kencana Ciawi</title>
+
+<link rel="icon" type="image/png" href="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png">
+<link rel="apple-touch-icon" href="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #F4F7FA;
+    --card: #FFFFFF;
+    --text: #0A1533;
+    --muted: #64748B;
+    --border: #E5EEFF;
+    --brand: #1E3A8A;
+    --navy: linear-gradient(135deg, #1E3A8A, #0A1533);
+    --emerald: linear-gradient(135deg, #059669, #047857);
+    --maroon: linear-gradient(135deg, #881337, #4C0519);
+    --blue: linear-gradient(135deg, #3B82F6, #1D4ED8);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: radial-gradient(900px 600px at 10% -10%, rgba(59, 130, 246, 0.08), transparent 60%),
+                radial-gradient(700px 500px at 110% 110%, rgba(16, 185, 129, 0.06), transparent 55%),
+                var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* HEADER */
+  header {
+    padding: 1.5rem 2rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    min-width: 0;
+  }
+  .brand-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    object-fit: contain;
+    background: #fff;
+    padding: 4px;
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.12);
+    flex: 0 0 auto;
+  }
+  .brand-txt { display: flex; flex-direction: column; min-width: 0; }
+  .brand-txt b { font-size: 1.15rem; font-weight: 800; color: var(--brand); letter-spacing: .2px; }
+  .brand-txt span { font-size: .78rem; color: var(--muted); font-weight: 600; }
+  .clock {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .clock-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -.01em;
+  }
+  .clock-time .sec { color: #3B82F6; font-size: .7em; }
+  .clock-date { font-size: .8rem; color: var(--muted); font-weight: 600; margin-top: .3rem; }
+
+  .user-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .35rem .85rem;
+    background: rgba(16, 185, 129, 0.10);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 999px;
+    font-size: .8rem;
+    font-weight: 700;
+    color: #047857;
+    margin-top: .45rem;
+  }
+  .user-pill .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 8px #10B981;
+  }
+  .user-pill a {
+    color: #047857;
+    text-decoration: underline;
+    font-weight: 800;
+    margin-left: .2rem;
+  }
+
+  /* MAIN — 4 KARTU */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.1rem;
+    width: 100%;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.6rem 1.4rem;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    box-shadow: 0 4px 16px rgba(30, 58, 138, 0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: var(--accent-bar);
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(30, 58, 138, 0.12);
+    border-color: transparent;
+  }
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 1.3rem;
+    color: #fff;
+    background: var(--accent-bg);
+    flex: 0 0 auto;
+  }
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -.01em;
+    line-height: 1.2;
+  }
+  .card-sub {
+    font-size: .82rem;
+    color: var(--muted);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .card-arrow {
+    margin-top: auto;
+    padding-top: .5rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .78rem;
+    font-weight: 800;
+    color: var(--accent-txt);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .card-arrow i { font-size: .8rem; transition: transform .18s ease; }
+  .card:hover .card-arrow i { transform: translateX(3px); }
+
+  .card.navy { --accent-bar: var(--navy); --accent-bg: var(--navy); --accent-txt: var(--brand); }
+  .card.emerald { --accent-bar: var(--emerald); --accent-bg: var(--emerald); --accent-txt: #047857; }
+  .card.maroon { --accent-bar: var(--maroon); --accent-bg: var(--maroon); --accent-txt: #881337; }
+  .card.blue { --accent-bar: var(--blue); --accent-bg: var(--blue); --accent-txt: #1D4ED8; }
+
+  /* FOOTER */
+  footer {
+    padding: 1.2rem 2rem;
+    text-align: center;
+    font-size: .78rem;
+    color: var(--muted);
+    font-weight: 600;
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(6px);
+  }
+  footer .server-warn {
+    display: none;
+    color: #B91C1C;
+    font-weight: 800;
+    margin-left: .5rem;
+  }
+  footer .server-warn.show { display: inline; }
+
+  /* RESPONSIF */
+  @media (max-width: 900px) {
+    header { padding: 1rem 1.2rem .5rem; }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: .9rem; }
+    main { padding: 1rem 1.2rem 2rem; }
+    .brand-logo { width: 44px; height: 44px; }
+    .brand-txt b { font-size: 1rem; }
+  }
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: 1fr; }
+    .clock { text-align: left; align-items: flex-start; }
+    header { flex-direction: column; align-items: flex-start; }
+    .card { padding: 1.3rem 1.2rem; }
+    .card-icon { width: 42px; height: 42px; font-size: 1.15rem; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo SMK BKC" class="brand-logo">
+      <div class="brand-txt">
+        <b>BKCSiplin</b>
+        <span>SMK Bhakti Kencana Ciawi</span>
+      </div>
+    </div>
+    <div class="clock">
+      <div class="clock-time" id="clock-time">--:--<span class="sec" id="clock-sec">:--</span></div>
+      <div class="clock-date" id="clock-date">Memuat tanggal…</div>
+      <div class="user-pill" id="user-pill" style="display:none">
+        <span class="dot"></span>
+        <span id="user-text">Halo</span>
+        <a href="#" id="user-lanjut">Lanjutkan →</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <a href="gerbang.html" class="card navy">
+        <div class="card-icon"><i class="fas fa-door-open"></i></div>
+        <div class="card-title">Gerbang</div>
+        <div class="card-sub">Presensi masuk & pulang via RFID atau QR.</div>
+        <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
+      </a>
+
+      <a href="sholat.html" class="card emerald">
+        <div class="card-icon"><i class="fas fa-mosque"></i></div>
+        <div class="card-title">Sholat</div>
+        <div class="card-sub">Presensi ibadah berjamaah dengan udzur syar'i.</div>
+        <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
+      </a>
+
+      <a href="disiplin.html" class="card maroon">
+        <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
+        <div class="card-title">Disiplin</div>
+        <div class="card-sub">Poin tata tertib, zona karakter, dan surat SP.</div>
+        <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
+      </a>
+
+      <a href="admin.html" class="card blue">
+        <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="card-title">Admin</div>
+        <div class="card-sub">Portal eksekutif & dashboard sekolah.</div>
+        <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
+      </a>
+    </div>
+  </main>
+
+  <footer>
+    © 2026 Yayasan Adhi Guna Kencana · SMK Bhakti Kencana Ciawi
+    <span class="server-warn" id="server-warn">⚠ Server tidak terhubung</span>
+  </footer>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
+
+const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function tickClock() {
+  const now = new Date();
+  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
+  const hh = String(wib.getHours()).padStart(2, '0');
+  const mm = String(wib.getMinutes()).padStart(2, '0');
+  const ss = String(wib.getSeconds()).padStart(2, '0');
+  document.getElementById('clock-time').innerHTML = hh + ':' + mm + '<span class="sec" id="clock-sec">:' + ss + '</span>';
+  document.getElementById('clock-date').textContent =
+    HARI[wib.getDay()] + ', ' + wib.getDate() + ' ' + BULAN[wib.getMonth()] + ' ' + wib.getFullYear();
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+function cekLogin() {
+  const map = [
+    { token: 'bkc_token',          nama: 'bkc_petugas',        modul: 'gerbang',  url: 'gerbang.html' },
+    { token: 'bkc_sholat_token',   nama: 'bkc_sholat_nama',    modul: 'sholat',   url: 'sholat.html'  },
+    { token: 'bkc_disiplin_token', nama: 'bkc_disiplin_nama',  modul: 'disiplin', url: 'disiplin.html'},
+    { token: 'bkc_admin_token',    nama: 'bkc_admin_nama',     modul: 'admin',    url: 'admin.html'   }
+  ];
+  for (const m of map) {
+    const token = sessionStorage.getItem(m.token);
+    const nama = sessionStorage.getItem(m.nama);
+    if (token && nama) return { nama: nama, modul: m.modul, url: m.url };
+  }
+  return null;
+}
+
+function renderUserPill() {
+  const user = cekLogin();
+  if (!user) return;
+  const pill = document.getElementById('user-pill');
+  const text = document.getElementById('user-text');
+  const lanjut = document.getElementById('user-lanjut');
+  text.textContent = 'Halo, ' + user.nama;
+  lanjut.href = user.url;
+  lanjut.textContent = 'Lanjut ke ' + user.modul.charAt(0).toUpperCase() + user.modul.slice(1) + ' →';
+  pill.style.display = 'inline-flex';
+}
+renderUserPill();
+
+(function cekServer() {
+  const cbName = 'ping_' + Math.round(100000 * Math.random());
+  const script = document.createElement('script');
+  script.src = API_URL + '?action=ping&callback=' + cbName;
+  window[cbName] = function(res) {
+    delete window[cbName];
+    if (!res || !res.ok) document.getElementById('server-warn').classList.add('show');
+    script.remove();
+  };
+  script.onerror = function() {
+    delete window[cbName];
+    document.getElementById('server-warn').classList.add('show');
+    script.remove();
+  };
+  setTimeout(function() {
+    if (window[cbName]) {
+      delete window[cbName];
+      document.getElementById('server-warn').classList.add('show');
+      script.remove();
+    }
+  }, 6000);
+  document.body.appendChild(script);
+})();
+</script>
+</body>
+</html>

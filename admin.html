@@ -110,12 +110,35 @@
     body * { visibility: hidden; }
     #page-laporan-siswa, #page-laporan-siswa * { visibility: visible; }
     #page-laporan-guru, #page-laporan-guru * { visibility: visible; }
-    #page-laporan-siswa, #page-laporan-guru { position: absolute; left: 0; top: 0; width: 100%; }
+    #page-kartu, #page-kartu * { visibility: visible; }
+    #page-laporan-siswa, #page-laporan-guru, #page-kartu { position: absolute; left: 0; top: 0; width: 100%; }
     .no-print, .no-print-laporan, .main-sidebar, .main-header, .main-footer { display: none !important; }
     .content-wrapper { margin: 0 !important; padding: 0 !important; }
     .card { border: none !important; box-shadow: none !important; }
     .table-responsive { max-height: none !important; overflow: visible !important; }
     .print-laporan-only { display: block !important; }
+
+    /* Sembunyikan header card & info saat cetak kartu */
+    #page-kartu .card-header,
+    #page-kartu #kartu-info { display: none !important; }
+
+    /* KARTU: isi ke samping dulu (3 kolom), ukuran presisi CR80, tidak terpotong */
+    #kartu-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, 85.6mm) !important;
+      grid-auto-rows: 54mm !important;
+      gap: 6mm !important;
+      padding: 5mm !important;
+      justify-content: center !important;
+      align-items: start !important;
+    }
+    #kartu-grid .kartu-item {
+      width: 85.6mm !important;
+      height: 54mm !important;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
     @page { size: A4 landscape; margin: 10mm; }
   }
   @media (max-width: 992px) { .kartu-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -576,7 +599,7 @@
   </div>
 
   <footer class="main-footer text-sm">
-    <div class="float-right d-none d-sm-inline">v7.0</div>
+    <div class="float-right d-none d-sm-inline">v7.1</div>
     <strong>BKCSiplin</strong> &middot; SMK Bhakti Kencana Ciawi &middot; Yayasan Adhi Guna Kencana
   </footer>
 </div>
@@ -830,9 +853,21 @@ async function afterLogin() {
   }
   await loadMasterKelas();
   terapkanRoleMenu();
+  if (!isAdminRole_(state.role)) {
+    try {
+      const resKelas = await apiCall('getSiswaKelasSaya');
+      const kelasAmpu = (resKelas.ok && resKelas.kelas_ampu) ? resKelas.kelas_ampu : [];
+      if (kelasAmpu.length) {
+        $('header-portal-label').innerHTML = 'Wali Kelas: <strong>' + kelasAmpu.map(escapeHtml).join(', ') + '</strong>';
+      } else {
+        $('header-portal-label').innerHTML = '<span style="color:#B91C1C">Belum ditugaskan sebagai wali kelas</span>';
+      }
+    } catch (e) {
+      $('header-portal-label').textContent = 'Portal Wali Kelas';
+    }
+  }
   mulaiIdleWatcher(); mulaiHeartbeat();
-  const startPage = isAdminRole_(state.role) ? 'dashboard' : 'dashboard';
-  loadPage(startPage);
+  loadPage('dashboard');
 }
 
 async function doLogout(reason) {
@@ -871,12 +906,10 @@ function terapkanRoleMenu() {
   });
 
   if (isWaliOnly) {
-    // Wali kelas hanya boleh: Dashboard, Keterangan Absen, Laporan Siswa
     ['siswa','kelas','guru','tatib','rfid','naikkelas','pengaturan','kartu','laporan-guru'].forEach(p => {
       const li = document.querySelector('.nav-sidebar .nav-link[data-page="' + p + '"]');
       if (li) li.parentElement.style.display = 'none';
     });
-    // Sembunyikan filter kelas di Laporan Siswa (otomatis kelasnya)
     if ($('lap-kelas-wrap')) $('lap-kelas-wrap').style.display = 'none';
   } else {
     if ($('lap-kelas-wrap')) $('lap-kelas-wrap').style.display = '';

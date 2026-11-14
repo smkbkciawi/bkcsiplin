@@ -793,6 +793,49 @@ document.querySelectorAll('.drawer-menu a').forEach(link => {
   });
 });
 $('btn-back-rekap').addEventListener('click', () => { $('page-rekap').classList.add('hidden'); $('page-home').classList.remove('hidden'); });
+  // Filter Kelas di Rekap
+async function loadFilterKelasRekap() {
+  try {
+    const res = await apiCall('getDaftarKelas');
+    if (!res.ok) return;
+    const sel = $('filter-kelas-rekap');
+    sel.innerHTML = '<option value="">Semua Kelas</option>' + res.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+  } catch (e) {}
+}
+
+// Pencarian Rekap dengan Filter Kelas
+$('search-rekap').addEventListener('input', () => {
+  const q = $('search-rekap').value.trim();
+  const kelas = $('filter-kelas-rekap').value;
+  if (state.searchTimer) clearTimeout(state.searchTimer);
+  if (q.length < 2 && !kelas) { $('result-rekap').innerHTML = ''; return; }
+  state.searchTimer = setTimeout(async () => {
+    try {
+      const res = await apiCall('searchOrang', { q: q || 'a', kelas });
+      if (res.ok && res.data.length) {
+        let siswaList = res.data.filter(s => s.tipe === 'SISWA');
+        if (kelas) siswaList = siswaList.filter(s => String(s.kelas) === kelas);
+        if (!siswaList.length) { $('result-rekap').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem">Tidak ditemukan.</div>'; return; }
+        $('result-rekap').innerHTML = siswaList.map(s => `<div class="result-item" data-nis="${s.id}" data-nama="${escapeHtml(s.nama)}" data-kelas="${escapeHtml(s.kelas)}"><div><div class="nama">${escapeHtml(s.nama)}</div><div class="kelas">${escapeHtml(s.kelas)} · ${escapeHtml(s.id)}</div></div><i class="fas fa-chevron-right" style="opacity:.5"></i></div>`).join('');
+        $('result-rekap').querySelectorAll('.result-item').forEach(el => {
+          el.addEventListener('click', () => {
+            $('result-rekap').innerHTML = ''; $('search-rekap').value = '';
+            tampilRekap(el.dataset.nis, el.dataset.nama, el.dataset.kelas);
+          });
+        });
+      } else { $('result-rekap').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:1rem">Tidak ditemukan.</div>'; }
+    } catch (e) { $('result-rekap').innerHTML = ''; }
+  }, 300);
+});
+
+$('filter-kelas-rekap').addEventListener('change', () => {
+  $('search-rekap').dispatchEvent(new Event('input'));
+});
+
+// Panggil saat halaman rekap dibuka
+document.querySelector('.drawer-menu a[data-page="rekap"]').addEventListener('click', () => {
+  loadFilterKelasRekap();
+});
 $('btn-back-validasi').addEventListener('click', () => { $('page-validasi').classList.add('hidden'); $('page-home').classList.remove('hidden'); });
 $('btn-back-udzur').addEventListener('click', () => { $('page-udzur').classList.add('hidden'); $('page-home').classList.remove('hidden'); });
 

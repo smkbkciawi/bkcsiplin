@@ -125,7 +125,6 @@
   .import-result .warn{color:#92400E;font-weight:700}
   .import-result ul{margin:.4rem 0 0 1rem;padding:0}
 
-  /* RAPORT */
   .raport-hal{background:#fff;border:1px solid #E5EEFF;border-radius:12px;padding:1.5rem;margin-bottom:1rem}
   .raport-header{display:flex;align-items:center;gap:1rem;border-bottom:2px solid #1E3A8A;padding-bottom:1rem;margin-bottom:1rem}
   .raport-header img{width:56px;height:56px;object-fit:contain}
@@ -687,7 +686,7 @@
   </div>
 
   <footer class="main-footer text-sm">
-    <div class="float-right d-none d-sm-inline">v8.0</div>
+    <div class="float-right d-none d-sm-inline">v8.1</div>
     <strong>BKCSiplin</strong> &middot; SMK Bhakti Kencana Ciawi &middot; Yayasan Adhi Guna Kencana
   </footer>
 </div>
@@ -946,6 +945,17 @@ function apiCall(action, payload = {}, isPost = false, useToken = true) {
     script.onerror = () => reject(new Error('Gagal koneksi ke server'));
     document.body.appendChild(script);
   });
+}
+
+// Khusus import — pakai fetch POST (bukan JSONP) karena payload besar & berkarakter khusus
+async function apiCallImport(action, payload = {}) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, token: state.token, payload })
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.json();
 }
 
 // ============ LOGIN / LOGOUT ============
@@ -1754,7 +1764,6 @@ function exportLaporanSiswa() {
 
 // ============ RAPORT SISWA ============
 async function initRaport() {
-  // Cek role — hanya SUPER_ADMIN, KEPSEK, GURU_BK, WALI_KELAS
   const rolesArr = String(state.role || '').toUpperCase().split(',').map(r => r.trim());
   const boleh = ['SUPER_ADMIN','KEPSEK','GURU_BK','WALI_KELAS'].some(r => rolesArr.includes(r));
   if (!boleh) { toast('Anda tidak berhak mengakses raport.', true); return; }
@@ -2069,7 +2078,7 @@ $('btn-do-import').addEventListener('click', async () => {
   for (let i = 0; i < total; i += CHUNK) {
     const chunk = state.importRows.slice(i, i + CHUNK);
     try {
-      const res = await apiCall(action, { rows: chunk }, true);
+      const res = await apiCallImport(action, { rows: chunk });
       if (!res.ok) { errorFatal = res.message; break; }
       berhasil += res.data.berhasil || 0;
       gagal += res.data.gagal || 0;

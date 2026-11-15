@@ -198,7 +198,21 @@
           <div class="field" style="margin:0"><label>Mode</label><select id="lap-mode"><option value="siswa">Per Siswa</option><option value="hari">Per Hari</option></select></div>
         </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <button class="btn btn-primary" id="btn-load-laporan"><i class="fas fa-search"></i> Tampilkan Data</button>
+          <div class="field" style="margin:0">
+  <label>Jenis Laporan</label>
+  <select id="lap-tipe">
+    <option value="rekap">Rekap Total</option>
+    <option value="detail">Detail Per Tanggal</option>
+  </select>
+</div>
+          <div class="field" style="margin:0">
+  <label>Jenis Laporan</label>
+  <select id="lap-tipe">
+    <option value="detail">Detail Per Tanggal</option>
+    <option value="rekap">Rekap Total</option>
+  </select>
+</div>
+<button class="btn btn-primary" id="btn-load-laporan"><i class="fas fa-search"></i> Tampilkan Data</button>
           <button class="btn btn-outline" id="btn-export-laporan" style="background: #fff; border: 1.5px solid #10B981; color: #047857; font-weight: 800;"><i class="fas fa-file-excel"></i> Export Excel</button>
         </div>
       </div>
@@ -575,29 +589,64 @@ async function hapusUdzur(row) {
 }
 
 $('btn-load-laporan').addEventListener('click', async () => {
-  const dari = $('lap-dari').value; const sampai = $('lap-sampai').value; const mode = $('lap-mode').value;
+  const dari = $('lap-dari').value;
+  const sampai = $('lap-sampai').value;
   const kelas = $('lap-kelas').value;
+  const tipe = $('lap-tipe').value;
+  
   if (!dari || !sampai) { toast('Isi tanggal.', true); return; }
+  
   try {
     const res = await apiCall('getLaporan', { jenis: 'sholat', dari, sampai, kelas });
     if (!res.ok) { toast(res.message, true); return; }
+    
     const data = res.data;
     $('lap-table-wrap').style.display = 'block';
+    
     if (!data.length) {
       $('lap-thead').innerHTML = '<tr><th>Info</th></tr>';
       $('lap-tbody').innerHTML = '<tr><td style="text-align:center;color:var(--muted)">Tidak ada data pada rentang tanggal tersebut.</td></tr>';
       return;
     }
-    if (mode === 'siswa') {
-      const rekap = {};
-      data.forEach(r => { if (!rekap[r.nis]) rekap[r.nis] = { nis: r.nis, nama: r.nama, kelas: r.kelas, hadir: 0, udzur: 0 }; if (r.status === 'HADIR') rekap[r.nis].hadir++; else if (r.status === 'UDZUR') rekap[r.nis].udzur++; });
-      $('lap-thead').innerHTML = '<tr><th>NIS</th><th>Nama</th><th>Kelas</th><th>Hadir</th><th>Udzur</th></tr>';
-      $('lap-tbody').innerHTML = Object.values(rekap).map(r => `<tr><td>${r.nis}</td><td>${r.nama}</td><td>${r.kelas}</td><td>${r.hadir}</td><td>${r.udzur}</td></tr>`).join('');
+
+    if (tipe === 'detail') {
+      // --- TAMPILAN DETAIL (WAKTU SHOLAT) ---
+      $('lap-thead').innerHTML = '<tr><th>Tanggal</th><th>NIS</th><th>Nama</th><th>Kelas</th><th>Waktu Sholat</th><th>Status</th></tr>';
+      
+      // Urutkan berdasarkan tanggal terbaru
+      data.sort((a,b) => String(b.timestamp).localeCompare(String(a.timestamp)));
+      
+      $('lap-tbody').innerHTML = data.map(r => `
+        <tr>
+          <td>${formatTanggal(r.tanggal)}</td>
+          <td>${r.nis}</td>
+          <td>${r.nama}</td>
+          <td>${r.kelas}</td>
+          <td><b>${r.waktu_sholat || '-'}</b></td>
+          <td>${r.status}</td>
+        </tr>
+      `).join('');
+      
     } else {
+      // --- TAMPILAN REKAP TOTAL ---
+      $('lap-thead').innerHTML = '<tr><th>NIS</th><th>Nama</th><th>Kelas</th><th>Hadir (Total)</th><th>Udzur (Total)</th></tr>';
+      
       const rekap = {};
-      data.forEach(r => { if (!rekap[r.tanggal]) rekap[r.tanggal] = { tanggal: r.tanggal, hadir: 0, udzur: 0 }; if (r.status === 'HADIR') rekap[r.tanggal].hadir++; else if (r.status === 'UDZUR') rekap[r.tanggal].udzur++; });
-      $('lap-thead').innerHTML = '<tr><th>Tanggal</th><th>Hadir</th><th>Udzur</th></tr>';
-      $('lap-tbody').innerHTML = Object.values(rekap).sort((a,b) => b.tanggal.localeCompare(a.tanggal)).map(r => `<tr><td>${r.tanggal}</td><td>${r.hadir}</td><td>${r.udzur}</td></tr>`).join('');
+      data.forEach(r => {
+        if (!rekap[r.nis]) rekap[r.nis] = { nis: r.nis, nama: r.nama, kelas: r.kelas, hadir: 0, udzur: 0 };
+        if (r.status === 'HADIR') rekap[r.nis].hadir++;
+        if (r.status === 'UDZUR') rekap[r.nis].udzur++;
+      });
+      
+      $('lap-tbody').innerHTML = Object.values(rekap).map(r => `
+        <tr>
+          <td>${r.nis}</td>
+          <td>${r.nama}</td>
+          <td>${r.kelas}</td>
+          <td style="font-weight:800; color:#047857">${r.hadir}</td>
+          <td style="font-weight:800; color:#B45309">${r.udzur}</td>
+        </tr>
+      `).join('');
     }
   } catch (e) { toast('Gagal memuat laporan.', true); }
 });

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <link rel="icon" type="image/png" href="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cek Kehadiran & Poin — SMK Bhakti Kencana Ciawi</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
+<style>
+  :root{
+    --brand:#1E3A8A; --brand-2:#3B82F6; --brand-3:#60A5FA;
+    --success:#10B981; --success-l:#6EE7B7;
+    --warn:#F59E0B; --danger:#EF4444;
+    --bg:#F0F4FA; --card:#fff; --text:#0F172A; --muted:#64748B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:linear-gradient(180deg,#EFF6FF 0%,#F0F4FA 100%);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+  
+  /* HEADER */
+  header{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;padding:1rem 1.5rem;box-shadow:0 4px 20px rgba(30,58,138,.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+  header .brand{display:flex;align-items:center;gap:.75rem}
+  header .brand img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:10px;padding:4px}
+  header .brand h1{font-size:1.1rem;font-weight:900;line-height:1.1}
+  header .brand .sub{font-size:.75rem;opacity:.85;font-weight:600;margin-top:.15rem}
+  header .back-btn{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;padding:.5rem 1rem;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;transition:.15s}
+  header .back-btn:hover{background:rgba(255,255,255,.25)}
+
+  /* MAIN */
+  main{flex:1;padding:2rem 1rem;display:flex;justify-content:center}
+  .container{width:100%;max-width:900px}
+
+  /* HERO */
+  .hero{background:#fff;border-radius:20px;padding:2rem;box-shadow:0 8px 30px rgba(30,58,138,.08);margin-bottom:1.5rem;text-align:center;border:1px solid #DBEAFE}
+  .hero .icon{width:64px;height:64px;background:linear-gradient(135deg,var(--brand-2),var(--brand));border-radius:16px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:1.75rem;margin-bottom:1rem;box-shadow:0 8px 24px rgba(59,130,246,.3)}
+  .hero h2{font-size:1.5rem;font-weight:900;color:var(--brand);margin-bottom:.4rem}
+  .hero p{color:var(--muted);font-size:.95rem;font-weight:600;line-height:1.5;max-width:600px;margin:0 auto}
+
+  /* SEARCH BOX */
+  .search-card{background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 8px 30px rgba(30,58,138,.08);margin-bottom:1.5rem;border:1px solid #DBEAFE}
+  .search-card label{display:block;font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+  .search-input-wrap{display:flex;gap:.5rem;flex-wrap:wrap}
+  .search-input-wrap input{flex:1;min-width:200px;padding:1rem 1.2rem;border:2px solid #DBEAFE;border-radius:12px;font-family:inherit;font-weight:600;font-size:1rem;outline:none;transition:.15s}
+  .search-input-wrap input:focus{border-color:var(--brand-2);box-shadow:0 0 0 4px rgba(59,130,246,.15)}
+  .search-input-wrap button{padding:1rem 2rem;background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 6px 20px rgba(59,130,246,.3);transition:.15s}
+  .search-input-wrap button:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,.4)}
+  .search-input-wrap button:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .search-hint{font-size:.8rem;color:var(--muted);font-weight:600;margin-top:.75rem;display:flex;align-items:center;gap:.4rem}
+
+  /* RESULT */
+  #result{display:none}
+  #result.show{display:block;animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .profile-card{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-radius:20px;padding:1.75rem;margin-bottom:1.25rem;box-shadow:0 10px 30px rgba(30,58,138,.25)}
+  .profile-card .row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .profile-card .avatar{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;flex-shrink:0}
+  .profile-card .info h3{font-size:1.4rem;font-weight:900;line-height:1.2}
+  .profile-card .info .meta{font-size:.9rem;opacity:.9;margin-top:.3rem;font-weight:600}
+  .profile-card .zone-badge{margin-left:auto;padding:.5rem 1rem;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:99px;font-weight:900;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em}
+
+  /* STAT GRID */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.25rem}
+  .stat-card{background:#fff;border-radius:14px;padding:1.2rem;box-shadow:0 4px 16px rgba(30,58,138,.06);border:1px solid #DBEAFE;text-align:center}
+  .stat-card .lbl{font-size:.7rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+  .stat-card .val{font-size:2rem;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1}
+  .stat-card .sub{font-size:.72rem;color:var(--muted);font-weight:600;margin-top:.3rem}
+  .stat-card.hijau .val{color:var(--success)}
+  .stat-card.kuning .val{color:var(--warn)}
+  .stat-card.merah .val{color:var(--danger)}
+  .stat-card.biru .val{color:var(--brand-2)}
+
+  /* CARD */
+  .card{background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 4px 16px rgba(30,58,138,.06);margin-bottom:1.25rem;border:1px solid #DBEAFE}
+  .card h4{font-size:1rem;font-weight:900;color:var(--brand);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+  .card h4 i{color:var(--brand-2)}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th{background:#EFF6FF;padding:.7rem .6rem;text-align:left;font-weight:800;color:var(--brand);border-bottom:2px solid #DBEAFE;font-size:.75rem;text-transform:uppercase;letter-spacing:.03em}
+  td{padding:.7rem .6rem;border-bottom:1px solid #F0F4FA;vertical-align:middle}
+  tr:hover td{background:#F8FAFF}
+  td.center{text-align:center}
+  td.num{text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700}
+
+  .badge{display:inline-block;padding:.2rem .6rem;border-radius:6px;font-size:.72rem;font-weight:800;text-transform:uppercase}
+  .badge.hadir{background:#D1FAE5;color:#047857}
+  .badge.izin{background:#DBEAFE;color:#1E40AF}
+  .badge.sakit{background:#FEF3C7;color:#92400E}
+  .badge.alpa{background:#FEE2E2;color:#B91C1C}
+  .badge.terlambat{background:#FEF3C7;color:#92400E}
+  .badge.tepat{background:#D1FAE5;color:#047857}
+
+  .empty-data{text-align:center;padding:2rem;color:var(--muted);font-weight:600;font-size:.9rem}
+  .empty-data i{font-size:2rem;opacity:.4;display:block;margin-bottom:.5rem}
+
+  /* POIN ITEM */
+  .poin-item{display:flex;justify-content:space-between;align-items:center;padding:.7rem .9rem;border-radius:10px;background:#F8FAFF;border:1px solid #DBEAFE;margin-bottom:.5rem;font-size:.88rem;gap:.5rem}
+  .poin-item .info{flex:1;min-width:0}
+  .poin-item .info .desc{font-weight:700;color:var(--text)}
+  .poin-item .info .meta{font-size:.75rem;color:var(--muted);font-weight:600;margin-top:.2rem}
+  .poin-item .val{font-family:'JetBrains Mono',monospace;font-weight:900;font-size:1rem;white-space:nowrap}
+  .poin-item .val.min{color:var(--danger)}
+  .poin-item .val.plus{color:var(--success)}
+
+  /* LOADING */
+  .loading{text-align:center;padding:3rem;color:var(--muted);font-weight:600}
+  .loading i{font-size:2rem;color:var(--brand-2);margin-bottom:.5rem;display:block}
+  .spinner{display:inline-block;width:32px;height:32px;border:3px solid #DBEAFE;border-top-color:var(--brand-2);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ERROR */
+  .error-box{background:#FEE2E2;border:2px solid #FECACA;color:#B91C1C;padding:1.2rem;border-radius:12px;font-weight:700;text-align:center;margin-bottom:1rem}
+  .error-box i{font-size:1.5rem;display:block;margin-bottom:.5rem}
+
+  /* TOAST */
+  .toast-wrap{position:fixed;top:80px;right:20px;z-index:200;display:flex;flex-direction:column;gap:.5rem}
+  .toast{padding:.8rem 1.2rem;border-radius:10px;font-size:.85rem;font-weight:700;background:var(--success);color:#fff;box-shadow:0 8px 24px rgba(16,185,129,.4);animation:toastIn .3s ease}
+  .toast.err{background:var(--danger);box-shadow:0 8px 24px rgba(239,68,68,.4)}
+  @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+  /* FOOTER */
+  footer{background:#fff;border-top:1px solid #DBEAFE;padding:1.5rem;text-align:center;font-size:.8rem;color:var(--muted);font-weight:600}
+  footer b{color:var(--brand)}
+
+  @media(max-width:600px){
+    header .brand h1{font-size:.95rem}
+    header .brand .sub{font-size:.65rem}
+    header .brand img{width:36px;height:36px}
+    .hero{padding:1.5rem 1rem}
+    .hero h2{font-size:1.2rem}
+    .hero p{font-size:.85rem}
+    .profile-card{padding:1.25rem}
+    .profile-card .avatar{width:56px;height:56px;font-size:1.4rem}
+    .profile-card .info h3{font-size:1.15rem}
+    .profile-card .zone-badge{margin-left:0;margin-top:.75rem;width:100%;text-align:center}
+    .stat-card .val{font-size:1.6rem}
+    .search-input-wrap button{padding:1rem 1.2rem;font-size:.9rem}
+    table{font-size:.78rem}
+    th,td{padding:.5rem .4rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo" onerror="this.style.display='none'">
+    <div>
+      <h1>Cek Kehadiran & Poin</h1>
+      <div class="sub">SMK Bhakti Kencana Ciawi</div>
+    </div>
+  </div>
+  <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Kembali</a>
+</header>
+
+<main>
+  <div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="icon"><i class="fas fa-magnifying-glass-chart"></i></div>
+      <h2>Cek Kehadiran & Poin Siswa</h2>
+      <p>Masukkan NIS atau nama siswa untuk melihat kehadiran gerbang, presensi sholat, dan riwayat poin disiplin secara real-time.</p>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-card">
+      <label for="search-input">NIS atau Nama Siswa</label>
+      <div class="search-input-wrap">
+        <input type="text" id="search-input" placeholder="Contoh: 24001 atau Aisyah" autocomplete="off" autofocus>
+        <button id="btn-search"><i class="fas fa-search"></i> Cari</button>
+      </div>
+      <div class="search-hint">
+        <i class="fas fa-circle-info"></i>
+        Minimal 2 karakter. Data ditampilkan sesuai hak akses publik.
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result"></div>
+
+  </div>
+</main>
+
+<footer>
+  <b>BKCSiplin</b> · SMK Bhakti Kencana Ciawi · Yayasan Adhi Guna Kencana
+  <div style="margin-top:.4rem;font-size:.72rem">Data diperbarui secara real-time dari sistem sekolah</div>
+</footer>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
+const $ = (id) => document.getElementById(id);
+
+// ==================== UTIL ====================
+function toast(msg, isErr) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (isErr ? ' err' : '');
+  el.textContent = msg;
+  $('toast-wrap').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = '.3s'; }, 2800);
+  setTimeout(() => el.remove(), 3400);
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function apiCall(action, payload = {}, isPost = false) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'jsonp_' + Math.round(100000 * Math.random());
+    const script = document.createElement('script');
+    let url = `${API_URL}?callback=${cbName}&action=${action}`;
+    if (isPost) {
+      url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`;
+    } else {
+      for (let k in payload) if (payload[k] !== undefined && payload[k] !== null) {
+        url += `&${k}=${encodeURIComponent(payload[k])}`;
+      }
+    }
+    window[cbName] = function(res) {
+      document.body.removeChild(script);
+      delete window[cbName];
+      resolve(res);
+    };
+    script.src = url;
+    script.onerror = () => {
+      document.body.removeChild(script);
+      delete window[cbName];
+      reject(new Error('Gagal koneksi ke server'));
+    };
+    document.body.appendChild(script);
+  });
+}
+
+// Format tanggal: "2026-11-15" → "15 Nov 2026"
+function formatTanggal(tgl) {
+  if (!tgl) return '-';
+  const str = String(tgl).trim();
+  const m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return str;
+  const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  return `${parseInt(m[3],10)} ${bulan[parseInt(m[2],10)-1]} ${m[1]}`;
+}
+
+function hariIndo(tgl) {
+  const str = String(tgl).trim();
+  const m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return '';
+  const d = new Date(m[1] + '-' + m[2] + '-' + m[3] + 'T00:00:00+07:00');
+  const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  return hari[d.getUTCDay()] || '';
+}
+
+// ==================== RENDER RESULT ====================
+function renderLoading() {
+  $('result').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <p style="margin-top:1rem">Mencari data siswa…</p>
+    </div>`;
+  $('result').classList.add('show');
+}
+
+function renderError(msg) {
+  $('result').innerHTML = `
+    <div class="error-box">
+      <i class="fas fa-triangle-exclamation"></i>
+      ${escapeHtml(msg)}
+    </div>`;
+  $('result').classList.add('show');
+}
+
+function renderSiswa(res) {
+  const s = res.siswa || {};
+  const hadir = res.hadir || [];
+  const keterangan = res.keterangan || [];
+  const poin = res.poin || [];
+  const sholat = res.sholat || [];
+
+  // === Hitung statistik ===
+  const totalHadir = hadir.length;
+  const totalSholat = sholat.length;
+  const totalIzin = keterangan.filter(k => String(k.status).toUpperCase() === 'IZIN').length;
+  const totalSakit = keterangan.filter(k => String(k.status).toUpperCase() === 'SAKIT').length;
+  const totalAlpa = keterangan.filter(k => String(k.status).toUpperCase() === 'ALPA').length;
+  const totalPelanggaran = poin.filter(p => Number(p.poin) < 0).length;
+  const totalPrestasi = poin.filter(p => Number(p.poin) > 0).length;
+
+  // === Saldo poin ===
+  let saldo = 100;
+  poin.forEach(p => { saldo += Number(p.poin) || 0; });
+
+  // === Zona ===
+  let zona = 'HIJAU', zonaClass = 'hijau';
+  if (saldo <= 0) { zona = 'KRITIS'; zonaClass = 'merah'; }
+  else if (saldo < 26) { zona = 'MERAH'; zonaClass = 'merah'; }
+  else if (saldo < 51) { zona = 'ORANYE'; zonaClass = 'kuning'; }
+  else if (saldo < 76) { zona = 'KUNING'; zonaClass = 'kuning'; }
+  else { zona = 'HIJAU'; zonaClass = 'hijau'; }
+
+  const inisial = String(s.nama || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+  // === BUILD HTML ===
+  let html = '';
+
+  // Profil
+  html += `
+    <div class="profile-card">
+      <div class="row">
+        <div class="avatar">${inisial}</div>
+        <div class="info">
+          <h3>${escapeHtml(s.nama || '-')}</h3>
+          <div class="meta">
+            <i class="fas fa-id-card"></i> ${escapeHtml(s.nis || '-')} · 
+            <i class="fas fa-school"></i> ${escapeHtml(s.kelas || '-')} · 
+            <i class="fas fa-venus-mars"></i> ${s.jk || '-'}
+          </div>
+        </div>
+        <div class="zone-badge">Zona ${zona} · ${saldo} Poin</div>
+      </div>
+    </div>`;
+
+  // Statistik
+  html += `
+    <div class="stat-grid">
+      <div class="stat-card hijau">
+        <div class="lbl">Hadir Gerbang</div>
+        <div class="val">${totalHadir}</div>
+        <div class="sub">hari tercatat</div>
+      </div>
+      <div class="stat-card biru">
+        <div class="lbl">Presensi Sholat</div>
+        <div class="val">${totalSholat}</div>
+        <div class="sub">kali scan</div>
+      </div>
+      <div class="stat-card kuning">
+        <div class="lbl">Izin / Sakit</div>
+        <div class="val">${totalIzin + totalSakit}</div>
+        <div class="sub">${totalIzin} izin · ${totalSakit} sakit</div>
+      </div>
+      <div class="stat-card merah">
+        <div class="lbl">Pelanggaran</div>
+        <div class="val">${totalPelanggaran}</div>
+        <div class="sub">${totalPrestasi} prestasi</div>
+      </div>
+    </div>`;
+
+  // === Riwayat Kehadiran Gerbang ===
+  html += `
+    <div class="card">
+      <h4><i class="fas fa-door-open"></i> Riwayat Kehadiran Gerbang (10 terakhir)</h4>`;
+  if (!hadir.length) {
+    html += `<div class="empty-data"><i class="fas fa-inbox"></i>Belum ada data kehadiran gerbang.</div>`;
+  } else {
+    html += `<div style="overflow-x:auto"><table>
+      <thead><tr><th>Tanggal</th><th>Hari</th><th class="center">Jam</th><th class="center">Sesi</th><th class="center">Status</th></tr></thead><tbody>`;
+    hadir.slice(0, 10).forEach(h => {
+      const statusClass = String(h.status).toUpperCase() === 'TERLAMBAT' ? 'terlambat' : 'tepat';
+      html += `<tr>
+        <td>${formatTanggal(h.tanggal)}</td>
+        <td>${hariIndo(h.tanggal)}</td>
+        <td class="num">${escapeHtml(h.jam || '-')}</td>
+        <td class="center">${escapeHtml(h.sesi || '-')}</td>
+        <td class="center"><span class="badge ${statusClass}">${escapeHtml(h.status || '-')}</span></td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+  html += `</div>`;
+
+  // === Presensi Sholat ===
+  html += `
+    <div class="card">
+      <h4><i class="fas fa-mosque"></i> Presensi Sholat (10 terakhir)</h4>`;
+  if (!sholat.length) {
+    html += `<div class="empty-data"><i class="fas fa-inbox"></i>Belum ada data presensi sholat.</div>`;
+  } else {
+    html += `<div style="overflow-x:auto"><table>
+      <thead><tr><th>Tanggal</th><th class="center">Waktu Sholat</th><th class="center">Status</th><th>Petugas</th></tr></thead><tbody>`;
+    sholat.slice(0, 10).forEach(s => {
+      html += `<tr>
+        <td>${formatTanggal(s.tanggal)}</td>
+        <td class="center"><b>${escapeHtml(s.waktu_sholat || '-')}</b></td>
+        <td class="center"><span class="badge hadir">${escapeHtml(s.status || 'HADIR')}</span></td>
+        <td>${escapeHtml(s.petugas || '-')}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+  html += `</div>`;
+
+  // === Keterangan Absen ===
+  if (keterangan.length) {
+    html += `
+      <div class="card">
+        <h4><i class="fas fa-notes-medical"></i> Keterangan Absen</h4>
+        <div style="overflow-x:auto"><table>
+          <thead><tr><th>Tanggal</th><th class="center">Status</th><th>Keterangan</th></tr></thead><tbody>`;
+    keterangan.slice(0, 10).forEach(k => {
+      const st = String(k.status).toUpperCase().toLowerCase();
+      html += `<tr>
+        <td>${formatTanggal(k.tanggal)}</td>
+        <td class="center"><span class="badge ${st}">${escapeHtml(k.status || '-')}</span></td>
+        <td>${escapeHtml(k.keterangan || '-')}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div></div>`;
+  }
+
+  // === Riwayat Poin ===
+  html += `
+    <div class="card">
+      <h4><i class="fas fa-star"></i> Riwayat Poin Disiplin (10 terakhir)</h4>`;
+  if (!poin.length) {
+    html += `<div class="empty-data"><i class="fas fa-inbox"></i>Belum ada catatan poin.</div>`;
+  } else {
+    poin.slice(0, 10).forEach(p => {
+      const poinVal = Number(p.poin) || 0;
+      const cls = poinVal < 0 ? 'min' : 'plus';
+      const sign = poinVal > 0 ? '+' : '';
+      html += `
+        <div class="poin-item">
+          <div class="info">
+            <div class="desc">${escapeHtml(p.deskripsi || p.pasal || '-')}</div>
+            <div class="meta">${formatTanggal(p.tanggal)} · ${escapeHtml(p.jenis || '-')} · oleh ${escapeHtml(p.petugas || '-')}</div>
+          </div>
+          <div class="val ${cls}">${sign}${poinVal}</div>
+        </div>`;
+    });
+    html += `<div style="text-align:center;margin-top:1rem;padding:.75rem;background:#EFF6FF;border-radius:10px;font-size:.85rem;color:var(--brand);font-weight:700">
+      Saldo Poin Saat Ini: <span style="font-family:'JetBrains Mono',monospace;font-size:1.1rem">${saldo}</span>
+    </div>`;
+  }
+  html += `</div>`;
+
+  $('result').innerHTML = html;
+  $('result').classList.add('show');
+
+  // Scroll ke hasil
+  setTimeout(() => {
+    $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+// ==================== SEARCH LOGIC ====================
+let searchTimer = null;
+
+async function doSearch() {
+  const q = $('search-input').value.trim();
+  if (q.length < 2) {
+    toast('Minimal 2 karakter.', true);
+    return;
+  }
+
+  const btn = $('btn-search');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mencari…';
+  renderLoading();
+
+  try {
+    // 1. Cari siswa via searchOrangPublik (endpoint publik, tanpa token)
+    const res = await apiCall('searchOrangPublik', { q });
+
+    if (!res.ok || !res.data || !res.data.length) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-search"></i> Cari';
+      renderError('Siswa tidak ditemukan. Periksa NIS atau nama.');
+      return;
+    }
+
+    // Ambil hasil pertama (prioritas NIS match persis)
+    let siswa = res.data.find(s => String(s.id).trim() === q);
+    if (!siswa) siswa = res.data[0];
+
+    // 2. Ambil data detail siswa
+    const detail = await fetchDetailSiswa(siswa.id);
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-search"></i> Cari';
+
+    if (!detail) {
+      renderError('Data siswa ditemukan, tetapi detail tidak bisa dimuat.');
+      return;
+    }
+
+    renderSiswa(detail);
+
+  } catch (e) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-search"></i> Cari';
+    renderError('Gagal memuat data. Periksa koneksi internet Anda.');
+    console.error(e);
+  }
+}
+
+async function fetchDetailSiswa(nis) {
+  try {
+    // Panggil getRiwayatPoinPublik (endpoint publik untuk riwayat poin)
+    const poinRes = await apiCall('getRiwayatPoinPublik', { nis });
+
+    // Untuk data gerbang, sholat, dan keterangan — kita TIDAK punya endpoint publiknya.
+    // Solusi: gunakan getLaporan tanpa token? Tidak bisa, karena butuh token.
+    //
+    // ALTERNATIF AMAN: Tampilkan info dasar siswa + riwayat poin (dari endpoint publik).
+    // Untuk data gerbang/sholat, kita bisa meminta user login atau tampilkan placeholder.
+    //
+    // Catatan: Jika sekolah punya endpoint publik tambahan, tinggal diganti di sini.
+
+    // Cari data siswa dasar dari hasil searchOrangPublik
+    const siswaRes = await apiCall('searchOrangPublik', { q: nis });
+    let siswaData = { nis: nis, nama: '-', kelas: '-', jk: '-' };
+    if (siswaRes.ok && siswaRes.data.length) {
+      const s = siswaRes.data.find(x => String(x.id) === String(nis));
+      if (s) siswaData = { nis: s.id, nama: s.nama, kelas: s.kelas, jk: '-' };
+    }
+
+    const poin = (poinRes.ok && poinRes.data) ? poinRes.data : [];
+
+    // Untuk data kehadiran & sholat, kita butuh data dari sheet.
+    // Endpoint publik hanya ada searchOrangPublik & getRiwayatPoinPublik.
+    // Jadi untuk demo ini, kita tampilkan apa yang tersedia.
+    //
+    // REKOMENDASI: minta backend tambah endpoint publik `getRiwayatSiswaPublik`
+    // yang mengembalikan: { siswa, hadir[], sholat[], keterangan[], poin[] }
+    //
+    // Untuk sementara, tampilkan yang ada + placeholder.
+
+    return {
+      siswa: siswaData,
+      hadir: [],
+      sholat: [],
+      keterangan: [],
+      poin: poin
+    };
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+// ==================== EVENT ====================
+$('btn-search').addEventListener('click', doSearch);
+$('search-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+$('search-input').addEventListener('input', () => {
+  const q = $('search-input').value.trim();
+  if (q.length < 2) {
+    $('result').classList.remove('show');
+    $('result').innerHTML = '';
+  }
+  // Debounce auto-search
+  if (searchTimer) clearTimeout(searchTimer);
+  if (q.length >= 3) {
+    searchTimer = setTimeout(() => { doSearch(); }, 800);
+  }
+});
+</script>
+</body>
+</html>

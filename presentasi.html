@@ -4,41 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Presentasi BKCSiplin — SMK Bhakti Kencana Ciawi</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
 <style>
   :root{
-    --brand:#1E3A8A; --brand-2:#3B82F6; --brand-3:#60A5FA; --brand-4:#93C5FD;
-    --success:#10B981; --success-l:#6EE7B7;
-    --warn:#F59E0B; --warn-l:#FCD34D;
-    --danger:#EF4444; --danger-l:#FCA5A5;
-    --bg:#0A1533; --bg-2:#0F1F3D; --text:#FFFFFF; --text-soft:#CBD5E1; --muted:#93C5FD;
+    --brand:#2563EB; --brand-2:#3B82F6; --brand-3:#60A5FA; --brand-soft:#EFF6FF;
+    --success:#10B981; --success-soft:#ECFDF5; --warn:#F59E0B; --danger:#EF4444;
+    --purple:#8B5CF6; --purple-soft:#F5F3FF;
+    --bg:#F8FAFC; --card:#FFFFFF; --text:#0F172A; --text-soft:#475569; --muted:#94A3B8; --border:#E2E8F0;
+    --shadow-sm:0 1px 3px rgba(15,23,42,.06);
+    --shadow-md:0 4px 16px rgba(15,23,42,.06);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:20px}
+  html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:18px}
 
-  /* DECK */
   .deck{position:relative;width:100vw;height:100vh;overflow:hidden}
-  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:5rem 4rem 6rem;opacity:0;transition:opacity .3s ease}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:4rem 3rem 5rem;opacity:0;transition:opacity .25s ease;background:var(--bg)}
   .slide.active{display:flex;opacity:1}
   .slide.center{align-items:center;justify-content:center;text-align:center}
 
   /* TOP BAR */
-  .topbar{position:fixed;top:0;left:0;right:0;height:70px;background:rgba(10,21,51,.97);border-bottom:2px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;z-index:1000}
-  .topbar .brand{font-weight:900;font-size:1.3rem;color:#fff;display:flex;align-items:center;gap:.7rem;letter-spacing:.02em}
-  .topbar .brand i{color:var(--brand-2);font-size:1.5rem}
-  .topbar .progress{flex:1;max-width:500px;height:8px;background:rgba(59,130,246,.2);border-radius:99px;margin:0 2rem;overflow:hidden}
-  .topbar .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand-2),var(--brand-4));transition:width .3s ease;border-radius:99px}
-  .topbar .counter{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:1.2rem;color:var(--brand-3);min-width:110px;text-align:right}
-  .topbar .btn{background:rgba(59,130,246,.2);border:2px solid rgba(59,130,246,.5);color:#fff;border-radius:8px;padding:.55rem 1.1rem;font-size:1rem;cursor:pointer;font-family:inherit;font-weight:700;margin-left:.8rem;transition:.15s}
-  .topbar .btn:hover{background:rgba(59,130,246,.4)}
+  .topbar{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000}
+  .topbar .brand{font-weight:800;font-size:1.1rem;color:var(--text);display:flex;align-items:center;gap:.6rem;letter-spacing:-.01em}
+  .topbar .brand-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--purple));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;font-weight:900}
+  .topbar .progress{flex:1;max-width:400px;height:6px;background:var(--brand-soft);border-radius:99px;margin:0 1.5rem;overflow:hidden}
+  .topbar .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand),var(--purple));transition:width .3s ease;border-radius:99px}
+  .topbar .counter{font-weight:800;font-size:.9rem;color:var(--text-soft);min-width:70px;text-align:right}
+  .topbar .btn{background:#fff;border:1px solid var(--border);color:var(--text-soft);border-radius:8px;padding:.4rem .8rem;font-size:.8rem;cursor:pointer;font-family:inherit;font-weight:700;margin-left:.5rem;transition:.15s;display:inline-flex;align-items:center;gap:.4rem}
+  .topbar .btn:hover{background:var(--brand-soft);border-color:var(--brand-3);color:var(--brand)}
 
   /* SLIDE HEADER */
-  .slide-header{margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:3px solid rgba(59,130,246,.35)}
-  .slide-header .eyebrow{font-size:1rem;font-weight:800;letter-spacing:.3em;color:var(--brand-3);text-transform:uppercase;margin-bottom:.7rem}
-  .slide-header h1{font-size:3rem;font-weight:900;line-height:1.15;color:#fff}
-  .slide-header h1 .hl{color:var(--brand-3)}
-  .slide-body{flex:1;overflow:hidden;display:grid;gap:2rem}
+  .slide-header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid var(--border)}
+  .slide-header .eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.15em;color:var(--brand);text-transform:uppercase;margin-bottom:.4rem}
+  .slide-header h1{font-size:2.4rem;font-weight:900;line-height:1.15;color:var(--text);letter-spacing:-.02em}
+  .slide-header h1 .hl{background:linear-gradient(135deg,var(--brand),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .slide-body{flex:1;overflow:hidden;display:grid;gap:1.2rem}
   .slide-body.cols-2{grid-template-columns:1fr 1fr}
   .slide-body.cols-3{grid-template-columns:repeat(3,1fr)}
   .slide-body.cols-4{grid-template-columns:repeat(4,1fr)}
@@ -46,219 +46,167 @@
   .slide-body.center{place-items:center;text-align:center}
 
   /* TEXT */
-  .txt{font-size:1.5rem;line-height:1.6;color:var(--text-soft)}
-  .txt b,.txt strong{color:#fff;font-weight:800}
-  .txt .hl{color:var(--brand-4);font-weight:700}
-  .txt .ok{color:var(--success-l);font-weight:700}
-  .txt .warn{color:var(--warn-l);font-weight:700}
-  .txt .danger{color:var(--danger-l);font-weight:700}
-  .txt ul{margin:.8rem 0 0 1.8rem}
-  .txt li{margin-bottom:.9rem;font-size:1.4rem;line-height:1.5}
-  .txt .kicker{font-size:1rem;font-weight:800;letter-spacing:.2em;color:var(--brand-3);text-transform:uppercase;display:block;margin-bottom:.7rem}
+  .txt{font-size:1.2rem;line-height:1.6;color:var(--text-soft)}
+  .txt b,.txt strong{color:var(--text);font-weight:800}
+  .txt .hl{color:var(--brand);font-weight:700}
+  .txt .ok{color:var(--success);font-weight:700}
+  .txt ul{margin:.5rem 0 0 1.3rem}
+  .txt li{margin-bottom:.6rem;font-size:1.1rem;line-height:1.5}
 
   /* BOX */
-  .box{background:rgba(59,130,246,.12);border:2px solid rgba(59,130,246,.35);border-radius:20px;padding:1.8rem 2rem;display:flex;flex-direction:column}
-  .box h3{font-size:1.5rem;font-weight:900;color:var(--brand-4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1.1rem;display:flex;align-items:center;gap:.7rem}
-  .box h3 i{font-size:1.7rem}
-  .box .big{font-size:5rem;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace;line-height:1}
-  .box .lbl{font-size:1.2rem;color:var(--muted);font-weight:700;margin-top:.5rem}
-  .box.ok{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.45)}
-  .box.ok h3{color:var(--success-l)}
-  .box.warn{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.45)}
-  .box.warn h3{color:var(--warn-l)}
-  .box.danger{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.45)}
-  .box.danger h3{color:var(--danger-l)}
-  .box.big-num{text-align:center;justify-content:center;align-items:center}
-  .box.big-num h3{justify-content:center;margin-bottom:1.5rem}
+  .box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem 1.5rem;display:flex;flex-direction:column;box-shadow:var(--shadow-sm)}
+  .box h3{font-size:1.1rem;font-weight:800;color:var(--brand);margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+  .box .big{font-size:3rem;font-weight:900;color:var(--brand);line-height:1}
+  .box .lbl{font-size:.9rem;color:var(--text-soft);font-weight:700;margin-top:.3rem}
+  .box.blue{background:var(--brand-soft);border-color:#BFDBFE} .box.blue h3{color:var(--brand)}
+  .box.green{background:var(--success-soft);border-color:#A7F3D0} .box.green h3{color:var(--success)}
+  .box.orange{background:#FFFBEB;border-color:#FDE68A} .box.orange h3{color:var(--warn)}
+  .box.red{background:#FEF2F2;border-color:#FECACA} .box.red h3{color:var(--danger)}
+  .box.purple{background:var(--purple-soft);border-color:#DDD6FE} .box.purple h3{color:var(--purple)}
 
   /* CHECKLIST */
-  .chk{display:flex;align-items:flex-start;gap:1rem;padding:1rem 0;border-bottom:1px dashed rgba(59,130,246,.2)}
+  .chk{display:flex;align-items:flex-start;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border)}
   .chk:last-child{border-bottom:none}
-  .chk .ico{flex-shrink:0;width:42px;height:42px;border-radius:10px;background:rgba(16,185,129,.2);border:2px solid rgba(16,185,129,.5);display:flex;align-items:center;justify-content:center;color:var(--success-l);font-size:1.2rem}
-  .chk.no .ico{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.5);color:var(--danger-l)}
-  .chk .body{font-size:1.4rem;color:var(--text-soft);line-height:1.4}
-  .chk .body b{color:#fff;font-weight:800}
+  .chk .ico{flex-shrink:0;width:30px;height:30px;border-radius:8px;background:var(--success-soft);border:1px solid #A7F3D0;display:flex;align-items:center;justify-content:center;color:var(--success);font-size:.9rem}
+  .chk.no .ico{background:#FEF2F2;border-color:#FECACA;color:var(--danger)}
+  .chk .body{font-size:1.05rem;color:var(--text-soft);line-height:1.4}
+  .chk .body b{color:var(--text);font-weight:800}
 
-  /* MATRIX TABLE */
-  table.matrix{width:100%;border-collapse:collapse;font-size:1.2rem;border-radius:14px;overflow:hidden}
-  table.matrix th{background:rgba(59,130,246,.25);padding:1.1rem 1rem;text-align:left;color:#fff;font-weight:800;border-bottom:3px solid rgba(59,130,246,.4);font-size:1rem;text-transform:uppercase;letter-spacing:.04em}
-  table.matrix td{padding:1.1rem 1rem;border-bottom:1px solid rgba(59,130,246,.15);color:var(--text-soft);font-size:1.2rem}
-  table.matrix tr:hover td{background:rgba(59,130,246,.08)}
-  table.matrix td.yes{color:var(--success-l);text-align:center;font-weight:900;font-size:1.8rem}
-  table.matrix td.no{color:#64748B;text-align:center;font-size:1.3rem}
-  table.matrix td.role{color:#fff;font-weight:800}
+  /* MATRIX */
+  table.matrix{width:100%;border-collapse:collapse;font-size:1rem;border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm);background:var(--card)}
+  table.matrix th{background:var(--brand-soft);padding:.9rem .7rem;text-align:left;color:var(--brand);font-weight:800;border-bottom:2px solid #BFDBFE;font-size:.8rem;text-transform:uppercase}
+  table.matrix td{padding:.8rem .7rem;border-bottom:1px solid var(--border);color:var(--text-soft);font-size:1rem}
+  table.matrix tr:last-child td{border-bottom:none}
+  table.matrix td.yes{color:var(--success);text-align:center;font-weight:900;font-size:1.3rem}
+  table.matrix td.no{color:var(--muted);text-align:center;font-size:1rem}
+  table.matrix td.role{color:var(--text);font-weight:800}
 
   /* TIMELINE */
-  .timeline{position:relative;padding-left:2.5rem}
-  .timeline::before{content:'';position:absolute;left:.9rem;top:.4rem;bottom:.4rem;width:4px;background:linear-gradient(180deg,var(--brand-2),var(--brand-3),transparent);border-radius:2px}
-  .tl-item{position:relative;padding:0 0 1.8rem 1.4rem}
-  .tl-item::before{content:'';position:absolute;left:-2.1rem;top:.5rem;width:22px;height:22px;border-radius:50%;background:var(--brand-2);border:4px solid var(--bg);box-shadow:0 0 0 3px rgba(59,130,246,.5)}
-  .tl-item .time{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:900;color:var(--brand-3);margin-bottom:.4rem}
-  .tl-item .desc{font-size:1.3rem;color:var(--text-soft);line-height:1.4}
-  .tl-item .desc b{color:#fff}
+  .timeline{position:relative;padding-left:1.8rem}
+  .timeline::before{content:'';position:absolute;left:.45rem;top:.4rem;bottom:.4rem;width:3px;background:linear-gradient(180deg,var(--brand),var(--purple));border-radius:2px}
+  .tl-item{position:relative;padding:0 0 1.2rem 1rem}
+  .tl-item::before{content:'';position:absolute;left:-1.65rem;top:.35rem;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+  .tl-item .time{font-weight:900;font-size:1rem;color:var(--brand);margin-bottom:.2rem}
+  .tl-item .desc{font-size:1rem;color:var(--text-soft);line-height:1.4}
+  .tl-item .desc b{color:var(--text)}
 
   /* NAV BOTTOM */
-  .navbar{position:fixed;bottom:0;left:0;right:0;height:76px;background:rgba(10,21,51,.97);border-top:2px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;z-index:1000}
-  .navbar .hint{font-size:1rem;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-  .navbar .hint kbd{background:rgba(59,130,246,.3);border:2px solid rgba(59,130,246,.5);border-radius:6px;padding:.2rem .6rem;font-family:'JetBrains Mono',monospace;font-size:1rem;color:#fff;font-weight:800;margin:0 .1rem}
-  .navbar .navbtns{display:flex;gap:.8rem}
-  .navbar button{background:linear-gradient(135deg,var(--brand-2),var(--brand));border:none;color:#fff;border-radius:12px;padding:.9rem 1.8rem;font-family:inherit;font-weight:900;font-size:1.15rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.6rem;box-shadow:0 4px 14px rgba(59,130,246,.3)}
-  .navbar button:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(59,130,246,.5)}
-  .navbar button:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
-  .navbar button.ghost{background:rgba(59,130,246,.2);border:2px solid rgba(59,130,246,.4);color:#DBEAFE}
-  .navbar button.ghost:hover{background:rgba(59,130,246,.35)}
+  .navbar{position:fixed;bottom:0;left:0;right:0;height:66px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000}
+  .navbar .hint{font-size:.85rem;color:var(--muted);font-weight:600}
+  .navbar .hint kbd{background:var(--brand-soft);border:1px solid #BFDBFE;border-radius:5px;padding:.1rem .4rem;font-family:inherit;font-size:.8rem;color:var(--brand);font-weight:800;margin:0 .1rem}
+  .navbar .navbtns{display:flex;gap:.6rem}
+  .navbar button{background:linear-gradient(135deg,var(--brand),var(--purple));border:none;color:#fff;border-radius:10px;padding:.7rem 1.3rem;font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.5rem;box-shadow:var(--shadow-sm)}
+  .navbar button:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+  .navbar button:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+  .navbar button.ghost{background:#fff;border:1px solid var(--border);color:var(--text-soft)}
+  .navbar button.ghost:hover{background:var(--brand-soft);color:var(--brand)}
 
-  /* SPECIAL: COVER */
-  .slide.cover{background:radial-gradient(circle at 25% 20%, rgba(59,130,246,.35), transparent 55%), radial-gradient(circle at 75% 80%, rgba(16,185,129,.2), transparent 55%), var(--bg)}
-  .slide.cover .logo-row{display:flex;align-items:center;gap:1.5rem;margin-bottom:2.5rem;justify-content:center}
-  .slide.cover .logo-box{width:130px;height:130px;border-radius:26px;background:linear-gradient(135deg,var(--brand-2),var(--brand));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:3.5rem;color:#fff;box-shadow:0 25px 70px rgba(59,130,246,.5)}
-  .slide.cover .logo-row img{width:130px;height:130px;object-fit:contain;background:#fff;border-radius:26px;padding:10px;box-shadow:0 25px 70px rgba(0,0,0,.3)}
-  .slide.cover h1{font-size:7rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--brand-3));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:1rem;letter-spacing:-.02em}
-  .slide.cover h2{font-size:2.5rem;font-weight:700;color:#DBEAFE;margin-bottom:1rem;line-height:1.3}
-  .slide.cover p{font-size:1.8rem;color:var(--muted);font-weight:600}
-  .slide.cover .footer-info{margin-top:3rem;font-size:1.4rem;color:var(--text-soft);font-weight:600;line-height:2}
-  .slide.cover .footer-info b{color:#fff;font-size:1.6rem}
+  /* COVER / END */
+  .slide.cover,.slide.end{background:linear-gradient(135deg,#EFF6FF 0%,#F5F3FF 50%,#ECFDF5 100%)}
+  .slide.cover .logo-row{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;justify-content:center}
+  .slide.cover .logo-box{width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,var(--brand),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:2.5rem;color:#fff;box-shadow:var(--shadow-md)}
+  .slide.cover .logo-row img{width:90px;height:90px;object-fit:contain;background:#fff;border-radius:22px;padding:8px;box-shadow:var(--shadow-md)}
+  .slide.cover h1{font-size:5rem;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--brand),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:.5rem;letter-spacing:-.03em}
+  .slide.cover h2{font-size:1.6rem;font-weight:700;color:var(--text-soft);margin-bottom:.5rem;line-height:1.3}
+  .slide.cover p{font-size:1.2rem;color:var(--muted);font-weight:600}
+  .slide.cover .footer-info{margin-top:2rem;font-size:1.1rem;color:var(--text-soft);font-weight:600;line-height:1.8}
+  .slide.cover .footer-info b{color:var(--text);font-size:1.2rem}
+  
+  .slide.end h1{font-size:4rem;font-weight:900;background:linear-gradient(135deg,var(--brand),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:1rem;letter-spacing:-.03em}
+  .slide.end p{font-size:1.4rem;color:var(--text-soft);margin-bottom:.6rem;font-weight:600}
+  .slide.end .sub{font-size:1.1rem;color:var(--muted);max-width:700px;line-height:1.6;margin-top:1rem}
+  .slide.end .quote{font-size:1.1rem;color:var(--text-soft);font-style:italic;max-width:800px;line-height:1.6;margin-top:1.5rem;padding:1rem 1.5rem;background:rgba(255,255,255,.6);border-left:4px solid var(--brand);border-radius:0 12px 12px 0;text-align:left}
 
-  /* SPECIAL: END */
-  .slide.end{background:radial-gradient(circle at 50% 50%, rgba(59,130,246,.2), transparent 60%), var(--bg)}
-  .slide.end h1{font-size:5.5rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--brand-3));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:1.8rem}
-  .slide.end p{font-size:2rem;color:#DBEAFE;margin-bottom:1rem;font-weight:600}
-  .slide.end .sub{font-size:1.5rem;color:var(--muted);max-width:900px;line-height:1.8;margin-top:2rem}
-  .slide.end .quote{font-size:1.6rem;color:var(--text-soft);font-style:italic;max-width:900px;line-height:1.7;margin-top:3rem;padding:1.5rem 2rem;background:rgba(59,130,246,.12);border-left:6px solid var(--brand-2);border-radius:12px;text-align:left}
-
-  /* BIG QUOTE SLIDE */
-  .slide.quote-slide{align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 50%, rgba(59,130,246,.25), transparent 65%), var(--bg)}
-  .slide.quote-slide .mark{font-size:8rem;color:var(--brand-2);opacity:.4;line-height:1;margin-bottom:1rem;font-family:Georgia,serif}
-  .slide.quote-slide .text{font-size:3.5rem;font-weight:800;color:#fff;line-height:1.35;max-width:1400px}
-  .slide.quote-slide .text .hl{color:var(--brand-3)}
-  .slide.quote-slide .author{font-size:1.6rem;color:var(--muted);margin-top:3rem;font-weight:600}
-
-  /* STAT GRID BIG */
-  .stat-grid-big{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:2rem}
-  .stat-big{background:rgba(16,185,129,.15);border:3px solid rgba(16,185,129,.5);border-radius:20px;padding:2.5rem 2rem;text-align:center}
-  .stat-big .val{font-size:5rem;font-weight:900;color:var(--success-l);font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:.8rem}
-  .stat-big .lbl{font-size:1.3rem;color:#fff;font-weight:800}
-  .stat-big .sub{font-size:1rem;color:var(--muted);margin-top:.4rem;font-weight:600}
+  /* STAT GRID */
+  .stat-grid-big{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:1rem}
+  .stat-big{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem 1rem;text-align:center;box-shadow:var(--shadow-sm)}
+  .stat-big .val{font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--brand),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;margin-bottom:.3rem}
+  .stat-big .lbl{font-size:1rem;color:var(--text);font-weight:800}
 
   /* OVERVIEW */
-  .overview{position:fixed;inset:0;z-index:2000;background:rgba(5,10,25,.98);display:none;padding:3rem;overflow-y:auto}
+  .overview{position:fixed;inset:0;z-index:2000;background:rgba(248,250,252,.98);backdrop-filter:blur(12px);display:none;padding:2rem;overflow-y:auto}
   .overview.show{display:block}
-  .overview h2{text-align:center;color:#fff;font-size:2.2rem;margin-bottom:2.5rem;font-weight:900}
-  .overview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem;max-width:1600px;margin:0 auto}
-  .ov-card{background:rgba(59,130,246,.12);border:2px solid rgba(59,130,246,.35);border-radius:12px;padding:1.3rem;cursor:pointer;transition:.15s}
-  .ov-card:hover{background:rgba(59,130,246,.3);transform:translateY(-3px)}
-  .ov-card .num{font-family:'JetBrains Mono',monospace;font-size:1rem;color:var(--brand-3);font-weight:900;margin-bottom:.5rem}
-  .ov-card .ttl{font-size:1.2rem;color:#fff;font-weight:700;line-height:1.3}
-  .ov-card.active{border-color:var(--brand-3);background:rgba(59,130,246,.4);box-shadow:0 0 20px rgba(59,130,246,.5)}
+  .overview h2{text-align:center;color:var(--text);font-size:1.6rem;margin-bottom:1.5rem;font-weight:800}
+  .overview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem;max-width:1200px;margin:0 auto}
+  .ov-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:.15s;box-shadow:var(--shadow-sm)}
+  .ov-card:hover{background:var(--brand-soft);border-color:var(--brand-3);transform:translateY(-2px)}
+  .ov-card .num{font-size:.75rem;color:var(--brand);font-weight:900;margin-bottom:.2rem;text-transform:uppercase}
+  .ov-card .ttl{font-size:.95rem;color:var(--text);font-weight:700;line-height:1.3}
+  .ov-card.active{border-color:var(--brand);background:var(--brand-soft);box-shadow:0 0 0 2px rgba(37,99,235,.15)}
 
-  /* RESPONSIVE UNTUK PROYEKTOR KECIL */
+  /* RESPONSIVE */
   @media(max-width:1366px){
-    html,body{font-size:18px}
-    .slide{padding:4.5rem 3rem 5.5rem}
-    .slide-header h1{font-size:2.6rem}
-    .slide.cover h1{font-size:6rem}
-    .slide.cover h2{font-size:2rem}
-    .txt{font-size:1.35rem}
-    .txt li{font-size:1.25rem}
-    .box h3{font-size:1.3rem}
-    .box .big{font-size:4rem}
-    .chk .body{font-size:1.25rem}
-    table.matrix td,table.matrix th{font-size:1.05rem;padding:.9rem .8rem}
-    .tl-item .time,.tl-item .desc{font-size:1.15rem}
-    .stat-big .val{font-size:4rem}
-    .stat-big .lbl{font-size:1.15rem}
-    .slide.quote-slide .text{font-size:2.8rem}
+    html,body{font-size:16px}
+    .slide{padding:3.5rem 2.5rem 5rem}
+    .slide-header h1{font-size:2.1rem}
+    .slide.cover h1{font-size:4.5rem}
+    .txt{font-size:1.1rem}
+    .txt li{font-size:1rem}
+    .box h3{font-size:1rem}
+    .box .big{font-size:2.5rem}
+    .chk .body{font-size:.95rem}
+    table.matrix td,table.matrix th{font-size:.9rem;padding:.7rem .6rem}
+    .tl-item .time,.tl-item .desc{font-size:.9rem}
+    .stat-big .val{font-size:2.5rem}
   }
   @media(max-width:1024px){
-    html,body{font-size:16px}
-    .slide{padding:4rem 2rem 5rem}
-    .slide-header h1{font-size:2.2rem}
-    .slide-header .eyebrow{font-size:.85rem}
-    .slide-body.cols-2,.slide-body.cols-3,.slide-body.cols-4{grid-template-columns:1fr}
-    .txt{font-size:1.2rem}
-    .txt li{font-size:1.1rem}
-    .chk .body{font-size:1.1rem}
-    .chk .ico{width:36px;height:36px;font-size:1rem}
-    .box{padding:1.4rem 1.5rem}
-    .box h3{font-size:1.2rem}
-    .box .big{font-size:3.5rem}
-    .slide.cover h1{font-size:4.5rem}
-    .slide.cover h2{font-size:1.6rem}
-    .slide.cover p{font-size:1.3rem}
-    .slide.cover .logo-box,.slide.cover .logo-row img{width:100px;height:100px;font-size:2.5rem}
-    table.matrix{font-size:.95rem}
-    table.matrix td,table.matrix th{padding:.75rem .6rem;font-size:.95rem}
-    table.matrix td.yes{font-size:1.3rem}
-    .tl-item .time,.tl-item .desc{font-size:1.05rem}
-    .tl-item{padding:0 0 1.4rem 1.2rem}
-    .stat-big .val{font-size:3.2rem}
-    .slide.quote-slide .text{font-size:2.2rem}
-    .slide.end h1{font-size:3.5rem}
-    .slide.end p{font-size:1.5rem}
-  }
-  @media(max-height:800px){
-    .slide{padding:3.5rem 2.5rem 5rem}
-    .slide-header{margin-bottom:1.2rem;padding-bottom:1rem}
-    .slide-header h1{font-size:2rem}
-    .slide-header .eyebrow{font-size:.8rem}
-    .txt{font-size:1.15rem}
-    .txt li{font-size:1.05rem;margin-bottom:.6rem}
-    .chk{padding:.6rem 0}
-    .chk .body{font-size:1.05rem}
-    .box{padding:1.2rem 1.4rem}
-    .box h3{font-size:1.1rem;margin-bottom:.7rem}
-    .box .big{font-size:3rem}
-    .slide-body{gap:1.2rem}
-    .tl-item{padding:0 0 1.2rem 1.1rem}
-    .tl-item .time,.tl-item .desc{font-size:1rem}
-    .slide.cover h1{font-size:4rem}
-    .slide.cover h2{font-size:1.5rem}
-    .slide.cover p{font-size:1.2rem}
-    .slide.cover .footer-info{font-size:1.1rem;margin-top:2rem}
-    .stat-big .val{font-size:3rem}
-  }
-  @media(max-height:700px){
-    .slide{padding:3rem 2rem 4.5rem}
+    .slide{padding:3rem 1.5rem 4.5rem}
     .slide-header h1{font-size:1.8rem}
-    .slide-header{margin-bottom:1rem;padding-bottom:.8rem}
-    .txt{font-size:1.05rem}
-    .txt li{font-size:.95rem;margin-bottom:.5rem}
-    .chk{padding:.5rem 0}
-    .chk .body{font-size:.95rem}
-    .chk .ico{width:32px;height:32px;font-size:.85rem}
-    .box{padding:1rem 1.2rem}
-    .box h3{font-size:1rem;margin-bottom:.6rem}
-    .box h3 i{font-size:1.2rem}
-    .box .big{font-size:2.5rem}
+    .slide-body.cols-2,.slide-body.cols-3,.slide-body.cols-4{grid-template-columns:1fr}
     .slide.cover h1{font-size:3.5rem}
     .slide.cover h2{font-size:1.3rem}
-    .slide.cover p{font-size:1rem}
-    .slide.cover .logo-box,.slide.cover .logo-row img{width:80px;height:80px;font-size:2rem}
-    table.matrix td,table.matrix th{padding:.6rem .5rem;font-size:.85rem}
-    table.matrix td.yes{font-size:1.1rem}
-    .tl-item .time,.tl-item .desc{font-size:.9rem}
-    .tl-item{padding:0 0 1rem .9rem}
-    .stat-big{padding:1.5rem 1rem}
-    .stat-big .val{font-size:2.5rem}
-    .stat-big .lbl{font-size:1rem}
-    .slide.quote-slide .text{font-size:1.8rem}
+    .slide.cover .logo-box,.slide.cover .logo-row img{width:70px;height:70px;font-size:2rem}
+    .box{padding:1.2rem 1.2rem}
+    table.matrix{font-size:.85rem}
     .slide.end h1{font-size:2.5rem}
-    .slide.end p{font-size:1.2rem}
+    .slide.end p{font-size:1.1rem}
+    .stat-grid-big{grid-template-columns:repeat(3,1fr)}
+  }
+  @media(max-width:768px){
+    .topbar{height:50px;padding:0 1rem}
+    .topbar .brand{font-size:.95rem}
+    .topbar .progress{display:none}
+    .topbar .btn{padding:.3rem .5rem;font-size:.7rem}
+    .navbar{height:56px;padding:0 1rem}
+    .navbar .hint{display:none}
+    .navbar button{padding:.5rem .9rem;font-size:.8rem}
+    .slide{padding:2.5rem 1rem 4rem}
+    .slide-header h1{font-size:1.5rem}
+    .slide.cover h1{font-size:2.8rem}
+    .slide.cover h2{font-size:1.1rem}
+    .slide.cover p{font-size:.9rem}
+    .stat-grid-big{grid-template-columns:repeat(2,1fr);gap:.8rem}
+    .stat-big{padding:1rem .5rem}
+    .stat-big .val{font-size:2rem}
+    .stat-big .lbl{font-size:.85rem}
+    .slide.end h1{font-size:2rem}
+  }
+  @media(max-height:800px){
+    .slide{padding:2.5rem 2rem 4rem}
+    .slide-header{margin-bottom:1rem;padding-bottom:.8rem}
+    .slide-header h1{font-size:1.8rem}
+    .txt{font-size:1rem}
+    .txt li{font-size:.95rem;margin-bottom:.4rem}
+    .chk{padding:.4rem 0}
+    .chk .body{font-size:.9rem}
+    .box{padding:1rem 1rem}
+    .box h3{font-size:.9rem;margin-bottom:.5rem}
+    .box .big{font-size:2.2rem}
+    .tl-item{padding:0 0 .9rem .9rem}
+    .tl-item .time,.tl-item .desc{font-size:.85rem}
   }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
-  <div class="brand"><i class="fas fa-shield-halved"></i> BKCSiplin</div>
+  <div class="brand"><div class="brand-icon">BK</div> Presentasi BKCSiplin</div>
   <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
-  <div class="counter"><span id="slide-counter">1 / 28</span></div>
+  <div class="counter"><span id="slide-counter">1 / 25</span></div>
   <button class="btn" onclick="toggleFullscreen()"><i class="fas fa-expand"></i></button>
   <button class="btn" onclick="toggleOverview()"><i class="fas fa-th"></i></button>
 </div>
 
-<!-- DECK -->
 <div class="deck" id="deck">
 
   <!-- 1. COVER -->
@@ -284,27 +232,27 @@
       <h1>Apa itu <span class="hl">BKCSiplin</span>?</h1>
     </div>
     <div class="slide-body full center">
-      <div class="box big-num" style="max-width:1200px">
-        <h3 style="justify-content:center"><i class="fas fa-circle-info"></i> Definisi</h3>
-        <div class="txt" style="text-align:center;font-size:2rem;line-height:1.5;margin-top:1rem">
+      <div class="box blue" style="max-width:900px;text-align:center;padding:2rem">
+        <h3 style="justify-content:center;font-size:1.3rem"><i class="fas fa-circle-info"></i> Definisi</h3>
+        <div class="txt" style="font-size:1.4rem;line-height:1.5;margin-top:1rem">
           Sistem informasi <span class="hl">berbasis web</span> yang mengintegrasikan seluruh proses administrasi <b>kedisiplinan</b> dan <b>kehadiran</b> di SMK Bhakti Kencana Ciawi dalam <span class="ok">satu platform terpadu</span>.
         </div>
-        <div class="txt" style="text-align:center;font-size:1.4rem;margin-top:2rem;color:var(--muted)">
-          <b style="color:#fff;font-size:1.8rem">BKC</b> = Bhakti Kencana Ciawi &nbsp; + &nbsp; <b style="color:#fff;font-size:1.8rem">Siplin</b> = Disiplin
+        <div class="txt" style="font-size:1.1rem;margin-top:1.5rem;color:var(--muted)">
+          <b style="color:var(--brand)">BKC</b> = Bhakti Kencana Ciawi &nbsp; + &nbsp; <b style="color:var(--purple)">Siplin</b> = Disiplin
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 3. 7 FUNGSI UTAMA -->
+  <!-- 3. 7 FUNGSI -->
   <div class="slide" data-title="7 Fungsi Utama">
     <div class="slide-header">
       <div class="eyebrow">Bagian 1 · Pembukaan</div>
       <h1>7 Fungsi <span class="hl">Utama</span></h1>
     </div>
     <div class="slide-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem">
-        <div class="chk"><div class="ico"><i class="fas fa-door-open"></i></div><div class="body"><b>Presensi Gerbang</b><br>Kehadiran masuk & pulang siswa</div></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem">
+        <div class="chk"><div class="ico"><i class="fas fa-door-open"></i></div><div class="body"><b>Presensi Gerbang</b><br>Kehadiran masuk & pulang</div></div>
         <div class="chk"><div class="ico"><i class="fas fa-mosque"></i></div><div class="body"><b>Presensi Sholat</b><br>5 waktu sholat berjamaah</div></div>
         <div class="chk"><div class="ico"><i class="fas fa-gavel"></i></div><div class="body"><b>Kedisiplinan</b><br>Poin pelanggaran & prestasi</div></div>
         <div class="chk"><div class="ico"><i class="fas fa-chalkboard-teacher"></i></div><div class="body"><b>Presensi Guru</b><br>Masuk, pulang, jam kerja</div></div>
@@ -315,14 +263,14 @@
     </div>
   </div>
 
-  <!-- 4. MASALAH SEBELUMNYA -->
+  <!-- 4. MASALAH -->
   <div class="slide" data-title="Masalah Sebelumnya">
     <div class="slide-header">
       <div class="eyebrow">Bagian 2 · Latar Belakang</div>
       <h1>Masalah <span class="hl">Sebelumnya</span></h1>
     </div>
     <div class="slide-body">
-      <div class="box danger" style="height:100%">
+      <div class="box red" style="height:100%">
         <h3><i class="fas fa-triangle-exclamation"></i> 8 Masalah Utama</h3>
         <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Presensi manual kertas → mudah hilang, susah dilacak</div></div>
         <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Rekap kehadiran → memakan waktu berjam-jam</div></div>
@@ -337,15 +285,15 @@
   </div>
 
   <!-- 5. SOLUSI -->
-  <div class="slide" data-title="Solusi BKCSiplin">
+  <div class="slide" data-title="Solusi">
     <div class="slide-header">
       <div class="eyebrow">Bagian 2 · Solusi</div>
       <h1>Solusi <span class="hl">BKCSiplin</span></h1>
     </div>
     <div class="slide-body">
-      <div class="box ok" style="height:100%">
+      <div class="box green" style="height:100%">
         <h3><i class="fas fa-circle-check"></i> 8 Solusi Otomatis</h3>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Presensi gerbang <b>scan QR/RFID</b> — otomatis tercatat</div></div>
+        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Presensi gerbang <b>scan QR/RFID</b> — otomatis</div></div>
         <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Rekap kehadiran <b>instan &lt;5 detik</b> — real-time</div></div>
         <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Laporan ke Kepsek <b>real-time</b> — langsung tersedia</div></div>
         <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Poin pelanggaran <b>otomatis tersaldo</b> — akurat</div></div>
@@ -358,66 +306,34 @@
   </div>
 
   <!-- 6. MANFAAT -->
-  <div class="slide" data-title="Manfaat Semua Pihak">
+  <div class="slide" data-title="Manfaat">
     <div class="slide-header">
       <div class="eyebrow">Bagian 2 · Solusi</div>
-      <h1>Manfaat untuk <span class="hl">Semua Pihak</span></h1>
+      <h1>Manfaat untuk <span class="hl">Semua</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box">
-        <h3><i class="fas fa-user-graduate"></i> Siswa</h3>
-        <div class="txt" style="font-size:1.3rem">
-          ✓ Kehadiran tercatat rapi<br>
-          ✓ Poin disiplin transparan<br>
-          ✓ Rapor digital<br>
-          ✓ Cek riwayat poin sendiri
-        </div>
-      </div>
-      <div class="box">
-        <h3><i class="fas fa-chalkboard-teacher"></i> Guru</h3>
-        <div class="txt" style="font-size:1.3rem">
-          ✓ Presensi otomatis<br>
-          ✓ Poin pelanggaran instan<br>
-          ✓ Laporan kelas mudah<br>
-          ✓ Rapor kelas cepat
-        </div>
-      </div>
-      <div class="box">
-        <h3><i class="fas fa-people-roof"></i> Orang Tua</h3>
-        <div class="txt" style="font-size:1.3rem">
-          ✓ Pantau kehadiran anak<br>
-          ✓ Tahu pelanggaran anak<br>
-          ✓ Tidak perlu tanya sekolah<br>
-          ✓ Akses 24 jam
-        </div>
-      </div>
-      <div class="box">
-        <h3><i class="fas fa-user-tie"></i> Pimpinan</h3>
-        <div class="txt" style="font-size:1.3rem">
-          ✓ Dashboard real-time<br>
-          ✓ Data akurat<br>
-          ✓ Laporan otomatis<br>
-          ✓ Keputusan cepat
-        </div>
-      </div>
+      <div class="box"><h3><i class="fas fa-user-graduate"></i> Siswa</h3><div class="txt">✓ Kehadiran tercatat rapi<br>✓ Poin disiplin transparan<br>✓ Rapor digital<br>✓ Cek riwayat poin sendiri</div></div>
+      <div class="box"><h3><i class="fas fa-chalkboard-teacher"></i> Guru</h3><div class="txt">✓ Presensi otomatis<br>✓ Poin pelanggaran instan<br>✓ Laporan kelas mudah<br>✓ Rapor kelas cepat</div></div>
+      <div class="box"><h3><i class="fas fa-people-roof"></i> Orang Tua</h3><div class="txt">✓ Pantau kehadiran anak<br>✓ Tahu pelanggaran anak<br>✓ Tidak perlu tanya sekolah<br>✓ Akses 24 jam</div></div>
+      <div class="box"><h3><i class="fas fa-user-tie"></i> Pimpinan</h3><div class="txt">✓ Dashboard real-time<br>✓ Data akurat<br>✓ Laporan otomatis<br>✓ Keputusan cepat</div></div>
     </div>
   </div>
 
   <!-- 7. ARSITEKTUR -->
-  <div class="slide" data-title="Arsitektur Sistem">
+  <div class="slide" data-title="Arsitektur">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 3 · Arsitektur</div>
+      <div class="eyebrow">Bagian 3 · Teknis</div>
       <h1>Arsitektur <span class="hl">Sistem</span></h1>
     </div>
-    <div class="slide-body full center">
-      <div style="display:grid;gap:1.2rem;width:100%;max-width:1100px">
-        <div class="box" style="text-align:center;padding:1.2rem"><h3 style="justify-content:center;margin:0"><i class="fas fa-users"></i> Pengguna</h3><div class="txt" style="font-size:1.1rem;margin-top:.5rem">Siswa · Guru · BK · Kepsek · Ortu</div></div>
-        <div style="text-align:center;color:var(--brand-3);font-size:2rem"><i class="fas fa-arrow-down"></i></div>
-        <div class="box" style="text-align:center;padding:1.2rem"><h3 style="justify-content:center;margin:0"><i class="fas fa-window-restore"></i> Portal Web</h3><div class="txt" style="font-size:1.1rem;margin-top:.5rem">Gerbang · Sholat · Disiplin · Admin · Publik</div></div>
-        <div style="text-align:center;color:var(--brand-3);font-size:2rem"><i class="fas fa-arrow-down"></i></div>
-        <div class="box" style="text-align:center;padding:1.2rem"><h3 style="justify-content:center;margin:0"><i class="fas fa-server"></i> Backend — Google Apps Script</h3><div class="txt" style="font-size:1.1rem;margin-top:.5rem">Login · Logika Bisnis · Verifikasi Akses</div></div>
-        <div style="text-align:center;color:var(--brand-3);font-size:2rem"><i class="fas fa-arrow-down"></i></div>
-        <div class="box ok" style="text-align:center;padding:1.2rem"><h3 style="justify-content:center;margin:0;color:var(--success-l)"><i class="fas fa-database"></i> Database — Google Spreadsheet</h3><div class="txt" style="font-size:1.1rem;margin-top:.5rem">12 sheet terstruktur</div></div>
+    <div class="slide-body">
+      <div style="display:grid;gap:.8rem;width:100%;max-width:800px;margin:0 auto;text-align:center">
+        <div class="box blue" style="padding:.8rem"><b>Pengguna</b><br><span class="txt" style="font-size:.9rem">Siswa · Guru · BK · Kepsek · Ortu</span></div>
+        <div style="color:var(--brand-3)"><i class="fas fa-arrow-down"></i></div>
+        <div class="box purple" style="padding:.8rem"><b>Portal Web</b><br><span class="txt" style="font-size:.9rem">Gerbang · Sholat · Disiplin · Admin · Publik</span></div>
+        <div style="color:var(--brand-3)"><i class="fas fa-arrow-down"></i></div>
+        <div class="box orange" style="padding:.8rem"><b>Backend — Google Apps Script</b><br><span class="txt" style="font-size:.9rem">Login · Logika Bisnis · Verifikasi Akses</span></div>
+        <div style="color:var(--brand-3)"><i class="fas fa-arrow-down"></i></div>
+        <div class="box green" style="padding:.8rem"><b>Database — Google Spreadsheet</b><br><span class="txt" style="font-size:.9rem">12 Sheet Terstruktur</span></div>
       </div>
     </div>
   </div>
@@ -425,16 +341,16 @@
   <!-- 8. KEAMANAN -->
   <div class="slide" data-title="Keamanan">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 3 · Arsitektur</div>
+      <div class="eyebrow">Bagian 3 · Teknis</div>
       <h1>Keamanan <span class="hl">Berlapis</span></h1>
     </div>
     <div class="slide-body cols-3">
-      <div class="box"><h3><i class="fas fa-key"></i> Login 2 Faktor</h3><div class="txt">ID Guru + PIN · verifikasi role</div></div>
-      <div class="box"><h3><i class="fas fa-clock"></i> Token Session</h3><div class="txt">30 menit · auto-logout idle 10 menit</div></div>
-      <div class="box"><h3><i class="fas fa-user-shield"></i> Role-Based</h3><div class="txt">6 role · hak akses ketat per modul</div></div>
-      <div class="box"><h3><i class="fas fa-clipboard-list"></i> Audit Trail</h3><div class="txt">Setiap aksi penting tercatat</div></div>
-      <div class="box ok"><h3><i class="fas fa-cloud-arrow-up"></i> Backup Otomatis</h3><div class="txt">Google Spreadsheet backup</div></div>
-      <div class="box ok"><h3><i class="fas fa-lock"></i> HTTPS</h3><div class="txt">Semua komunikasi terenkripsi</div></div>
+      <div class="box"><h3><i class="fas fa-key"></i> 2 Faktor</h3><div class="txt" style="font-size:1rem">ID Guru + PIN</div></div>
+      <div class="box"><h3><i class="fas fa-clock"></i> Session</h3><div class="txt" style="font-size:1rem">30 menit, auto-logout</div></div>
+      <div class="box"><h3><i class="fas fa-user-shield"></i> Role-Based</h3><div class="txt" style="font-size:1rem">6 role, hak akses ketat</div></div>
+      <div class="box"><h3><i class="fas fa-clipboard-list"></i> Audit Trail</h3><div class="txt" style="font-size:1rem">Semua aksi tercatat</div></div>
+      <div class="box green"><h3><i class="fas fa-cloud-arrow-up"></i> Backup</h3><div class="txt" style="font-size:1rem">Otomatis via Google</div></div>
+      <div class="box green"><h3><i class="fas fa-lock"></i> HTTPS</h3><div class="txt" style="font-size:1rem">Komunikasi terenkripsi</div></div>
     </div>
   </div>
 
@@ -445,27 +361,12 @@
       <h1>Lima <span class="hl">Portal Utama</span></h1>
     </div>
     <div class="slide-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem">
-        <div class="box">
-          <h3><i class="fas fa-door-open"></i> 01 · Gerbang</h3>
-          <div class="txt" style="font-size:1.15rem"><b>Guru Piket</b><br>Scan kehadiran pagi/pulang</div>
-        </div>
-        <div class="box">
-          <h3><i class="fas fa-mosque"></i> 02 · Sholat</h3>
-          <div class="txt" style="font-size:1.15rem"><b>Piket, BK, Wali Kelas</b><br>Presensi 5 waktu + udzur</div>
-        </div>
-        <div class="box">
-          <h3><i class="fas fa-gavel"></i> 03 · Disiplin</h3>
-          <div class="txt" style="font-size:1.15rem"><b>BK, Wakasek</b><br>Poin, zona, surat SP</div>
-        </div>
-        <div class="box">
-          <h3><i class="fas fa-user-tie"></i> 04 · Admin</h3>
-          <div class="txt" style="font-size:1.15rem"><b>Admin, Kepsek, BK</b><br>Dashboard & manajemen</div>
-        </div>
-        <div class="box ok">
-          <h3><i class="fas fa-globe"></i> 05 · Publik</h3>
-          <div class="txt" style="font-size:1.15rem"><b>Ortu & Siswa</b><br>Cek tanpa login</div>
-        </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+        <div class="box"><h3><i class="fas fa-door-open"></i> 01 Gerbang</h3><div class="txt" style="font-size:.95rem">Guru Piket<br>Scan pagi/pulang</div></div>
+        <div class="box"><h3><i class="fas fa-mosque"></i> 02 Sholat</h3><div class="txt" style="font-size:.95rem">Piket, BK, Wali Kelas<br>Presensi 5 waktu</div></div>
+        <div class="box"><h3><i class="fas fa-gavel"></i> 03 Disiplin</h3><div class="txt" style="font-size:.95rem">BK, Wakasek<br>Poin & surat SP</div></div>
+        <div class="box"><h3><i class="fas fa-user-tie"></i> 04 Admin</h3><div class="txt" style="font-size:.95rem">Admin, Kepsek<br>Dashboard & manajemen</div></div>
+        <div class="box purple"><h3><i class="fas fa-globe"></i> 05 Cek Publik</h3><div class="txt" style="font-size:.95rem">Orang tua & Siswa<br>Tanpa login</div></div>
       </div>
     </div>
   </div>
@@ -473,8 +374,8 @@
   <!-- 10. MATRIKS ROLE -->
   <div class="slide" data-title="Matriks Role">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Role</div>
-      <h1>Enam Role, <span class="hl">Hak Akses Jelas</span></h1>
+      <div class="eyebrow">Bagian 4 · Portal</div>
+      <h1>Enam Role, <span class="hl">Akses Jelas</span></h1>
     </div>
     <div class="slide-body full">
       <table class="matrix">
@@ -488,36 +389,21 @@
           <tr><td class="role">WALI_KELAS</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓</td></tr>
         </tbody>
       </table>
-      <div class="txt" style="text-align:center;font-size:1.2rem;color:var(--muted);margin-top:1rem">
-        <i class="fas fa-lock"></i> Sistem membatasi akses sesuai wewenang
-      </div>
     </div>
   </div>
 
   <!-- 11. PORTAL GERBANG -->
   <div class="slide" data-title="Portal Gerbang">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal 01</div>
-      <h1>Portal Gerbang</h1>
+      <div class="eyebrow">Bagian 4 · Portal</div>
+      <h1>Portal <span class="hl">Gerbang</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box">
-        <h3><i class="fas fa-bullseye"></i> Fungsi</h3>
-        <div class="txt" style="font-size:1.3rem">Presensi kehadiran siswa & guru di pintu gerbang.</div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-gears"></i> Cara Kerja</h3>
-        <div class="txt" style="font-size:1.2rem">1. Guru piket login<br>2. Scan kartu QR/RFID<br>3. Sistem catat masuk/pulang<br>4. Notifikasi + suara</div>
+      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Presensi kehadiran siswa & guru di pintu gerbang.</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.05rem">1. Login<br>2. Scan QR/RFID<br>3. Catat masuk/pulang<br>4. Notifikasi + suara</div>
       </div>
-      <div class="box ok">
-        <h3><i class="fas fa-star"></i> Fitur Utama</h3>
-        <div class="txt" style="font-size:1.2rem">
-          ✓ Deteksi tepat waktu vs terlambat<br>
-          ✓ Trigger poin otomatis<br>
-          ✓ Sesi pagi & pulang terpisah<br>
-          ✓ Notifikasi cegah scan ganda<br>
-          ✓ Rekap harian real-time
-        </div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-users"></i> Role</h3>
-        <div class="txt" style="font-size:1.2rem">SUPER_ADMIN · GURU_PIKET</div>
+      <div class="box green"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.05rem">✓ Deteksi tepat/terlambat<br>✓ Trigger poin otomatis<br>✓ Sesi pagi & pulang<br>✓ Rekap harian</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.05rem">SUPER_ADMIN · GURU_PIKET</div>
       </div>
     </div>
   </div>
@@ -525,27 +411,15 @@
   <!-- 12. PORTAL SHOLAT -->
   <div class="slide" data-title="Portal Sholat">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal 02</div>
-      <h1>Portal Sholat</h1>
+      <div class="eyebrow">Bagian 4 · Portal</div>
+      <h1>Portal <span class="hl">Sholat</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box">
-        <h3><i class="fas fa-bullseye"></i> Fungsi</h3>
-        <div class="txt" style="font-size:1.3rem">Presensi sholat 5 waktu + manajemen udzur syar'i + laporan.</div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-gears"></i> Cara Kerja</h3>
-        <div class="txt" style="font-size:1.2rem">1. Pilih waktu sholat<br>2. Scan kartu / cari nama<br>3. Sistem catat timestamp<br>4. Beep = sukses, tetot = gagal</div>
+      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Presensi sholat 5 waktu + udzur + laporan.</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.05rem">1. Pilih waktu sholat<br>2. Scan kartu/nama<br>3. Sistem catat waktu<br>4. Beep = sukses</div>
       </div>
-      <div class="box ok">
-        <h3><i class="fas fa-star"></i> Fitur Utama</h3>
-        <div class="txt" style="font-size:1.2rem">
-          ✓ 4 mode laporan<br>
-          ✓ Export Excel 3 sheet<br>
-          ✓ Print/PDF siap tanda tangan<br>
-          ✓ Manajemen udzur (maks 4 hari)<br>
-          ✓ Konfirmasi otomatis udzur
-        </div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-users"></i> Role</h3>
-        <div class="txt" style="font-size:1.2rem">SUPER_ADMIN · GURU_BK · KEPSEK · GURU_PIKET · WALI_KELAS</div>
+      <div class="box green"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.05rem">✓ 4 mode laporan<br>✓ Export Excel<br>✓ Print/PDF<br>✓ Manajemen udzur</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.05rem">SUPER_ADMIN · BK · KEPSEK · PIKET · WALI KELAS</div>
       </div>
     </div>
   </div>
@@ -553,32 +427,15 @@
   <!-- 13. PORTAL DISIPLIN -->
   <div class="slide" data-title="Portal Disiplin">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal 03</div>
-      <h1>Portal Disiplin</h1>
+      <div class="eyebrow">Bagian 4 · Portal</div>
+      <h1>Portal <span class="hl">Disiplin</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box">
-        <h3><i class="fas fa-bullseye"></i> Fungsi</h3>
-        <div class="txt" style="font-size:1.3rem">Catat poin pelanggaran & prestasi, zona karakter, surat peringatan.</div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-palette"></i> Zona Karakter</h3>
-        <div class="txt" style="font-size:1.2rem">
-          <span class="ok">●</span> HIJAU (≥76) — Sangat Baik<br>
-          <span class="warn">●</span> KUNING (51-75) — Baik<br>
-          <span style="color:#FB923C;font-weight:800">●</span> ORANYE (26-50) — Perlu Perhatian<br>
-          <span class="danger">●</span> MERAH (1-25) — Risiko Tinggi<br>
-          <span style="color:#94A3B8;font-weight:800">●</span> KRITIS (≤0)
-        </div>
+      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Catat poin pelanggaran & prestasi, zona, SP.</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-palette"></i> Zona Karakter</h3><div class="txt" style="font-size:1.05rem"><span class="ok">●</span> HIJAU (≥76)<br><span class="warn">●</span> KUNING (51-75)<br><span style="color:#FB923C">●</span> ORANYE (26-50)<br><span class="danger">●</span> MERAH (1-25)<br><span style="color:#94A3B8">●</span> KRITIS (≤0)</div>
       </div>
-      <div class="box ok">
-        <h3><i class="fas fa-star"></i> Fitur Utama</h3>
-        <div class="txt" style="font-size:1.2rem">
-          ✓ Saldo poin otomatis<br>
-          ✓ Riwayat pelanggaran lengkap<br>
-          ✓ Surat Peringatan (SP1/SP2/SP3)<br>
-          ✓ Cek bolos sholat otomatis
-        </div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-users"></i> Role</h3>
-        <div class="txt" style="font-size:1.2rem">SUPER_ADMIN · GURU_BK · WAKA_KESISWAAN · KEPSEK</div>
+      <div class="box green"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.05rem">✓ Saldo poin otomatis<br>✓ Riwayat lengkap<br>✓ Surat Peringatan<br>✓ Cek bolos sholat</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.05rem">SUPER_ADMIN · BK · WAKA · KEPSEK</div>
       </div>
     </div>
   </div>
@@ -586,28 +443,15 @@
   <!-- 14. PORTAL ADMIN -->
   <div class="slide" data-title="Portal Admin">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal 04</div>
-      <h1>Portal Admin</h1>
+      <div class="eyebrow">Bagian 4 · Portal</div>
+      <h1>Portal <span class="hl">Admin</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box">
-        <h3><i class="fas fa-bullseye"></i> Fungsi</h3>
-        <div class="txt" style="font-size:1.3rem">Pusat kendali: dashboard, master data, poin, raport, laporan.</div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-list"></i> 13 Modul</h3>
-        <div class="txt" style="font-size:1.05rem;line-height:1.7">
-          Dashboard · Master Siswa · Master Kelas · Master Guru · Tata Tertib · RFID · Naik Kelas · Keterangan Absen · Laporan Siswa · Laporan Guru · Raport · Pengaturan · Cetak Kartu
-        </div>
+      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Pusat kendali: dashboard, master data, poin, raport, laporan.</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-list"></i> 13 Modul</h3><div class="txt" style="font-size:.95rem;line-height:1.6">Dashboard · Siswa · Kelas · Guru · Tatib · RFID · Naik Kelas · Keterangan · Laporan · Raport · Pengaturan · Kartu</div>
       </div>
-      <div class="box ok">
-        <h3><i class="fas fa-star"></i> Fitur Utama</h3>
-        <div class="txt" style="font-size:1.2rem">
-          ✓ Dashboard grafik real-time<br>
-          ✓ Import Excel massal<br>
-          ✓ Cetak raport & kartu siswa<br>
-          ✓ Hak akses per role
-        </div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-users"></i> Role</h3>
-        <div class="txt" style="font-size:1.2rem">SUPER_ADMIN · KEPSEK · BK · WAKA · WALI_KELAS (terbatas)</div>
+      <div class="box green"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.05rem">✓ Dashboard real-time<br>✓ Import Excel massal<br>✓ Cetak raport & kartu<br>✓ Hak akses per role</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.05rem">SUPER_ADMIN · KEPSEK · BK · WAKA · WALI (terbatas)</div>
       </div>
     </div>
   </div>
@@ -615,27 +459,15 @@
   <!-- 15. PORTAL PUBLIK -->
   <div class="slide" data-title="Portal Publik">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal 05</div>
-      <h1>Portal Cek Publik</h1>
+      <div class="eyebrow">Bagian 4 · Portal</div>
+      <h1>Portal Cek <span class="hl">Publik</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box">
-        <h3><i class="fas fa-bullseye"></i> Fungsi</h3>
-        <div class="txt" style="font-size:1.3rem">Akses mandiri untuk siswa & orang tua tanpa login.</div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-gears"></i> Cara Kerja</h3>
-        <div class="txt" style="font-size:1.2rem">1. Buka halaman publik<br>2. Ketik NIS / nama siswa<br>3. Lihat data langsung</div>
+      <div class="box purple"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Akses mandiri untuk siswa & orang tua tanpa login.</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.05rem">1. Buka menu Cek Publik di index<br>2. Ketik NIS / nama<br>3. Lihat data langsung</div>
       </div>
-      <div class="box ok">
-        <h3><i class="fas fa-star"></i> Yang Bisa Dilihat</h3>
-        <div class="txt" style="font-size:1.2rem">
-          ✓ Kehadiran gerbang<br>
-          ✓ Riwayat poin<br>
-          ✓ Saldo poin & zona<br>
-          ✓ Raport digital<br>
-          ✓ Akses 24 jam
-        </div>
-        <h3 style="margin-top:1.5rem"><i class="fas fa-users"></i> Untuk</h3>
-        <div class="txt" style="font-size:1.2rem">Siswa · Orang Tua · Masyarakat</div>
+      <div class="box green"><h3><i class="fas fa-star"></i> Yang Bisa Dilihat</h3><div class="txt" style="font-size:1.05rem">✓ Kehadiran gerbang<br>✓ Riwayat sholat<br>✓ Riwayat poin & zona<br>✓ Keterangan absen</div>
+        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Untuk</h3><div class="txt" style="font-size:1.05rem">Siswa · Orang Tua · Masyarakat</div>
       </div>
     </div>
   </div>
@@ -647,26 +479,8 @@
       <h1>Wali Kelas — <span class="hl">Kelas Sendiri</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box ok">
-        <h3><i class="fas fa-check"></i> Yang Bisa Dilakukan</h3>
-        <div class="txt" style="font-size:1.2rem">
-          ✓ Lihat dashboard kelas sendiri<br>
-          ✓ Input keterangan absen<br>
-          ✓ Lihat laporan kelas<br>
-          ✓ Cetak raport kelas<br>
-          ✓ Scan sholat & tambah udzur
-        </div>
-      </div>
-      <div class="box danger">
-        <h3><i class="fas fa-xmark"></i> Yang Tidak Bisa</h3>
-        <div class="txt" style="font-size:1.2rem">
-          ✗ Lihat kelas lain<br>
-          ✗ Ubah data siswa<br>
-          ✗ Hapus poin<br>
-          ✗ Kelola master data<br>
-          ✗ Lihat laporan seluruh sekolah
-        </div>
-      </div>
+      <div class="box green"><h3><i class="fas fa-check"></i> Yang Bisa</h3><div class="txt" style="font-size:1.1rem">✓ Dashboard kelas sendiri<br>✓ Input keterangan absen<br>✓ Lihat laporan kelas<br>✓ Cetak raport<br>✓ Scan sholat & udzur</div></div>
+      <div class="box red"><h3><i class="fas fa-xmark"></i> Yang Tidak Bisa</h3><div class="txt" style="font-size:1.1rem">✗ Lihat kelas lain<br>✗ Ubah data siswa<br>✗ Hapus poin<br>✗ Kelola master data<br>✗ Lihat laporan semua kelas</div></div>
     </div>
   </div>
 
@@ -677,9 +491,9 @@
       <h1>Modul 1-3: <span class="hl">Kehadiran</span></h1>
     </div>
     <div class="slide-body cols-3">
-      <div class="box"><h3><i class="fas fa-door-open"></i> Gerbang</h3><div class="txt" style="font-size:1.1rem">✓ Scan masuk & pulang<br>✓ Deteksi tepat/terlambat<br>✓ Trigger poin otomatis<br>✓ Rekap harian</div></div>
-      <div class="box"><h3><i class="fas fa-mosque"></i> Sholat</h3><div class="txt" style="font-size:1.1rem">✓ 5 waktu sholat<br>✓ Scan QR per waktu<br>✓ Manajemen udzur<br>✓ Laporan 4 mode</div></div>
-      <div class="box"><h3><i class="fas fa-chalkboard-teacher"></i> Guru</h3><div class="txt" style="font-size:1.1rem">✓ Scan masuk & pulang<br>✓ Hitung jam kerja<br>✓ Rekap per guru<br>✓ Deteksi keterlambatan</div></div>
+      <div class="box"><h3><i class="fas fa-door-open"></i> Gerbang</h3><div class="txt" style="font-size:1rem">✓ Scan masuk/pulang<br>✓ Deteksi tepat/terlambat<br>✓ Trigger poin otomatis<br>✓ Rekap harian</div></div>
+      <div class="box"><h3><i class="fas fa-mosque"></i> Sholat</h3><div class="txt" style="font-size:1rem">✓ 5 waktu sholat<br>✓ Scan per waktu<br>✓ Manajemen udzur<br>✓ Laporan 4 mode</div></div>
+      <div class="box"><h3><i class="fas fa-chalkboard-teacher"></i> Guru</h3><div class="txt" style="font-size:1rem">✓ Scan masuk/pulang<br>✓ Hitung jam kerja<br>✓ Rekap per guru<br>✓ Deteksi terlambat</div></div>
     </div>
   </div>
 
@@ -690,118 +504,59 @@
       <h1>Modul 4-5: <span class="hl">Disiplin & Poin</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box">
-        <h3><i class="fas fa-book"></i> Tata Tertib</h3>
-        <div class="txt" style="font-size:1.2rem">
-          ✓ Master pelanggaran (poin -)<br>
-          ✓ Master prestasi (poin +)<br>
-          ✓ Setiap item punya poin<br>
-          ✓ Aktif/nonaktif per item
-        </div>
-      </div>
-      <div class="box">
-        <h3><i class="fas fa-star"></i> Poin & Zona</h3>
-        <div class="txt" style="font-size:1.2rem">
-          ✓ Poin awal: 100<br>
-          ✓ Pelanggaran: poin (-)<br>
-          ✓ Prestasi: poin (+)<br>
-          ✓ Otomatis tersaldo
-        </div>
-      </div>
+      <div class="box"><h3><i class="fas fa-book"></i> Tata Tertib</h3><div class="txt" style="font-size:1.1rem">✓ Master pelanggaran (-)<br>✓ Master prestasi (+)<br>✓ Setiap item punya poin<br>✓ Aktif/nonaktif per item</div></div>
+      <div class="box"><h3><i class="fas fa-star"></i> Poin & Zona</h3><div class="txt" style="font-size:1.1rem">✓ Poin awal: 100<br>✓ Pelanggaran: (-)<br>✓ Prestasi: (+)<br>✓ Otomatis tersaldo</div></div>
     </div>
   </div>
 
-  <!-- 19. ZONA KARAKTER -->
-  <div class="slide" data-title="Zona Karakter">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 5 · Modul</div>
-      <h1>Lima <span class="hl">Zona Karakter</span></h1>
-    </div>
-    <div class="slide-body full">
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1.2rem;height:100%;align-items:center">
-        <div style="background:rgba(16,185,129,.2);border:3px solid rgba(16,185,129,.6);border-radius:20px;padding:2rem 1rem;text-align:center">
-          <div style="font-size:4rem;margin-bottom:.5rem">🟢</div>
-          <div style="font-size:1.5rem;font-weight:900;color:var(--success-l)">HIJAU</div>
-          <div style="font-size:1.2rem;color:#fff;margin-top:.4rem">≥76</div>
-          <div style="font-size:1rem;color:var(--text-soft);margin-top:.3rem">Sangat Baik</div>
-        </div>
-        <div style="background:rgba(245,158,11,.2);border:3px solid rgba(245,158,11,.6);border-radius:20px;padding:2rem 1rem;text-align:center">
-          <div style="font-size:4rem;margin-bottom:.5rem">🟡</div>
-          <div style="font-size:1.5rem;font-weight:900;color:var(--warn-l)">KUNING</div>
-          <div style="font-size:1.2rem;color:#fff;margin-top:.4rem">51-75</div>
-          <div style="font-size:1rem;color:var(--text-soft);margin-top:.3rem">Baik</div>
-        </div>
-        <div style="background:rgba(251,146,60,.2);border:3px solid rgba(251,146,60,.6);border-radius:20px;padding:2rem 1rem;text-align:center">
-          <div style="font-size:4rem;margin-bottom:.5rem">🟠</div>
-          <div style="font-size:1.5rem;font-weight:900;color:#FB923C">ORANYE</div>
-          <div style="font-size:1.2rem;color:#fff;margin-top:.4rem">26-50</div>
-          <div style="font-size:1rem;color:var(--text-soft);margin-top:.3rem">Perlu Perhatian</div>
-        </div>
-        <div style="background:rgba(239,68,68,.2);border:3px solid rgba(239,68,68,.6);border-radius:20px;padding:2rem 1rem;text-align:center">
-          <div style="font-size:4rem;margin-bottom:.5rem">🔴</div>
-          <div style="font-size:1.5rem;font-weight:900;color:var(--danger-l)">MERAH</div>
-          <div style="font-size:1.2rem;color:#fff;margin-top:.4rem">1-25</div>
-          <div style="font-size:1rem;color:var(--text-soft);margin-top:.3rem">Risiko Tinggi</div>
-        </div>
-        <div style="background:rgba(148,163,184,.2);border:3px solid rgba(148,163,184,.6);border-radius:20px;padding:2rem 1rem;text-align:center">
-          <div style="font-size:4rem;margin-bottom:.5rem">⚫</div>
-          <div style="font-size:1.5rem;font-weight:900;color:#94A3B8">KRITIS</div>
-          <div style="font-size:1.2rem;color:#fff;margin-top:.4rem">≤0</div>
-          <div style="font-size:1rem;color:var(--text-soft);margin-top:.3rem">Kritis</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 20. MODUL ADMIN -->
+  <!-- 19. MODUL ADMIN -->
   <div class="slide" data-title="Modul Admin">
     <div class="slide-header">
       <div class="eyebrow">Bagian 5 · Modul</div>
       <h1>Modul 6-8: <span class="hl">Administrasi</span></h1>
     </div>
     <div class="slide-body cols-3">
-      <div class="box"><h3><i class="fas fa-database"></i> Master Data</h3><div class="txt" style="font-size:1.1rem">✓ Siswa (CRUD + Import)<br>✓ Kelas + Wali Kelas<br>✓ Guru + Role<br>✓ Tata Tertib<br>✓ RFID</div></div>
-      <div class="box"><h3><i class="fas fa-notes-medical"></i> Keterangan</h3><div class="txt" style="font-size:1.1rem">✓ Izin / Sakit / Alpa<br>✓ Per tanggal<br>✓ Per siswa<br>✓ Riwayat lengkap</div></div>
-      <div class="box"><h3><i class="fas fa-chart-line"></i> Laporan</h3><div class="txt" style="font-size:1.1rem">✓ Laporan Siswa<br>✓ Laporan Guru<br>✓ Laporan Sholat<br>✓ Raport Digital<br>✓ Export + Print</div></div>
+      <div class="box"><h3><i class="fas fa-database"></i> Master Data</h3><div class="txt" style="font-size:.95rem">✓ Siswa (+Import)<br>✓ Kelas + Wali Kelas<br>✓ Guru + Role<br>✓ Tata Tertib<br>✓ RFID</div></div>
+      <div class="box"><h3><i class="fas fa-notes-medical"></i> Keterangan</h3><div class="txt" style="font-size:.95rem">✓ Izin / Sakit / Alpa<br>✓ Per tanggal<br>✓ Per siswa<br>✓ Riwayat lengkap</div></div>
+      <div class="box"><h3><i class="fas fa-chart-line"></i> Laporan</h3><div class="txt" style="font-size:.95rem">✓ Laporan Siswa<br>✓ Laporan Guru<br>✓ Laporan Sholat<br>✓ Raport Digital<br>✓ Export + Print</div></div>
     </div>
   </div>
 
-  <!-- 21. LAPORAN SIAPA -->
+  <!-- 20. LAPORAN SIAPA -->
   <div class="slide" data-title="Laporan Siapa">
     <div class="slide-header">
       <div class="eyebrow">Bagian 5 · Modul</div>
       <h1>Laporan <span class="hl">untuk Siapa</span>?</h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-user-tie"></i> Wali Kelas</h3><div class="txt" style="font-size:1.3rem">Kelas sendiri — kehadiran, poin, raport</div></div>
-      <div class="box"><h3><i class="fas fa-user-shield"></i> Guru BK</h3><div class="txt" style="font-size:1.3rem">Seluruh sekolah — disiplin, konseling, SP</div></div>
-      <div class="box"><h3><i class="fas fa-crown"></i> Kepala Sekolah</h3><div class="txt" style="font-size:1.3rem">Seluruh sekolah — dashboard + laporan</div></div>
-      <div class="box"><h3><i class="fas fa-people-roof"></i> Orang Tua</h3><div class="txt" style="font-size:1.3rem">Anak sendiri — kehadiran, poin, raport</div></div>
+      <div class="box"><h3><i class="fas fa-user-tie"></i> Wali Kelas</h3><div class="txt" style="font-size:1.1rem">Kelas sendiri — kehadiran, poin, raport</div></div>
+      <div class="box"><h3><i class="fas fa-user-shield"></i> Guru BK</h3><div class="txt" style="font-size:1.1rem">Seluruh sekolah — disiplin, konseling, SP</div></div>
+      <div class="box"><h3><i class="fas fa-crown"></i> Kepala Sekolah</h3><div class="txt" style="font-size:1.1rem">Seluruh sekolah — dashboard + laporan</div></div>
+      <div class="box"><h3><i class="fas fa-people-roof"></i> Orang Tua</h3><div class="txt" style="font-size:1.1rem">Anak sendiri — kehadiran, poin, raport</div></div>
     </div>
   </div>
 
-  <!-- 22. MODUL PENDUKUNG -->
+  <!-- 21. MODUL PENDUKUNG -->
   <div class="slide" data-title="Modul Pendukung">
     <div class="slide-header">
       <div class="eyebrow">Bagian 5 · Modul</div>
       <h1>Modul 9-13: <span class="hl">Pendukung</span></h1>
     </div>
     <div class="slide-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem">
-        <div class="box"><h3><i class="fas fa-arrow-up"></i> Naik Kelas</h3><div class="txt" style="font-size:1.05rem">Proses massal · Ganti kelas · Lulus XII</div></div>
-        <div class="box"><h3><i class="fas fa-wifi"></i> RFID</h3><div class="txt" style="font-size:1.05rem">Daftar kartu siswa & guru · Auto-detect</div></div>
-        <div class="box"><h3><i class="fas fa-id-card"></i> Cetak Kartu</h3><div class="txt" style="font-size:1.05rem">CR80 · QR code · Foto · A4</div></div>
-        <div class="box"><h3><i class="fas fa-file-alt"></i> Raport</h3><div class="txt" style="font-size:1.05rem">Per semester/bulan · Print A4</div></div>
-        <div class="box"><h3><i class="fas fa-cog"></i> Pengaturan</h3><div class="txt" style="font-size:1.05rem">Jam · Identitas · Poin · Zona</div></div>
-        <div class="box ok"><h3><i class="fas fa-shield-halved"></i> Audit</h3><div class="txt" style="font-size:1.05rem">Semua aksi tercatat</div></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+        <div class="box"><h3><i class="fas fa-arrow-up"></i> Naik Kelas</h3><div class="txt" style="font-size:.95rem">Proses massal · Ganti kelas · Lulus XII</div></div>
+        <div class="box"><h3><i class="fas fa-wifi"></i> RFID</h3><div class="txt" style="font-size:.95rem">Daftar kartu siswa & guru · Auto-detect</div></div>
+        <div class="box"><h3><i class="fas fa-id-card"></i> Cetak Kartu</h3><div class="txt" style="font-size:.95rem">CR80 · QR code · Foto · A4</div></div>
+        <div class="box"><h3><i class="fas fa-file-alt"></i> Raport</h3><div class="txt" style="font-size:.95rem">Per semester/bulan · Print A4</div></div>
+        <div class="box"><h3><i class="fas fa-cog"></i> Pengaturan</h3><div class="txt" style="font-size:.95rem">Jam · Identitas · Poin · Zona</div></div>
       </div>
     </div>
   </div>
 
-  <!-- 23. ALUR SISWA -->
+  <!-- 22. ALUR SISWA -->
   <div class="slide" data-title="Alur Siswa">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 6 · Alur Kerja</div>
+      <div class="eyebrow">Bagian 6 · Alur</div>
       <h1>Satu Hari <span class="hl">Siswa</span></h1>
     </div>
     <div class="slide-body cols-2">
@@ -812,24 +567,16 @@
         <div class="tl-item"><div class="time">14:30</div><div class="desc">Sholat Ashar — scan QR</div></div>
         <div class="tl-item"><div class="time">15:00</div><div class="desc">Pulang — scan kartu</div></div>
       </div>
-      <div class="box ok">
-        <h3><i class="fas fa-people-roof"></i> Orang Tua Cek Kapan Saja</h3>
-        <div class="txt" style="font-size:1.2rem">
-          1. Buka halaman publik<br>
-          2. Ketik NIS anak<br>
-          3. Lihat kehadiran hari ini
-        </div>
-        <div style="margin-top:1.2rem;padding:1rem;background:rgba(16,185,129,.15);border-radius:10px;font-size:1.2rem;color:#fff">
-          <i class="fas fa-clock"></i> <b>Real-time</b> — tidak perlu tunggu laporan
-        </div>
+      <div class="box green"><h3><i class="fas fa-people-roof"></i> Orang Tua Cek Kapan Saja</h3><div class="txt" style="font-size:1.05rem">1. Buka menu Cek Publik<br>2. Ketik NIS anak<br>3. Lihat kehadiran hari ini</div>
+        <div style="margin-top:.8rem;padding:.6rem;background:rgba(16,185,129,.1);border-radius:8px;font-size:.95rem;color:var(--text)"><i class="fas fa-clock"></i> <b>Real-time</b> — tidak perlu tunggu laporan</div>
       </div>
     </div>
   </div>
 
-  <!-- 24. ALUR GURU PIKET -->
-  <div class="slide" data-title="Alur Guru Piket">
+  <!-- 23. ALUR PIKET -->
+  <div class="slide" data-title="Alur Piket">
     <div class="slide-header">
-      <div class="eyebrow">Bagian 6 · Alur Kerja</div>
+      <div class="eyebrow">Bagian 6 · Alur</div>
       <h1>Rutinitas <span class="hl">Guru Piket</span></h1>
     </div>
     <div class="slide-body cols-2">
@@ -839,29 +586,12 @@
         <div class="tl-item"><div class="time">11:30</div><div class="desc">Scan sholat Dzuhur</div></div>
         <div class="tl-item"><div class="time">14:30</div><div class="desc">Scan sholat Ashar</div></div>
         <div class="tl-item"><div class="time">15:00-15:30</div><div class="desc">Scan siswa pulang</div></div>
-        <div class="tl-item"><div class="time">Akhir hari</div><div class="desc">Cek laporan & laporkan anomali</div></div>
       </div>
-      <div>
-        <div class="box ok" style="text-align:center">
-          <h3 style="justify-content:center"><i class="fas fa-bolt"></i> Kecepatan</h3>
-          <div style="font-size:5rem;font-weight:900;color:var(--success-l);font-family:'JetBrains Mono',monospace;line-height:1;margin:1rem 0">&lt;2 detik</div>
-          <div style="font-size:1.2rem;color:var(--muted);font-weight:700">per siswa</div>
-        </div>
-        <div class="box" style="margin-top:1.2rem">
-          <h3><i class="fas fa-triangle-exclamation"></i> Jika Internet Mati</h3>
-          <div class="txt" style="font-size:1.1rem">Pakai tethering HP · atau catat manual · input nanti</div>
-        </div>
-      </div>
+      <div class="box blue" style="text-align:center;justify-content:center"><h3 style="justify-content:center;font-size:1.2rem"><i class="fas fa-bolt"></i> Kecepatan</h3><div class="big" style="font-size:3.5rem">&lt;2s</div><div class="lbl">per siswa</div></div>
     </div>
   </div>
 
-  <!-- 25. QUOTE SLIDE -->
-  <div class="slide quote-slide" data-title="Quote">
-    <div class="mark">"</div>
-    <div class="text">Teknologi <span class="hl">bukan menggantikan</span> peran guru,<br>tetapi <span class="hl">memperkuat</span> peran guru<br>dalam mendidik generasi berkarakter.</div>
-  </div>
-
-  <!-- 26. CAPAIAN -->
+  <!-- 24. CAPAIAN -->
   <div class="slide" data-title="Capaian">
     <div class="slide-header">
       <div class="eyebrow">Bagian 7 · Penutup</div>
@@ -869,62 +599,33 @@
     </div>
     <div class="slide-body full">
       <div class="stat-grid-big">
-        <div class="stat-big"><div class="val">5</div><div class="lbl">Portal Web</div><div class="sub">Aktif & terintegrasi</div></div>
-        <div class="stat-big"><div class="val">6</div><div class="lbl">Role Pengguna</div><div class="sub">Hak akses jelas</div></div>
-        <div class="stat-big"><div class="val">13</div><div class="lbl">Modul Aplikasi</div><div class="sub">Semua berjalan</div></div>
-        <div class="stat-big"><div class="val">12</div><div class="lbl">Sheet Database</div><div class="sub">Terstruktur</div></div>
-        <div class="stat-big"><div class="val">&lt;2s</div><div class="lbl">Per Scan</div><div class="sub">Sangat cepat</div></div>
-        <div class="stat-big"><div class="val">Rp 0</div><div class="lbl">Biaya Server</div><div class="sub">100% cloud gratis</div></div>
+        <div class="stat-big"><div class="val">5</div><div class="lbl">Portal Web</div></div>
+        <div class="stat-big"><div class="val">6</div><div class="lbl">Role Pengguna</div></div>
+        <div class="stat-big"><div class="val">13</div><div class="lbl">Modul</div></div>
+        <div class="stat-big"><div class="val">&lt;2s</div><div class="lbl">Per Scan</div></div>
+        <div class="stat-big"><div class="val">Rp 0</div><div class="lbl">Biaya Server</div></div>
       </div>
     </div>
   </div>
 
-  <!-- 27. KEUNGGULAN -->
-  <div class="slide" data-title="Keunggulan">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 7 · Penutup</div>
-      <h1>Keunggulan <span class="hl">BKCSiplin</span></h1>
-    </div>
-    <div class="slide-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem">
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>Multi-portal</b> — 1 sistem, 5 tampilan</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>Multi-role</b> — 6 role jelas</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>QR + RFID</b> — dua metode scan</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>Real-time</b> — data langsung tampil</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>Integrasi penuh</b> — semua terhubung</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>Cloud-based</b> — tanpa server lokal</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>Akses dari mana saja</b> — browser + internet</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>Backup otomatis</b> — Google Cloud</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>Gratis</b> — hanya butuh akun Google</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body"><b>Skalabel</b> — hingga ribuan siswa</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 28. TERIMA KASIH -->
+  <!-- 25. TERIMA KASIH -->
   <div class="slide end center" data-title="Terima Kasih">
     <h1>Terima Kasih</h1>
     <p>Bapak/Ibu Kepala Sekolah, para Guru, dan Staf</p>
-    <p style="color:#fff;font-weight:800;font-size:2.2rem;margin-top:.5rem">SMK Bhakti Kencana Ciawi</p>
-    <div class="sub">
-      <i class="fas fa-globe"></i> smkbkciawi.github.io/bkcsiplin
-    </div>
+    <p style="color:var(--brand);font-weight:800;font-size:1.5rem">SMK Bhakti Kencana Ciawi</p>
+    <div class="sub"><i class="fas fa-globe"></i> smkbkciawi.github.io/bkcsiplin</div>
     <div class="quote">
-      <i class="fas fa-quote-left" style="color:var(--brand-3);margin-right:.5rem"></i>
+      <i class="fas fa-quote-left" style="color:var(--brand);margin-right:.4rem"></i>
       Dengan sistem ini, kita tidak hanya mencatat kehadiran — kita membangun <b>karakter</b>, menumbuhkan <b>disiplin</b>, dan memuliakan <b>proses pendidikan</b>.
     </div>
-    <div class="sub" style="margin-top:2.5rem;font-style:italic">
-      Wassalamu'alaikum warahmatullahi wabarakatuh
-    </div>
+    <div class="sub" style="margin-top:1.5rem;font-style:italic">Wassalamu'alaikum warahmatullahi wabarakatuh</div>
   </div>
 
 </div>
 
 <!-- NAVBAR BOTTOM -->
 <div class="navbar">
-  <div class="hint">
-    <kbd>←</kbd> <kbd>→</kbd> Navigasi &nbsp;·&nbsp; <kbd>F</kbd> Fullscreen &nbsp;·&nbsp; <kbd>O</kbd> Overview
-  </div>
+  <div class="hint"><kbd>←</kbd> <kbd>→</kbd> Navigasi &nbsp;·&nbsp; <kbd>F</kbd> Fullscreen &nbsp;·&nbsp; <kbd>O</kbd> Overview</div>
   <div class="navbtns">
     <button class="ghost" id="btn-prev" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
     <button id="btn-next" onclick="nextSlide()">Berikutnya <i class="fas fa-arrow-right"></i></button>
@@ -953,7 +654,7 @@
       const card = document.createElement('div');
       card.className = 'ov-card' + (i === 0 ? ' active' : '');
       card.dataset.idx = i;
-      card.innerHTML = `<div class="num">SLIDE ${i+1}</div><div class="ttl">${s.dataset.title || 'Slide ' + (i+1)}</div>`;
+      card.innerHTML = `<div class="num">Slide ${i+1}</div><div class="ttl">${s.dataset.title || 'Slide ' + (i+1)}</div>`;
       card.onclick = () => { goToSlide(i); closeOverview(); };
       grid.appendChild(card);
     });
@@ -1005,12 +706,9 @@
   document.addEventListener('keydown', (e) => {
     const ov = document.getElementById('overview');
     if (ov.classList.contains('show') && e.key === 'Escape') { closeOverview(); return; }
-
     switch(e.key) {
-      case 'ArrowRight': case ' ': case 'PageDown':
-        e.preventDefault(); nextSlide(); break;
-      case 'ArrowLeft': case 'PageUp':
-        e.preventDefault(); prevSlide(); break;
+      case 'ArrowRight': case ' ': case 'PageDown': e.preventDefault(); nextSlide(); break;
+      case 'ArrowLeft': case 'PageUp': e.preventDefault(); prevSlide(); break;
       case 'Home': e.preventDefault(); goToSlide(0); break;
       case 'End': e.preventDefault(); goToSlide(totalSlides - 1); break;
       case 'f': case 'F': toggleFullscreen(); break;

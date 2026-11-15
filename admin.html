@@ -920,11 +920,13 @@ function todayISO() {
 }
 function bersihkanJam_(val, fallback) {
   if (!val) return fallback;
-  const str = String(val).trim();
-  if (/^\d{2}:\d{2}$/.test(str)) return str;
-  if (/^\d{2}:\d{2}:\d{2}/.test(str)) return str.slice(0, 5);
-  const m = str.match(/(\d{2}):(\d{2})/);
-  if (m) return m[1] + ':' + m[2];
+  if (val instanceof Date) {
+    const hh = String(val.getHours()).padStart(2, '0');
+    const mm = String(val.getMinutes()).padStart(2, '0');
+    return hh + ':' + mm;
+  }
+  const str = String(val).trim().replace('.', ':');
+  if (/^\d{2}:\d{2}/.test(str)) return str.substring(0, 5);
   return fallback;
 }
 function formatTanggal(val) {

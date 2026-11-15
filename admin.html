@@ -1846,6 +1846,16 @@ function renderRaport(d) {
     fotoHtml = `<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#1E40AF);color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.2rem">${escapeHtml(String(s.nama||'?').slice(0,2).toUpperCase())}</div>`;
   }
 
+  // Label periode yang lebih informatif
+  let labelPeriode = p.label;
+  if (p.mode === 'semester') {
+    const semester = p.semester || '';
+    const ta = p.tahun_ajaran || '';
+    const bulanRentang = semester === 'GANJIL' ? 'Juli – Desember' : 'Januari – Juni';
+    const tahunRentang = semester === 'GANJIL' ? ta.split('/')[0] : ta.split('/')[1];
+    labelPeriode = `Semester ${semester === 'GANJIL' ? 'Ganjil' : 'Genap'} ${ta} · ${bulanRentang} ${tahunRentang}`;
+  }
+
   const rowsBulan = d.rekap_bulanan.map(b => {
     const total = b.hadir + b.izin + b.sakit + b.alpa;
     const persen = total > 0 ? ((b.hadir / total) * 100).toFixed(1) + '%' : '-';
@@ -1866,7 +1876,7 @@ function renderRaport(d) {
         ${fotoHtml}
         <div class="info">
           <h2>RAPORT SISWA</h2>
-          <p>SMK Bhakti Kencana Ciawi · ${escapeHtml(p.label)}</p>
+          <p>SMK Bhakti Kencana Ciawi · ${escapeHtml(labelPeriode)}</p>
         </div>
       </div>
       <div class="raport-identitas">
@@ -1874,7 +1884,7 @@ function renderRaport(d) {
         <div><b>NIS:</b> <span>${escapeHtml(s.nis)}</span></div>
         <div><b>Kelas:</b> <span>${escapeHtml(s.kelas)}</span></div>
         <div><b>Jenis Kelamin:</b> <span>${escapeHtml(s.jk || '-')}</span></div>
-        <div><b>Periode:</b> <span>${escapeHtml(p.label)}</span></div>
+        <div><b>Periode:</b> <span>${escapeHtml(labelPeriode)}</span></div>
         <div><b>Tanggal Cetak:</b> <span>${formatTanggal(new Date().toISOString().slice(0,10))}</span></div>
       </div>
 

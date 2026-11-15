@@ -126,9 +126,7 @@
   .import-result ul{margin:.4rem 0 0 1rem;padding:0}
 
   .raport-hal{background:#fff;border:1px solid #E5EEFF;border-radius:12px;padding:1.5rem;margin-bottom:1rem}
-      .raport-header{display:flex;align-items:center;gap:1rem;border-bottom:2px solid #1E3A8A;padding-bottom:1rem;margin-bottom:1rem}
-  .raport-header .kop-kiri{display:flex;align-items:center;gap:1rem;flex-shrink:0}
-  .raport-header .kop-kanan{text-align:right; flex-grow:1}
+  .raport-header{display:flex;align-items:center;gap:1rem;border-bottom:2px solid #1E3A8A;padding-bottom:1rem;margin-bottom:1rem}
   .raport-header .kop-kiri{display:flex;align-items:center;gap:1rem;flex-shrink:0}
   .raport-header .kop-kanan{text-align:right; flex-grow:1}
   .raport-header img{width:56px;height:56px;object-fit:contain}
@@ -148,57 +146,37 @@
   .raport-zona.merah{background:#FEE2E2;color:#B91C1C}
   .raport-zona.kritis{background:#1F2937;color:#fff}
 
-    @media print {
-    /* Sembunyikan semua elemen UI */
+  @media print {
     body * { visibility: hidden; }
     .no-print, .main-sidebar, .main-header, .main-footer, 
     .content-wrapper, .overlay-modal:not(#modal-raport) { display: none !important; }
     
     /* Tampilkan HANYA area modal raport */
     #modal-raport, #modal-raport * { visibility: visible; }
-    #modal-raport { 
-      position: absolute; 
-      left: 0; 
-      top: 0; 
-      width: 100%; 
-      background: #fff; 
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-    #modal-raport .overlay-box { 
-      box-shadow: none !important; 
-      max-width: 100% !important; 
-      max-height: none !important; 
-      padding: 0 !important;
-      margin: 0 !important;
-      border: none !important;
-    }
+    #modal-raport { position: absolute; left: 0; top: 0; width: 100%; background: #fff; padding: 0 !important; margin: 0 !important; }
+    #modal-raport .overlay-box { box-shadow: none !important; max-width: 100% !important; max-height: none !important; padding: 0 !important; margin: 0 !important; border: none !important; }
     #modal-raport .no-print { display: none !important; }
     #raport-modal-content { padding: 0 !important; }
 
     /* Halaman Raport */
-    .raport-hal { 
-      padding: 15mm; 
-      margin: 0; 
-      page-break-after: always; 
-      break-after: page;
-    }
+    .raport-hal { padding: 15mm; margin: 0; page-break-after: always; break-after: page; }
     .raport-hal:last-child { page-break-after: auto; break-after: auto; }
-    
-    /* Paksa ukuran A4 */
     @page { size: A4 portrait; margin: 0; }
     
-    /* Aturan Khusus Cetak Kartu (Supaya tidak tertimpa aturan raport) */
-    /* --- FIX CETAK KARTU --- */
+    /* KHUSUS CETAK KARTU */
     body.print-kartu #page-kartu { display: block !important; position: absolute; left: 0; top: 0; width: 100%; z-index: 9999; }
     body.print-kartu #page-kartu .card { border: none !important; box-shadow: none !important; }
     body.print-kartu #page-kartu .card-header, body.print-kartu #page-kartu #kartu-info { display: none !important; }
-    body.print-kartu #kartu-grid { display: grid !important; grid-template-columns: repeat(3, 85.6mm) !important; gap: 6mm !important; padding: 5mm !important; justify-content: center !important; }
+    
+    body.print-kartu #kartu-grid { 
+      display: grid !important; 
+      grid-template-columns: repeat(3, 85.6mm) !important; 
+      gap: 6mm !important; 
+      padding: 5mm !important; 
+      justify-content: center !important; 
+    }
     body.print-kartu .kartu-item { width: 85.6mm !important; height: 54mm !important; page-break-inside: avoid; break-inside: avoid; }
     body.print-kartu @page { size: A4 landscape; margin: 10mm; }
-  }
-    @page { size: A4 landscape; margin: 10mm; }
-    @media print { @page { size: A4 portrait; margin: 15mm; } }
   }
   @media (max-width: 992px) { .kartu-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 576px) { .kartu-grid { grid-template-columns: 1fr; } .kartu-item { width: 100%; max-width: 85.6mm; margin: 0 auto; } .form-row { grid-template-columns: 1fr; } .raport-identitas { grid-template-columns: 1fr; } }
@@ -840,10 +818,8 @@
 </div>
 
 <!-- MODAL RAPORT -->
-<!-- MODAL RAPORT -->
 <div class="overlay-modal" id="modal-raport">
   <div class="overlay-box xwide" style="position:relative; padding-bottom: 80px;">
-    <button class="btn btn-danger" onclick="cetakRaportSekarang()"><i class="fas fa-print mr-1"></i>Cetak PDF / Print</button>
     <div id="raport-modal-content"></div>
     
     <!-- TOmbol Melayang -->
@@ -1834,28 +1810,14 @@ async function loadPengaturan() {
     const res = await apiCall('getPengaturan');
     if (!res.ok) return;
     const s = res.data;
-
-    // Fungsi khusus untuk merapikan format jam dari server
-        function rapikanJam(val, defaultVal) {
-      if (!val) return defaultVal;
-      if (val instanceof Date) {
-        return String(val.getHours()).padStart(2, '0') + ':' + String(val.getMinutes()).padStart(2, '0');
-      }
-      let str = String(val).trim().replace(/\./g, ':'); // Ubah titik jadi titik dua
-      if (/^\d{2}:\d{2}/.test(str)) return str.substring(0, 5);
-      return defaultVal;
-    }
-
-    $('set-jam-masuk').value = rapikanJam(s.jam_masuk, '07:00');
-    $('set-jam-pulang').value = rapikanJam(s.jam_pulang, '15:00');
+    $('set-jam-masuk').value = bersihkanJam_(s.jam_masuk, '07:00');
+    $('set-jam-pulang').value = bersihkanJam_(s.jam_pulang, '15:00');
     $('set-toleransi').value = s.toleransi_menit || '0';
-    
-    $('set-subuh').value = rapikanJam(s.jam_subuh, '04:30');
-    $('set-dzuhur').value = rapikanJam(s.jam_dzuhur, '12:00');
-    $('set-ashar').value = rapikanJam(s.jam_ashar, '15:15');
-    $('set-maghrib').value = rapikanJam(s.jam_maghrib, '18:00');
-    $('set-isya').value = rapikanJam(s.jam_isya, '19:15');
-    
+    $('set-subuh').value = bersihkanJam_(s.jam_subuh, '04:30');
+    $('set-dzuhur').value = bersihkanJam_(s.jam_dzuhur, '12:00');
+    $('set-ashar').value = bersihkanJam_(s.jam_ashar, '15:15');
+    $('set-maghrib').value = bersihkanJam_(s.jam_maghrib, '18:00');
+    $('set-isya').value = bersihkanJam_(s.jam_isya, '19:15');
     $('set-nama-sekolah').value = s.nama_sekolah || '';
     $('set-nama-yayasan').value = s.nama_yayasan || '';
     $('set-alamat').value = s.alamat_sekolah || '';
@@ -1868,7 +1830,7 @@ async function loadPengaturan() {
     $('set-zona-kuning').value = s.zona_kuning_min || '51';
     $('set-zona-oranye').value = s.zona_oranye_min || '26';
     $('set-zona-merah').value = s.zona_merah_min || '1';
-  } catch (e) { console.error('Gagal load pengaturan', e); }
+  } catch (e) {}
 }
 $('btn-simpan-pengaturan').addEventListener('click', async () => {
   const payload = {
@@ -2060,22 +2022,7 @@ $('btn-export-tatib').addEventListener('click', () => {
   XLSX.writeFile(wb, 'Master_TataTertib_' + todayISO() + '.xlsx'); toast('File Excel diunduh');
 });
 
-// ============ INIT ============
-window.addEventListener('load', async () => {
-  if (state.token) {
-    try {
-      const res = await apiCall('heartbeat');
-      if (res.ok) {
-        $('modal-login').classList.remove('show');
-        await afterLogin();
-      } else { doLogout('Token expired'); }
-    } catch (e) { doLogout('Koneksi gagal'); }
-  } else {
-    $('modal-login').classList.add('show');
-    setTimeout(() => $('login-user').focus(), 300);
-  }
-});
-  // ============ RAPORT SISWA ============
+// ============ RAPORT SISWA ============
 function renderTahunAjaran() {
   const now = new Date();
   const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
@@ -2161,8 +2108,8 @@ async function tampilkanRaport() {
   
   const btn = $('btn-load-raport'); 
   btn.disabled = true; 
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Memuat data...';
-  $('raport-info').innerHTML = '<span style="color:#3B82F6"><i class="fas fa-circle-notch fa-spin"></i> Menarik data dari server, mohon tunggu...</span>';
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Memuat...';
+  $('raport-info').innerHTML = '<span style="color:#3B82F6"><i class="fas fa-circle-notch fa-spin"></i> Menarik data...</span>';
   
   try {
     const res = await apiCall('getRaportSiswa', payload, true);
@@ -2185,7 +2132,7 @@ function renderRaport(d) {
   const s = d.siswa;
   const p = d.periode;
   const zonaClass = String(d.zona.kode).toLowerCase();
-
+  
   let labelPeriode = p.label;
   if (p.mode === 'semester') {
     const semester = p.semester || '';
@@ -2209,75 +2156,107 @@ function renderRaport(d) {
 
   const rowsPoin = d.poin_detail.length ? d.poin_detail.map(p => `<tr><td>${formatTanggal(p.tanggal)}</td><td>${escapeHtml(p.pasal || '-')}</td><td>${escapeHtml(p.deskripsi || '-')}</td><td style="text-align:center;font-weight:800;color:${p.poin < 0 ? '#B91C1C' : '#047857'}">${p.poin > 0 ? '+' : ''}${p.poin}</td><td>${escapeHtml(p.petugas || '-')}</td></tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:#64748B">Tidak ada catatan poin pada periode ini.</td></tr>';
 
-  apiCall('getPengaturan').then(resSetting => {
-    const setting = resSetting.ok ? resSetting.data : {};
-    const namaKepsek = setting.kepala_sekolah || '...............................';
-    
-    apiCall('getMasterKelas').then(resKelas => {
-      let namaWali = '...............................';
-      if (resKelas.ok) {
-        const kelasData = resKelas.data.find(k => String(k.nama_kelas).trim() === String(s.kelas).trim());
-        if (kelasData && kelasData.wali_kelas) namaWali = kelasData.wali_kelas;
-      }
+  const namaKepsek = d.nama_kepsek || '...............................';
+  const namaWali = d.nama_wali || '...............................';
 
-      const html = `
-        <div class="raport-hal">
-                        <div class="raport-header">
-                <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo" style="width:60px; height:auto; object-fit:contain;">
-                                <div class="info" style="flex:1; margin-left:10px;">
-                  <h2>RAPORT SISWA</h2>
-                  <p>SMK Bhakti Kencana Ciawi · ${escapeHtml(labelPeriode)}</p>
-                </div>
-              </div>
-          <div class="raport-identitas">
-            <div><b>Nama:</b> <span>${escapeHtml(s.nama)}</span></div>
-            <div><b>NIS:</b> <span>${escapeHtml(s.nis)}</span></div>
-            <div><b>Kelas:</b> <span>${escapeHtml(s.kelas)}</span></div>
-            <div><b>Jenis Kelamin:</b> <span>${escapeHtml(s.jk || '-')}</span></div>
-            <div><b>Periode:</b> <span>${escapeHtml(labelPeriode)}</span></div>
-            <div><b>Tanggal Cetak:</b> <span>${formatTanggal(new Date().toISOString().slice(0,10))}</span></div>
-          </div>
-
-          <div class="raport-section-title">A. Rekap Kehadiran</div>
-          <table class="raport-table">
-            <thead><tr><th>Bulan</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alpa</th><th>Total</th><th>% Hadir</th></tr></thead>
-            <tbody>${rowsBulan}</tbody>
-            <tfoot><tr style="background:#F8FAFF;font-weight:800"><td>JUMLAH</td><td>${totalHadir}</td><td>${totalIzin}</td><td>${totalSakit}</td><td>${totalAlpa}</td><td>${totalSemua}</td><td>${persenTotal}</td></tr></tfoot>
-          </table>
-
-          <div class="raport-section-title">B. Kedisiplinan & Poin</div>
-          <div style="display:flex;gap:1.5rem;align-items:center;margin-bottom:.7rem;flex-wrap:wrap">
-            <div>Saldo Akhir Poin: <b style="font-size:1.3rem;color:#1E3A8A">${d.saldo_akhir}</b></div>
-            <div class="raport-zona ${zonaClass}">Zona ${escapeHtml(d.zona.kode)} — ${escapeHtml(d.zona.label)}</div>
-          </div>
-          <table class="raport-table">
-            <thead><tr><th>Tanggal</th><th>Pasal</th><th>Deskripsi</th><th style="width:60px">Poin</th><th>Petugas</th></tr></thead>
-            <tbody>${rowsPoin}</tbody>
-          </table>
-
-          <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;font-size:.85rem">
-            <div style="text-align:center">
-              <div>Orang Tua / Wali</div>
-              <div style="height:60px"></div>
-              <div style="border-top:1px solid #475569;padding-top:.3rem">(________________________)</div>
-            </div>
-            <div style="text-align:center">
-              <div>Wali Kelas</div>
-              <div style="height:60px"></div>
-              <div style="border-top:1px solid #475569;padding-top:.3rem"><b>${escapeHtml(namaWali)}</b></div>
-            </div>
-          </div>
-          <div style="text-align:center;margin-top:1.5rem;font-size:.82rem">
-            <div>Mengetahui, Kepala Sekolah</div>
-            <div style="height:50px"></div>
-            <div style="border-top:1px solid #475569;display:inline-block;padding:0 2rem .3rem"><b>${escapeHtml(namaKepsek)}</b></div>
-          </div>
+  const html = `
+    <div class="raport-hal">
+      <div class="raport-header">
+        <div class="kop-kiri">
+          <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo" style="width:70px; height:auto;">
         </div>
-      `;
-            $('raport-modal-content').innerHTML = html;
-      return html; // <-- Tambahkan baris ini
-    });
-  });
+        <div class="kop-kanan info">
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: #1E3A8A; margin: 0;">RAPORT SISWA</h2>
+          <p style="font-size: .85rem; color: #64748B; margin: 0; font-weight: 600;">SMK Bhakti Kencana Ciawi<br>${escapeHtml(labelPeriode)}</p>
+        </div>
+      </div>
+      
+      <div class="raport-identitas">
+        <div><b>Nama:</b> <span>${escapeHtml(s.nama)}</span></div>
+        <div><b>NIS:</b> <span>${escapeHtml(s.nis)}</span></div>
+        <div><b>Kelas:</b> <span>${escapeHtml(s.kelas)}</span></div>
+        <div><b>Jenis Kelamin:</b> <span>${escapeHtml(s.jk || '-')}</span></div>
+        <div><b>Periode:</b> <span>${escapeHtml(labelPeriode)}</span></div>
+        <div><b>Tanggal Cetak:</b> <span>${formatTanggal(new Date().toISOString().slice(0,10))}</span></div>
+      </div>
+
+      <div class="raport-section-title">A. Rekap Kehadiran</div>
+      <table class="raport-table">
+        <thead><tr><th>Bulan</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alpa</th><th>Total</th><th>% Hadir</th></tr></thead>
+        <tbody>${rowsBulan}</tbody>
+        <tfoot><tr style="background:#F8FAFF;font-weight:800"><td>JUMLAH</td><td>${totalHadir}</td><td>${totalIzin}</td><td>${totalSakit}</td><td>${totalAlpa}</td><td>${totalSemua}</td><td>${persenTotal}</td></tr></tfoot>
+      </table>
+
+      <div class="raport-section-title">B. Kedisiplinan & Poin</div>
+      <div style="display:flex;gap:1.5rem;align-items:center;margin-bottom:.7rem;flex-wrap:wrap">
+        <div>Saldo Akhir Poin: <b style="font-size:1.3rem;color:#1E3A8A">${d.saldo_akhir}</b></div>
+        <div class="raport-zona ${zonaClass}">Zona ${escapeHtml(d.zona.kode)} — ${escapeHtml(d.zona.label)}</div>
+      </div>
+      <table class="raport-table">
+        <thead><tr><th>Tanggal</th><th>Pasal</th><th>Deskripsi</th><th style="width:60px">Poin</th><th>Petugas</th></tr></thead>
+        <tbody>${rowsPoin}</tbody>
+      </table>
+
+      <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;font-size:.85rem">
+        <div style="text-align:center">
+          <div>Orang Tua / Wali</div>
+          <div style="height:60px"></div>
+          <div style="border-top:1px solid #475569;padding-top:.3rem">(________________________)</div>
+        </div>
+        <div style="text-align:center">
+          <div>Wali Kelas</div>
+          <div style="height:60px"></div>
+          <div style="border-top:1px solid #475569;padding-top:.3rem"><b>${escapeHtml(namaWali)}</b></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:1.5rem;font-size:.82rem">
+        <div>Mengetahui, Kepala Sekolah</div>
+        <div style="height:50px"></div>
+        <div style="border-top:1px solid #475569;display:inline-block;padding:0 2rem .3rem"><b>${escapeHtml(namaKepsek)}</b></div>
+      </div>
+    </div>
+  `;
+  $('raport-modal-content').innerHTML = html;
+}
+
+function cetakRaportSekarang() {
+  const isiRaport = document.getElementById('raport-modal-content').innerHTML;
+  const jendelaCetak = window.open('', '_blank', 'width=900,height=800');
+  
+  const links = document.querySelectorAll('link[rel="stylesheet"]');
+  let linkTags = '';
+  links.forEach(l => { linkTags += `<link rel="stylesheet" href="${l.href}">`; });
+
+  jendelaCetak.document.write(`
+    <html>
+      <head>
+        <base href="${window.location.origin}${window.location.pathname}">
+        <title>Cetak Raport</title>
+        ${linkTags}
+        <style>
+          body { background: #fff; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+          .raport-hal { page-break-after: always; padding: 15mm; margin: 0 auto; background: #fff; max-width: 190mm; }
+          .raport-hal:last-child { page-break-after: auto; }
+          @page { size: A4 portrait; margin: 0; }
+          
+          .raport-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1E3A8A; padding-bottom: 1rem; margin-bottom: 1rem; }
+          .raport-header .kop-kiri { display: flex; align-items: center; gap: 1rem; }
+          .raport-header .kop-kanan { text-align: right; }
+          .raport-identitas { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem 1rem; font-size: .85rem; margin-bottom: 1rem; }
+          .raport-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-bottom: .5rem; }
+          .raport-table th { background: #F8FAFF; padding: .5rem; text-align: left; border-bottom: 1px solid #E5EEFF; }
+          .raport-table td { padding: .5rem; border-bottom: 1px solid #EEF3FB; }
+          .raport-zona { display: inline-block; padding: .4rem 1rem; border-radius: 8px; font-weight: 800; }
+        </style>
+      </head>
+      <body>
+        ${isiRaport}
+      </body>
+    </html>
+  `);
+  
+  jendelaCetak.document.close();
+  setTimeout(() => { jendelaCetak.focus(); jendelaCetak.print(); }, 500);
 }
 
 async function cetakMassalRaport() {
@@ -2294,7 +2273,7 @@ async function cetakMassalRaport() {
     payloadDasar.tahun_ajaran = $('raport-ta').value;
   }
 
-  toast('Sedang menyiapkan raport 1 kelas... Mohon tunggu.');
+  toast('Menyiapkan raport. Jangan tutup halaman ini...');
   
   try {
     const resKelas = await apiCall('getMasterKelas');
@@ -2322,7 +2301,6 @@ async function cetakMassalRaport() {
        if (resRaport.ok) {
           const d = resRaport.data;
           const zonaClass = String(d.zona.kode).toLowerCase();
-          
           let labelPeriode = d.periode.label;
           if (d.periode.mode === 'semester') {
             const sem = d.periode.semester || '';
@@ -2344,6 +2322,9 @@ async function cetakMassalRaport() {
           const persenTotal = totalSemua > 0 ? ((totalHadir / totalSemua) * 100).toFixed(1) + '%' : '-';
 
           const rowsPoin = d.poin_detail.length ? d.poin_detail.map(p => `<tr><td>${formatTanggal(p.tanggal)}</td><td>${escapeHtml(p.pasal || '-')}</td><td>${escapeHtml(p.deskripsi || '-')}</td><td style="text-align:center;font-weight:800;color:${p.poin < 0 ? '#B91C1C' : '#047857'}">${p.poin > 0 ? '+' : ''}${p.poin}</td><td>${escapeHtml(p.petugas || '-')}</td></tr>`).join('') : '<tr><td colspan="5" style="text-align:center;">Tidak ada catatan poin.</td></tr>';
+
+          const namaKepsek2 = d.nama_kepsek || '...............................';
+          const namaWali2 = d.nama_wali || '...............................';
 
           htmlGabungan += `
             <div class="raport-hal">
@@ -2392,13 +2373,13 @@ async function cetakMassalRaport() {
                 <div style="text-align:center">
                   <div>Wali Kelas</div>
                   <div style="height:60px"></div>
-                  <div style="border-top:1px solid #475569;padding-top:.3rem"><b>${escapeHtml(namaWali)}</b></div>
+                  <div style="border-top:1px solid #475569;padding-top:.3rem"><b>${escapeHtml(namaWali2)}</b></div>
                 </div>
               </div>
               <div style="text-align:center;margin-top:1.5rem;font-size:.82rem">
                 <div>Mengetahui, Kepala Sekolah</div>
                 <div style="height:50px"></div>
-                <div style="border-top:1px solid #475569;display:inline-block;padding:0 2rem .3rem"><b>${escapeHtml(namaKepsek)}</b></div>
+                <div style="border-top:1px solid #475569;display:inline-block;padding:0 2rem .3rem"><b>${escapeHtml(namaKepsek2)}</b></div>
               </div>
             </div>
           `;
@@ -2413,53 +2394,22 @@ async function cetakMassalRaport() {
     toast('Gagal mencetak massal: ' + e.message, true);
   }
 }
-function cetakRaportSekarang() {
-  const isiRaport = document.getElementById('raport-modal-content').innerHTML;
-  const jendelaCetak = window.open('', '_blank', 'width=900,height=800');
-  
-  // Ambil stylesheet dari halaman utama
-  const links = document.querySelectorAll('link[rel="stylesheet"]');
-  let linkTags = '';
-  links.forEach(l => { linkTags += `<link rel="stylesheet" href="${l.href}">`; });
 
-  jendelaCetak.document.write(`
-    <html>
-      <head>
-        <head>
-        <base href="${window.location.origin}${window.location.pathname}">
-        <title>Cetak Raport</title>
-        ${linkTags}
-        <style>
-          body { background: #fff; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-          .raport-hal { page-break-after: always; padding: 15mm; margin: 0 auto; background: #fff; max-width: 190mm; }
-          .raport-hal:last-child { page-break-after: auto; }
-          @page { size: A4 portrait; margin: 0; }
-          /* Styling minimal agar rapi */
-                    .raport-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1E3A8A; padding-bottom: 1rem; margin-bottom: 1rem; }
-          .raport-header .kop-kiri { display: flex; align-items: center; gap: 1rem; }
-          .raport-header .kop-kanan { text-align: right; }
-          .raport-identitas { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem 1rem; font-size: .85rem; margin-bottom: 1rem; }
-          .raport-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-bottom: .5rem; }
-          .raport-table th { background: #F8FAFF; padding: .5rem; text-align: left; border-bottom: 1px solid #E5EEFF; }
-          .raport-table td { padding: .5rem; border-bottom: 1px solid #EEF3FB; }
-          .raport-zona { display: inline-block; padding: .4rem 1rem; border-radius: 8px; font-weight: 800; }
-        </style>
-      </head>
-      <body>
-        ${isiRaport}
-      </body>
-    </html>
-  `);
-  
-  jendelaCetak.document.close();
-  
-  // Beri waktu render, lalu print
-  setTimeout(() => {
-    jendelaCetak.focus();
-    jendelaCetak.print();
-  }, 500);
-}
-  
+// ============ INIT ============
+window.addEventListener('load', async () => {
+  if (state.token) {
+    try {
+      const res = await apiCall('heartbeat');
+      if (res.ok) {
+        $('modal-login').classList.remove('show');
+        await afterLogin();
+      } else { doLogout('Token expired'); }
+    } catch (e) { doLogout('Koneksi gagal'); }
+  } else {
+    $('modal-login').classList.add('show');
+    setTimeout(() => $('login-user').focus(), 300);
+  }
+});
 </script>
 </body>
 </html>

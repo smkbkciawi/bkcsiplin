@@ -2222,7 +2222,8 @@ function renderRaport(d) {
           </div>
         </div>
       `;
-      $('raport-modal-content').innerHTML = html;
+            $('raport-modal-content').innerHTML = html;
+      return html; // <-- Tambahkan baris ini
     });
   });
 }
@@ -2249,22 +2250,24 @@ async function cetakMassalRaport() {
     
     const listSiswa = resSiswa.data;
     let htmlGabungan = '';
-    const modalEl = $('raport-modal-content');
     
     for (let i = 0; i < listSiswa.length; i++) {
        const s = listSiswa[i];
        const payload = { ...payloadDasar, nis: s.nis };
        const resRaport = await apiCall('getRaportSiswa', payload, true);
        if (resRaport.ok) {
-          const oldInnerHTML = modalEl.innerHTML;
+          // Trik: render ke modal, lalu ambil HTML-nya
           renderRaport(resRaport.data);
-          await new Promise(r => setTimeout(r, 150)); 
-          htmlGabungan += modalEl.innerHTML;
-          modalEl.innerHTML = oldInnerHTML;
+          // Beri jeda 200ms agar data Wali Kelas & Kepsek selesai ditarik
+          await new Promise(r => setTimeout(r, 200)); 
+          
+          // Ambil hasil render-nya dan simpan
+          htmlGabungan += $('raport-modal-content').innerHTML;
        }
     }
     
-    modalEl.innerHTML = htmlGabungan;
+    // Tampilkan semua hasil gabungan
+    $('raport-modal-content').innerHTML = htmlGabungan;
     $('modal-raport').classList.add('show');
     toast('Berhasil memuat ' + listSiswa.length + ' raport. Silakan Print.');
     

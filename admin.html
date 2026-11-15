@@ -2131,6 +2131,12 @@ function pilihRaportSiswa(s) {
   $('raport-hasil').style.display = 'none';
   $('btn-load-raport').disabled = false;
   $('raport-info').textContent = 'Siswa: ' + s.nama + ' · ' + s.kelas + ' · NIS ' + s.nis;
+  
+  // --- AUTO LOAD OTOMATIS SETELAH PILIH SISWA ---
+  // Ini memotong loading lama, langsung cetak tanpa harus klik "Tampilkan" lagi
+  setTimeout(() => {
+    $('btn-load-raport').click();
+  }, 100);
 }
 
 async function tampilkanRaport() {

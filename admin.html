@@ -822,12 +822,17 @@
 </div>
 
 <!-- MODAL RAPORT -->
+<!-- MODAL RAPORT -->
 <div class="overlay-modal" id="modal-raport">
-  <div class="overlay-box xwide">
-    <button class="btn btn-sm btn-outline-secondary no-print" onclick="document.getElementById('modal-raport').classList.remove('show')" style="position:absolute;top:1rem;right:1rem;z-index:10"><i class="fas fa-times"></i></button>
+  <div class="overlay-box xwide" style="position:relative; padding-bottom: 80px;">
+    <button class="btn btn-sm btn-outline-secondary no-print" onclick="document.getElementById('modal-raport').classList.remove('show'); $('raport-modal-content').innerHTML='';" style="position:absolute;top:1rem;right:1rem;z-index:10"><i class="fas fa-times"></i></button>
     <div id="raport-modal-content"></div>
-    <button class="btn btn-danger btn-block no-print" onclick="window.print()" style="margin-top:1rem"><i class="fas fa-print mr-1"></i>Cetak PDF / Print</button>
-    <button class="btn-secondary-full no-print" onclick="document.getElementById('modal-raport').classList.remove('show')">Tutup</button>
+    
+    <!-- TOmbol Melayang -->
+    <div class="no-print" style="position:fixed; bottom:20px; right:20px; z-index:2050; display:flex; gap:.5rem; background:rgba(255,255,255,0.9); padding:10px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.3);">
+      <button class="btn btn-danger" onclick="window.print()"><i class="fas fa-print mr-1"></i>Cetak PDF / Print</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('modal-raport').classList.remove('show'); $('raport-modal-content').innerHTML='';"><i class="fas fa-times mr-1"></i>Tutup</button>
+    </div>
   </div>
 </div>
 
@@ -2361,7 +2366,7 @@ async function cetakMassalRaport() {
     // Tampilkan semuanya sekaligus
     $('raport-modal-content').innerHTML = htmlGabungan;
     $('modal-raport').classList.add('show');
-    toast('Berhasil memuat ' + listSiswa.length + ' raport.');
+    toast('Berhasil memuat ' + listSiswa.length + ' raport. Silakan klik Cetak.');
     
   } catch(e) {
     toast('Gagal mencetak massal: ' + e.message, true);

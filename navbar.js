@@ -33,7 +33,7 @@
     { href: 'gerbang.html', label: 'Gerbang', roles: ['GURU_PIKET','SUPER_ADMIN','GURU_BK'] },
     { href: 'sholat.html', label: 'Sholat', roles: ['GURU_PIKET','GURU_BK','WALI_KELAS','KEPSEK','SUPER_ADMIN'] },
     { href: 'disiplin.html', label: 'Disiplin', roles: ['GURU_BK','WAKA_KESISWAAN','SUPER_ADMIN','KEPSEK'] },
-    { href: 'admin.html', label: 'Admin', roles: ['SUPER_ADMIN','KEPSEK','GURU_BK','WAKA_KESISWAAN'] }
+    { href: 'admin.html', label: 'Admin', roles: ['SUPER_ADMIN','KEPSEK','GURU_BK','WAKA_KESISWAAN','WALI_KELAS'] }
   ];
 
   const allowed = menu.filter(m => !m.roles || m.roles.some(r => roleUpper.includes(r)));

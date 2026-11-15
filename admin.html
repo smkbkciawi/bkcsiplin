@@ -580,11 +580,7 @@
               </div>
               <div class="field" id="raport-ta-wrap">
                 <label>Tahun Ajaran</label>
-                <select id="raport-ta">
-                  <option value="2024/2025">2024/2025</option>
-                  <option value="2025/2026" selected>2025/2026</option>
-                  <option value="2026/2027">2026/2027</option>
-                </select>
+                <select id="raport-ta"><option value="">Memuat…</option></select>
               </div>
               <div class="field" id="raport-bulan-wrap" style="display:none">
                 <label>Bulan</label>
@@ -1763,10 +1759,47 @@ function exportLaporanSiswa() {
 }
 
 // ============ RAPORT SISWA ============
+function renderTahunAjaran() {
+  // Hitung TA aktif: Juli–Desember → TA tahun ini; Januari–Juni → TA tahun lalu
+  const now = new Date();
+  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
+  const tahunIni = wib.getFullYear();
+  const bulanIni = wib.getMonth() + 1; // 1–12
+  const taAktif = bulanIni >= 7 ? tahunIni : tahunIni - 1;
+
+  // Opsi: TA lalu, TA aktif, TA depan
+  const daftarTA = [taAktif - 1, taAktif, taAktif + 1];
+  const sel = document.getElementById('raport-ta');
+  if (!sel) return;
+  sel.innerHTML = daftarTA.map(y => {
+    const label = y + '/' + (y + 1);
+    const selected = (y === taAktif) ? ' selected' : '';
+    return `<option value="${label}"${selected}>${label}</option>`;
+  }).join('');
+}
+function renderTahunAjaran() {
+  const now = new Date();
+  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
+  const tahunIni = wib.getFullYear();
+  const bulanIni = wib.getMonth() + 1;
+  const taAktif = bulanIni >= 7 ? tahunIni : tahunIni - 1;
+  const daftarTA = [taAktif - 1, taAktif, taAktif + 1];
+  const sel = document.getElementById('raport-ta');
+  if (!sel) return;
+  sel.innerHTML = daftarTA.map(y => {
+    const label = y + '/' + (y + 1);
+    const selected = (y === taAktif) ? ' selected' : '';
+    return `<option value="${label}"${selected}>${label}</option>`;
+  }).join('');
+}
+
 async function initRaport() {
+  renderTahunAjaran();
+  
   const rolesArr = String(state.role || '').toUpperCase().split(',').map(r => r.trim());
   const boleh = ['SUPER_ADMIN','KEPSEK','GURU_BK','WALI_KELAS'].some(r => rolesArr.includes(r));
   if (!boleh) { toast('Anda tidak berhak mengakses raport.', true); return; }
+  
   $('raport-cari').addEventListener('input', (e) => cariRaportSiswa(e.target.value));
   $('raport-mode').addEventListener('change', () => {
     const mode = $('raport-mode').value;
@@ -1774,6 +1807,7 @@ async function initRaport() {
     $('raport-ta-wrap').style.display = mode === 'semester' ? '' : 'none';
     $('raport-bulan-wrap').style.display = mode === 'bulan' ? '' : 'none';
   });
+  
   if (!$('raport-bulan').value) $('raport-bulan').value = todayISO().slice(0,7);
   $('btn-load-raport').addEventListener('click', tampilkanRaport);
 }

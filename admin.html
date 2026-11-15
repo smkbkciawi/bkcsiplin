@@ -667,7 +667,7 @@
             <div class="d-flex align-items-center" style="gap:.5rem">
               <select id="kartu-kelas" class="form-control form-control-sm" style="width:200px"><option value="">— Pilih Kelas —</option></select>
               <button class="btn btn-sm btn-primary" id="btn-load-kartu"><i class="fas fa-eye mr-1"></i>Tampilkan</button>
-              <button class="btn btn-sm btn-success" id="btn-print-kartu"><i class="fas fa-print mr-1"></i>Print A4</button>
+              <button class="btn btn-sm btn-success" id="btn-print-kartu" onclick="cetakKartuSekarang()"><i class="fas fa-print mr-1"></i>Print A4</button>
             </div>
           </div>
           <div class="card-body">
@@ -1863,13 +1863,42 @@ $('btn-load-kartu').addEventListener('click', async () => {
     });
   } catch (err) { toast('Gagal memuat kartu', true); }
 });
-$('btn-print-kartu').addEventListener('click', () => { 
-  document.body.classList.add('print-kartu'); 
-  setTimeout(() => {
-    window.print(); 
-    setTimeout(() => document.body.classList.remove('print-kartu'), 500);
-  }, 200);
-});
+function cetakKartuSekarang() {
+  const isiKartu = document.getElementById('print-area').innerHTML;
+  const jendelaCetak = window.open('', '_blank', 'width=900,height=800');
+  
+  const links = document.querySelectorAll('link[rel="stylesheet"]');
+  let linkTags = '';
+  links.forEach(l => { linkTags += `<link rel="stylesheet" href="${l.href}">`; });
+
+  jendelaCetak.document.write(`
+    <html>
+      <head>
+        <base href="${window.location.origin}${window.location.pathname}">
+        <title>Cetak Kartu</title>
+        ${linkTags}
+        <style>
+          body { background: #fff; margin: 0; padding: 5mm; font-family: 'Inter', sans-serif; }
+          .kartu-grid { display: grid !important; grid-template-columns: repeat(3, 85.6mm) !important; gap: 6mm !important; justify-content: center !important; }
+          .kartu-item { width: 85.6mm !important; height: 54mm !important; page-break-inside: avoid; border: 1.5px dashed #94A3B8; border-radius: 10px; padding: 4mm; box-sizing: border-box; display: grid; grid-template-columns: auto 1fr; gap: 3mm; align-items: center; }
+          .kartu-item .qr-box { width: 30mm; height: 30mm; background: #fff; border-radius: 6px; display: grid; place-items: center; }
+          .kartu-item .qr-box img { width: 100%; height: 100%; }
+          .kartu-item .info-kartu b { display: block; font-size: 10pt; color: #0A1533; font-weight: 800; line-height: 1.15; margin-bottom: 1mm; }
+          .kartu-item .info-kartu .nis { font-family: monospace; font-size: 8pt; color: #1E3A8A; font-weight: 700; margin-bottom: 1mm; }
+          .kartu-item .info-kartu .kelas { font-size: 7pt; color: #64748B; font-weight: 600; }
+          .kartu-item .info-kartu .sekolah { font-size: 6pt; color: #3B82F6; font-weight: 700; margin-top: 1.5mm; border-top: 1px solid #E5EEFF; padding-top: 1mm; }
+          @page { size: A4 landscape; margin: 10mm; }
+        </style>
+      </head>
+      <body>
+        <div class="kartu-grid">${isiKartu}</div>
+      </body>
+    </html>
+  `);
+  
+  jendelaCetak.document.close();
+  setTimeout(() => { jendelaCetak.focus(); jendelaCetak.print(); }, 500);
+}
 
 // ============ IMPORT EXCEL ============
 function openImport(mode) {

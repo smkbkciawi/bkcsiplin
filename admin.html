@@ -2130,19 +2130,15 @@ function pilihRaportSiswa(s) {
   $('raport-cari').value = s.nama + ' (' + s.nis + ') — ' + s.kelas;
   $('raport-hasil').style.display = 'none';
   $('btn-load-raport').disabled = false;
-  $('raport-info').textContent = 'Siswa: ' + s.nama + ' · ' + s.kelas + ' · NIS ' + s.nis;
-  
-  // --- AUTO LOAD OTOMATIS SETELAH PILIH SISWA ---
-  // Ini memotong loading lama, langsung cetak tanpa harus klik "Tampilkan" lagi
-  setTimeout(() => {
-    $('btn-load-raport').click();
-  }, 100);
+  $('raport-info').innerHTML = 'Siswa: <b>' + s.nama + '</b> · ' + s.kelas + ' · NIS ' + s.nis;
 }
 
 async function tampilkanRaport() {
-  if (!state.raportSiswa) { toast('Cari siswa dulu', true); return; }
+  if (!state.raportSiswa) { toast('Cari dan pilih siswa dulu', true); return; }
+  
   const mode = $('raport-mode').value;
   const payload = { nis: state.raportSiswa.nis, mode };
+  
   if (mode === 'bulan') {
     payload.bulan = $('raport-bulan').value;
     if (!payload.bulan) { toast('Pilih bulan', true); return; }
@@ -2150,16 +2146,27 @@ async function tampilkanRaport() {
     payload.semester = $('raport-semester').value;
     payload.tahun_ajaran = $('raport-ta').value;
   }
-  const btn = $('btn-load-raport'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Memuat…';
+  
+  const btn = $('btn-load-raport'); 
+  btn.disabled = true; 
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Memuat data...';
+  $('raport-info').innerHTML = '<span style="color:#3B82F6"><i class="fas fa-circle-notch fa-spin"></i> Menarik data dari server, mohon tunggu...</span>';
+  
   try {
     const res = await apiCall('getRaportSiswa', payload, true);
     if (!res.ok) { toast(res.message, true); return; }
+    
     state.raportData = res.data;
     renderRaport(res.data);
     $('modal-raport').classList.add('show');
-    setTimeout(() => { $('raport-modal-content').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-  } catch (e) { toast('Gagal memuat raport', true); }
-  finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-eye mr-1"></i>Tampilkan'; }
+    
+  } catch (e) { 
+    toast('Gagal memuat raport: Koneksi terputus', true); 
+  } finally { 
+    btn.disabled = false; 
+    btn.innerHTML = '<i class="fas fa-eye mr-1"></i>Tampilkan';
+    $('raport-info').textContent = 'Siswa: ' + state.raportSiswa.nama + ' · ' + state.raportSiswa.kelas;
+  }
 }
 
 function renderRaport(d) {

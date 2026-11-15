@@ -144,41 +144,61 @@
   .raport-zona.merah{background:#FEE2E2;color:#B91C1C}
   .raport-zona.kritis{background:#1F2937;color:#fff}
 
-  @media print {
+    @media print {
+    /* Sembunyikan semua elemen UI */
     body * { visibility: hidden; }
-    #page-laporan-siswa, #page-laporan-siswa * { visibility: visible; }
-    #page-laporan-guru, #page-laporan-guru * { visibility: visible; }
-    #page-kartu, #page-kartu * { visibility: visible; }
+    .no-print, .main-sidebar, .main-header, .main-footer, 
+    .content-wrapper, .overlay-modal:not(#modal-raport) { display: none !important; }
+    
+    /* Tampilkan HANYA area modal raport */
     #modal-raport, #modal-raport * { visibility: visible; }
-    #page-laporan-siswa, #page-laporan-guru, #page-kartu { position: absolute; left: 0; top: 0; width: 100%; }
-    #modal-raport { position: absolute; left: 0; top: 0; width: 100%; background: #fff; }
-    #modal-raport .overlay-box { box-shadow: none; max-width: 100%; max-height: none; }
-    #modal-raport .no-print, #modal-raport .overlay-box > .btn-primary-full, #modal-raport .overlay-box > .btn-secondary-full, #modal-raport .overlay-box > .modal-close { display: none !important; }
-    .no-print, .no-print-laporan, .main-sidebar, .main-header, .main-footer { display: none !important; }
-    .content-wrapper { margin: 0 !important; padding: 0 !important; }
-    .card { border: none !important; box-shadow: none !important; }
-    .table-responsive { max-height: none !important; overflow: visible !important; }
-    .print-laporan-only { display: block !important; }
-    .raport-hal { border: none; padding: 0; page-break-after: always; }
-    .raport-hal:last-child { page-break-after: auto; }
+    #modal-raport { 
+      position: absolute; 
+      left: 0; 
+      top: 0; 
+      width: 100%; 
+      background: #fff; 
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    #modal-raport .overlay-box { 
+      box-shadow: none !important; 
+      max-width: 100% !important; 
+      max-height: none !important; 
+      padding: 0 !important;
+      margin: 0 !important;
+      border: none !important;
+    }
+    #modal-raport .no-print { display: none !important; }
+    #raport-modal-content { padding: 0 !important; }
 
-    #page-kartu .card-header,
-    #page-kartu #kartu-info { display: none !important; }
-    #kartu-grid {
+    /* Halaman Raport */
+    .raport-hal { 
+      padding: 15mm; 
+      margin: 0; 
+      page-break-after: always; 
+      break-after: page;
+    }
+    .raport-hal:last-child { page-break-after: auto; break-after: auto; }
+    
+    /* Paksa ukuran A4 */
+    @page { size: A4 portrait; margin: 0; }
+    
+    /* Aturan Khusus Cetak Kartu (Supaya tidak tertimpa aturan raport) */
+    body.print-kartu * { visibility: hidden; }
+    body.print-kartu #page-kartu, body.print-kartu #page-kartu * { visibility: visible; }
+    body.print-kartu #page-kartu { position: absolute; left: 0; top: 0; width: 100%; }
+    body.print-kartu #page-kartu .card-header, body.print-kartu #page-kartu #kartu-info { display: none !important; }
+    body.print-kartu #kartu-grid {
       display: grid !important;
       grid-template-columns: repeat(3, 85.6mm) !important;
-      grid-auto-rows: 54mm !important;
       gap: 6mm !important;
       padding: 5mm !important;
       justify-content: center !important;
-      align-items: start !important;
     }
-    #kartu-grid .kartu-item {
-      width: 85.6mm !important;
-      height: 54mm !important;
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
+    body.print-kartu .kartu-item { width: 85.6mm !important; height: 54mm !important; page-break-inside: avoid; break-inside: avoid; }
+    body.print-kartu @page { size: A4 landscape; margin: 10mm; }
+  }
     @page { size: A4 landscape; margin: 10mm; }
     @media print { @page { size: A4 portrait; margin: 15mm; } }
   }
@@ -1867,7 +1887,11 @@ $('btn-load-kartu').addEventListener('click', async () => {
     });
   } catch (err) { toast('Gagal memuat kartu', true); }
 });
-$('btn-print-kartu').addEventListener('click', () => window.print());
+$('btn-print-kartu').addEventListener('click', () => { 
+  document.body.classList.add('print-kartu'); 
+  window.print(); 
+  setTimeout(() => document.body.classList.remove('print-kartu'), 1000);
+});
 
 // ============ IMPORT EXCEL ============
 function openImport(mode) {

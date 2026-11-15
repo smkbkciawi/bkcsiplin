@@ -211,77 +211,21 @@ function escapeHtml(s) {
 }
 
 // --- FUNGSI HYBRID: Otomatis pilih JSONP atau POST tergantung perangkat ---
-function apiCall(action, payload = {}, isPost = false) {
+// --- FUNGSI API CALL INSTAN (Khusus untuk halaman baca data seperti cek.html) ---
+function apiCall(action, payload = {}) {
   return new Promise((resolve, reject) => {
-    const cbName = 'jsonp_' + Math.round(100000 * Math.random());
-    const script = document.createElement('script');
-    
-    // Susun URL (sama seperti aslinya)
-    let url = `${API_URL}?callback=${cbName}&action=${action}`;
-    
-    // Ambil token dari sessionStorage (menyesuaikan variabel di file HTML Anda)
-    let currentToken = '';
-    if (typeof state !== 'undefined' && state.token) {
-      currentToken = state.token;
-    } else {
-      currentToken = sessionStorage.getItem('bkc_admin_token') || 
-                     sessionStorage.getItem('bkc_sholat_token') || 
-                     sessionStorage.getItem('bkc_token') || '';
-    }
-    
-    if (currentToken) {
-      url += `&token=${currentToken}`;
-    }
-    
-    if (isPost) { 
-      url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`; 
-    } else { 
-      for (let k in payload) { 
-        if (payload[k] !== undefined && payload[k] !== null) {
-          url += `&${k}=${encodeURIComponent(payload[k])}`; 
-        }
-      } 
-    }
+    // Gabungkan parameter ke dalam body
+    const bodyData = { action: action, payload: payload };
 
-    let isSettled = false;
-
-    const success = (res) => {
-      if (isSettled) return;
-      isSettled = true;
-      try { document.body.removeChild(script); } catch (e) {}
-      delete window[cbName];
-      resolve(res);
-    };
-
-    const fallbackToFetch = () => {
-      if (isSettled) return;
-      isSettled = true;
-      try { document.body.removeChild(script); } catch (e) {}
-      delete window[cbName];
-      
-      // Fallback ke Fetch (POST) - Cara modern yang tidak diblokir browser HP
-      const bodyData = { action: action, payload: payload };
-      if (currentToken) bodyData.token = currentToken;
-
-      fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(bodyData)
-      })
-      .then(r => r.json())
-      .then(res => resolve(res))
-      .catch(err => reject(err));
-    };
-
-    window[cbName] = function(res) { success(res); };
-    script.src = url;
-    script.onerror = function() { fallbackToFetch(); };
-    document.body.appendChild(script);
-
-    // ⏱️ TIMEOUT 3 DETIK: Jika JSONP diblokir browser HP, paksa pindah ke Fetch
-    setTimeout(() => {
-      if (!isSettled) fallbackToFetch();
-    }, 3000);
+    // Langsung tembak pakai FETCH (POST) - Cepat & Anti Blokir HP
+    fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(bodyData)
+    })
+    .then(r => r.json())
+    .then(res => resolve(res))
+    .catch(err => reject(err));
   });
 }
 

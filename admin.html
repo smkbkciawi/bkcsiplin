@@ -126,7 +126,11 @@
   .import-result ul{margin:.4rem 0 0 1rem;padding:0}
 
   .raport-hal{background:#fff;border:1px solid #E5EEFF;border-radius:12px;padding:1.5rem;margin-bottom:1rem}
-  .raport-header{display:flex;align-items:center;gap:1rem;border-bottom:2px solid #1E3A8A;padding-bottom:1rem;margin-bottom:1rem}
+      .raport-header{display:flex;align-items:center;gap:1rem;border-bottom:2px solid #1E3A8A;padding-bottom:1rem;margin-bottom:1rem}
+  .raport-header .kop-kiri{display:flex;align-items:center;gap:1rem;flex-shrink:0}
+  .raport-header .kop-kanan{text-align:right; flex-grow:1}
+  .raport-header .kop-kiri{display:flex;align-items:center;gap:1rem;flex-shrink:0}
+  .raport-header .kop-kanan{text-align:right; flex-grow:1}
   .raport-header img{width:56px;height:56px;object-fit:contain}
   .raport-header .info h2{font-size:1.1rem;font-weight:800;color:#1E3A8A;margin:0;line-height:1.2}
   .raport-header .info p{font-size:.75rem;color:#64748B;margin:0;font-weight:600}
@@ -2156,12 +2160,6 @@ function renderRaport(d) {
   const s = d.siswa;
   const p = d.periode;
   const zonaClass = String(d.zona.kode).toLowerCase();
-  let fotoHtml = '';
-  if (s.foto_url) {
-    fotoHtml = `<img src="${escapeHtml(s.foto_url)}" alt="Foto" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #3B82F6">`;
-  } else {
-    fotoHtml = `<div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#1E40AF);color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.2rem">${escapeHtml(String(s.nama||'?').slice(0,2).toUpperCase())}</div>`;
-  }
 
   let labelPeriode = p.label;
   if (p.mode === 'semester') {
@@ -2272,41 +2270,34 @@ async function cetakMassalRaport() {
     payloadDasar.tahun_ajaran = $('raport-ta').value;
   }
 
-  toast('Menyiapkan raport. Jangan tutup halaman ini...');
+  toast('Sedang menyiapkan raport 1 kelas... Mohon tunggu.');
   
   try {
-    // 1. Ambil data master kelas dan pengaturan di awal (biar gak bolak-balik)
     const resKelas = await apiCall('getMasterKelas');
     const resSetting = await apiCall('getPengaturan');
     const setting = resSetting.ok ? resSetting.data : {};
     const namaKepsek = setting.kepala_sekolah || '...............................';
 
-    // 2. Ambil siswa
     const resSiswa = await apiCall('getSiswaPerKelas', { kelas: kelas }, false);
     if (!resSiswa.ok || !resSiswa.data.length) { toast('Siswa tidak ditemukan di kelas ' + kelas, true); return; }
     
     const listSiswa = resSiswa.data;
     let htmlGabungan = '';
     
-    // 3. Looping secara bersih
     for (let i = 0; i < listSiswa.length; i++) {
        const s = listSiswa[i];
        
-       // Cari wali kelas siswa ini
        let namaWali = '...............................';
        if (resKelas.ok) {
          const kelasData = resKelas.data.find(k => String(k.nama_kelas).trim() === String(s.kelas).trim());
          if (kelasData && kelasData.wali_kelas) namaWali = kelasData.wali_kelas;
        }
 
-       // Ambil data raport siswa
        const resRaport = await apiCall('getRaportSiswa', { ...payloadDasar, nis: s.nis }, true);
        
        if (resRaport.ok) {
-          // Rakit HTML langsung di sini tanpa nyentuh layar browser
           const d = resRaport.data;
           const zonaClass = String(d.zona.kode).toLowerCase();
-          let fotoHtml = d.siswa.foto_url ? `<img src="${escapeHtml(d.siswa.foto_url)}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;">` : `<div style="width:56px;height:56px;border-radius:50%;background:#3B82F6;color:#fff;display:grid;place-items:center;font-weight:800;">${escapeHtml(String(d.siswa.nama||'?').slice(0,2).toUpperCase())}</div>`;
           
           let labelPeriode = d.periode.label;
           if (d.periode.mode === 'semester') {
@@ -2330,17 +2321,18 @@ async function cetakMassalRaport() {
 
           const rowsPoin = d.poin_detail.length ? d.poin_detail.map(p => `<tr><td>${formatTanggal(p.tanggal)}</td><td>${escapeHtml(p.pasal || '-')}</td><td>${escapeHtml(p.deskripsi || '-')}</td><td style="text-align:center;font-weight:800;color:${p.poin < 0 ? '#B91C1C' : '#047857'}">${p.poin > 0 ? '+' : ''}${p.poin}</td><td>${escapeHtml(p.petugas || '-')}</td></tr>`).join('') : '<tr><td colspan="5" style="text-align:center;">Tidak ada catatan poin.</td></tr>';
 
-          // Susun halaman
           htmlGabungan += `
             <div class="raport-hal">
-                            <div class="raport-header">
-                <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo" style="width:60px; height:auto; object-fit:contain;">
-                ${fotoHtml}
-                <div class="info" style="flex:1; margin-left:10px;">
-                  <h2>RAPORT SISWA</h2>
-                  <p>SMK Bhakti Kencana Ciawi · ${escapeHtml(labelPeriode)}</p>
+              <div class="raport-header">
+                <div class="kop-kiri">
+                  <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo" style="width:70px; height:auto;">
+                </div>
+                <div class="kop-kanan info">
+                  <h2 style="font-size: 1.4rem; font-weight: 800; color: #1E3A8A; margin: 0;">RAPORT SISWA</h2>
+                  <p style="font-size: .85rem; color: #64748B; margin: 0; font-weight: 600;">SMK Bhakti Kencana Ciawi<br>${escapeHtml(labelPeriode)}</p>
                 </div>
               </div>
+              
               <div class="raport-identitas">
                 <div><b>Nama:</b> <span>${escapeHtml(d.siswa.nama)}</span></div>
                 <div><b>NIS:</b> <span>${escapeHtml(d.siswa.nis)}</span></div>
@@ -2389,10 +2381,9 @@ async function cetakMassalRaport() {
        }
     }
     
-    // Tampilkan semuanya sekaligus
     $('raport-modal-content').innerHTML = htmlGabungan;
     $('modal-raport').classList.add('show');
-    toast('Berhasil memuat ' + listSiswa.length + ' raport. Silakan klik Cetak.');
+    toast('Berhasil memuat ' + listSiswa.length + ' raport.');
     
   } catch(e) {
     toast('Gagal mencetak massal: ' + e.message, true);
@@ -2420,7 +2411,9 @@ function cetakRaportSekarang() {
           .raport-hal:last-child { page-break-after: auto; }
           @page { size: A4 portrait; margin: 0; }
           /* Styling minimal agar rapi */
-          .raport-header { display: flex; align-items: center; gap: 1rem; border-bottom: 2px solid #1E3A8A; padding-bottom: 1rem; margin-bottom: 1rem; }
+                    .raport-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1E3A8A; padding-bottom: 1rem; margin-bottom: 1rem; }
+          .raport-header .kop-kiri { display: flex; align-items: center; gap: 1rem; }
+          .raport-header .kop-kanan { text-align: right; }
           .raport-identitas { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem 1rem; font-size: .85rem; margin-bottom: 1rem; }
           .raport-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-bottom: .5rem; }
           .raport-table th { background: #F8FAFF; padding: .5rem; text-align: left; border-bottom: 1px solid #E5EEFF; }

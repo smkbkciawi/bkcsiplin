@@ -257,6 +257,7 @@ function bunyiScanner(pola) {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const ctx = new AudioContext();
+    
     const mainkanNada = (freq, start, duration, type) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -269,16 +270,22 @@ function bunyiScanner(pola) {
       osc.start(ctx.currentTime + start);
       osc.stop(ctx.currentTime + start + duration);
     };
-    if (pola === 'sukses') {
-      mainkanNada(2500, 0, 0.25, 'square');
-      mainkanNada(2500, 0.02, 0.23, 'triangle');
+
+    if (pola === 'tepat') {
+      // Suara 1: Tepat Waktu (Nyaring, Nada Naik - Ceria)
+      mainkanNada(1500, 0, 0.1, 'sine');
+      mainkanNada(2000, 0.1, 0.15, 'sine');
+    } else if (pola === 'terlambat') {
+      // Suara 2: Terlambat (Nada Turun - Peringatan)
+      mainkanNada(800, 0, 0.15, 'square');
+      mainkanNada(600, 0.15, 0.25, 'square');
     } else {
-      mainkanNada(300, 0, 0.4, 'sawtooth');
+      // Suara 3: Gagal / Error (Nada Rendah - Bising)
+      mainkanNada(200, 0, 0.2, 'sawtooth');
+      mainkanNada(150, 0.2, 0.4, 'sawtooth');
     }
   } catch (e) {}
 }
-function bunyiBeep() { bunyiScanner('sukses'); }
-function bunyiTetot() { bunyiScanner('gagal'); }
 
 function toast(msg, isErr) {
   const el = document.createElement('div');
@@ -399,7 +406,7 @@ $('rfid-input').addEventListener('keydown', (e) => {
     const val = e.target.value.trim(); e.target.value = '';
     if (val) {
       if (state.scannedHariIni[val]) {
-        bunyiTetot();
+        bunyiScanner('gagal');
         tampilStatus('warn', 'Sudah Tercatat', `Kode ${val} sudah absen hari ini.`, 'DUPLIKAT');
         return;
       }
@@ -417,7 +424,7 @@ async function prosesPresensi(kode, sumber) {
     if (!res.ok) { 
       tampilStatus('err', 'Gagal', res.message || 'Presensi gagal', 'DITOLAK'); 
       toast(res.message || 'Gagal', true); 
-      bunyiTetot();
+      bunyiScanner('gagal');
       return; 
     }
     const d = res.data;
@@ -429,15 +436,22 @@ async function prosesPresensi(kode, sumber) {
       else if (d.status_detail === 'TEPAT_WAKTU') teksTampil = 'TEPAT WAKTU';
     }
     
-    const kelasCss = (teksTampil === 'TERLAMBAT' || teksTampil === 'Masuk' && d.status === 'TERLAMBAT') ? 'warn' : 'ok';
+    const kelasCss = (teksTampil === 'TERLAMBAT') ? 'warn' : 'ok';
     tampilStatus(kelasCss, d.nama, `${d.kelas} · ${d.jam} WIB`, teksTampil);
     toast(`${d.nama} — ${teksTampil}`); 
-    bunyiBeep();
+    
+    // --- LOGIKA SUARA BERDASARKAN STATUS ---
+    if (teksTampil === 'TERLAMBAT') {
+      bunyiScanner('terlambat');
+    } else {
+      bunyiScanner('tepat');
+    }
+    
     tambahRiwayat(d.nama, teksTampil);
   } catch (err) { 
     tampilStatus('err', 'Koneksi gagal', 'Periksa jaringan Anda', 'ERROR'); 
     toast('Tidak dapat menghubungi server', true); 
-    bunyiTetot();
+    bunyiScanner('gagal');
   }
   finally { fokusRFID(); }
 }
@@ -472,7 +486,7 @@ searchInput.addEventListener('input', () => {
         btn.addEventListener('click', () => {
           searchInput.value = ''; clearBtn.classList.remove('show'); resultsEl.innerHTML = '<div class="empty-hint">Hasil pencarian muncul di sini.</div>';
           if (state.scannedHariIni[s.id]) {
-            bunyiTetot();
+            bunyiScanner('gagal');
             tampilStatus('warn', 'Sudah Tercatat', `Kode ${s.id} sudah absen hari ini.`, 'DUPLIKAT');
             return;
           }

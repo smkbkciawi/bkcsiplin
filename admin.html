@@ -845,12 +845,12 @@
 <!-- MODAL RAPORT -->
 <div class="overlay-modal" id="modal-raport">
   <div class="overlay-box xwide" style="position:relative; padding-bottom: 80px;">
-    <button class="btn btn-sm btn-outline-secondary no-print" onclick="document.getElementById('modal-raport').classList.remove('show'); $('raport-modal-content').innerHTML='';" style="position:absolute;top:1rem;right:1rem;z-index:10"><i class="fas fa-times"></i></button>
+    <button class="btn btn-danger" onclick="cetakRaportSekarang()"><i class="fas fa-print mr-1"></i>Cetak PDF / Print</button>
     <div id="raport-modal-content"></div>
     
     <!-- TOmbol Melayang -->
     <div class="no-print" style="position:fixed; bottom:20px; right:20px; z-index:2050; display:flex; gap:.5rem; background:rgba(255,255,255,0.9); padding:10px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.3);">
-      <button class="btn btn-danger" onclick="window.print()"><i class="fas fa-print mr-1"></i>Cetak PDF / Print</button>
+      <button class="btn btn-danger" onclick="cetakRaportSekarang()"><i class="fas fa-print mr-1"></i>Cetak PDF / Print</button>
       <button class="btn btn-secondary" onclick="document.getElementById('modal-raport').classList.remove('show'); $('raport-modal-content').innerHTML='';"><i class="fas fa-times mr-1"></i>Tutup</button>
     </div>
   </div>
@@ -2396,6 +2396,49 @@ async function cetakMassalRaport() {
     toast('Gagal mencetak massal: ' + e.message, true);
   }
 }
+function cetakRaportSekarang() {
+  const isiRaport = document.getElementById('raport-modal-content').innerHTML;
+  const jendelaCetak = window.open('', '_blank', 'width=900,height=800');
+  
+  // Ambil stylesheet dari halaman utama
+  const links = document.querySelectorAll('link[rel="stylesheet"]');
+  let linkTags = '';
+  links.forEach(l => { linkTags += `<link rel="stylesheet" href="${l.href}">`; });
+
+  jendelaCetak.document.write(`
+    <html>
+      <head>
+        <title>Cetak Raport</title>
+        ${linkTags}
+        <style>
+          body { background: #fff; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+          .raport-hal { page-break-after: always; padding: 15mm; margin: 0 auto; background: #fff; max-width: 190mm; }
+          .raport-hal:last-child { page-break-after: auto; }
+          @page { size: A4 portrait; margin: 0; }
+          /* Styling minimal agar rapi */
+          .raport-header { display: flex; align-items: center; gap: 1rem; border-bottom: 2px solid #1E3A8A; padding-bottom: 1rem; margin-bottom: 1rem; }
+          .raport-identitas { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem 1rem; font-size: .85rem; margin-bottom: 1rem; }
+          .raport-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-bottom: .5rem; }
+          .raport-table th { background: #F8FAFF; padding: .5rem; text-align: left; border-bottom: 1px solid #E5EEFF; }
+          .raport-table td { padding: .5rem; border-bottom: 1px solid #EEF3FB; }
+          .raport-zona { display: inline-block; padding: .4rem 1rem; border-radius: 8px; font-weight: 800; }
+        </style>
+      </head>
+      <body>
+        ${isiRaport}
+      </body>
+    </html>
+  `);
+  
+  jendelaCetak.document.close();
+  
+  // Beri waktu render, lalu print
+  setTimeout(() => {
+    jendelaCetak.focus();
+    jendelaCetak.print();
+  }, 500);
+}
+  
 </script>
 </body>
 </html>

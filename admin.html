@@ -189,17 +189,11 @@
     @page { size: A4 portrait; margin: 0; }
     
     /* Aturan Khusus Cetak Kartu (Supaya tidak tertimpa aturan raport) */
-    body.print-kartu * { visibility: hidden; }
-    body.print-kartu #page-kartu, body.print-kartu #page-kartu * { visibility: visible; }
-    body.print-kartu #page-kartu { position: absolute; left: 0; top: 0; width: 100%; }
+    /* --- FIX CETAK KARTU --- */
+    body.print-kartu #page-kartu { display: block !important; position: absolute; left: 0; top: 0; width: 100%; z-index: 9999; }
+    body.print-kartu #page-kartu .card { border: none !important; box-shadow: none !important; }
     body.print-kartu #page-kartu .card-header, body.print-kartu #page-kartu #kartu-info { display: none !important; }
-    body.print-kartu #kartu-grid {
-      display: grid !important;
-      grid-template-columns: repeat(3, 85.6mm) !important;
-      gap: 6mm !important;
-      padding: 5mm !important;
-      justify-content: center !important;
-    }
+    body.print-kartu #kartu-grid { display: grid !important; grid-template-columns: repeat(3, 85.6mm) !important; gap: 6mm !important; padding: 5mm !important; justify-content: center !important; }
     body.print-kartu .kartu-item { width: 85.6mm !important; height: 54mm !important; page-break-inside: avoid; break-inside: avoid; }
     body.print-kartu @page { size: A4 landscape; margin: 10mm; }
   }
@@ -1909,8 +1903,10 @@ $('btn-load-kartu').addEventListener('click', async () => {
 });
 $('btn-print-kartu').addEventListener('click', () => { 
   document.body.classList.add('print-kartu'); 
-  window.print(); 
-  setTimeout(() => document.body.classList.remove('print-kartu'), 1000);
+  setTimeout(() => {
+    window.print(); 
+    setTimeout(() => document.body.classList.remove('print-kartu'), 500);
+  }, 100);
 });
 
 // ============ IMPORT EXCEL ============

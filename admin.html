@@ -1840,19 +1840,28 @@ async function loadPengaturan() {
     const res = await apiCall('getPengaturan');
     if (!res.ok) return;
     const s = res.data;
-function ubahKeTeksJam(v) {
-  if (!v) return '';
-  if (v instanceof Date) return String(v.getHours()).padStart(2,'0') + ':' + String(v.getMinutes()).padStart(2,'0');
-  return String(v).replace('.', ':').substring(0, 5);
-}
-$('set-jam-masuk').value = ubahKeTeksJam(s.jam_masuk);
-$('set-jam-pulang').value = ubahKeTeksJam(s.jam_pulang);
+
+    // Fungsi khusus untuk merapikan format jam dari server
+    function rapikanJam(val, defaultVal) {
+      if (!val) return defaultVal;
+      if (val instanceof Date) {
+        return String(val.getHours()).padStart(2, '0') + ':' + String(val.getMinutes()).padStart(2, '0');
+      }
+      const str = String(val).trim().replace('.', ':');
+      if (/^\d{2}:\d{2}/.test(str)) return str.substring(0, 5);
+      return defaultVal;
+    }
+
+    $('set-jam-masuk').value = rapikanJam(s.jam_masuk, '07:00');
+    $('set-jam-pulang').value = rapikanJam(s.jam_pulang, '15:00');
     $('set-toleransi').value = s.toleransi_menit || '0';
-    $('set-subuh').value = bersihkanJam_(s.jam_subuh, '04:30');
-    $('set-dzuhur').value = bersihkanJam_(s.jam_dzuhur, '12:00');
-    $('set-ashar').value = bersihkanJam_(s.jam_ashar, '15:15');
-    $('set-maghrib').value = bersihkanJam_(s.jam_maghrib, '18:00');
-    $('set-isya').value = bersihkanJam_(s.jam_isya, '19:15');
+    
+    $('set-subuh').value = rapikanJam(s.jam_subuh, '04:30');
+    $('set-dzuhur').value = rapikanJam(s.jam_dzuhur, '12:00');
+    $('set-ashar').value = rapikanJam(s.jam_ashar, '15:15');
+    $('set-maghrib').value = rapikanJam(s.jam_maghrib, '18:00');
+    $('set-isya').value = rapikanJam(s.jam_isya, '19:15');
+    
     $('set-nama-sekolah').value = s.nama_sekolah || '';
     $('set-nama-yayasan').value = s.nama_yayasan || '';
     $('set-alamat').value = s.alamat_sekolah || '';
@@ -1865,7 +1874,7 @@ $('set-jam-pulang').value = ubahKeTeksJam(s.jam_pulang);
     $('set-zona-kuning').value = s.zona_kuning_min || '51';
     $('set-zona-oranye').value = s.zona_oranye_min || '26';
     $('set-zona-merah').value = s.zona_merah_min || '1';
-  } catch (e) {}
+  } catch (e) { console.error('Gagal load pengaturan', e); }
 }
 $('btn-simpan-pengaturan').addEventListener('click', async () => {
   const payload = {

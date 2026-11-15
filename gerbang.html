@@ -421,12 +421,19 @@ async function prosesPresensi(kode, sumber) {
       return; 
     }
     const d = res.data;
-    const st = (d.status || '').replace('_', ' ');
-    const kelasCss = d.status === 'TERLAMBAT' ? 'warn' : 'ok';
-    tampilStatus(kelasCss, d.nama, `${d.kelas} · ${d.jam} WIB`, st);
-    toast(`${d.nama} — ${st}`); 
+    
+    // --- PERBAIKAN TAMPILAN TEPAT WAKTU / TERLAMBAT ---
+    let teksTampil = (d.status || '').replace('_', ' ');
+    if (d.sesi === 'PAGI') {
+      if (d.status_detail === 'TERLAMBAT') teksTampil = 'TERLAMBAT';
+      else if (d.status_detail === 'TEPAT_WAKTU') teksTampil = 'TEPAT WAKTU';
+    }
+    
+    const kelasCss = (teksTampil === 'TERLAMBAT' || teksTampil === 'Masuk' && d.status === 'TERLAMBAT') ? 'warn' : 'ok';
+    tampilStatus(kelasCss, d.nama, `${d.kelas} · ${d.jam} WIB`, teksTampil);
+    toast(`${d.nama} — ${teksTampil}`); 
     bunyiBeep();
-    tambahRiwayat(d.nama, d.status);
+    tambahRiwayat(d.nama, teksTampil);
   } catch (err) { 
     tampilStatus('err', 'Koneksi gagal', 'Periksa jaringan Anda', 'ERROR'); 
     toast('Tidak dapat menghubungi server', true); 

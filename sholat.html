@@ -114,6 +114,7 @@
   .stat-card{background:#F0FDF4;border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem}
   .stat-card .lbl{font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem}
   .stat-card .val{font-size:1.4rem;font-weight:800;color:var(--emerald);font-family:'JetBrains Mono',monospace;line-height:1}
+  .stat-card .sub{font-size:.6rem;color:var(--muted);font-weight:600;margin-top:.2rem;line-height:1.2;text-transform:none;letter-spacing:0}
 
   .pct-badge{display:inline-block;padding:.2rem .5rem;border-radius:6px;font-weight:800;font-size:.78rem;font-family:'JetBrains Mono',monospace}
   .pct-hijau{background:#D1FAE5;color:#047857}
@@ -288,7 +289,7 @@
 
       <div class="stat-grid" id="stat-grid" style="display:none">
         <div class="stat-card"><div class="lbl">Total Scan</div><div class="val" id="stat-total">0</div></div>
-        <div class="stat-card"><div class="lbl">Siswa Unik</div><div class="val" id="stat-siswa">0</div></div>
+        <div class="stat-card"><div class="lbl">Siswa Berpartisipasi</div><div class="val" id="stat-siswa">0</div><div class="sub">NIS berbeda</div></div>
         <div class="stat-card"><div class="lbl">Hari Aktif</div><div class="val" id="stat-hari">0</div></div>
         <div class="stat-card"><div class="lbl">Rata-rata/Hari</div><div class="val" id="stat-avg">0</div></div>
       </div>
@@ -1066,7 +1067,7 @@ function exportLaporan() {
     ['Waktu Sholat', waktu || 'Semua Waktu'],
     ['Mode Laporan', modeLabel],
     ['Total Scan', state.lapDataFiltered.length],
-    ['Siswa Unik', new Set(state.lapDataFiltered.map(r=>r.nis)).size],
+    ['Siswa Berpartisipasi', new Set(state.lapDataFiltered.map(r=>r.nis)).size],
     ['Hari Aktif', new Set(state.lapDataFiltered.map(r=>r.tanggal)).size],
     [],
     ['Dicetak oleh', state.nama || '-'],

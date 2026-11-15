@@ -186,15 +186,32 @@
   <div id="tab-laporan" class="tab-content hidden">
     <div class="card">
       <h2><i class="fas fa-chart-bar"></i> Laporan Sholat</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.5rem;margin-bottom:1rem">
-        <div class="field" style="margin:0"><label>Dari</label><input type="date" id="lap-dari"></div>
-        <div class="field" style="margin:0"><label>Sampai</label><input type="date" id="lap-sampai"></div>
-        <div class="field" style="margin:0"><label>Kelas</label><select id="lap-kelas"><option value="">Semua</option></select></div>
-        <div class="field" style="margin:0"><label>Mode</label><select id="lap-mode"><option value="siswa">Per Siswa</option><option value="hari">Per Hari</option></select></div>
+      <h2><i class="fas fa-chart-bar"></i> Laporan Sholat</h2>
+      
+      <!-- KOTAK FORM FILTER -->
+      <div class="card" style="padding: 1rem; background: #F0FDF4; border: 1px solid #A7F3D0; margin-bottom: 1rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.8rem;margin-bottom:1rem">
+          <div class="field" style="margin:0"><label>Dari Tanggal</label><input type="date" id="lap-dari"></div>
+          <div class="field" style="margin:0"><label>Sampai Tanggal</label><input type="date" id="lap-sampai"></div>
+          <div class="field" style="margin:0"><label>Kelas</label><select id="lap-kelas"><option value="">Semua</option></select></div>
+          <div class="field" style="margin:0"><label>Mode Tampilan</label><select id="lap-mode"><option value="siswa">Per Siswa</option><option value="hari">Per Hari</option></select></div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="btn-load-laporan"><i class="fas fa-search"></i> Tampilkan Data</button>
+          <button class="btn btn-outline" id="btn-export-laporan" style="background: #fff; border: 1.5px solid #10B981; color: #047857; font-weight: 800;"><i class="fas fa-file-excel"></i> Export Excel</button>
+        </div>
       </div>
-      <button class="btn btn-primary" id="btn-load-laporan"><i class="fas fa-search"></i> Tampilkan</button>
-      <div class="table-wrap" id="lap-table-wrap" style="display:none">
-        <table id="tabel-laporan"><thead id="lap-thead"></thead><tbody id="lap-tbody"></tbody></table>
+
+      <!-- TABEL LAPORAN LEBAR PENUH -->
+      <div class="table-wrap" id="lap-table-wrap" style="display:none; width: 100%; overflow-x: auto; background: #fff; border: 1px solid #A7F3D0; border-radius: 12px;">
+        <table id="tabel-laporan" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead id="lap-thead" style="background: #F0FDF4; text-align: left;">
+            <!-- Header akan diisi oleh JavaScript -->
+          </thead>
+          <tbody id="lap-tbody">
+            <!-- Data akan diisi oleh JavaScript -->
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -591,6 +608,17 @@ if (state.token) {
   if (!bolehAdmin) { $('tab-btn-udzur').style.display = 'none'; $('tab-btn-laporan').style.display = 'none'; }
   mulaiIdleWatcher(); mulaiHeartbeat(); loadJadwal(); loadUdzurAktif(); loadCounterHariIni(); loadKelasLaporan();
 }
+// Fungsi Export Excel
+$('btn-export-laporan').addEventListener('click', function() {
+  if (typeof XLSX === 'undefined') {
+    alert('Library Excel belum termuat.');
+    return;
+  }
+  const table = document.getElementById('tabel-laporan');
+  const wb = XLSX.utils.table_to_book(table, {sheet: "Laporan Sholat"});
+  XLSX.writeFile(wb, `Laporan_Sholat_${document.getElementById('lap-dari').value}_sd_${document.getElementById('lap-sampai').value}.xlsx`);
+});
+  
 </script>
 </body>
 </html>

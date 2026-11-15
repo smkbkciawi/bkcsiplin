@@ -128,6 +128,28 @@
   }
   .btn-cek-poin-baru:hover { background: #FDF2F4; }
 
+  /* --- TOMBOL CETAK REKAP BARU --- */
+  .btn-cetak-baru {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, var(--maroon), var(--maroon-d));
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(136,19,55,.3);
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+  .btn-cetak-baru:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(136,19,55,.4); }
+
   .table-wrap{overflow-x:auto;background:#fff;border-radius:16px;margin-top:1rem}
   table{width:100%;border-collapse:collapse;font-size:.85rem}
   th{background:#FDF2F4;padding:.7rem;text-align:left;font-weight:800;color:var(--maroon);border-bottom:2px solid var(--border)}
@@ -344,7 +366,9 @@
         <option value="KONFERENSI">Konferensi Kasus</option>
       </select>
     </div>
-    <button class="btn-primary-full" onclick="cetakSuratFinal()"><i class="fas fa-print"></i> Cetak Surat</button>
+    
+    <!-- TOMBOL CETAK SURAT BARU -->
+    <button class="btn-cetak-baru" onclick="cetakSuratFinal()"><i class="fas fa-print"></i> Cetak Surat</button>
   </div>
 </div>
 
@@ -370,7 +394,6 @@
     <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="G003"></div>
     <div class="field"><label>PIN</label><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric"></div>
     
-    <!-- REVISI TOMBOL LOGIN (BAGIAN HTML) -->
     <button class="btn-login-baru" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button>
     <button class="btn-cek-poin-baru" onclick="bukaCekPoin()"><i class="fas fa-search"></i> Cek Poin Saya (Siswa)</button>
   </div>
@@ -785,15 +808,18 @@ async function cetakSuratFinal() {
   const saldo = riwayatData.reduce((s, r) => s + (Number(r.poin) || 0), 100);
   const rowsRiwayat = riwayatData.filter(r => Number(r.poin) < 0).map(r => `<tr><td style="border:1px solid #CBD5E1;padding:4px">${formatTanggal(r.tanggal)}</td><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.pasal)}</td><td style="border:1px solid #CBD5E1;padding:4px">${escapeHtml(r.deskripsi)}</td><td style="border:1px solid #CBD5E1;padding:4px;text-align:center">${escapeHtml(r.poin)}</td></tr>`).join('');
 
+  // PERBAIKAN DIV KOP SURAT AGAR TIDAK BERANTAKAN
   const html = `
     <div style="font-family:serif;color:#000;padding:20mm;background:#fff;font-size:11pt;line-height:1.5">
       <div style="text-align:center;border-bottom:3px double #000;padding-bottom:10px;margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:20px;">
-  <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" style="width:70px; height:auto;">
-  <div>
-        <div style="font-weight:800;font-size:13pt">${escapeHtml(s.nama_yayasan || 'YAYASAN ADHI GUNA KENCANA')}</div>
-        <div style="font-weight:800;font-size:15pt">${escapeHtml(s.nama_sekolah || 'SMK BHAKTI KENCANA CIAWI')}</div>
-        <div style="font-size:9pt">${escapeHtml(s.alamat_sekolah || 'Kec. Ciawi, Kab. Tasikmalaya, Jawa Barat')}</div>
+        <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" style="width:70px; height:auto;">
+        <div style="text-align:left;">
+          <div style="font-weight:800;font-size:13pt">${escapeHtml(s.nama_yayasan || 'YAYASAN ADHI GUNA KENCANA')}</div>
+          <div style="font-weight:800;font-size:15pt">${escapeHtml(s.nama_sekolah || 'SMK BHAKTI KENCANA CIAWI')}</div>
+          <div style="font-size:9pt">${escapeHtml(s.alamat_sekolah || 'Kec. Ciawi, Kab. Tasikmalaya, Jawa Barat')}</div>
+        </div>
       </div>
+      
       <div style="text-align:center;margin-bottom:20px">
         <div style="font-weight:800;font-size:13pt;text-decoration:underline">${judul}</div>
         <div style="font-size:10pt">Nomor: ${escapeHtml(noSurat)}</div>

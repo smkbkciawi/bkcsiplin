@@ -1842,12 +1842,12 @@ async function loadPengaturan() {
     const s = res.data;
 
     // Fungsi khusus untuk merapikan format jam dari server
-    function rapikanJam(val, defaultVal) {
+        function rapikanJam(val, defaultVal) {
       if (!val) return defaultVal;
       if (val instanceof Date) {
         return String(val.getHours()).padStart(2, '0') + ':' + String(val.getMinutes()).padStart(2, '0');
       }
-      const str = String(val).trim().replace('.', ':');
+      let str = String(val).trim().replace(/\./g, ':'); // Ubah titik jadi titik dua
       if (/^\d{2}:\d{2}/.test(str)) return str.substring(0, 5);
       return defaultVal;
     }

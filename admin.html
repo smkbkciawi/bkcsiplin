@@ -1840,8 +1840,13 @@ async function loadPengaturan() {
     const res = await apiCall('getPengaturan');
     if (!res.ok) return;
     const s = res.data;
-    $('set-jam-masuk').value = bersihkanJam_(s.jam_masuk, '07:00');
-    $('set-jam-pulang').value = bersihkanJam_(s.jam_pulang, '15:00');
+function ubahKeTeksJam(v) {
+  if (!v) return '';
+  if (v instanceof Date) return String(v.getHours()).padStart(2,'0') + ':' + String(v.getMinutes()).padStart(2,'0');
+  return String(v).replace('.', ':').substring(0, 5);
+}
+$('set-jam-masuk').value = ubahKeTeksJam(s.jam_masuk);
+$('set-jam-pulang').value = ubahKeTeksJam(s.jam_pulang);
     $('set-toleransi').value = s.toleransi_menit || '0';
     $('set-subuh').value = bersihkanJam_(s.jam_subuh, '04:30');
     $('set-dzuhur').value = bersihkanJam_(s.jam_dzuhur, '12:00');

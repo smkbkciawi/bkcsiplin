@@ -672,7 +672,9 @@
           </div>
           <div class="card-body">
             <div id="kartu-info" class="text-muted small mb-2">Pilih kelas lalu klik Tampilkan.</div>
-            <div id="print-area"><div class="kartu-grid" id="kartu-grid"></div></div>
+            <div id="print-area">
+  <table id="tabel-kartu"><tbody></tbody></table>
+</div>
           </div>
         </div>
       </div>
@@ -1853,19 +1855,41 @@ $('btn-load-kartu').addEventListener('click', async () => {
   const kelas = $('kartu-kelas').value; if (!kelas) { toast('Pilih kelas dulu', true); return; }
   try {
     const res = await apiCall('getKartuKelas', { kelas }); if (!res.ok) { toast(res.message, true); return; }
-    const grid = $('kartu-grid'); grid.innerHTML = '';
+    const tbody = document.querySelector('#tabel-kartu tbody'); 
+    if(!tbody) { toast('Elemen tabel kartu tidak ditemukan!', true); return; }
+    tbody.innerHTML = '';
+    
     $('kartu-info').textContent = `${res.data.length} kartu untuk kelas ${kelas}.`;
+    
+    let tr = document.createElement('tr');
+    tbody.appendChild(tr);
+    let count = 0;
+
     res.data.forEach(s => {
+      if (count > 0 && count % 3 === 0) {
+        tr = document.createElement('tr');
+        tbody.appendChild(tr);
+      }
+      
+      const td = document.createElement('td');
       const div = document.createElement('div'); div.className = 'kartu-item';
       div.innerHTML = `<div class="qr-box"><div id="qr-${escapeHtml(s.nis)}"></div></div><div class="info-kartu"><b>${escapeHtml(s.nama)}</b><div class="nis">NIS: ${escapeHtml(s.nis)}</div><div class="kelas">${escapeHtml(s.kelas)}</div><div class="sekolah">${escapeHtml(res.sekolah || '')}</div></div>`;
-      grid.appendChild(div);
-      setTimeout(() => { try { new QRCode(document.getElementById('qr-' + s.nis), { text: String(s.nis), width: 120, height: 120, colorDark: '#0A1533', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H }); } catch (e) {} }, 50);
+      
+      td.appendChild(div);
+      tr.appendChild(td);
+      count++;
+
+      setTimeout(() => { 
+        try { 
+          new QRCode(document.getElementById('qr-' + s.nis), { text: String(s.nis), width: 120, height: 120, colorDark: '#0A1533', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H }); 
+        } catch (e) {} 
+      }, 50);
     });
   } catch (err) { toast('Gagal memuat kartu', true); }
 });
 function cetakKartuSekarang() {
   const isiKartu = document.getElementById('print-area').innerHTML;
-  const jendelaCetak = window.open('', '_blank', 'width=900,height=800');
+  const jendelaCetak = window.open('', '_blank', 'width=1000,height=800');
   
   const links = document.querySelectorAll('link[rel="stylesheet"]');
   let linkTags = '';
@@ -1878,20 +1902,25 @@ function cetakKartuSekarang() {
         <title>Cetak Kartu</title>
         ${linkTags}
         <style>
-          body { background: #fff; margin: 0; padding: 5mm; font-family: 'Inter', sans-serif; }
-          .kartu-grid { display: grid !important; grid-template-columns: repeat(3, 85.6mm) !important; gap: 6mm !important; justify-content: center !important; }
-          .kartu-item { width: 85.6mm !important; height: 54mm !important; page-break-inside: avoid; border: 1.5px dashed #94A3B8; border-radius: 10px; padding: 4mm; box-sizing: border-box; display: grid; grid-template-columns: auto 1fr; gap: 3mm; align-items: center; }
-          .kartu-item .qr-box { width: 30mm; height: 30mm; background: #fff; border-radius: 6px; display: grid; place-items: center; }
+          body { background: #fff; margin: 0; padding: 10mm; font-family: 'Inter', sans-serif; }
+          
+          /* GUNAKAN TABEL AGAR PASTI MUNCUL */
+          table { width: 100%; border-collapse: collapse; }
+          td { width: 33.33%; padding: 3mm; vertical-align: top; }
+          
+          .kartu-item { width: 85.6mm; height: 54mm; border: 1.5px dashed #94A3B8; border-radius: 10px; padding: 4mm; box-sizing: border-box; display: flex; gap: 3mm; align-items: center; }
+          .kartu-item .qr-box { width: 30mm; height: 30mm; background: #fff; border-radius: 6px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
           .kartu-item .qr-box img { width: 100%; height: 100%; }
           .kartu-item .info-kartu b { display: block; font-size: 10pt; color: #0A1533; font-weight: 800; line-height: 1.15; margin-bottom: 1mm; }
           .kartu-item .info-kartu .nis { font-family: monospace; font-size: 8pt; color: #1E3A8A; font-weight: 700; margin-bottom: 1mm; }
           .kartu-item .info-kartu .kelas { font-size: 7pt; color: #64748B; font-weight: 600; }
           .kartu-item .info-kartu .sekolah { font-size: 6pt; color: #3B82F6; font-weight: 700; margin-top: 1.5mm; border-top: 1px solid #E5EEFF; padding-top: 1mm; }
-          @page { size: A4 landscape; margin: 10mm; }
+          
+          @page { size: A4 landscape; margin: 5mm; }
         </style>
       </head>
       <body>
-        <div class="kartu-grid">${isiKartu}</div>
+        ${isiKartu}
       </body>
     </html>
   `);

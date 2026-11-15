@@ -22,23 +22,27 @@
     --border: #E2E8F0;
     --brand: #2563EB;
     --brand-soft: #EFF6FF;
-    --navy: linear-gradient(135deg, #1E3A8A, #0A1533);
-    --emerald: linear-gradient(135deg, #10B981, #047857);
-    --maroon: linear-gradient(135deg, #E11D48, #881337);
-    --blue: linear-gradient(135deg, #3B82F6, #1D4ED8);
-    --purple: linear-gradient(135deg, #8B5CF6, #6D28D9);
+    
+    /* Gradients */
+    --grad-navy: linear-gradient(135deg, #1E3A8A, #0A1533);
+    --grad-emerald: linear-gradient(135deg, #10B981, #047857);
+    --grad-maroon: linear-gradient(135deg, #E11D48, #881337);
+    --grad-blue: linear-gradient(135deg, #3B82F6, #1D4ED8);
+    --grad-purple: linear-gradient(135deg, #8B5CF6, #6D28D9);
+    
+    /* Shadows */
     --shadow-sm: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
     --shadow-md: 0 4px 16px rgba(15,23,42,.06), 0 2px 8px rgba(15,23,42,.04);
     --shadow-lg: 0 12px 32px rgba(15,23,42,.10), 0 4px 12px rgba(15,23,42,.05);
   }
+  
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
   body {
     font-family: 'Inter', system-ui, sans-serif;
     background:
-      radial-gradient(800px 500px at 0% -10%, rgba(59,130,246,.10), transparent 60%),
+      radial-gradient(800px 500px at 0% -10%, rgba(59,130,246,.08), transparent 60%),
       radial-gradient(700px 450px at 110% 110%, rgba(139,92,246,.08), transparent 60%),
-      radial-gradient(600px 400px at 50% 50%, rgba(16,185,129,.04), transparent 70%),
       var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -51,7 +55,7 @@
   /* HEADER */
   header {
     padding: 1.4rem 2rem 1rem;
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
     width: 100%;
     display: flex;
@@ -95,7 +99,7 @@
   .clock-time {
     font-family: 'JetBrains Mono', monospace;
     font-size: clamp(2rem, 4.4vw, 3.2rem);
-    font-weight: 700;
+    font-weight: 800;
     background: linear-gradient(135deg, var(--brand), #8B5CF6);
     -webkit-background-clip: text;
     background-clip: text;
@@ -135,19 +139,20 @@
   main {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 2rem 2rem 2.5rem;
-    max-width: 1280px;
+    padding: 2rem 2rem 3rem;
+    max-width: 1200px;
     margin: 0 auto;
     width: 100%;
   }
   .wrap { width: 100%; }
+
   .sapaan {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: var(--text);
-    margin-bottom: 1.3rem;
+    margin-bottom: 1.5rem;
     letter-spacing: -.01em;
     line-height: 1.3;
   }
@@ -160,29 +165,130 @@
   .sapaan span {
     color: var(--muted);
     font-weight: 600;
-    font-size: .88rem;
+    font-size: .9rem;
     display: block;
     margin-top: .3rem;
     letter-spacing: 0;
   }
 
-  /* GRID 5 KOTAK */
+  /* BANNER CEK PUBLIK (ATAS) */
+  .banner-cek {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: linear-gradient(135deg, #F5F3FF 0%, #EFF6FF 100%);
+    border: 2px solid #C4B5FD;
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    box-shadow: 0 8px 24px rgba(139,92,246,.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .banner-cek:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(139,92,246,.2);
+    border-color: #A78BFA;
+  }
+  .banner-cek .icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: var(--grad-purple);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(139,92,246,.3);
+  }
+  .banner-cek .text {
+    flex: 1;
+    min-width: 0;
+  }
+  .banner-cek .text h2 {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #4C1D95;
+    margin-bottom: .3rem;
+    letter-spacing: -.01em;
+  }
+  .banner-cek .text p {
+    font-size: .95rem;
+    color: #6D28D9;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .banner-cek .action {
+    background: #fff;
+    color: #6D28D9;
+    border: 1.5px solid #C4B5FD;
+    padding: .6rem 1.2rem;
+    border-radius: 10px;
+    font-size: .9rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    transition: .2s;
+    flex-shrink: 0;
+  }
+  .banner-cek:hover .action {
+    background: #6D28D9;
+    color: #fff;
+    border-color: #6D28D9;
+  }
+  .banner-cek .badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #8B5CF6;
+    color: #fff;
+    font-size: .65rem;
+    font-weight: 900;
+    padding: .25rem .6rem;
+    border-radius: 99px;
+    letter-spacing: .05em;
+  }
+
+  /* GRID 4 KOTAK UTAMA */
+  .section-title {
+    font-size: .8rem;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
   .grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.2rem;
     width: 100%;
   }
   .card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 1.5rem 1.3rem;
+    border-radius: 20px;
+    padding: 1.6rem 1.4rem;
     text-decoration: none;
     color: var(--text);
     display: flex;
     flex-direction: column;
-    gap: .75rem;
+    gap: .8rem;
     transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     box-shadow: var(--shadow-sm);
     position: relative;
@@ -212,28 +318,28 @@
     letter-spacing: .05em;
   }
   .card-icon {
-    width: 50px;
-    height: 50px;
+    width: 52px;
+    height: 52px;
     border-radius: 14px;
     display: grid;
     place-items: center;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     color: #fff;
     background: var(--accent-bg);
     flex: 0 0 auto;
     box-shadow: 0 6px 16px rgba(0,0,0,.12);
   }
   .card-title {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 800;
     color: var(--text);
     letter-spacing: -.01em;
     line-height: 1.2;
   }
   .card-sub {
-    font-size: .84rem;
+    font-size: .85rem;
     color: var(--muted);
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.45;
   }
   .card-arrow {
@@ -252,38 +358,10 @@
   .card:hover .card-arrow i { transform: translateX(4px); }
 
   /* WARNA KARTU */
-  .card.navy { --accent-bar: var(--navy); --accent-bg: var(--navy); --accent-txt: #1E3A8A; }
-  .card.emerald { --accent-bar: var(--emerald); --accent-bg: var(--emerald); --accent-txt: #047857; }
-  .card.maroon { --accent-bar: var(--maroon); --accent-bg: var(--maroon); --accent-txt: #BE123C; }
-  .card.blue { --accent-bar: var(--blue); --accent-bg: var(--blue); --accent-txt: #1D4ED8; }
-  .card.purple { --accent-bar: var(--purple); --accent-bg: var(--purple); --accent-txt: #6D28D9; }
-
-  /* KARTU BARU — CEK PUBLIK */
-  .card.new-card {
-    border: 2px dashed #A78BFA;
-    background: linear-gradient(135deg, #F5F3FF 0%, #EFF6FF 100%);
-  }
-  .card.new-card:hover {
-    border-color: transparent;
-    background: linear-gradient(135deg, #EDE9FE 0%, #DBEAFE 100%);
-  }
-  .card.new-card::before {
-    background: linear-gradient(90deg, #8B5CF6, #3B82F6);
-  }
-  .badge-new {
-    position: absolute;
-    top: .75rem;
-    right: .75rem;
-    background: linear-gradient(135deg, #8B5CF6, #6D28D9);
-    color: #fff;
-    font-size: .62rem;
-    font-weight: 900;
-    padding: .25rem .55rem;
-    border-radius: 99px;
-    letter-spacing: .08em;
-    box-shadow: 0 3px 10px rgba(139,92,246,.35);
-  }
-  .badge-new .card-num { display: none; }
+  .card.navy { --accent-bar: var(--grad-navy); --accent-bg: var(--grad-navy); --accent-txt: #1E3A8A; }
+  .card.emerald { --accent-bar: var(--grad-emerald); --accent-bg: var(--grad-emerald); --accent-txt: #047857; }
+  .card.maroon { --accent-bar: var(--grad-maroon); --accent-bg: var(--grad-maroon); --accent-txt: #BE123C; }
+  .card.blue { --accent-bar: var(--grad-blue); --accent-bg: var(--grad-blue); --accent-txt: #1D4ED8; }
 
   /* FOOTER */
   footer {
@@ -296,7 +374,7 @@
     font-weight: 600;
   }
   .footer-inner {
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -334,29 +412,37 @@
   }
 
   /* RESPONSIF */
-  @media (max-width: 1100px) {
-    .grid { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 1024px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
   }
-  @media (max-width: 900px) {
+  @media (max-width: 768px) {
     header { padding: 1rem 1.2rem .8rem; }
-    main { padding: 1.2rem 1.2rem 1.6rem; }
-    .grid { grid-template-columns: repeat(2, 1fr); gap: .9rem; }
+    main { padding: 1.5rem 1.2rem 2rem; }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
     .brand-logo { width: 46px; height: 46px; }
     .brand-txt b { font-size: 1.05rem; }
     .clock-time { font-size: clamp(1.8rem, 6vw, 2.4rem); }
-    .card { padding: 1.3rem 1.1rem; }
-    .card-icon { width: 44px; height: 44px; font-size: 1.15rem; }
-    .sapaan { font-size: 1.1rem; }
+    .sapaan { font-size: 1.2rem; margin-bottom: 1.2rem; }
+    
+    .banner-cek { flex-direction: column; text-align: center; padding: 1.5rem; gap: 1rem; }
+    .banner-cek .action { width: 100%; justify-content: center; }
+    .banner-cek .text h2 { font-size: 1.15rem; }
+    .banner-cek .text p { font-size: .85rem; }
   }
   @media (max-width: 480px) {
     header { flex-direction: column; align-items: flex-start; }
     .clock { text-align: left; align-items: flex-start; }
-    .grid { grid-template-columns: 1fr; }
-    .card { padding: 1.3rem 1.2rem; }
-    .card-icon { width: 42px; height: 42px; font-size: 1.1rem; }
+    .grid { grid-template-columns: 1fr; gap: .8rem; }
+    .card { padding: 1.3rem 1.2rem; flex-direction: row; align-items: center; }
+    .card::before { inset: 0 auto 0 0; width: 4px; height: 100%; }
+    .card-icon { width: 46px; height: 46px; font-size: 1.15rem; margin-right: .5rem; }
     .card-title { font-size: 1.05rem; }
-    .sapaan { font-size: 1rem; }
+    .card-sub { display: none; } /* Sembunyikan deskripsi di HP agar ringkas */
+    .card-arrow { margin-top: 0; padding-top: 0; margin-left: auto; }
+    .card-num { display: none; }
+    
     .footer-inner { flex-direction: column; align-items: flex-start; }
+    .banner-cek .icon { width: 50px; height: 50px; font-size: 1.3rem; }
   }
 </style>
 </head>
@@ -385,11 +471,25 @@
     <div class="wrap">
       <div class="sapaan">
         <span id="sapaan-waktu">Selamat datang</span>, <span class="hl">Bapak/Ibu</span>
-        <span>Pilih modul yang ingin Anda akses:</span>
+        <span>Silakan pilih menu di bawah ini:</span>
       </div>
 
+      <!-- BANNER CEK PUBLIK -->
+      <a href="cek.html" class="banner-cek">
+        <span class="badge">FITUR BARU</span>
+        <div class="icon"><i class="fas fa-magnifying-glass-chart"></i></div>
+        <div class="text">
+          <h2>Cek Publik (Orang Tua & Siswa)</h2>
+          <p>Pantau kehadiran gerbang, presensi sholat, poin disiplin, dan raport secara real-time tanpa perlu login.</p>
+        </div>
+        <div class="action">
+          Cek Sekarang <i class="fas fa-arrow-right"></i>
+        </div>
+      </a>
+
+      <!-- 4 PORTAL UTAMA -->
+      <div class="section-title">Portal Petugas & Manajemen</div>
       <div class="grid">
-        <!-- 01 Gerbang -->
         <a href="gerbang.html" class="card navy">
           <span class="card-num">01</span>
           <div class="card-icon"><i class="fas fa-door-open"></i></div>
@@ -398,7 +498,6 @@
           <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
         </a>
 
-        <!-- 02 Sholat -->
         <a href="sholat.html" class="card emerald">
           <span class="card-num">02</span>
           <div class="card-icon"><i class="fas fa-mosque"></i></div>
@@ -407,7 +506,6 @@
           <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
         </a>
 
-        <!-- 03 Disiplin -->
         <a href="disiplin.html" class="card maroon">
           <span class="card-num">03</span>
           <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
@@ -416,21 +514,11 @@
           <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
         </a>
 
-        <!-- 04 Admin -->
         <a href="admin.html" class="card blue">
           <span class="card-num">04</span>
           <div class="card-icon"><i class="fas fa-chart-line"></i></div>
           <div class="card-title">Admin</div>
           <div class="card-sub">Portal eksekutif & dashboard sekolah.</div>
-          <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
-        </a>
-
-        <!-- 05 Cek Publik (BARU) -->
-        <a href="cek.html" class="card purple new-card">
-          <span class="badge-new">BARU</span>
-          <div class="card-icon"><i class="fas fa-magnifying-glass-chart"></i></div>
-          <div class="card-title">Cek Publik</div>
-          <div class="card-sub">Orang tua & siswa cek kehadiran, sholat, poin tanpa login.</div>
           <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
         </a>
       </div>
@@ -448,7 +536,7 @@
           <span class="dot"></span>
           <span id="server-text">Memeriksa server…</span>
         </span>
-        <span class="footer-ver">v1.2</span>
+        <span class="footer-ver">v1.3</span>
       </div>
     </div>
   </footer>

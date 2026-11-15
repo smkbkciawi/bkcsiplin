@@ -87,6 +87,47 @@
   .btn-primary-full{background:var(--maroon);color:#fff}
   .btn-secondary-full{background:#F1F5F9;color:#475569}
 
+  /* --- REVISI TOMBOL LOGIN (BAGIAN CSS) --- */
+  .btn-login-baru {
+    width: 100%;
+    padding: 0.9rem;
+    background: linear-gradient(135deg, var(--maroon), var(--maroon-d));
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(136,19,55,.3);
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .btn-login-baru:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(136,19,55,.4); }
+  .btn-cek-poin-baru {
+    width: 100%;
+    padding: 0.8rem;
+    background: #fff;
+    color: var(--maroon);
+    border: 2px solid var(--maroon);
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+  .btn-cek-poin-baru:hover { background: #FDF2F4; }
+
   .table-wrap{overflow-x:auto;background:#fff;border-radius:16px;margin-top:1rem}
   table{width:100%;border-collapse:collapse;font-size:.85rem}
   th{background:#FDF2F4;padding:.7rem;text-align:left;font-weight:800;color:var(--maroon);border-bottom:2px solid var(--border)}
@@ -328,8 +369,10 @@
     <div id="login-alert" style="color:#EF4444;font-size:.85rem;font-weight:700;text-align:center;margin-bottom:.8rem;display:none"></div>
     <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="G003"></div>
     <div class="field"><label>PIN</label><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric"></div>
-    <button class="btn-primary-full" onclick="doLogin()">Masuk</button>
-    <button class="btn-secondary-full" onclick="bukaCekPoin()" style="margin-top:.6rem"><i class="fas fa-search"></i> Cek Poin Saya (Siswa)</button>
+    
+    <!-- REVISI TOMBOL LOGIN (BAGIAN HTML) -->
+    <button class="btn-login-baru" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+    <button class="btn-cek-poin-baru" onclick="bukaCekPoin()"><i class="fas fa-search"></i> Cek Poin Saya (Siswa)</button>
   </div>
 </div>
 

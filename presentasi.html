@@ -8,37 +8,38 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
 <style>
   :root{
-    --brand:#2563EB; --brand-2:#3B82F6; --brand-3:#60A5FA; --brand-soft:#EFF6FF;
-    --success:#10B981; --success-soft:#ECFDF5; --warn:#F59E0B; --danger:#EF4444;
-    --purple:#8B5CF6; --purple-soft:#F5F3FF;
-    --bg:#F8FAFC; --card:#FFFFFF; --text:#0F172A; --text-soft:#475569; --muted:#94A3B8; --border:#E2E8F0;
-    --shadow-sm:0 1px 3px rgba(15,23,42,.06);
-    --shadow-md:0 4px 16px rgba(15,23,42,.06);
+    --bg:#0A1533; --bg-2:#102252;
+    --brand:#1E3A8A; --brand-2:#3B82F6; --brand-3:#60A5FA; --brand-4:#93C5FD;
+    --success:#10B981; --success-l:#6EE7B7;
+    --warn:#F59E0B; --warn-l:#FCD34D;
+    --danger:#EF4444; --danger-l:#FCA5A5;
+    --text:#E5EEFF; --text-soft:#CBD5E1; --muted:#93C5FD;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:18px}
+  html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:20px}
 
+  /* DECK */
   .deck{position:relative;width:100vw;height:100vh;overflow:hidden}
-  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:4rem 3rem 5rem;opacity:0;transition:opacity .25s ease;background:var(--bg)}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:4.5rem 3.5rem 5.5rem;opacity:0;transition:opacity .3s ease}
   .slide.active{display:flex;opacity:1}
   .slide.center{align-items:center;justify-content:center;text-align:center}
 
   /* TOP BAR */
-  .topbar{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000}
-  .topbar .brand{font-weight:800;font-size:1.1rem;color:var(--text);display:flex;align-items:center;gap:.6rem;letter-spacing:-.01em}
-  .topbar .brand-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--purple));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;font-weight:900}
-  .topbar .progress{flex:1;max-width:400px;height:6px;background:var(--brand-soft);border-radius:99px;margin:0 1.5rem;overflow:hidden}
-  .topbar .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand),var(--purple));transition:width .3s ease;border-radius:99px}
-  .topbar .counter{font-weight:800;font-size:.9rem;color:var(--text-soft);min-width:70px;text-align:right}
-  .topbar .btn{background:#fff;border:1px solid var(--border);color:var(--text-soft);border-radius:8px;padding:.4rem .8rem;font-size:.8rem;cursor:pointer;font-family:inherit;font-weight:700;margin-left:.5rem;transition:.15s;display:inline-flex;align-items:center;gap:.4rem}
-  .topbar .btn:hover{background:var(--brand-soft);border-color:var(--brand-3);color:var(--brand)}
+  .topbar{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(10,21,51,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000}
+  .topbar .brand{font-weight:900;font-size:1.15rem;color:#fff;display:flex;align-items:center;gap:.6rem;letter-spacing:.02em}
+  .topbar .brand-icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand-2),var(--brand));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:900}
+  .topbar .progress{flex:1;max-width:420px;height:7px;background:rgba(59,130,246,.15);border-radius:99px;margin:0 1.5rem;overflow:hidden}
+  .topbar .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand-2),var(--brand-4));transition:width .3s ease;border-radius:99px}
+  .topbar .counter{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:1.05rem;color:var(--brand-3);min-width:85px;text-align:right}
+  .topbar .btn{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);color:#DBEAFE;border-radius:8px;padding:.45rem .85rem;font-size:.85rem;cursor:pointer;font-family:inherit;font-weight:700;margin-left:.6rem;transition:.15s;display:inline-flex;align-items:center;gap:.4rem}
+  .topbar .btn:hover{background:rgba(59,130,246,.3)}
 
   /* SLIDE HEADER */
-  .slide-header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid var(--border)}
-  .slide-header .eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.15em;color:var(--brand);text-transform:uppercase;margin-bottom:.4rem}
-  .slide-header h1{font-size:2.4rem;font-weight:900;line-height:1.15;color:var(--text);letter-spacing:-.02em}
-  .slide-header h1 .hl{background:linear-gradient(135deg,var(--brand),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .slide-body{flex:1;overflow:hidden;display:grid;gap:1.2rem}
+  .slide-header{margin-bottom:1.8rem;padding-bottom:1.2rem;border-bottom:2px solid rgba(59,130,246,.25)}
+  .slide-header .eyebrow{font-size:.85rem;font-weight:800;letter-spacing:.25em;color:var(--brand-3);text-transform:uppercase;margin-bottom:.5rem}
+  .slide-header h1{font-size:2.6rem;font-weight:900;line-height:1.15;color:#fff;letter-spacing:-.01em}
+  .slide-header h1 .hl{color:var(--brand-3)}
+  .slide-body{flex:1;overflow:hidden;display:grid;gap:1.5rem}
   .slide-body.cols-2{grid-template-columns:1fr 1fr}
   .slide-body.cols-3{grid-template-columns:repeat(3,1fr)}
   .slide-body.cols-4{grid-template-columns:repeat(4,1fr)}
@@ -46,154 +47,166 @@
   .slide-body.center{place-items:center;text-align:center}
 
   /* TEXT */
-  .txt{font-size:1.2rem;line-height:1.6;color:var(--text-soft)}
-  .txt b,.txt strong{color:var(--text);font-weight:800}
-  .txt .hl{color:var(--brand);font-weight:700}
-  .txt .ok{color:var(--success);font-weight:700}
-  .txt ul{margin:.5rem 0 0 1.3rem}
-  .txt li{margin-bottom:.6rem;font-size:1.1rem;line-height:1.5}
+  .txt{font-size:1.3rem;line-height:1.6;color:var(--text-soft)}
+  .txt b,.txt strong{color:#fff;font-weight:800}
+  .txt .hl{color:var(--brand-4);font-weight:700}
+  .txt .ok{color:var(--success-l);font-weight:700}
+  .txt .warn{color:var(--warn-l);font-weight:700}
+  .txt .danger{color:var(--danger-l);font-weight:700}
+  .txt ul{margin:.6rem 0 0 1.5rem}
+  .txt li{margin-bottom:.7rem;font-size:1.2rem;line-height:1.5}
 
   /* BOX */
-  .box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem 1.5rem;display:flex;flex-direction:column;box-shadow:var(--shadow-sm)}
-  .box h3{font-size:1.1rem;font-weight:800;color:var(--brand);margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
-  .box .big{font-size:3rem;font-weight:900;color:var(--brand);line-height:1}
-  .box .lbl{font-size:.9rem;color:var(--text-soft);font-weight:700;margin-top:.3rem}
-  .box.blue{background:var(--brand-soft);border-color:#BFDBFE} .box.blue h3{color:var(--brand)}
-  .box.green{background:var(--success-soft);border-color:#A7F3D0} .box.green h3{color:var(--success)}
-  .box.orange{background:#FFFBEB;border-color:#FDE68A} .box.orange h3{color:var(--warn)}
-  .box.red{background:#FEF2F2;border-color:#FECACA} .box.red h3{color:var(--danger)}
-  .box.purple{background:var(--purple-soft);border-color:#DDD6FE} .box.purple h3{color:var(--purple)}
+  .box{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:16px;padding:1.5rem 1.6rem;display:flex;flex-direction:column}
+  .box h3{font-size:1.15rem;font-weight:900;color:var(--brand-4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.9rem;display:flex;align-items:center;gap:.6rem}
+  .box h3 i{font-size:1.3rem}
+  .box .big{font-size:3.5rem;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace;line-height:1}
+  .box .lbl{font-size:1rem;color:var(--muted);font-weight:700;margin-top:.4rem}
+  .box.ok{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.35)} .box.ok h3{color:var(--success-l)}
+  .box.warn{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35)} .box.warn h3{color:var(--warn-l)}
+  .box.danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35)} .box.danger h3{color:var(--danger-l)}
 
   /* CHECKLIST */
-  .chk{display:flex;align-items:flex-start;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border)}
+  .chk{display:flex;align-items:flex-start;gap:.8rem;padding:.6rem 0;border-bottom:1px dashed rgba(59,130,246,.15)}
   .chk:last-child{border-bottom:none}
-  .chk .ico{flex-shrink:0;width:30px;height:30px;border-radius:8px;background:var(--success-soft);border:1px solid #A7F3D0;display:flex;align-items:center;justify-content:center;color:var(--success);font-size:.9rem}
-  .chk.no .ico{background:#FEF2F2;border-color:#FECACA;color:var(--danger)}
-  .chk .body{font-size:1.05rem;color:var(--text-soft);line-height:1.4}
-  .chk .body b{color:var(--text);font-weight:800}
+  .chk .ico{flex-shrink:0;width:32px;height:32px;border-radius:9px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);display:flex;align-items:center;justify-content:center;color:var(--success-l);font-size:.9rem}
+  .chk.no .ico{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);color:var(--danger-l)}
+  .chk .body{font-size:1.1rem;color:var(--text-soft);line-height:1.4}
+  .chk .body b{color:#fff;font-weight:800}
 
   /* MATRIX */
-  table.matrix{width:100%;border-collapse:collapse;font-size:1rem;border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm);background:var(--card)}
-  table.matrix th{background:var(--brand-soft);padding:.9rem .7rem;text-align:left;color:var(--brand);font-weight:800;border-bottom:2px solid #BFDBFE;font-size:.8rem;text-transform:uppercase}
-  table.matrix td{padding:.8rem .7rem;border-bottom:1px solid var(--border);color:var(--text-soft);font-size:1rem}
+  table.matrix{width:100%;border-collapse:collapse;font-size:1.05rem;border-radius:12px;overflow:hidden}
+  table.matrix th{background:rgba(59,130,246,.2);padding:.9rem .7rem;text-align:left;color:#fff;font-weight:800;border-bottom:2px solid rgba(59,130,246,.4);font-size:.85rem;text-transform:uppercase;letter-spacing:.04em}
+  table.matrix td{padding:.8rem .7rem;border-bottom:1px solid rgba(59,130,246,.12);color:var(--text-soft);font-size:1.05rem}
   table.matrix tr:last-child td{border-bottom:none}
-  table.matrix td.yes{color:var(--success);text-align:center;font-weight:900;font-size:1.3rem}
-  table.matrix td.no{color:var(--muted);text-align:center;font-size:1rem}
-  table.matrix td.role{color:var(--text);font-weight:800}
+  table.matrix tr:hover td{background:rgba(59,130,246,.06)}
+  table.matrix td.yes{color:var(--success-l);text-align:center;font-weight:900;font-size:1.4rem}
+  table.matrix td.no{color:#64748B;text-align:center;font-size:1.1rem}
+  table.matrix td.role{color:#fff;font-weight:800}
 
   /* TIMELINE */
-  .timeline{position:relative;padding-left:1.8rem}
-  .timeline::before{content:'';position:absolute;left:.45rem;top:.4rem;bottom:.4rem;width:3px;background:linear-gradient(180deg,var(--brand),var(--purple));border-radius:2px}
-  .tl-item{position:relative;padding:0 0 1.2rem 1rem}
-  .tl-item::before{content:'';position:absolute;left:-1.65rem;top:.35rem;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
-  .tl-item .time{font-weight:900;font-size:1rem;color:var(--brand);margin-bottom:.2rem}
-  .tl-item .desc{font-size:1rem;color:var(--text-soft);line-height:1.4}
-  .tl-item .desc b{color:var(--text)}
+  .timeline{position:relative;padding-left:2rem}
+  .timeline::before{content:'';position:absolute;left:.55rem;top:.5rem;bottom:.5rem;width:3px;background:linear-gradient(180deg,var(--brand-2),var(--brand-4),transparent);border-radius:2px}
+  .tl-item{position:relative;padding:0 0 1.4rem 1.1rem}
+  .tl-item::before{content:'';position:absolute;left:-1.7rem;top:.4rem;width:16px;height:16px;border-radius:50%;background:var(--brand-2);border:3px solid var(--bg);box-shadow:0 0 0 2px rgba(59,130,246,.4)}
+  .tl-item .time{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:900;color:var(--brand-3);margin-bottom:.3rem}
+  .tl-item .desc{font-size:1.1rem;color:var(--text-soft);line-height:1.5}
+  .tl-item .desc b{color:#fff}
 
   /* NAV BOTTOM */
-  .navbar{position:fixed;bottom:0;left:0;right:0;height:66px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000}
-  .navbar .hint{font-size:.85rem;color:var(--muted);font-weight:600}
-  .navbar .hint kbd{background:var(--brand-soft);border:1px solid #BFDBFE;border-radius:5px;padding:.1rem .4rem;font-family:inherit;font-size:.8rem;color:var(--brand);font-weight:800;margin:0 .1rem}
+  .navbar{position:fixed;bottom:0;left:0;right:0;height:70px;background:rgba(10,21,51,.95);backdrop-filter:blur(10px);border-top:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000}
+  .navbar .hint{font-size:.9rem;color:var(--muted);font-weight:600}
+  .navbar .hint kbd{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:5px;padding:.15rem .45rem;font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#DBEAFE;margin:0 .1rem}
   .navbar .navbtns{display:flex;gap:.6rem}
-  .navbar button{background:linear-gradient(135deg,var(--brand),var(--purple));border:none;color:#fff;border-radius:10px;padding:.7rem 1.3rem;font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.5rem;box-shadow:var(--shadow-sm)}
-  .navbar button:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
-  .navbar button:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-  .navbar button.ghost{background:#fff;border:1px solid var(--border);color:var(--text-soft)}
-  .navbar button.ghost:hover{background:var(--brand-soft);color:var(--brand)}
+  .navbar button{background:linear-gradient(135deg,var(--brand-2),var(--brand));border:none;color:#fff;border-radius:10px;padding:.75rem 1.4rem;font-family:inherit;font-weight:800;font-size:1rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 4px 14px rgba(59,130,246,.3)}
+  .navbar button:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(59,130,246,.45)}
+  .navbar button:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+  .navbar button.ghost{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);color:#DBEAFE}
+  .navbar button.ghost:hover{background:rgba(59,130,246,.3)}
 
-  /* COVER / END */
-  .slide.cover,.slide.end{background:linear-gradient(135deg,#EFF6FF 0%,#F5F3FF 50%,#ECFDF5 100%)}
-  .slide.cover .logo-row{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;justify-content:center}
-  .slide.cover .logo-box{width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,var(--brand),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:2.5rem;color:#fff;box-shadow:var(--shadow-md)}
-  .slide.cover .logo-row img{width:90px;height:90px;object-fit:contain;background:#fff;border-radius:22px;padding:8px;box-shadow:var(--shadow-md)}
-  .slide.cover h1{font-size:5rem;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--brand),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:.5rem;letter-spacing:-.03em}
-  .slide.cover h2{font-size:1.6rem;font-weight:700;color:var(--text-soft);margin-bottom:.5rem;line-height:1.3}
-  .slide.cover p{font-size:1.2rem;color:var(--muted);font-weight:600}
-  .slide.cover .footer-info{margin-top:2rem;font-size:1.1rem;color:var(--text-soft);font-weight:600;line-height:1.8}
-  .slide.cover .footer-info b{color:var(--text);font-size:1.2rem}
-  
-  .slide.end h1{font-size:4rem;font-weight:900;background:linear-gradient(135deg,var(--brand),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:1rem;letter-spacing:-.03em}
-  .slide.end p{font-size:1.4rem;color:var(--text-soft);margin-bottom:.6rem;font-weight:600}
-  .slide.end .sub{font-size:1.1rem;color:var(--muted);max-width:700px;line-height:1.6;margin-top:1rem}
-  .slide.end .quote{font-size:1.1rem;color:var(--text-soft);font-style:italic;max-width:800px;line-height:1.6;margin-top:1.5rem;padding:1rem 1.5rem;background:rgba(255,255,255,.6);border-left:4px solid var(--brand);border-radius:0 12px 12px 0;text-align:left}
+  /* COVER & END */
+  .slide.cover{background:radial-gradient(circle at 25% 20%, rgba(59,130,246,.3), transparent 55%), radial-gradient(circle at 75% 80%, rgba(16,185,129,.15), transparent 55%), var(--bg)}
+  .slide.cover .logo-row{display:flex;align-items:center;gap:1.2rem;margin-bottom:2rem;justify-content:center}
+  .slide.cover .logo-box{width:110px;height:110px;border-radius:24px;background:linear-gradient(135deg,var(--brand-2),var(--brand));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:3rem;color:#fff;box-shadow:0 20px 60px rgba(59,130,246,.4)}
+  .slide.cover .logo-row img{width:110px;height:110px;object-fit:contain;background:#fff;border-radius:24px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .slide.cover h1{font-size:6rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--brand-3));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:.8rem;letter-spacing:-.02em}
+  .slide.cover h2{font-size:2rem;font-weight:700;color:#DBEAFE;margin-bottom:.8rem;line-height:1.3}
+  .slide.cover p{font-size:1.4rem;color:var(--muted);font-weight:600}
+  .slide.cover .footer-info{margin-top:2.5rem;font-size:1.15rem;color:var(--text-soft);font-weight:600;line-height:1.9}
+  .slide.cover .footer-info b{color:#fff;font-size:1.3rem}
+
+  .slide.end{background:radial-gradient(circle at 50% 50%, rgba(59,130,246,.25), transparent 65%), var(--bg)}
+  .slide.end h1{font-size:5rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--brand-3));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:1.5rem;letter-spacing:-.02em}
+  .slide.end p{font-size:1.8rem;color:#DBEAFE;margin-bottom:.8rem;font-weight:600}
+  .slide.end .sub{font-size:1.3rem;color:var(--muted);max-width:800px;line-height:1.7;margin-top:1.5rem}
+  .slide.end .quote{font-size:1.3rem;color:var(--text-soft);font-style:italic;max-width:900px;line-height:1.7;margin-top:1.5rem;padding:1.2rem 1.5rem;background:rgba(59,130,246,.12);border-left:5px solid var(--brand-2);border-radius:0 12px 12px 0;text-align:left}
 
   /* STAT GRID */
-  .stat-grid-big{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:1rem}
-  .stat-big{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem 1rem;text-align:center;box-shadow:var(--shadow-sm)}
-  .stat-big .val{font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--brand),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;margin-bottom:.3rem}
-  .stat-big .lbl{font-size:1rem;color:var(--text);font-weight:800}
+  .stat-grid-big{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-top:1rem}
+  .stat-big{background:rgba(16,185,129,.12);border:2px solid rgba(16,185,129,.4);border-radius:16px;padding:1.8rem 1.2rem;text-align:center}
+  .stat-big .val{font-size:3.5rem;font-weight:900;color:var(--success-l);font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:.4rem}
+  .stat-big .lbl{font-size:1.05rem;color:#fff;font-weight:800}
 
   /* OVERVIEW */
-  .overview{position:fixed;inset:0;z-index:2000;background:rgba(248,250,252,.98);backdrop-filter:blur(12px);display:none;padding:2rem;overflow-y:auto}
+  .overview{position:fixed;inset:0;z-index:2000;background:rgba(5,10,25,.97);backdrop-filter:blur(12px);display:none;padding:2rem;overflow-y:auto}
   .overview.show{display:block}
-  .overview h2{text-align:center;color:var(--text);font-size:1.6rem;margin-bottom:1.5rem;font-weight:800}
-  .overview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem;max-width:1200px;margin:0 auto}
-  .ov-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1rem;cursor:pointer;transition:.15s;box-shadow:var(--shadow-sm)}
-  .ov-card:hover{background:var(--brand-soft);border-color:var(--brand-3);transform:translateY(-2px)}
-  .ov-card .num{font-size:.75rem;color:var(--brand);font-weight:900;margin-bottom:.2rem;text-transform:uppercase}
-  .ov-card .ttl{font-size:.95rem;color:var(--text);font-weight:700;line-height:1.3}
-  .ov-card.active{border-color:var(--brand);background:var(--brand-soft);box-shadow:0 0 0 2px rgba(37,99,235,.15)}
+  .overview h2{text-align:center;color:#fff;font-size:1.8rem;margin-bottom:2rem;font-weight:900}
+  .overview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;max-width:1400px;margin:0 auto}
+  .ov-card{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:10px;padding:1rem;cursor:pointer;transition:.15s}
+  .ov-card:hover{background:rgba(59,130,246,.25);transform:translateY(-2px)}
+  .ov-card .num{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--brand-3);font-weight:800;margin-bottom:.3rem}
+  .ov-card .ttl{font-size:1rem;color:#fff;font-weight:700;line-height:1.3}
+  .ov-card.active{border-color:var(--brand-3);background:rgba(59,130,246,.3);box-shadow:0 0 12px rgba(59,130,246,.5)}
 
   /* RESPONSIVE */
   @media(max-width:1366px){
-    html,body{font-size:16px}
-    .slide{padding:3.5rem 2.5rem 5rem}
-    .slide-header h1{font-size:2.1rem}
-    .slide.cover h1{font-size:4.5rem}
-    .txt{font-size:1.1rem}
-    .txt li{font-size:1rem}
-    .box h3{font-size:1rem}
-    .box .big{font-size:2.5rem}
-    .chk .body{font-size:.95rem}
-    table.matrix td,table.matrix th{font-size:.9rem;padding:.7rem .6rem}
-    .tl-item .time,.tl-item .desc{font-size:.9rem}
-    .stat-big .val{font-size:2.5rem}
+    html,body{font-size:18px}
+    .slide{padding:4rem 2.5rem 5rem}
+    .slide-header h1{font-size:2.2rem}
+    .slide.cover h1{font-size:5rem}
+    .txt{font-size:1.15rem}
+    .txt li{font-size:1.1rem}
+    .box h3{font-size:1.05rem}
+    .box .big{font-size:3rem}
+    .chk .body{font-size:1rem}
+    table.matrix td,table.matrix th{font-size:.95rem;padding:.7rem .6rem}
+    .tl-item .time,.tl-item .desc{font-size:1rem}
+    .stat-big .val{font-size:3rem}
   }
   @media(max-width:1024px){
-    .slide{padding:3rem 1.5rem 4.5rem}
-    .slide-header h1{font-size:1.8rem}
+    html,body{font-size:16px}
+    .slide{padding:3.5rem 1.8rem 5rem}
+    .slide-header h1{font-size:1.9rem}
+    .slide-header .eyebrow{font-size:.75rem}
     .slide-body.cols-2,.slide-body.cols-3,.slide-body.cols-4{grid-template-columns:1fr}
-    .slide.cover h1{font-size:3.5rem}
-    .slide.cover h2{font-size:1.3rem}
-    .slide.cover .logo-box,.slide.cover .logo-row img{width:70px;height:70px;font-size:2rem}
-    .box{padding:1.2rem 1.2rem}
+    .txt{font-size:1.1rem}
+    .txt li{font-size:1.05rem}
+    .chk .body{font-size:1rem}
+    .chk .ico{width:30px;height:30px;font-size:.85rem}
+    .box{padding:1.2rem 1.3rem}
+    .box h3{font-size:1rem}
+    .box .big{font-size:2.5rem}
+    .slide.cover h1{font-size:4rem}
+    .slide.cover h2{font-size:1.5rem}
+    .slide.cover p{font-size:1.1rem}
+    .slide.cover .logo-box,.slide.cover .logo-row img{width:80px;height:80px;font-size:2rem}
     table.matrix{font-size:.85rem}
-    .slide.end h1{font-size:2.5rem}
-    .slide.end p{font-size:1.1rem}
-    .stat-grid-big{grid-template-columns:repeat(3,1fr)}
+    table.matrix td,table.matrix th{padding:.65rem .5rem;font-size:.85rem}
+    table.matrix td.yes{font-size:1.15rem}
+    .tl-item .time,.tl-item .desc{font-size:.95rem}
+    .tl-item{padding:0 0 1.1rem 1rem}
+    .stat-big .val{font-size:2.5rem}
+    .slide.end h1{font-size:3rem}
+    .slide.end p{font-size:1.3rem}
   }
   @media(max-width:768px){
-    .topbar{height:50px;padding:0 1rem}
+    .topbar{height:56px;padding:0 1rem}
     .topbar .brand{font-size:.95rem}
     .topbar .progress{display:none}
-    .topbar .btn{padding:.3rem .5rem;font-size:.7rem}
-    .navbar{height:56px;padding:0 1rem}
+    .topbar .btn{padding:.35rem .6rem;font-size:.75rem;margin-left:.4rem}
+    .navbar{height:60px;padding:0 1rem}
     .navbar .hint{display:none}
-    .navbar button{padding:.5rem .9rem;font-size:.8rem}
-    .slide{padding:2.5rem 1rem 4rem}
-    .slide-header h1{font-size:1.5rem}
-    .slide.cover h1{font-size:2.8rem}
-    .slide.cover h2{font-size:1.1rem}
-    .slide.cover p{font-size:.9rem}
-    .stat-grid-big{grid-template-columns:repeat(2,1fr);gap:.8rem}
-    .stat-big{padding:1rem .5rem}
-    .stat-big .val{font-size:2rem}
-    .stat-big .lbl{font-size:.85rem}
-    .slide.end h1{font-size:2rem}
+    .navbar button{padding:.6rem 1rem;font-size:.85rem}
+    .slide.cover h1{font-size:3rem}
+    .slide.cover h2{font-size:1.2rem}
+    .slide.cover p{font-size:1rem}
+    .slide.end h1{font-size:2.5rem}
+    .slide.end p{font-size:1.1rem}
   }
   @media(max-height:800px){
-    .slide{padding:2.5rem 2rem 4rem}
-    .slide-header{margin-bottom:1rem;padding-bottom:.8rem}
-    .slide-header h1{font-size:1.8rem}
-    .txt{font-size:1rem}
-    .txt li{font-size:.95rem;margin-bottom:.4rem}
-    .chk{padding:.4rem 0}
-    .chk .body{font-size:.9rem}
-    .box{padding:1rem 1rem}
-    .box h3{font-size:.9rem;margin-bottom:.5rem}
-    .box .big{font-size:2.2rem}
-    .tl-item{padding:0 0 .9rem .9rem}
-    .tl-item .time,.tl-item .desc{font-size:.85rem}
+    .slide{padding:3rem 2rem 4.5rem}
+    .slide-header{margin-bottom:1.2rem;padding-bottom:.9rem}
+    .slide-header h1{font-size:1.9rem}
+    .txt{font-size:1.05rem}
+    .txt li{font-size:1rem;margin-bottom:.5rem}
+    .chk{padding:.5rem 0}
+    .chk .body{font-size:.95rem}
+    .box{padding:1rem 1.2rem}
+    .box h3{font-size:.95rem;margin-bottom:.6rem}
+    .box .big{font-size:2.5rem}
+    .tl-item{padding:0 0 1rem .9rem}
+    .tl-item .time,.tl-item .desc{font-size:.9rem}
+    .stat-big .val{font-size:2.5rem}
   }
 </style>
 </head>
@@ -232,13 +245,13 @@
       <h1>Apa itu <span class="hl">BKCSiplin</span>?</h1>
     </div>
     <div class="slide-body full center">
-      <div class="box blue" style="max-width:900px;text-align:center;padding:2rem">
-        <h3 style="justify-content:center;font-size:1.3rem"><i class="fas fa-circle-info"></i> Definisi</h3>
-        <div class="txt" style="font-size:1.4rem;line-height:1.5;margin-top:1rem">
+      <div class="box" style="max-width:1000px;text-align:center">
+        <h3 style="justify-content:center"><i class="fas fa-circle-info"></i> Definisi</h3>
+        <div class="txt" style="font-size:1.5rem;line-height:1.5;margin-top:.8rem">
           Sistem informasi <span class="hl">berbasis web</span> yang mengintegrasikan seluruh proses administrasi <b>kedisiplinan</b> dan <b>kehadiran</b> di SMK Bhakti Kencana Ciawi dalam <span class="ok">satu platform terpadu</span>.
         </div>
-        <div class="txt" style="font-size:1.1rem;margin-top:1.5rem;color:var(--muted)">
-          <b style="color:var(--brand)">BKC</b> = Bhakti Kencana Ciawi &nbsp; + &nbsp; <b style="color:var(--purple)">Siplin</b> = Disiplin
+        <div class="txt" style="font-size:1.2rem;margin-top:1.5rem;color:var(--muted)">
+          <b style="color:#fff">BKC</b> = Bhakti Kencana Ciawi &nbsp; + &nbsp; <b style="color:#fff">Siplin</b> = Disiplin
         </div>
       </div>
     </div>
@@ -270,7 +283,7 @@
       <h1>Masalah <span class="hl">Sebelumnya</span></h1>
     </div>
     <div class="slide-body">
-      <div class="box red" style="height:100%">
+      <div class="box danger" style="height:100%">
         <h3><i class="fas fa-triangle-exclamation"></i> 8 Masalah Utama</h3>
         <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Presensi manual kertas → mudah hilang, susah dilacak</div></div>
         <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Rekap kehadiran → memakan waktu berjam-jam</div></div>
@@ -291,7 +304,7 @@
       <h1>Solusi <span class="hl">BKCSiplin</span></h1>
     </div>
     <div class="slide-body">
-      <div class="box green" style="height:100%">
+      <div class="box ok" style="height:100%">
         <h3><i class="fas fa-circle-check"></i> 8 Solusi Otomatis</h3>
         <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Presensi gerbang <b>scan QR/RFID</b> — otomatis</div></div>
         <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Rekap kehadiran <b>instan &lt;5 detik</b> — real-time</div></div>
@@ -326,14 +339,14 @@
       <h1>Arsitektur <span class="hl">Sistem</span></h1>
     </div>
     <div class="slide-body">
-      <div style="display:grid;gap:.8rem;width:100%;max-width:800px;margin:0 auto;text-align:center">
-        <div class="box blue" style="padding:.8rem"><b>Pengguna</b><br><span class="txt" style="font-size:.9rem">Siswa · Guru · BK · Kepsek · Ortu</span></div>
+      <div style="display:grid;gap:.8rem;width:100%;max-width:850px;margin:0 auto;text-align:center">
+        <div class="box" style="padding:.8rem"><b>Pengguna</b><br><span class="txt" style="font-size:.95rem">Siswa · Guru · BK · Kepsek · Ortu</span></div>
         <div style="color:var(--brand-3)"><i class="fas fa-arrow-down"></i></div>
-        <div class="box purple" style="padding:.8rem"><b>Portal Web</b><br><span class="txt" style="font-size:.9rem">Gerbang · Sholat · Disiplin · Admin · Publik</span></div>
+        <div class="box" style="padding:.8rem"><b>Portal Web</b><br><span class="txt" style="font-size:.95rem">Gerbang · Sholat · Disiplin · Admin · Publik</span></div>
         <div style="color:var(--brand-3)"><i class="fas fa-arrow-down"></i></div>
-        <div class="box orange" style="padding:.8rem"><b>Backend — Google Apps Script</b><br><span class="txt" style="font-size:.9rem">Login · Logika Bisnis · Verifikasi Akses</span></div>
+        <div class="box" style="padding:.8rem"><b>Backend — Google Apps Script</b><br><span class="txt" style="font-size:.95rem">Login · Logika Bisnis · Verifikasi Akses</span></div>
         <div style="color:var(--brand-3)"><i class="fas fa-arrow-down"></i></div>
-        <div class="box green" style="padding:.8rem"><b>Database — Google Spreadsheet</b><br><span class="txt" style="font-size:.9rem">12 Sheet Terstruktur</span></div>
+        <div class="box ok" style="padding:.8rem"><b>Database — Google Spreadsheet</b><br><span class="txt" style="font-size:.95rem">12 Sheet Terstruktur</span></div>
       </div>
     </div>
   </div>
@@ -345,12 +358,12 @@
       <h1>Keamanan <span class="hl">Berlapis</span></h1>
     </div>
     <div class="slide-body cols-3">
-      <div class="box"><h3><i class="fas fa-key"></i> 2 Faktor</h3><div class="txt" style="font-size:1rem">ID Guru + PIN</div></div>
-      <div class="box"><h3><i class="fas fa-clock"></i> Session</h3><div class="txt" style="font-size:1rem">30 menit, auto-logout</div></div>
-      <div class="box"><h3><i class="fas fa-user-shield"></i> Role-Based</h3><div class="txt" style="font-size:1rem">6 role, hak akses ketat</div></div>
-      <div class="box"><h3><i class="fas fa-clipboard-list"></i> Audit Trail</h3><div class="txt" style="font-size:1rem">Semua aksi tercatat</div></div>
-      <div class="box green"><h3><i class="fas fa-cloud-arrow-up"></i> Backup</h3><div class="txt" style="font-size:1rem">Otomatis via Google</div></div>
-      <div class="box green"><h3><i class="fas fa-lock"></i> HTTPS</h3><div class="txt" style="font-size:1rem">Komunikasi terenkripsi</div></div>
+      <div class="box"><h3><i class="fas fa-key"></i> 2 Faktor</h3><div class="txt" style="font-size:1.05rem">ID Guru + PIN</div></div>
+      <div class="box"><h3><i class="fas fa-clock"></i> Session</h3><div class="txt" style="font-size:1.05rem">30 menit, auto-logout</div></div>
+      <div class="box"><h3><i class="fas fa-user-shield"></i> Role-Based</h3><div class="txt" style="font-size:1.05rem">6 role, hak akses ketat</div></div>
+      <div class="box"><h3><i class="fas fa-clipboard-list"></i> Audit Trail</h3><div class="txt" style="font-size:1.05rem">Semua aksi tercatat</div></div>
+      <div class="box ok"><h3><i class="fas fa-cloud-arrow-up"></i> Backup</h3><div class="txt" style="font-size:1.05rem">Otomatis via Google</div></div>
+      <div class="box ok"><h3><i class="fas fa-lock"></i> HTTPS</h3><div class="txt" style="font-size:1.05rem">Komunikasi terenkripsi</div></div>
     </div>
   </div>
 
@@ -365,8 +378,8 @@
         <div class="box"><h3><i class="fas fa-door-open"></i> 01 Gerbang</h3><div class="txt" style="font-size:.95rem">Guru Piket<br>Scan pagi/pulang</div></div>
         <div class="box"><h3><i class="fas fa-mosque"></i> 02 Sholat</h3><div class="txt" style="font-size:.95rem">Piket, BK, Wali Kelas<br>Presensi 5 waktu</div></div>
         <div class="box"><h3><i class="fas fa-gavel"></i> 03 Disiplin</h3><div class="txt" style="font-size:.95rem">BK, Wakasek<br>Poin & surat SP</div></div>
-        <div class="box"><h3><i class="fas fa-user-tie"></i> 04 Admin</h3><div class="txt" style="font-size:.95rem">Admin, Kepsek<br>Dashboard & manajemen</div></div>
-        <div class="box purple"><h3><i class="fas fa-globe"></i> 05 Cek Publik</h3><div class="txt" style="font-size:.95rem">Orang tua & Siswa<br>Tanpa login</div></div>
+        <div class="box"><h3><i class="fas fa-user-tie"></i> 04 Admin</h3><div class="txt" style="font-size:.95rem">Admin, Kepsek<br>Dashboard</div></div>
+        <div class="box ok"><h3><i class="fas fa-globe"></i> 05 Cek Publik</h3><div class="txt" style="font-size:.95rem">Orang tua & Siswa<br>Tanpa login</div></div>
       </div>
     </div>
   </div>
@@ -399,11 +412,11 @@
       <h1>Portal <span class="hl">Gerbang</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Presensi kehadiran siswa & guru di pintu gerbang.</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.05rem">1. Login<br>2. Scan QR/RFID<br>3. Catat masuk/pulang<br>4. Notifikasi + suara</div>
+      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Presensi kehadiran siswa & guru di pintu gerbang.</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.1rem">1. Login<br>2. Scan QR/RFID<br>3. Catat masuk/pulang<br>4. Notifikasi + suara</div>
       </div>
-      <div class="box green"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.05rem">✓ Deteksi tepat/terlambat<br>✓ Trigger poin otomatis<br>✓ Sesi pagi & pulang<br>✓ Rekap harian</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.05rem">SUPER_ADMIN · GURU_PIKET</div>
+      <div class="box ok"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.1rem">✓ Deteksi tepat/terlambat<br>✓ Trigger poin otomatis<br>✓ Sesi pagi & pulang<br>✓ Rekap harian</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.1rem">SUPER_ADMIN · GURU_PIKET</div>
       </div>
     </div>
   </div>
@@ -415,11 +428,11 @@
       <h1>Portal <span class="hl">Sholat</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Presensi sholat 5 waktu + udzur + laporan.</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.05rem">1. Pilih waktu sholat<br>2. Scan kartu/nama<br>3. Sistem catat waktu<br>4. Beep = sukses</div>
+      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Presensi sholat 5 waktu + udzur + laporan.</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.1rem">1. Pilih waktu sholat<br>2. Scan kartu/nama<br>3. Sistem catat waktu<br>4. Beep = sukses</div>
       </div>
-      <div class="box green"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.05rem">✓ 4 mode laporan<br>✓ Export Excel<br>✓ Print/PDF<br>✓ Manajemen udzur</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.05rem">SUPER_ADMIN · BK · KEPSEK · PIKET · WALI KELAS</div>
+      <div class="box ok"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.1rem">✓ 4 mode laporan<br>✓ Export Excel<br>✓ Print/PDF<br>✓ Manajemen udzur</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.1rem">ADMIN · BK · KEPSEK · PIKET · WALI KELAS</div>
       </div>
     </div>
   </div>
@@ -431,11 +444,11 @@
       <h1>Portal <span class="hl">Disiplin</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Catat poin pelanggaran & prestasi, zona, SP.</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-palette"></i> Zona Karakter</h3><div class="txt" style="font-size:1.05rem"><span class="ok">●</span> HIJAU (≥76)<br><span class="warn">●</span> KUNING (51-75)<br><span style="color:#FB923C">●</span> ORANYE (26-50)<br><span class="danger">●</span> MERAH (1-25)<br><span style="color:#94A3B8">●</span> KRITIS (≤0)</div>
+      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Catat poin pelanggaran & prestasi, zona, SP.</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-palette"></i> Zona Karakter</h3><div class="txt" style="font-size:1.05rem"><span class="ok">●</span> HIJAU (≥76)<br><span class="warn">●</span> KUNING (51-75)<br><span style="color:#FB923C">●</span> ORANYE (26-50)<br><span class="danger">●</span> MERAH (1-25)<br><span style="color:#94A3B8">●</span> KRITIS (≤0)</div>
       </div>
-      <div class="box green"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.05rem">✓ Saldo poin otomatis<br>✓ Riwayat lengkap<br>✓ Surat Peringatan<br>✓ Cek bolos sholat</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.05rem">SUPER_ADMIN · BK · WAKA · KEPSEK</div>
+      <div class="box ok"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.1rem">✓ Saldo poin otomatis<br>✓ Riwayat lengkap<br>✓ Surat Peringatan<br>✓ Cek bolos sholat</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.1rem">ADMIN · BK · WAKA · KEPSEK</div>
       </div>
     </div>
   </div>
@@ -447,11 +460,11 @@
       <h1>Portal <span class="hl">Admin</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Pusat kendali: dashboard, master data, poin, raport, laporan.</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-list"></i> 13 Modul</h3><div class="txt" style="font-size:.95rem;line-height:1.6">Dashboard · Siswa · Kelas · Guru · Tatib · RFID · Naik Kelas · Keterangan · Laporan · Raport · Pengaturan · Kartu</div>
+      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Pusat kendali: dashboard, master data, poin, raport, laporan.</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-list"></i> 13 Modul</h3><div class="txt" style="font-size:1rem;line-height:1.6">Dashboard · Siswa · Kelas · Guru · Tatib · RFID · Naik Kelas · Keterangan · Laporan · Raport · Pengaturan · Kartu</div>
       </div>
-      <div class="box green"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.05rem">✓ Dashboard real-time<br>✓ Import Excel massal<br>✓ Cetak raport & kartu<br>✓ Hak akses per role</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.05rem">SUPER_ADMIN · KEPSEK · BK · WAKA · WALI (terbatas)</div>
+      <div class="box ok"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.1rem">✓ Dashboard real-time<br>✓ Import Excel massal<br>✓ Cetak raport & kartu<br>✓ Hak akses per role</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.1rem">ADMIN · KEPSEK · BK · WAKA · WALI (terbatas)</div>
       </div>
     </div>
   </div>
@@ -463,11 +476,11 @@
       <h1>Portal Cek <span class="hl">Publik</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box purple"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.1rem">Akses mandiri untuk siswa & orang tua tanpa login.</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.05rem">1. Buka menu Cek Publik di index<br>2. Ketik NIS / nama<br>3. Lihat data langsung</div>
+      <div class="box ok"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Akses mandiri untuk siswa & orang tua tanpa login.</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.1rem">1. Buka menu Cek Publik di index<br>2. Ketik NIS / nama<br>3. Lihat data langsung</div>
       </div>
-      <div class="box green"><h3><i class="fas fa-star"></i> Yang Bisa Dilihat</h3><div class="txt" style="font-size:1.05rem">✓ Kehadiran gerbang<br>✓ Riwayat sholat<br>✓ Riwayat poin & zona<br>✓ Keterangan absen</div>
-        <h3 style="margin-top:1rem"><i class="fas fa-users"></i> Untuk</h3><div class="txt" style="font-size:1.05rem">Siswa · Orang Tua · Masyarakat</div>
+      <div class="box ok"><h3><i class="fas fa-star"></i> Yang Bisa Dilihat</h3><div class="txt" style="font-size:1.1rem">✓ Kehadiran gerbang<br>✓ Riwayat sholat<br>✓ Riwayat poin & zona<br>✓ Keterangan absen</div>
+        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Untuk</h3><div class="txt" style="font-size:1.1rem">Siswa · Orang Tua · Masyarakat</div>
       </div>
     </div>
   </div>
@@ -479,8 +492,8 @@
       <h1>Wali Kelas — <span class="hl">Kelas Sendiri</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box green"><h3><i class="fas fa-check"></i> Yang Bisa</h3><div class="txt" style="font-size:1.1rem">✓ Dashboard kelas sendiri<br>✓ Input keterangan absen<br>✓ Lihat laporan kelas<br>✓ Cetak raport<br>✓ Scan sholat & udzur</div></div>
-      <div class="box red"><h3><i class="fas fa-xmark"></i> Yang Tidak Bisa</h3><div class="txt" style="font-size:1.1rem">✗ Lihat kelas lain<br>✗ Ubah data siswa<br>✗ Hapus poin<br>✗ Kelola master data<br>✗ Lihat laporan semua kelas</div></div>
+      <div class="box ok"><h3><i class="fas fa-check"></i> Yang Bisa</h3><div class="txt" style="font-size:1.15rem">✓ Dashboard kelas sendiri<br>✓ Input keterangan absen<br>✓ Lihat laporan kelas<br>✓ Cetak raport<br>✓ Scan sholat & udzur</div></div>
+      <div class="box danger"><h3><i class="fas fa-xmark"></i> Yang Tidak Bisa</h3><div class="txt" style="font-size:1.15rem">✗ Lihat kelas lain<br>✗ Ubah data siswa<br>✗ Hapus poin<br>✗ Kelola master data<br>✗ Lihat laporan semua kelas</div></div>
     </div>
   </div>
 
@@ -491,9 +504,9 @@
       <h1>Modul 1-3: <span class="hl">Kehadiran</span></h1>
     </div>
     <div class="slide-body cols-3">
-      <div class="box"><h3><i class="fas fa-door-open"></i> Gerbang</h3><div class="txt" style="font-size:1rem">✓ Scan masuk/pulang<br>✓ Deteksi tepat/terlambat<br>✓ Trigger poin otomatis<br>✓ Rekap harian</div></div>
-      <div class="box"><h3><i class="fas fa-mosque"></i> Sholat</h3><div class="txt" style="font-size:1rem">✓ 5 waktu sholat<br>✓ Scan per waktu<br>✓ Manajemen udzur<br>✓ Laporan 4 mode</div></div>
-      <div class="box"><h3><i class="fas fa-chalkboard-teacher"></i> Guru</h3><div class="txt" style="font-size:1rem">✓ Scan masuk/pulang<br>✓ Hitung jam kerja<br>✓ Rekap per guru<br>✓ Deteksi terlambat</div></div>
+      <div class="box"><h3><i class="fas fa-door-open"></i> Gerbang</h3><div class="txt" style="font-size:1.05rem">✓ Scan masuk/pulang<br>✓ Deteksi tepat/terlambat<br>✓ Trigger poin otomatis<br>✓ Rekap harian</div></div>
+      <div class="box"><h3><i class="fas fa-mosque"></i> Sholat</h3><div class="txt" style="font-size:1.05rem">✓ 5 waktu sholat<br>✓ Scan per waktu<br>✓ Manajemen udzur<br>✓ Laporan 4 mode</div></div>
+      <div class="box"><h3><i class="fas fa-chalkboard-teacher"></i> Guru</h3><div class="txt" style="font-size:1.05rem">✓ Scan masuk/pulang<br>✓ Hitung jam kerja<br>✓ Rekap per guru<br>✓ Deteksi terlambat</div></div>
     </div>
   </div>
 
@@ -504,8 +517,8 @@
       <h1>Modul 4-5: <span class="hl">Disiplin & Poin</span></h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-book"></i> Tata Tertib</h3><div class="txt" style="font-size:1.1rem">✓ Master pelanggaran (-)<br>✓ Master prestasi (+)<br>✓ Setiap item punya poin<br>✓ Aktif/nonaktif per item</div></div>
-      <div class="box"><h3><i class="fas fa-star"></i> Poin & Zona</h3><div class="txt" style="font-size:1.1rem">✓ Poin awal: 100<br>✓ Pelanggaran: (-)<br>✓ Prestasi: (+)<br>✓ Otomatis tersaldo</div></div>
+      <div class="box"><h3><i class="fas fa-book"></i> Tata Tertib</h3><div class="txt" style="font-size:1.15rem">✓ Master pelanggaran (-)<br>✓ Master prestasi (+)<br>✓ Setiap item punya poin<br>✓ Aktif/nonaktif per item</div></div>
+      <div class="box"><h3><i class="fas fa-star"></i> Poin & Zona</h3><div class="txt" style="font-size:1.15rem">✓ Poin awal: 100<br>✓ Pelanggaran: (-)<br>✓ Prestasi: (+)<br>✓ Otomatis tersaldo</div></div>
     </div>
   </div>
 
@@ -516,9 +529,9 @@
       <h1>Modul 6-8: <span class="hl">Administrasi</span></h1>
     </div>
     <div class="slide-body cols-3">
-      <div class="box"><h3><i class="fas fa-database"></i> Master Data</h3><div class="txt" style="font-size:.95rem">✓ Siswa (+Import)<br>✓ Kelas + Wali Kelas<br>✓ Guru + Role<br>✓ Tata Tertib<br>✓ RFID</div></div>
-      <div class="box"><h3><i class="fas fa-notes-medical"></i> Keterangan</h3><div class="txt" style="font-size:.95rem">✓ Izin / Sakit / Alpa<br>✓ Per tanggal<br>✓ Per siswa<br>✓ Riwayat lengkap</div></div>
-      <div class="box"><h3><i class="fas fa-chart-line"></i> Laporan</h3><div class="txt" style="font-size:.95rem">✓ Laporan Siswa<br>✓ Laporan Guru<br>✓ Laporan Sholat<br>✓ Raport Digital<br>✓ Export + Print</div></div>
+      <div class="box"><h3><i class="fas fa-database"></i> Master Data</h3><div class="txt" style="font-size:1rem">✓ Siswa (+Import)<br>✓ Kelas + Wali Kelas<br>✓ Guru + Role<br>✓ Tata Tertib<br>✓ RFID</div></div>
+      <div class="box"><h3><i class="fas fa-notes-medical"></i> Keterangan</h3><div class="txt" style="font-size:1rem">✓ Izin / Sakit / Alpa<br>✓ Per tanggal<br>✓ Per siswa<br>✓ Riwayat lengkap</div></div>
+      <div class="box"><h3><i class="fas fa-chart-line"></i> Laporan</h3><div class="txt" style="font-size:1rem">✓ Laporan Siswa<br>✓ Laporan Guru<br>✓ Laporan Sholat<br>✓ Raport Digital<br>✓ Export + Print</div></div>
     </div>
   </div>
 
@@ -529,10 +542,10 @@
       <h1>Laporan <span class="hl">untuk Siapa</span>?</h1>
     </div>
     <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-user-tie"></i> Wali Kelas</h3><div class="txt" style="font-size:1.1rem">Kelas sendiri — kehadiran, poin, raport</div></div>
-      <div class="box"><h3><i class="fas fa-user-shield"></i> Guru BK</h3><div class="txt" style="font-size:1.1rem">Seluruh sekolah — disiplin, konseling, SP</div></div>
-      <div class="box"><h3><i class="fas fa-crown"></i> Kepala Sekolah</h3><div class="txt" style="font-size:1.1rem">Seluruh sekolah — dashboard + laporan</div></div>
-      <div class="box"><h3><i class="fas fa-people-roof"></i> Orang Tua</h3><div class="txt" style="font-size:1.1rem">Anak sendiri — kehadiran, poin, raport</div></div>
+      <div class="box"><h3><i class="fas fa-user-tie"></i> Wali Kelas</h3><div class="txt" style="font-size:1.15rem">Kelas sendiri — kehadiran, poin, raport</div></div>
+      <div class="box"><h3><i class="fas fa-user-shield"></i> Guru BK</h3><div class="txt" style="font-size:1.15rem">Seluruh sekolah — disiplin, konseling, SP</div></div>
+      <div class="box"><h3><i class="fas fa-crown"></i> Kepala Sekolah</h3><div class="txt" style="font-size:1.15rem">Seluruh sekolah — dashboard + laporan</div></div>
+      <div class="box"><h3><i class="fas fa-people-roof"></i> Orang Tua</h3><div class="txt" style="font-size:1.15rem">Anak sendiri — kehadiran, poin, raport</div></div>
     </div>
   </div>
 
@@ -544,11 +557,11 @@
     </div>
     <div class="slide-body">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
-        <div class="box"><h3><i class="fas fa-arrow-up"></i> Naik Kelas</h3><div class="txt" style="font-size:.95rem">Proses massal · Ganti kelas · Lulus XII</div></div>
-        <div class="box"><h3><i class="fas fa-wifi"></i> RFID</h3><div class="txt" style="font-size:.95rem">Daftar kartu siswa & guru · Auto-detect</div></div>
-        <div class="box"><h3><i class="fas fa-id-card"></i> Cetak Kartu</h3><div class="txt" style="font-size:.95rem">CR80 · QR code · Foto · A4</div></div>
-        <div class="box"><h3><i class="fas fa-file-alt"></i> Raport</h3><div class="txt" style="font-size:.95rem">Per semester/bulan · Print A4</div></div>
-        <div class="box"><h3><i class="fas fa-cog"></i> Pengaturan</h3><div class="txt" style="font-size:.95rem">Jam · Identitas · Poin · Zona</div></div>
+        <div class="box"><h3><i class="fas fa-arrow-up"></i> Naik Kelas</h3><div class="txt" style="font-size:1rem">Proses massal · Ganti kelas · Lulus XII</div></div>
+        <div class="box"><h3><i class="fas fa-wifi"></i> RFID</h3><div class="txt" style="font-size:1rem">Daftar kartu siswa & guru · Auto-detect</div></div>
+        <div class="box"><h3><i class="fas fa-id-card"></i> Cetak Kartu</h3><div class="txt" style="font-size:1rem">CR80 · QR code · Foto · A4</div></div>
+        <div class="box"><h3><i class="fas fa-file-alt"></i> Raport</h3><div class="txt" style="font-size:1rem">Per semester/bulan · Print A4</div></div>
+        <div class="box"><h3><i class="fas fa-cog"></i> Pengaturan</h3><div class="txt" style="font-size:1rem">Jam · Identitas · Poin · Zona</div></div>
       </div>
     </div>
   </div>
@@ -567,8 +580,8 @@
         <div class="tl-item"><div class="time">14:30</div><div class="desc">Sholat Ashar — scan QR</div></div>
         <div class="tl-item"><div class="time">15:00</div><div class="desc">Pulang — scan kartu</div></div>
       </div>
-      <div class="box green"><h3><i class="fas fa-people-roof"></i> Orang Tua Cek Kapan Saja</h3><div class="txt" style="font-size:1.05rem">1. Buka menu Cek Publik<br>2. Ketik NIS anak<br>3. Lihat kehadiran hari ini</div>
-        <div style="margin-top:.8rem;padding:.6rem;background:rgba(16,185,129,.1);border-radius:8px;font-size:.95rem;color:var(--text)"><i class="fas fa-clock"></i> <b>Real-time</b> — tidak perlu tunggu laporan</div>
+      <div class="box ok"><h3><i class="fas fa-people-roof"></i> Orang Tua Cek Kapan Saja</h3><div class="txt" style="font-size:1.1rem">1. Buka menu Cek Publik<br>2. Ketik NIS anak<br>3. Lihat kehadiran hari ini</div>
+        <div style="margin-top:.9rem;padding:.7rem;background:rgba(16,185,129,.15);border-radius:8px;font-size:1.05rem;color:#fff"><i class="fas fa-clock"></i> <b>Real-time</b> — tidak perlu tunggu laporan</div>
       </div>
     </div>
   </div>
@@ -587,7 +600,7 @@
         <div class="tl-item"><div class="time">14:30</div><div class="desc">Scan sholat Ashar</div></div>
         <div class="tl-item"><div class="time">15:00-15:30</div><div class="desc">Scan siswa pulang</div></div>
       </div>
-      <div class="box blue" style="text-align:center;justify-content:center"><h3 style="justify-content:center;font-size:1.2rem"><i class="fas fa-bolt"></i> Kecepatan</h3><div class="big" style="font-size:3.5rem">&lt;2s</div><div class="lbl">per siswa</div></div>
+      <div class="box ok" style="text-align:center;justify-content:center"><h3 style="justify-content:center"><i class="fas fa-bolt"></i> Kecepatan</h3><div class="big" style="color:var(--success-l);font-size:3.5rem">&lt;2s</div><div class="lbl">per siswa</div></div>
     </div>
   </div>
 
@@ -612,10 +625,10 @@
   <div class="slide end center" data-title="Terima Kasih">
     <h1>Terima Kasih</h1>
     <p>Bapak/Ibu Kepala Sekolah, para Guru, dan Staf</p>
-    <p style="color:var(--brand);font-weight:800;font-size:1.5rem">SMK Bhakti Kencana Ciawi</p>
+    <p style="color:#fff;font-weight:800;font-size:1.5rem">SMK Bhakti Kencana Ciawi</p>
     <div class="sub"><i class="fas fa-globe"></i> smkbkciawi.github.io/bkcsiplin</div>
     <div class="quote">
-      <i class="fas fa-quote-left" style="color:var(--brand);margin-right:.4rem"></i>
+      <i class="fas fa-quote-left" style="color:var(--brand-3);margin-right:.4rem"></i>
       Dengan sistem ini, kita tidak hanya mencatat kehadiran — kita membangun <b>karakter</b>, menumbuhkan <b>disiplin</b>, dan memuliakan <b>proses pendidikan</b>.
     </div>
     <div class="sub" style="margin-top:1.5rem;font-style:italic">Wassalamu'alaikum warahmatullahi wabarakatuh</div>

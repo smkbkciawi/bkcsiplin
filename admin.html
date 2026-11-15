@@ -2199,13 +2199,14 @@ function renderRaport(d) {
 
       const html = `
         <div class="raport-hal">
-          <div class="raport-header">
-            ${fotoHtml}
-            <div class="info">
-              <h2>RAPORT SISWA</h2>
-              <p>SMK Bhakti Kencana Ciawi · ${escapeHtml(labelPeriode)}</p>
-            </div>
-          </div>
+                        <div class="raport-header">
+                <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo" style="width:60px; height:auto; object-fit:contain;">
+                ${fotoHtml}
+                <div class="info" style="flex:1; margin-left:10px;">
+                  <h2>RAPORT SISWA</h2>
+                  <p>SMK Bhakti Kencana Ciawi · ${escapeHtml(labelPeriode)}</p>
+                </div>
+              </div>
           <div class="raport-identitas">
             <div><b>Nama:</b> <span>${escapeHtml(s.nama)}</span></div>
             <div><b>NIS:</b> <span>${escapeHtml(s.nis)}</span></div>
@@ -2332,9 +2333,10 @@ async function cetakMassalRaport() {
           // Susun halaman
           htmlGabungan += `
             <div class="raport-hal">
-              <div class="raport-header">
+                            <div class="raport-header">
+                <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo" style="width:60px; height:auto; object-fit:contain;">
                 ${fotoHtml}
-                <div class="info">
+                <div class="info" style="flex:1; margin-left:10px;">
                   <h2>RAPORT SISWA</h2>
                   <p>SMK Bhakti Kencana Ciawi · ${escapeHtml(labelPeriode)}</p>
                 </div>
@@ -2408,6 +2410,8 @@ function cetakRaportSekarang() {
   jendelaCetak.document.write(`
     <html>
       <head>
+        <head>
+        <base href="${window.location.origin}${window.location.pathname}">
         <title>Cetak Raport</title>
         ${linkTags}
         <style>

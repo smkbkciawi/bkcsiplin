@@ -342,7 +342,7 @@ async function sinkronData() {
   }
   
   let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
-  if (antrean.length === 0) return tarikData(); // Jika kosong, jadikan Tarik Data
+  if (antrean.length === 0) return tarikData(); 
 
   const btn = $('btn-sinkron');
   const startTime = Date.now();
@@ -357,6 +357,7 @@ async function sinkronData() {
   let berhasil = 0, ditolak = 0, gagalJaringan = 0;
   let detailError = [];
   let total = antrean.length;
+  let sisaAntrean = [];
 
   for (let i = 0; i < antrean.length; i++) {
     const data = antrean[i];
@@ -375,56 +376,62 @@ async function sinkronData() {
       if (res.ok) {
         berhasil++;
       } else {
-        ditolak++;
-        detailError.push(`${nama}: ${res.message}`);
+        // JIKA GAGAL KARENA SESI KEDALUWARSA / TOKEN OFFLINE
+        // Kita JANGAN buang datanya, simpan kembali ke sisaAntrean
+        if (res.message && res.message.toLowerCase().includes('sesi')) {
+            sisaAntrean.push(data);
+            detailError.push(`${nama}: ${res.message} (Silakan login pakai akun Guru asli)`);
+        } else {
+            ditolak++;
+            detailError.push(`${nama}: ${res.message}`);
+        }
       }
-      
-      antrean.shift(); 
-      localStorage.setItem('bkc_antrean_absen', JSON.stringify(antrean));
-      updateAntreanBadge();
-
     } catch (e) {
-      gagalJaringan = antrean.length; 
-      break; 
+      sisaAntrean.push(data); 
+      gagalJaringan++;
     }
   }
 
+  localStorage.setItem('bkc_antrean_absen', JSON.stringify(sisaAntrean));
+  updateAntreanBadge();
+
   const durasi = ((Date.now() - startTime) / 1000).toFixed(1);
-  let statusLog = (gagalJaringan === 0 && ditolak === 0) ? 'Berhasil' : (berhasil > 0 ? 'Sebagian' : 'Gagal');
-  let ketLog = `${berhasil} masuk, ${ditolak} ditolak, ${gagalJaringan} sisa. (Waktu: ${durasi}s)`;
+  let statusLog = (gagalJaringan === 0 && ditolak === 0 && sisaAntrean.length === 0) ? 'Berhasil' : (berhasil > 0 ? 'Sebagian' : 'Gagal');
+  let ketLog = `${berhasil} masuk, ${ditolak} ditolak, ${sisaAntrean.length} sisa. (Waktu: ${durasi}s)`;
   
   tambahLog('SINKRON', statusLog, ketLog, detailError);
 
   // Sinkronisasi Dua Arah
-  btn.innerHTML = `<div class="spinner"></div> Memperbarui Data Lokal...`;
-  try {
-    const resSiswa = await apiCall('getMasterSiswa');
-    const resGuru = await apiCall('getMasterGuruFull');
-    const resSetting = await apiCall('getPengaturan');
+  if (sisaAntrean.length === 0) {
+      btn.innerHTML = `<div class="spinner"></div> Memperbarui Data Lokal...`;
+      try {
+        const resSiswa = await apiCall('getMasterSiswa');
+        const resGuru = await apiCall('getMasterGuruFull');
+        const resSetting = await apiCall('getPengaturan');
 
-    if (resSiswa.ok && resGuru.ok) {
-        localStorage.setItem('bkc_master_siswa', JSON.stringify(resSiswa.data || []));
-        localStorage.setItem('bkc_master_guru', JSON.stringify(resGuru.data || []));
-        localStorage.setItem('bkc_setting', JSON.stringify(resSetting.data || {}));
-        updateSettingInfo(resSetting.data);
-        tambahLog('TARIK DATA', 'Berhasil', 'Sinkronisasi 2 arah: Data lokal berhasil diperbarui.');
-    }
-  } catch(err) {
-    console.log("Gagal auto-tarik data setelah sinkron:", err);
+        if (resSiswa.ok && resGuru.ok) {
+            localStorage.setItem('bkc_master_siswa', JSON.stringify(resSiswa.data || []));
+            localStorage.setItem('bkc_master_guru', JSON.stringify(resGuru.data || []));
+            localStorage.setItem('bkc_setting', JSON.stringify(resSetting.data || {}));
+            updateSettingInfo(resSetting.data);
+        }
+      } catch(err) {
+        console.log("Gagal auto-tarik data:", err);
+      }
   }
   
-  if (gagalJaringan > 0) bunyiNotif(false); else bunyiNotif(true);
+  if (gagalJaringan > 0 || sisaAntrean.length > 0) bunyiNotif(false); else bunyiNotif(true);
   
   btn.disabled = false;
   btn.style.background = ''; 
   btn.style.color = '';
   btn.style.borderColor = '';
   btn.onclick = sinkronData; 
-  btn.innerHTML = `⬆️ Sinkron (<span id="antrean-count">${antrean.length}</span>)`;
+  btn.innerHTML = `⬆️ Sinkron (<span id="antrean-count">${sisaAntrean.length}</span>)`;
 
-  let pesan = `Sinkronisasi Selesai dalam ${durasi} detik:\n✅ ${berhasil} data masuk.\n📥 Data Master otomatis diperbarui.\n`;
-  if (ditolak > 0) pesan += `⚠️ ${ditolak} data ditolak.\n`;
-  if (gagalJaringan > 0) pesan += `❌ ${gagalJaringan} data gagal (Internet terputus).\n`;
+  let pesan = `Sinkronisasi Selesai dalam ${durasi} detik:\n✅ ${berhasil} data masuk.\n`;
+  if (ditolak > 0) pesan += `⚠️ ${ditolak} data ditolak (duplikat).\n`;
+  if (sisaAntrean.length > 0) pesan += `⏳ ${sisaAntrean.length} data ditahan (Sesi habis). Login akun asli & sinkron lagi.\n`;
   alert(pesan);
 }
 

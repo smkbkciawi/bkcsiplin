@@ -38,12 +38,13 @@
   .status-badge.offline { background: rgba(255,49,49,.1); color: var(--neon-red); border: 1px solid var(--neon-red); }
   
   .btn { border: none; padding: .6rem 1.2rem; border-radius: 8px; font-weight: 800; font-size: .85rem; cursor: pointer; transition: .2s; display: flex; align-items: center; justify-content: center; gap: .5rem; }
-  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn:disabled { opacity: .8; cursor: pointer; }
   .btn-pull { background: rgba(0,243,255,.1); color: var(--neon-blue); border: 1px solid var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,.2); min-width: 130px; }
   .btn-pull:hover { box-shadow: 0 0 20px rgba(0,243,255,.5); }
   .btn-sync { background: rgba(57,255,20,.1); color: var(--neon-green); border: 1px solid var(--neon-green); box-shadow: 0 0 10px rgba(57,255,20,.2); min-width: 130px; }
   .btn-sync:hover { box-shadow: 0 0 20px rgba(57,255,20,.5); }
-  .btn-logout { background: rgba(239,68,68,.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,.4); padding: .5rem; border-radius: 8px; cursor: pointer; }
+  .btn-logout { background: rgba(239,68,68,.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,.4); padding: .6rem .8rem; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: .2s; }
+  .btn-logout:hover { background: rgba(239,68,68,.4); }
 
   main { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; padding: 1.5rem; flex: 1; }
   
@@ -220,12 +221,22 @@ async function apiCall(action, payload = {}) {
   if (state.token) formData.append('token', state.token);
   formData.append('payload', JSON.stringify(payload));
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formData.toString()
-  });
-  return await response.json();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString(),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return await response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
 }
 
 // ==========================================
@@ -277,14 +288,20 @@ async function tarikData() {
   if (!navigator.onLine) return alert("Gagal: Internet mati. Nyalakan WiFi dulu.");
   
   const btn = $('btn-tarik');
-  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Menarik...';
-
+  const startTime = Date.now();
+  btn.disabled = true; 
+  
   try {
+    btn.innerHTML = '<div class="spinner"></div> Menarik Siswa...';
     const resSiswa = await apiCall('getMasterSiswa');
+    if (!resSiswa.ok) throw new Error(resSiswa.message);
+    
+    btn.innerHTML = '<div class="spinner"></div> Menarik Guru...';
     const resGuru = await apiCall('getMasterGuruFull');
+    if (!resGuru.ok) throw new Error(resGuru.message);
+    
+    btn.innerHTML = '<div class="spinner"></div> Menarik Pengaturan...';
     const resSetting = await apiCall('getPengaturan');
-
-    if (!resSiswa.ok || !resGuru.ok) throw new Error(resSiswa.message || resGuru.message || "Server menolak.");
 
     localStorage.setItem('bkc_master_siswa', JSON.stringify(resSiswa.data || []));
     localStorage.setItem('bkc_master_guru', JSON.stringify(resGuru.data || []));
@@ -292,10 +309,15 @@ async function tarikData() {
 
     updateSettingInfo(resSetting.data);
 
-    tambahLog('TARIK DATA', 'Berhasil', `Data lokal diperbarui.`);
-    alert(`✅ Tarik Data Berhasil!\nSiswa: ${resSiswa.data.length}\nGuru: ${resGuru.data.length}`);
+    const durasi = ((Date.now() - startTime) / 1000).toFixed(1);
+    tambahLog('TARIK DATA', 'Berhasil', `Selesai dalam ${durasi} detik. (Siswa: ${resSiswa.data.length}, Guru: ${resGuru.data.length})`);
+    
+    bunyiNotif(true);
+    alert(`✅ Tarik Data Berhasil!\nWaktu: ${durasi} detik\nSiswa: ${resSiswa.data.length}\nGuru: ${resGuru.data.length}`);
   } catch (err) {
-    tambahLog('TARIK DATA', 'Gagal', err.message);
+    const durasi = ((Date.now() - startTime) / 1000).toFixed(1);
+    tambahLog('TARIK DATA', 'Gagal', `Gagal dalam ${durasi} detik. (${err.message})`);
+    bunyiNotif(false);
     alert("❌ Gagal menarik data: " + err.message);
   } finally {
     btn.disabled = false; btn.textContent = '⬇️ Tarik Data';
@@ -311,24 +333,34 @@ function updateSettingInfo(setting) {
 }
 
 // ==========================================
-// SINKRON DATA
+// SINKRON DATA (Anti-Macet & Simpan Progres)
 // ==========================================
 async function sinkronData() {
-  if (!navigator.onLine) return alert("Gagal: Internet mati. Nyalakan WiFi dulu.");
+  if (!navigator.onLine) {
+      bunyiNotif(false);
+      return alert("Gagal: Internet mati. Nyalakan WiFi dulu.");
+  }
   
   let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
-  if (antrean.length === 0) return alert("Tidak ada data absen yang perlu disinkronkan.");
+  if (antrean.length === 0) return tarikData(); // Jika kosong, jadikan Tarik Data
 
   const btn = $('btn-sinkron');
+  const startTime = Date.now();
   btn.disabled = true; 
-  btn.innerHTML = '<div class="spinner"></div> Sinkron...';
+  btn.style.background = 'rgba(255,49,49,.2)';
+  btn.style.color = 'var(--neon-red)';
+  btn.style.borderColor = 'var(--neon-red)';
+  
+  btn.onclick = () => { location.reload(); }; 
+  btn.innerHTML = `<div class="spinner"></div> Stop (0/${antrean.length})...`;
 
   let berhasil = 0, ditolak = 0, gagalJaringan = 0;
-  let sisaAntrean = [];
   let detailError = [];
+  let total = antrean.length;
 
   for (let i = 0; i < antrean.length; i++) {
     const data = antrean[i];
+    btn.innerHTML = `<div class="spinner"></div> Stop (${i+1}/${total})...`;
     
     let nama = data.nis;
     let dataSiswa = JSON.parse(localStorage.getItem('bkc_master_siswa') || '[]');
@@ -344,30 +376,56 @@ async function sinkronData() {
         berhasil++;
       } else {
         ditolak++;
-        detailError.push(`${nama} (${data.nis}): ${res.message}`);
+        detailError.push(`${nama}: ${res.message}`);
       }
+      
+      antrean.shift(); 
+      localStorage.setItem('bkc_antrean_absen', JSON.stringify(antrean));
+      updateAntreanBadge();
+
     } catch (e) {
-      sisaAntrean.push(data); 
-      gagalJaringan++;
+      gagalJaringan = antrean.length; 
+      break; 
     }
   }
 
-  localStorage.setItem('bkc_antrean_absen', JSON.stringify(sisaAntrean));
-  updateAntreanBadge();
-  
+  const durasi = ((Date.now() - startTime) / 1000).toFixed(1);
   let statusLog = (gagalJaringan === 0 && ditolak === 0) ? 'Berhasil' : (berhasil > 0 ? 'Sebagian' : 'Gagal');
-  let ketLog = `${berhasil} masuk, ${ditolak} ditolak, ${gagalJaringan} sisa (jaringan).`;
+  let ketLog = `${berhasil} masuk, ${ditolak} ditolak, ${gagalJaringan} sisa. (Waktu: ${durasi}s)`;
   
   tambahLog('SINKRON', statusLog, ketLog, detailError);
+
+  // Sinkronisasi Dua Arah
+  btn.innerHTML = `<div class="spinner"></div> Memperbarui Data Lokal...`;
+  try {
+    const resSiswa = await apiCall('getMasterSiswa');
+    const resGuru = await apiCall('getMasterGuruFull');
+    const resSetting = await apiCall('getPengaturan');
+
+    if (resSiswa.ok && resGuru.ok) {
+        localStorage.setItem('bkc_master_siswa', JSON.stringify(resSiswa.data || []));
+        localStorage.setItem('bkc_master_guru', JSON.stringify(resGuru.data || []));
+        localStorage.setItem('bkc_setting', JSON.stringify(resSetting.data || {}));
+        updateSettingInfo(resSetting.data);
+        tambahLog('TARIK DATA', 'Berhasil', 'Sinkronisasi 2 arah: Data lokal berhasil diperbarui.');
+    }
+  } catch(err) {
+    console.log("Gagal auto-tarik data setelah sinkron:", err);
+  }
   
-  let pesan = `Sinkronisasi Selesai:\n✅ ${berhasil} data masuk.\n`;
-  if (ditolak > 0) pesan += `⚠️ ${ditolak} data ditolak (lihat Log).\n`;
-  if (gagalJaringan > 0) pesan += `❌ ${gagalJaringan} data gagal jaringan.\n`;
-  
-  alert(pesan);
+  if (gagalJaringan > 0) bunyiNotif(false); else bunyiNotif(true);
   
   btn.disabled = false;
-  btn.innerHTML = `⬆️ Sinkron (<span id="antrean-count">${sisaAntrean.length}</span>)`;
+  btn.style.background = ''; 
+  btn.style.color = '';
+  btn.style.borderColor = '';
+  btn.onclick = sinkronData; 
+  btn.innerHTML = `⬆️ Sinkron (<span id="antrean-count">${antrean.length}</span>)`;
+
+  let pesan = `Sinkronisasi Selesai dalam ${durasi} detik:\n✅ ${berhasil} data masuk.\n📥 Data Master otomatis diperbarui.\n`;
+  if (ditolak > 0) pesan += `⚠️ ${ditolak} data ditolak.\n`;
+  if (gagalJaringan > 0) pesan += `❌ ${gagalJaringan} data gagal (Internet terputus).\n`;
+  alert(pesan);
 }
 
 function updateAntreanBadge() {
@@ -376,7 +434,7 @@ function updateAntreanBadge() {
 }
 
 // ==========================================
-// PROSES ABSEN (PERBAIKAN LOGIKA JAM)
+// PROSES ABSEN
 // ==========================================
 function prosesPresensi(kode, sumber) {
   if (!state.token) return;
@@ -413,7 +471,6 @@ function prosesPresensi(kode, sumber) {
     return;
   }
 
-  // --- PERBAIKAN LOGIKA WAKTU ---
   let statusTeks = 'Tercatat';
   let isTerlambat = false;
   
@@ -422,7 +479,6 @@ function prosesPresensi(kode, sumber) {
       let jm = String(setting.jam_masuk || '07:15').substring(0,5);
       let toleransi = Number(setting.toleransi_menit) || 0;
       
-      // 1. Cek jika absen masuk sudah lewat jam pulang
       if (jamNow > jp) {
           $('status-nama').textContent = 'Gagal Absen';
           $('status-nama').style.color = 'var(--neon-red)';
@@ -431,7 +487,6 @@ function prosesPresensi(kode, sumber) {
           return;
       }
 
-      // 2. Hitung Keterlambatan
       let [h, m] = jm.split(':').map(Number);
       let totalMenit = (h*60)+m+toleransi;
       let batasTerlambat = `${String(Math.floor(totalMenit/60)).padStart(2,'0')}:${String(totalMenit%60).padStart(2,'0')}`;
@@ -489,6 +544,14 @@ function bunyiScanner(pola) {
   } catch (e) {}
 }
 
+function bunyiNotif(isSukses) {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const play = (f,s,d) => { const o=ctx.createOscillator();const g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.5,ctx.currentTime+s);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+s+d);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+s);o.stop(ctx.currentTime+s+d); };
+    if (isSukses) { play(600,0,.1); play(800,0.1,.2); } else { play(400,0,.15); play(200,0.15,.3); }
+  } catch(e) {}
+}
+
 function fokusRFID() { try { $('rfid-input').focus(); } catch (_) {} }
 setInterval(() => { if(!state.token) return; if(document.activeElement.id !== 'search-input') fokusRFID(); }, 1000);
 
@@ -530,10 +593,22 @@ function tickClock() {
 }
 setInterval(tickClock, 1000); tickClock();
 
-window.addEventListener('online', () => { $('status-koneksi').className = 'status-badge online'; $('status-koneksi').textContent = '🟢 ONLINE'; });
+window.addEventListener('online', () => { 
+    $('status-koneksi').className = 'status-badge online'; 
+    $('status-koneksi').textContent = '🟢 ONLINE'; 
+    
+    let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
+    if (antrean.length > 0) {
+        console.log("Internet menyala, memulai auto-sinkron...");
+        sinkronData(); 
+    }
+});
 window.addEventListener('offline', () => { $('status-koneksi').className = 'status-badge offline'; $('status-koneksi').textContent = '🔴 OFFLINE'; });
 if(navigator.onLine) { $('status-koneksi').className = 'status-badge online'; $('status-koneksi').textContent = '🟢 ONLINE'; }
 
+// ==========================================
+// LOGIN & INIT
+// ==========================================
 async function doLogin() {
   const username = $('login-user').value.trim(); 
   const pin = $('login-pin').value.trim();
@@ -577,8 +652,10 @@ $('btn-login').addEventListener('click', doLogin);
 $('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
 function doLogout() {
-  sessionStorage.clear();
-  location.reload();
+  if(confirm('Yakin ingin logout dari kios?')) {
+      sessionStorage.clear();
+      location.reload();
+  }
 }
 
 (function init() {

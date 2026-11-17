@@ -497,14 +497,12 @@ function prosesPresensi(kode, sumber) {
   const jamNow = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   const tglKey = now.toISOString().slice(0,10);
   
-  if (state.scannedHariIni[`${tglKey}_${kode}`]) {
-    $('status-nama').textContent = 'Sudah Tercatat';
-    $('status-nama').style.color = 'var(--neon-yellow)';
-    $('status-sub').textContent = `Kode ${kode} sudah absen hari ini.`;
-    bunyiScanner('gagal');
-    return;
+  let memoriHariIni = JSON.parse(localStorage.getItem('bkc_memori_tap') || '{}');
+  if (memoriHariIni.tanggal !== tglKey) {
+      memoriHariIni = { tanggal: tglKey, data: {} };
   }
 
+  // Cari data orangnya dulu (Siswa atau Guru)
   let dataSiswa = JSON.parse(localStorage.getItem('bkc_master_siswa') || '[]');
   let dataGuru = JSON.parse(localStorage.getItem('bkc_master_guru') || '[]');
   let setting = JSON.parse(localStorage.getItem('bkc_setting') || '{}');
@@ -525,6 +523,55 @@ function prosesPresensi(kode, sumber) {
     return;
   }
 
+  // ==========================================
+  // LOGIKA JIKA SUDAH PERNAH TAP HARI INI (TAP KEDUA)
+  // ==========================================
+  if (memoriHariIni.data[kode]) {
+    let tapPertama = memoriHariIni.data[kode];
+    let [h1, m1] = tapPertama.split(':').map(Number);
+    let [h2, m2] = jamNow.split(':').map(Number);
+    let selisihMenit = ((h2*60)+m2) - ((h1*60)+m1);
+
+    if (tipe === 'Guru') {
+        // ATURAN GURU: Minimal 2 jam
+        if (selisihMenit < 120) {
+            $('status-nama').textContent = 'Belum Waktunya Pulang';
+            $('status-nama').style.color = 'var(--neon-yellow)';
+            $('status-sub').textContent = `Guru minimal 2 jam. Anda baru di sekolah ${selisihMenit} menit.`;
+            bunyiScanner('gagal');
+            return;
+        }
+    } else {
+        // ATURAN SISWA: Cek Jam Pulang
+        let jp = String(setting.jam_pulang || '15:00').substring(0,5);
+        if (jamNow < jp) {
+            $('status-nama').textContent = 'Belum Waktunya Pulang';
+            $('status-nama').style.color = 'var(--neon-yellow)';
+            $('status-sub').textContent = `Siswa baru bisa pulang jam ${jp}.`;
+            bunyiScanner('gagal');
+            return;
+        }
+    }
+
+    // Jika lolos aturan di atas, proses Tap Pulang
+    $('status-nama').textContent = 'Tap Pulang Berhasil';
+    $('status-nama').style.color = 'var(--neon-green)';
+    $('status-sub').textContent = `Tercatat Pulang pada ${jamNow}.`;
+    bunyiScanner('tepat');
+    
+    delete memoriHariIni.data[kode];
+    localStorage.setItem('bkc_memori_tap', JSON.stringify(memoriHariIni));
+
+    let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
+    antrean.push({ nis: kode, sumber: sumber, waktu_tap: now.toISOString() });
+    localStorage.setItem('bkc_antrean_absen', JSON.stringify(antrean));
+    updateAntreanBadge();
+    return;
+  }
+
+  // ==========================================
+  // LOGIKA JIKA TAP PERTAMA (MASUK)
+  // ==========================================
   let statusTeks = 'Tercatat';
   let isTerlambat = false;
   
@@ -533,6 +580,7 @@ function prosesPresensi(kode, sumber) {
       let jm = String(setting.jam_masuk || '07:15').substring(0,5);
       let toleransi = Number(setting.toleransi_menit) || 0;
       
+      // Siswa tidak boleh absen masuk jika sudah lewat jam pulang
       if (jamNow > jp) {
           $('status-nama').textContent = 'Gagal Absen';
           $('status-nama').style.color = 'var(--neon-red)';
@@ -541,6 +589,7 @@ function prosesPresensi(kode, sumber) {
           return;
       }
 
+      // Cek Terlambat
       let [h, m] = jm.split(':').map(Number);
       let totalMenit = (h*60)+m+toleransi;
       let batasTerlambat = `${String(Math.floor(totalMenit/60)).padStart(2,'0')}:${String(totalMenit%60).padStart(2,'0')}`;
@@ -551,12 +600,15 @@ function prosesPresensi(kode, sumber) {
       }
   }
 
+  // Tampilkan Sukses Tap Masuk
   $('status-nama').textContent = orang.nama;
   $('status-nama').style.color = isTerlambat ? 'var(--neon-yellow)' : 'var(--neon-green)';
   $('status-sub').textContent = `${tipe} · ${jamNow} WIB · ${statusTeks}`;
   bunyiScanner(isTerlambat ? 'terlambat' : 'tepat');
   
-  state.scannedHariIni[`${tglKey}_${kode}`] = true;
+  // Simpan ke memori laptop
+  memoriHariIni.data[kode] = jamNow;
+  localStorage.setItem('bkc_memori_tap', JSON.stringify(memoriHariIni));
 
   state.riwayat.unshift({ nama: orang.nama, tipe, jam: jamNow, status: statusTeks, isTerlambat });
   if(state.riwayat.length > 10) state.riwayat.pop();

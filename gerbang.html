@@ -358,21 +358,65 @@ function tampilStatus(kelas, nama, sub, badge) {
 }
 
 async function doLogin() {
-  const username = $('login-user').value.trim(); const pin = $('login-pin').value.trim();
-  const alertEl = $('login-alert'); alertEl.classList.remove('show');
-  if (!username || !pin) { alertEl.textContent = 'ID/Username dan PIN wajib diisi.'; alertEl.classList.add('show'); return; }
-  const btn = $('btn-login'); btn.disabled = true; btn.textContent = 'Memeriksa…';
+  const username = $('login-user').value.trim(); 
+  const pin = $('login-pin').value.trim();
+  const alertEl = $('login-alert'); 
+  alertEl.classList.remove('show');
+  
+  if (!username || !pin) { 
+    alertEl.textContent = 'ID/Username dan PIN wajib diisi.'; 
+    alertEl.classList.add('show'); 
+    return; 
+  }
+  
+  const btn = $('btn-login'); 
+  btn.disabled = true; 
+  btn.textContent = 'Memeriksa…';
+  
   try {
     const res = await apiCall('login', { username, pin, modul: MODUL }, true);
-    if (!res.ok) { alertEl.textContent = res.message || 'Login gagal.'; alertEl.classList.add('show'); return; }
-    state.token = res.data.token; state.petugas = res.data.nama; state.role = res.data.role;
-    sessionStorage.setItem('bkc_token', state.token); sessionStorage.setItem('bkc_petugas', state.petugas); sessionStorage.setItem('bkc_role', state.role);
-    $('petugas-label').textContent = state.petugas; $('sesi-pill').style.display = 'inline-flex';
-    $('login-modal').classList.remove('show'); $('login-user').value = ''; $('login-pin').value = '';
+    
+    if (!res || !res.ok) { 
+      alertEl.textContent = (res && res.message) ? res.message : 'Login gagal. Cek koneksi.'; 
+      alertEl.classList.add('show'); 
+      return; 
+    }
+    
+    state.token = res.data.token; 
+    state.petugas = res.data.nama; 
+    state.role = res.data.role;
+    
+    sessionStorage.setItem('bkc_token', state.token); 
+    sessionStorage.setItem('bkc_petugas', state.petugas); 
+    sessionStorage.setItem('bkc_role', state.role);
+    
+    $('petugas-label').textContent = state.petugas; 
+    $('sesi-pill').style.display = 'inline-flex';
+    $('login-modal').classList.remove('show'); 
+    $('login-user').value = ''; 
+    $('login-pin').value = '';
+    
     tampilStatus('ok', 'Siap menerima presensi', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
-    mulaiIdleWatcher(); mulaiHeartbeat(); fokusRFID();
-  } catch (err) { alertEl.textContent = 'Tidak dapat menghubungi server.'; alertEl.classList.add('show'); }
-  finally { btn.disabled = false; btn.textContent = 'Masuk & Buka Kios'; }
+    mulaiIdleWatcher(); 
+    mulaiHeartbeat(); 
+    fokusRFID();
+    
+  } catch (err) { 
+    // PERBAIKAN: Cek apakah token sebenarnya sudah masuk
+    if (state && state.token) {
+        $('login-modal').classList.remove('show');
+        $('petugas-label').textContent = state.petugas || 'Petugas';
+        $('sesi-pill').style.display = 'inline-flex';
+        tampilStatus('ok', 'Siap menerima presensi (Koneksi lambat)', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
+        mulaiIdleWatcher(); mulaiHeartbeat(); fokusRFID();
+    } else {
+        alertEl.textContent = 'Koneksi lambat, silakan coba klik Masuk lagi.'; 
+        alertEl.classList.add('show'); 
+    }
+  } finally { 
+    btn.disabled = false; 
+    btn.textContent = 'Masuk & Buka Kios'; 
+  }
 }
 $('btn-login').addEventListener('click', doLogin);
 $('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });

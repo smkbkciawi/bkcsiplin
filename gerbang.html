@@ -133,6 +133,9 @@
     <div class="card">
       <div class="clock-container">
         <div class="petugas-name" id="petugas-display">Petugas: -</div>
+        <div id="warning-offline" style="display:none; color:var(--neon-yellow); font-size:0.9rem; font-weight:700; margin-bottom:1rem;">
+            ⚠️ Mode Darurat: Tarik Data & Sinkron dinonaktifkan
+        </div>
         <div class="clock-time" id="clock-time">--:--:--</div>
         <div class="clock-date" id="clock-date">Memuat...</div>
         <div class="setting-info">
@@ -165,7 +168,12 @@
 
   <div class="log-section">
     <div class="card">
-      <h3 style="margin-bottom:1rem; font-size:1rem; color:var(--neon-blue);">📋 Log Aktivitas Tarik Data & Sinkronisasi</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <h3 style="font-size:1rem; color:var(--neon-blue); margin:0;">📋 Log Aktivitas Tarik Data & Sinkronisasi</h3>
+        <button class="btn" onclick="hapusAntreanDarurat()" style="background:rgba(255,49,49,.1); color:var(--neon-red); border:1px solid var(--neon-red); font-size:.75rem; padding:.4rem .8rem;">
+          🗑️ Hapus Antrean
+        </button>
+      </div>
       <div style="overflow-x:auto;">
         <table class="log-table">
           <thead>
@@ -285,6 +293,10 @@ function renderLog() {
 // TARIK DATA
 // ==========================================
 async function tarikData() {
+  if (state.token === 'offline-token') {
+      bunyiNotif(false);
+      return alert("Anda sedang login Mode Darurat (admin). Silakan Logout dan Login menggunakan akun Guru asli untuk menarik data.");
+  }
   if (!navigator.onLine) return alert("Gagal: Internet mati. Nyalakan WiFi dulu.");
   
   const btn = $('btn-tarik');
@@ -336,6 +348,10 @@ function updateSettingInfo(setting) {
 // SINKRON DATA (Dua Arah & Deteksi Reload)
 // ==========================================
 async function sinkronData() {
+  if (state.token === 'offline-token') {
+      bunyiNotif(false);
+      return alert("Anda sedang login Mode Darurat (admin). Silakan Logout dan Login menggunakan akun Guru asli untuk melakukan sinkronisasi.");
+  }
   if (!navigator.onLine) {
       bunyiNotif(false);
       return alert("Gagal: Internet mati. Nyalakan WiFi dulu.");
@@ -448,6 +464,27 @@ async function sinkronData() {
 function updateAntreanBadge() {
   let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
   $('antrean-count').textContent = antrean.length;
+}
+
+// ==========================================
+// HAPUS ANTREAN DARURAT
+// ==========================================
+function hapusAntreanDarurat() {
+  let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
+  if (antrean.length === 0) return alert("Antrean sudah kosong.");
+
+  let pin = prompt("PERINGATAN: Data absen yang belum disinkronkan akan dihapus permanen dari laptop ini!\n\nMasukkan PIN Admin untuk melanjutkan:");
+  
+  if (pin === "admin123") { 
+    if (confirm("Apakah Anda yakin ingin menghapus " + antrean.length + " data antrean?")) {
+      localStorage.setItem('bkc_antrean_absen', '[]');
+      updateAntreanBadge();
+      tambahLog('SISTEM', 'Berhasil', 'Antrean dibersihkan secara manual oleh Admin.');
+      alert("✅ Antrean berhasil dibersihkan.");
+    }
+  } else if (pin !== null) {
+    alert("❌ PIN salah!");
+  }
 }
 
 // ==========================================
@@ -615,7 +652,7 @@ window.addEventListener('online', () => {
     $('status-koneksi').textContent = '🟢 ONLINE'; 
     
     let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
-    if (antrean.length > 0) {
+    if (antrean.length > 0 && state.token !== 'offline-token') {
         console.log("Internet menyala, memulai auto-sinkron...");
         sinkronData(); 
     }
@@ -663,6 +700,13 @@ async function doLogin() {
 function updatePetugasUI() {
     $('petugas-label').textContent = state.petugas;
     $('petugas-display').textContent = `Petugas Piket: ${state.petugas}`;
+    
+    // Tampilkan peringatan jika login offline
+    if (state.token === 'offline-token') {
+        $('warning-offline').style.display = 'block';
+    } else {
+        $('warning-offline').style.display = 'none';
+    }
 }
 
 $('btn-login').addEventListener('click', doLogin);

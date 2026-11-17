@@ -681,6 +681,25 @@ function doLogout() {
     setTimeout(() => $('login-user').focus(), 300);
   }
 })();
+// Fungsi untuk mendeteksi sinkronisasi yang terputus karena reload
+function cekLogSinkronTerputus() {
+  let logs = JSON.parse(localStorage.getItem('bkc_log_sistem') || '[]');
+  let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
+  
+  // Cek apakah ada log terakhir dengan status "MENGIRIM" (artinya proses terhenti)
+  let adaProsesTerhenti = logs.length > 0 && logs[0].status === 'MENGIRIM';
+  
+  if (adaProsesTerhenti) {
+    if (antrean.length === 0) {
+      // Jika antrean 0, berarti sebenarnya semua data sudah terkirim sebelum reload
+      tambahLog('SINKRON', 'Berhasil', 'Sinkronisasi sebelumnya berhasil diselesaikan (via reload).');
+    } else {
+      // Jika antrean masih ada, berarti proses terhenti di tengah jalan
+      tambahLog('SINKRON', 'Terhenti', `Sinkronisasi dihentikan paksa. Tersisa ${antrean.length} data di antrean.`);
+    }
+  }
+}
+  
 </script>
 </body>
 </html>

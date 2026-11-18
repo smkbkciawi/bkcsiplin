@@ -365,39 +365,44 @@ async function sinkronData() {
   btn.disabled = true; 
   btn.innerHTML = `<div class="spinner"></div> Memproses...`;
 
-  const CHUNK_SIZE = 10; // Kirim 10 data per putaran
-  let totalTerkirim = 0;
+  const CHUNK_SIZE = 10; 
+  let totalSiswa = 0, totalGuru = 0;
+  
+  // Hitung total awal untuk log
+  let dataSiswaMaster = JSON.parse(localStorage.getItem('bkc_master_siswa') || '[]');
+  antrean.forEach(d => {
+      if (dataSiswaMaster.some(s => String(s.nis) === String(d.nis) || String(s.uid_rfid) === String(d.nis))) {
+          totalSiswa++;
+      } else {
+          totalGuru++;
+      }
+  });
 
   try {
-    // Looping selama masih ada antrean
     while (antrean.length > 0) {
-      // Ambil 10 data teratas
       const chunk = antrean.slice(0, CHUNK_SIZE);
-      btn.innerHTML = `<div class="spinner"></div> Kirim ${totalTerkirim + chunk.length}/${totalTerkirim + antrean.length}...`;
+      btn.innerHTML = `<div class="spinner"></div> Kirim ${Math.min(CHUNK_SIZE, antrean.length)} data...`;
 
-      // Kirim ke Google
       const res = await apiCall('sinkronMassalGerbang', { antrean: chunk });
-      
       if (!res.ok) throw new Error(res.message);
 
-      // JIKA SUKSES, HAPUS 10 DATA ITU DARI LAPTOP
-      totalTerkirim += chunk.length;
+      // Hapus data yang sudah terkirim dari antrean laptop
       antrean = antrean.slice(CHUNK_SIZE); 
       localStorage.setItem('bkc_antrean_absen', JSON.stringify(antrean));
       updateAntreanBadge();
     }
 
-    // Jika semua antrean habis
     const durasi = ((Date.now() - startTime) / 1000).toFixed(1);
-    tambahLog('SINKRON', 'Berhasil', `${totalTerkirim} data terkirim (Waktu: ${durasi}s)`);
+    let ketLog = `${totalSiswa} Siswa & ${totalGuru} Guru masuk (Waktu: ${durasi}s)`;
+    
+    tambahLog('SINKRON', 'Berhasil', ketLog);
     bunyiNotif(true);
-    alert(`✅ Sinkronisasi Selesai!\n${totalTerkirim} data berhasil masuk ke Spreadsheet.`);
+    alert(`✅ Sinkronisasi Selesai!\nWaktu: ${durasi} detik\n\n📊 Rincian:\n- Siswa: ${totalSiswa} data\n- Guru: ${totalGuru} data`);
 
   } catch (err) {
-    // JIKA GAGAL (Misal internet mati di tengah jalan)
     bunyiNotif(false);
-    tambahLog('SINKRON', 'Terhenti', `${totalTerkirim} terkirim, sisa ${antrean.length} di antrean.`);
-    alert(`❌ Sinkronisasi Terhenti: ${err.message}\n${totalTerkirim} data berhasil dikirim. Sisa ${antrean.length} data aman di laptop.`);
+    tambahLog('SINKRON', 'Terhenti', `Sisa ${antrean.length} di antrean.`);
+    alert(`❌ Sinkronisasi Terhenti: ${err.message}\nSisa ${antrean.length} data aman di laptop.`);
   } finally {
     btn.disabled = false;
     btn.innerHTML = `⬆️ Sinkron (<span id="antrean-count">${antrean.length}</span>)`;

@@ -485,7 +485,8 @@ function prosesPresensi(kode, sumber) {
   let isMasuk = !rec.masuk;
   
   // FITUR ANTI-ISENG 2 JAM
-  if (!isMasuk && rec.masuk) {
+  // FITUR ANTI-ISENG 2 JAM (KHUSUS GURU)
+  if (!isMasuk && rec.masuk && tipe === 'Guru') {
       let jamPertama = rec.masuk.split(':');
       let jamKedua = jamNow.split(':');
       let selisihMenit = (parseInt(jamKedua[0]) * 60 + parseInt(jamKedua[1])) - (parseInt(jamPertama[0]) * 60 + parseInt(jamPertama[1]));

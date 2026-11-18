@@ -41,7 +41,14 @@
   .setting-info { display: flex; justify-content: center; gap: 2rem; font-size: 1rem; font-weight: 700; margin-top: 1rem; }
   .setting-info span { color: var(--neon-blue); }
 
-  .status-box { padding: 2rem 1.5rem; border-radius: 12px; background: rgba(0,0,0,.3); border: 1px solid var(--border); text-align: center; transition: 0.3s; flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 200px; }
+  /* FITUR BARU: PROGRESS BAR */
+  .progress-wrap { margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,.3); border-radius: 10px; }
+  .progress-head { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: .5rem; font-weight: 700; }
+  .progress-head .pct { color: var(--neon-green); }
+  .progress-track { height: 8px; background: rgba(255,255,255,.1); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg,var(--neon-green),var(--neon-blue)); transition: width .3s; }
+
+  .status-box { padding: 2rem 1.5rem; border-radius: 12px; background: rgba(0,0,0,.3); border: 1px solid var(--border); text-align: center; transition: 0.3s; flex: 1; display: flex; flex-direction: column; justify-content: center; }
   .status-box h2 { font-size: clamp(1.8rem, 3vw, 2.5rem); margin-bottom: .5rem; }
   .status-box p { color: var(--muted); font-size: 1.1rem; }
 
@@ -57,32 +64,45 @@
   .riwayat-title { font-size: .9rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
   .riwayat-list { display: flex; flex-direction: column; gap: .5rem; overflow-y: auto; max-height: 200px; }
   .riwayat-item { display: flex; justify-content: space-between; align-items: center; padding: .8rem 1rem; border-radius: 8px; background: rgba(255,255,255,.05); border-left: 4px solid var(--neon-green); }
+  .riwayat-item.terlambat { border-left-color: var(--neon-yellow); }
   .riwayat-item b { font-size: .95rem; }
   .riwayat-item span { font-size: .8rem; color: var(--muted); }
 
-  /* MODAL LOGIN */
-  .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;}
+  /* LOG & PANTAU (FITUR ASLI YANG DIKEMBALIKAN) */
+  .log-section { grid-column: 1 / -1; margin-top: 1rem; }
+  .log-table { width: 100%; border-collapse: collapse; font-size: .85rem; background: rgba(0,0,0,.2); border-radius: 8px; overflow: hidden; }
+  .log-table th, .log-table td { padding: .8rem 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: top; }
+  .log-table th { background: rgba(0,0,0,.4); font-weight: 700; color: var(--muted); }
+  .log-table td.status-ok { color: var(--neon-green); font-weight: 700; }
+  .log-table td.status-err { color: var(--neon-red); font-weight: 700; }
+  .log-table td.status-warn { color: var(--neon-yellow); font-weight: 700; }
+
+  #rfid-input{position:fixed;left:-9999px;}
+  
+  .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;}
   .modal-overlay.show{display:flex;}
   .modal{background:var(--card);padding:2rem;border-radius:16px;width:100%;max-width:400px;border:1px solid var(--border);}
-  .modal h2 { text-align: center; margin-bottom: 1.5rem; color: var(--neon-blue); }
+  .modal h2 { text-align: center; margin-bottom: 1rem; }
   .field { margin-bottom: 1rem; }
   .field label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: .4rem; }
-  .field input { width: 100%; padding: .8rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,.3); color: #fff; font-size: 1rem; outline: none; }
-  .field input:focus { border-color: var(--neon-blue); }
+  .field input { width: 100%; padding: .8rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,.3); color: #fff; font-size: 1rem; }
   .btn-login { width: 100%; padding: 1rem; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 1rem; }
   .alert { color: var(--danger); font-size: .85rem; text-align: center; margin-bottom: 1rem; display: none; }
+  
+  .spinner { display: inline-block; width: 1rem; height: 1rem; border: 2px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  @media(max-width: 900px) { main { grid-template-columns: 1fr; } .clock-time { font-size: 5rem; } }
+  @media(max-width: 900px) { main { grid-template-columns: 1fr; } .log-section { grid-column: 1; } .clock-time { font-size: 5rem; } }
 </style>
 </head>
 <body>
-<script src="navbar.js"></script>
+  <script src="navbar.js"></script>
 
 <header>
   <div class="brand">
     <div class="brand-logo">BK</div>
     <div class="brand-txt">
-      <b>Kios Gerbang</b>
+      <b>Kios Gerbang Offline</b>
       <span id="petugas-label">Belum login</span>
     </div>
   </div>
@@ -91,6 +111,9 @@
     <div class="status-badge offline" id="status-koneksi">🔴 OFFLINE</div>
     <button class="btn btn-pull" onclick="tarikData()" id="btn-tarik">⬇️ Tarik Data</button>
     <button class="btn btn-sync" onclick="sinkronData()" id="btn-sinkron">⬆️ Sinkron (<span id="antrean-count">0</span>)</button>
+    <button class="btn" onclick="bukaPantau()" style="background:rgba(59,130,246,.2); color:var(--accent-2); border:1px solid var(--accent-2); font-size:.75rem; padding:.4rem .8rem;">
+      📊 Pantau
+    </button>
     <button class="btn-logout" onclick="doLogout()" title="Logout">⏻</button>
   </div>
 </header>
@@ -100,6 +123,9 @@
     <div class="card">
       <div class="clock-container">
         <div class="petugas-name" id="petugas-display">Petugas: -</div>
+        <div id="warning-offline" style="display:none; color:var(--neon-yellow); font-size:0.9rem; font-weight:700; margin-bottom:1rem;">
+            ⚠️ Mode Darurat: Tarik Data & Sinkron dinonaktifkan
+        </div>
         <div class="clock-time" id="clock-time">--:--:--</div>
         <div class="clock-date" id="clock-date">Memuat...</div>
         <div class="setting-info">
@@ -107,8 +133,23 @@
           <div>Jam Pulang: <span id="info-pulang">-</span></div>
         </div>
       </div>
-      
-      <div class="status-box" id="status-box">
+
+      <!-- FITUR BARU: PROGRESS BAR SISWA & GURU -->
+      <div class="progress-wrap">
+        <div class="progress-head">
+          <span>👨‍🎓 Progress Siswa</span>
+          <span class="pct" id="progress-siswa-text">0 / 0 (0%)</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progress-siswa-bar"></div></div>
+        
+        <div class="progress-head" style="margin-top: 10px;">
+          <span>👨‍🏫 Progress Guru</span>
+          <span class="pct" id="progress-guru-text">0 / 0 (0%)</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progress-guru-bar" style="background:linear-gradient(90deg,var(--neon-yellow),var(--neon-blue))"></div></div>
+      </div>
+
+      <div class="status-box" id="status-box" style="margin-top: 1rem;">
         <h2 id="status-nama" style="color:var(--neon-blue)">Menunggu Tap...</h2>
         <p id="status-sub">Silakan tap kartu RFID atau cari nama secara manual.</p>
       </div>
@@ -121,16 +162,68 @@
       <input type="text" id="search-input" placeholder="Ketik nama atau NIS..." autocomplete="off">
     </div>
     <div class="results" id="results">
-      <div style="text-align:center;padding:1rem;color:var(--muted);font-size:.9rem;">Ketik minimal 2 huruf.</div>
+      <div style="text-align:center;padding:1rem;color:var(--muted);font-size:.9rem;">Ketik minimal 2 huruf untuk mencari.</div>
     </div>
+
     <div class="riwayat-title">Riwayat Scan Hari Ini</div>
     <div class="riwayat-list" id="riwayat-list">
-      <div style="text-align:center;padding:.5rem;color:var(--muted);font-size:.85rem;">Belum ada scan.</div>
+      <div style="text-align:center;padding:.5rem;color:var(--muted);font-size:.85rem;">Belum ada scan hari ini.</div>
     </div>
   </div>
 </main>
 
-<input id="rfid-input" type="text" autocomplete="off" aria-hidden="true" style="position:fixed;left:-9999px;" />
+<!-- HALAMAN PANTAU -->
+<div id="halaman-pantau" style="display:none; padding: 1.5rem; flex-direction:column; gap:1.5rem; min-height:80vh;">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="color:var(--neon-blue); margin:0;">📊 Panel Pantau Kios</h2>
+    <button class="btn btn-pull" onclick="tutupPantau()">⬅️ Kembali ke Kios</button>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:1rem; color:var(--neon-green); margin-bottom:1rem;">🟢 Data Antrean Lokal (Belum Disinkron)</h3>
+    <div style="overflow-x:auto; max-height:250px;">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th style="width:100px;">Jam Tap</th>
+            <th>NIS / ID</th>
+            <th>Nama</th>
+            <th>Tipe</th>
+          </tr>
+        </thead>
+        <tbody id="tabel-antrean-body">
+          <tr><td colspan="4" style="text-align:center; color:var(--muted);">Antrean bersih.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="font-size:1rem; color:var(--neon-blue); margin:0;">📋 Log Aktivitas Tarik & Sinkron</h3>
+      <button class="btn" onclick="hapusAntreanDarurat()" style="background:rgba(255,49,49,.1); color:var(--neon-red); border:1px solid var(--neon-red); font-size:.75rem; padding:.4rem .8rem;">
+        🗑️ Hapus Antrean
+      </button>
+    </div>
+    <div style="overflow-x:auto; max-height:250px;">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th style="width:140px;">Tanggal & Waktu</th>
+            <th style="width:100px;">Tipe</th>
+            <th style="width:100px;">Status</th>
+            <th>Keterangan / Detail</th>
+          </tr>
+        </thead>
+        <tbody id="log-tbody">
+          <tr><td colspan="4" style="text-align:center; color:var(--muted);">Belum ada log aktivitas.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<input id="rfid-input" type="text" autocomplete="off" aria-hidden="true" />
 
 <div class="modal-overlay show" id="login-modal">
   <div class="modal">
@@ -145,7 +238,6 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 const MODUL = 'gerbang';
-const $ = (id) => document.getElementById(id);
 
 const state = {
   token: sessionStorage.getItem('bkc_token') || '',
@@ -153,7 +245,11 @@ const state = {
   riwayat: []
 };
 
-// --- API CALL (FIX UNTUK MOBILE & PC) ---
+const $ = (id) => document.getElementById(id);
+
+// ==========================================
+// FUNGSI API
+// ==========================================
 async function apiCall(action, payload = {}) {
   if (!navigator.onLine) throw new Error("Tidak ada koneksi internet");
   const formData = new URLSearchParams();
@@ -170,83 +266,148 @@ async function apiCall(action, payload = {}) {
   } catch (err) { clearTimeout(timeoutId); throw err; }
 }
 
-// --- LOGIN ---
-async function doLogin() {
-  const username = $('login-user').value.trim();
-  const pin = $('login-pin').value.trim();
-  const alertEl = $('login-alert'); alertEl.style.display = 'none';
+// ==========================================
+// LOG & PANTAU (FITUR ASLI)
+// ==========================================
+function tambahLog(tipe, status, keterangan, detail = []) {
+  let logs = JSON.parse(localStorage.getItem('bkc_log_sistem') || '[]');
+  const now = new Date();
+  const tgl = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  logs.unshift({ tgl, tipe, status, keterangan, detail });
+  if(logs.length > 50) logs.pop(); 
+  localStorage.setItem('bkc_log_sistem', JSON.stringify(logs));
+  renderLog();
+}
+
+function renderLog() {
+  let logs = JSON.parse(localStorage.getItem('bkc_log_sistem') || '[]');
+  const tbody = $('log-tbody');
+  if(!tbody) return;
+  if(logs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--muted);">Belum ada log.</td></tr>'; return; }
+  tbody.innerHTML = logs.map(l => {
+    let statusClass = l.status === 'Berhasil' ? 'status-ok' : (l.status === 'Sebagian' ? 'status-warn' : 'status-err');
+    let detailHtml = (l.detail && l.detail.length > 0) ? `<ul class="log-detail-list">` + l.detail.map(d => `<li>${d}</li>`).join('') + `</ul>` : '';
+    return `<tr><td>${l.tgl}</td><td><b>${l.tipe}</b></td><td class="${statusClass}">${l.status}</td><td>${l.keterangan} ${detailHtml}</td></tr>`;
+  }).join('');
+}
+
+function renderAntreanLokal() {
+  let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
+  let dataSiswa = JSON.parse(localStorage.getItem('bkc_master_siswa') || '[]');
+  let dataGuru = JSON.parse(localStorage.getItem('bkc_master_guru') || '[]');
+  let tbody = $('tabel-antrean-body');
+  if (!tbody) return;
+  if (antrean.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--muted);">Antrean bersih.</td></tr>'; return; }
+  tbody.innerHTML = antrean.map(d => {
+    let waktu = new Date(d.waktu_tap);
+    let jam = `${String(waktu.getHours()).padStart(2,'0')}:${String(waktu.getMinutes()).padStart(2,'0')}`;
+    let nama = d.nis; let tipe = '?';
+    let s = dataSiswa.find(x => String(x.nis) === String(d.nis) || String(x.uid_rfid) === String(d.nis));
+    if (s) { nama = s.nama; tipe = 'Siswa'; } 
+    else { let g = dataGuru.find(x => String(x.id_guru) === String(d.nis) || String(x.uid_rfid) === String(d.nis)); if (g) { nama = g.nama; tipe = 'Guru'; } }
+    return `<tr><td>${jam}</td><td><b>${d.nis}</b></td><td>${nama}</td><td>${tipe}</td></tr>`;
+  }).join('');
+}
+
+function updateAntreanBadge() {
+  let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
+  const el = $('antrean-count');
+  if(el) el.textContent = antrean.length;
+  renderAntreanLokal();
+}
+
+function bukaPantau() {
+  document.getElementById('halaman-utama').style.display = 'none';
+  document.getElementById('halaman-pantau').style.display = 'flex';
+  renderAntreanLokal(); renderLog();
+}
+
+function tutupPantau() {
+  document.getElementById('halaman-pantau').style.display = 'none';
+  document.getElementById('halaman-utama').style.display = 'grid';
+  fokusRFID();
+}
+
+function hapusAntreanDarurat() {
+  let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
+  if (antrean.length === 0) return alert("Antrean sudah kosong.");
+  let pin = prompt("PERINGATAN: Data antrean akan dihapus permanen!\n\nMasukkan PIN Admin:");
+  if (pin === "admin123") { 
+    if (confirm("Yakin ingin menghapus " + antrean.length + " data antrean?")) {
+      localStorage.setItem('bkc_antrean_absen', '[]'); updateAntreanBadge(); tambahLog('SISTEM', 'Berhasil', 'Antrean dibersihkan manual.'); alert("✅ Antrean berhasil dibersihkan.");
+    }
+  } else if (pin !== null) { alert("❌ PIN salah!"); }
+}
+
+// ==========================================
+// PROGRESS BAR BARU
+// ==========================================
+function updateProgress() {
+  let dataSiswa = JSON.parse(localStorage.getItem('bkc_master_siswa') || '[]');
+  let dataGuru = JSON.parse(localStorage.getItem('bkc_master_guru') || '[]');
+  let memori = JSON.parse(localStorage.getItem('bkc_memori_tap') || '{}');
+  let tglKey = new Date().toISOString().slice(0,10);
+  if (memori.tanggal !== tglKey) memori = { data: {} };
   
-  if (!username || !pin) { alertEl.textContent = 'ID dan PIN wajib diisi.'; alertEl.style.display = 'block'; return; }
-  
-  if (username === 'admin' && pin === 'admin') {
-      state.token = 'offline-token'; state.petugas = 'Admin Offline';
-      sessionStorage.setItem('bkc_token', state.token); sessionStorage.setItem('bkc_petugas', state.petugas);
-      updatePetugasUI(); $('login-modal').classList.remove('show'); fokusRFID(); return;
-  }
-  if (!navigator.onLine) { alertEl.textContent = 'Internet mati. Gunakan ID: admin, PIN: admin.'; alertEl.style.display = 'block'; return; }
+  let totalSiswa = dataSiswa.length;
+  let tapSiswa = 0;
+  dataSiswa.forEach(s => { if (memori.data[s.nis] && memori.data[s.nis].masuk) tapSiswa++; });
+  let pctSiswa = totalSiswa ? Math.round(tapSiswa/totalSiswa*100) : 0;
+  $('progress-siswa-text').textContent = `${tapSiswa} / ${totalSiswa} (${pctSiswa}%)`;
+  $('progress-siswa-bar').style.width = pctSiswa + '%';
 
-  const btn = $('btn-login'); btn.disabled = true; btn.textContent = 'Memeriksa…';
-  try {
-    // Kunci perbaikan: kirim username, pin, modul
-    const res = await apiCall('login', { username, pin, modul: MODUL });
-    if (!res || !res.ok) { alertEl.textContent = res.message || 'Login gagal.'; alertEl.style.display = 'block'; return; }
-    
-    state.token = res.data.token; state.petugas = res.data.nama;
-    sessionStorage.setItem('bkc_token', state.token); sessionStorage.setItem('bkc_petugas', state.petugas);
-    updatePetugasUI(); $('login-modal').classList.remove('show'); fokusRFID();
-  } catch (err) { alertEl.textContent = 'Koneksi gagal.'; alertEl.style.display = 'block'; } 
-  finally { btn.disabled = false; btn.textContent = 'Buka Kios'; }
+  let totalGuru = dataGuru.length;
+  let tapGuru = 0;
+  dataGuru.forEach(g => { if (memori.data[g.id_guru] && memori.data[g.id_guru].masuk) tapGuru++; });
+  let pctGuru = totalGuru ? Math.round(tapGuru/totalGuru*100) : 0;
+  $('progress-guru-text').textContent = `${tapGuru} / ${totalGuru} (${pctGuru}%)`;
+  $('progress-guru-bar').style.width = pctGuru + '%';
 }
 
-function updatePetugasUI() {
-  $('petugas-label').textContent = state.petugas;
-  $('petugas-display').textContent = `Petugas: ${state.petugas}`;
-}
-$('btn-login').addEventListener('click', doLogin);
-$('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
-function doLogout() {
-  if(confirm('Yakin ingin logout dari kios?')) { sessionStorage.clear(); location.reload(); }
-}
-
-// --- TARIK DATA (FIX SETTING & MEMORI TAP) ---
+// ==========================================
+// TARIK & SINKRON DATA
+// ==========================================
 async function tarikData() {
-  if (state.token === 'offline-token') return alert("Mode Darurat tidak bisa Tarik Data.");
-  if (!navigator.onLine) return alert("Internet mati.");
+  if (state.token === 'offline-token') { alert("Mode Darurat: Tarik Data dinonaktifkan."); return; }
+  if (!navigator.onLine) { alert("Internet mati."); return; }
   
   const btn = $('btn-tarik'); btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Menarik...';
+  const startTime = Date.now();
   try {
     const resSiswa = await apiCall('getMasterSiswa');
     const resGuru = await apiCall('getMasterGuruFull');
     const resSetting = await apiCall('getPengaturan');
     
-    // 1. Simpan Siswa & Guru
+    // Simpan Master Data
     if (resSiswa.ok) localStorage.setItem('bkc_master_siswa', JSON.stringify(resSiswa.data || []));
     if (resGuru.ok) localStorage.setItem('bkc_master_guru', JSON.stringify(resGuru.data || []));
 
-    // 2. Simpan Setting (FIX: verifikasi benar-benar tersimpan)
+    // Simpan Setting (FIX: wajib ada & verifikasi)
     if (resSetting.ok && resSetting.data) {
         localStorage.setItem('bkc_setting', JSON.stringify(resSetting.data));
-        updateSettingInfo(resSetting.data); // Update UI jam di layar
+        updateSettingInfo(resSetting.data);
+    } else {
+        throw new Error("Setting dari server kosong.");
     }
 
-    // 3. Simpan Memori Tap (FIX: Data pagi tidak hilang)
+    // Simpan Memori Tap (FIX: Agar data pagi tidak hilang saat clear cache)
     const today = new Date().toISOString().slice(0,10);
     const resMemori = await apiCall('getAbsenHariIni', { tanggal: today });
     if (resMemori.ok && resMemori.data) {
         let memoriLokal = JSON.parse(localStorage.getItem('bkc_memori_tap') || '{}');
         if (memoriLokal.tanggal !== today) memoriLokal = { tanggal: today, data: {} };
-        
-        // Timpa data lokal dengan data dari server (Server = Sumber Kebenaran)
-        for (let kode in resMemori.data) {
-            memoriLokal.data[kode] = resMemori.data[kode];
-        }
+        for (let kode in resMemori.data) { memoriLokal.data[kode] = resMemori.data[kode]; }
         localStorage.setItem('bkc_memori_tap', JSON.stringify(memoriLokal));
     }
 
+    updateProgress();
+    const durasi = ((Date.now() - startTime) / 1000).toFixed(1);
+    tambahLog('TARIK DATA', 'Berhasil', `Selesai (${durasi}s). Memori & Data disinkronkan.`);
     alert(`✅ Tarik Data Berhasil!\nJam Masuk: ${resSetting.data.jam_masuk}\nJam Pulang: ${resSetting.data.jam_pulang}`);
-  } catch (err) { alert("❌ Gagal menarik data: " + err.message); } 
-  finally { btn.disabled = false; btn.textContent = '⬇️ Tarik Data'; }
+  } catch (err) {
+    tambahLog('TARIK DATA', 'Gagal', err.message);
+    alert("❌ Gagal menarik data: " + err.message);
+  } finally { btn.disabled = false; btn.textContent = '⬇️ Tarik Data'; }
 }
 
 function updateSettingInfo(setting) {
@@ -255,10 +416,9 @@ function updateSettingInfo(setting) {
   $('info-pulang').textContent = String(setting.jam_pulang || '15:00').substring(0,5);
 }
 
-// --- SINKRON DATA ---
 async function sinkronData() {
-  if (state.token === 'offline-token') return alert("Mode Darurat tidak bisa Sinkron.");
-  if (!navigator.onLine) return alert("Internet mati.");
+  if (state.token === 'offline-token') { alert("Mode Darurat: Sinkron dinonaktifkan."); return; }
+  if (!navigator.onLine) { alert("Internet mati."); return; }
   
   let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
   if (antrean.length === 0) return tarikData(); 
@@ -276,13 +436,18 @@ async function sinkronData() {
       localStorage.setItem('bkc_antrean_absen', JSON.stringify(antrean));
       updateAntreanBadge();
     }
-    await tarikData(); // Tarik ulang setelah sinkron agar memori kembali
+    tambahLog('SINKRON', 'Berhasil', `${totalTerkirim} data masuk.`);
+    await tarikData(); // Sinkron 2 arah
     alert(`✅ Sinkronisasi Selesai! ${totalTerkirim} data terkirim.`);
-  } catch (err) { alert(`❌ Sinkronisasi Terhenti: ${err.message}`); } 
-  finally { btn.disabled = false; btn.innerHTML = `⬆️ Sinkron (<span id="antrean-count">${antrean.length}</span>)`; }
+  } catch (err) {
+    tambahLog('SINKRON', 'Terhenti', `Sisa ${antrean.length} di antrean.`);
+    alert(`❌ Sinkronisasi Terhenti: ${err.message}\nSisa ${antrean.length} data aman.`);
+  } finally { btn.disabled = false; btn.innerHTML = `⬆️ Sinkron (<span id="antrean-count">${antrean.length}</span>)`; }
 }
 
-// --- LOGIKA TAP (FIX BUG JAM 12:00) ---
+// ==========================================
+// PROSES PRESENSI (LOGIKA 2 JAM & BUG JAM 12)
+// ==========================================
 function prosesPresensi(kode, sumber) {
   if (!state.token) return;
   
@@ -295,7 +460,7 @@ function prosesPresensi(kode, sumber) {
 
   let dataSiswa = JSON.parse(localStorage.getItem('bkc_master_siswa') || '[]');
   let dataGuru = JSON.parse(localStorage.getItem('bkc_master_guru') || '[]');
-  let setting = JSON.parse(localStorage.getItem('bkc_setting') || '{}'); // FRESH SETIAP TAP
+  let setting = JSON.parse(localStorage.getItem('bkc_setting') || '{}');
   
   let orang = dataSiswa.find(s => String(s.nis) === kode || String(s.uid_rfid) === kode);
   let tipe = 'Siswa';
@@ -304,11 +469,10 @@ function prosesPresensi(kode, sumber) {
   if (!orang) {
     $('status-nama').textContent = 'Kartu Tidak Dikenal';
     $('status-nama').style.color = 'var(--neon-red)';
-    $('status-sub').textContent = `Kode ${kode} tidak ada.`;
+    $('status-sub').textContent = `Kode ${kode} tidak ada di database.`;
     bunyiScanner('gagal'); return;
   }
 
-  // Ambil status siswa (masuk/pulang)
   let rec = memoriHariIni.data[kode] || { masuk: null, pulang: null };
 
   if (rec.pulang) {
@@ -319,10 +483,24 @@ function prosesPresensi(kode, sumber) {
   }
 
   let isMasuk = !rec.masuk;
+  
+  // FITUR ANTI-ISENG 2 JAM
+  if (!isMasuk && rec.masuk) {
+      let jamPertama = rec.masuk.split(':');
+      let jamKedua = jamNow.split(':');
+      let selisihMenit = (parseInt(jamKedua[0]) * 60 + parseInt(jamKedua[1])) - (parseInt(jamPertama[0]) * 60 + parseInt(jamPertama[1]));
+      if (selisihMenit < 120) {
+          $('status-nama').textContent = 'Belum Waktunya Pulang';
+          $('status-nama').style.color = 'var(--neon-yellow)';
+          $('status-sub').textContent = `${orang.nama} baru tap masuk jam ${rec.masuk}. Minimal 2 jam.`;
+          bunyiScanner('gagal'); return;
+      }
+  }
+
   let statusTeks = isMasuk ? 'Masuk' : 'Pulang';
   let isTerlambat = false;
-
-  // LOGIKA KETERLAMBATAN HANYA UNTUK MASUK
+  
+  // LOGIKA KETERLAMBATAN (Hanya untuk Siswa & Hanya saat Masuk)
   if (isMasuk && tipe === 'Siswa') {
       let jm = String(setting.jam_masuk || '07:15').substring(0,5);
       let toleransi = Number(setting.toleransi_menit) || 0;
@@ -337,17 +515,15 @@ function prosesPresensi(kode, sumber) {
   $('status-sub').textContent = `${tipe} · ${jamNow} WIB · ${statusTeks}`;
   bunyiScanner(isTerlambat ? 'terlambat' : 'tepat');
   
-  // Simpan ke memori lokal
   if (isMasuk) rec.masuk = jamNow; else rec.pulang = jamNow;
   memoriHariIni.data[kode] = rec;
   localStorage.setItem('bkc_memori_tap', JSON.stringify(memoriHariIni));
 
-  // Tampilkan di riwayat
   state.riwayat.unshift({ nama: orang.nama, tipe, jam: jamNow, status: statusTeks, isTerlambat });
   if(state.riwayat.length > 10) state.riwayat.pop();
   renderRiwayat();
+  updateProgress(); // Update Progress Bar
 
-  // Simpan ke antrean
   simpanKeAntrean(kode, sumber, now, isMasuk ? 'PAGI' : 'PULANG');
 }
 
@@ -358,17 +534,14 @@ function simpanKeAntrean(kode, sumber, now, tipeTap) {
   updateAntreanBadge();
 }
 
-// --- UI & UTILITAS ---
-function updateAntreanBadge() {
-  let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
-  let el = $('antrean-count'); if(el) el.textContent = antrean.length;
-}
-
+// ==========================================
+// UI & LOGIN
+// ==========================================
 function renderRiwayat() {
   const list = $('riwayat-list');
   if(state.riwayat.length === 0) { list.innerHTML = '<div style="text-align:center;padding:.5rem;color:var(--muted);font-size:.85rem;">Belum ada scan.</div>'; return; }
   list.innerHTML = state.riwayat.map(r => `
-    <div class="riwayat-item" style="border-left-color:${r.isTerlambat ? 'var(--neon-yellow)' : 'var(--neon-green)'}">
+    <div class="riwayat-item ${r.isTerlambat ? 'terlambat' : ''}">
       <div><b>${r.nama}</b><br><span>${r.tipe} · ${r.jam} WIB</span></div>
       <div style="color:${r.isTerlambat ? 'var(--neon-yellow)' : 'var(--neon-green)'}; font-weight:800; font-size:.85rem;">${r.status}</div>
     </div>
@@ -382,6 +555,7 @@ function bunyiScanner(pola) {
     if (pola === 'tepat') { play(1500,0,.1,'sine'); play(2000,.1,.15,'sine'); } else { play(200,0,.2,'sawtooth'); play(150,.2,.4,'sawtooth'); }
   } catch (e) {}
 }
+
 function fokusRFID() { try { $('rfid-input').focus(); } catch (_) {} }
 setInterval(() => { if(!state.token) return; if(document.activeElement.id !== 'search-input') fokusRFID(); }, 1000);
 
@@ -406,6 +580,43 @@ $('search-input').addEventListener('input', () => {
   `).join('');
 });
 
+async function doLogin() {
+  const username = $('login-user').value.trim();
+  const pin = $('login-pin').value.trim();
+  const alertEl = $('login-alert'); alertEl.style.display = 'none';
+  
+  if (!username || !pin) { alertEl.textContent = 'ID dan PIN wajib diisi.'; alertEl.style.display = 'block'; return; }
+  
+  if (username === 'admin' && pin === 'admin') {
+      state.token = 'offline-token'; state.petugas = 'Admin Offline';
+      sessionStorage.setItem('bkc_token', state.token); sessionStorage.setItem('bkc_petugas', state.petugas);
+      updatePetugasUI(); $('login-modal').classList.remove('show'); fokusRFID(); return;
+  }
+  if (!navigator.onLine) { alertEl.textContent = 'Internet mati. Gunakan ID: admin, PIN: admin.'; alertEl.style.display = 'block'; return; }
+
+  const btn = $('btn-login'); btn.disabled = true; btn.textContent = 'Memeriksa…';
+  try {
+    const res = await apiCall('login', { username, pin, modul: MODUL });
+    if (!res || !res.ok) { alertEl.textContent = res.message || 'Login gagal.'; alertEl.style.display = 'block'; return; }
+    
+    state.token = res.data.token; state.petugas = res.data.nama;
+    sessionStorage.setItem('bkc_token', state.token); sessionStorage.setItem('bkc_petugas', state.petugas);
+    updatePetugasUI(); $('login-modal').classList.remove('show'); fokusRFID();
+  } catch (err) { alertEl.textContent = 'Koneksi gagal.'; alertEl.style.display = 'block'; } 
+  finally { btn.disabled = false; btn.textContent = 'Buka Kios'; }
+}
+
+function updatePetugasUI() {
+  $('petugas-label').textContent = state.petugas;
+  $('petugas-display').textContent = `Petugas: ${state.petugas}`;
+  if (state.token === 'offline-token') { $('warning-offline').style.display = 'block'; } else { $('warning-offline').style.display = 'none'; }
+}
+
+$('btn-login').addEventListener('click', doLogin);
+$('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() { if(confirm('Yakin ingin logout dari kios?')) { sessionStorage.clear(); location.reload(); } }
+
 function tickClock() {
   const now = new Date();
   $('clock-time').textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
@@ -421,6 +632,9 @@ if(navigator.onLine) { $('status-koneksi').className = 'status-badge online'; $(
 
 (function init() {
   updateAntreanBadge();
+  renderLog();
+  updateProgress();
+  
   let savedSetting = JSON.parse(localStorage.getItem('bkc_setting') || 'null');
   if(savedSetting) updateSettingInfo(savedSetting);
   

@@ -350,115 +350,58 @@ function updateSettingInfo(setting) {
 async function sinkronData() {
   if (state.token === 'offline-token') {
       bunyiNotif(false);
-      return alert("Anda sedang login Mode Darurat (admin). Silakan Logout dan Login menggunakan akun Guru asli untuk melakukan sinkronisasi.");
+      return alert("Anda sedang login Mode Darurat (admin). Silakan Logout dan Login menggunakan akun Guru asli.");
   }
   if (!navigator.onLine) {
       bunyiNotif(false);
       return alert("Gagal: Internet mati. Nyalakan WiFi dulu.");
   }
   
-  let isSedangSinkron = localStorage.getItem('bkc_sedang_sinkron');
-  if (isSedangSinkron === 'true') {
-      if(!confirm("Sistem mendeteksi proses sinkronisasi sebelumnya terhenti. Lanjutkan?")) return;
-  }
-
   let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
   if (antrean.length === 0) return tarikData(); 
 
   const btn = $('btn-sinkron');
   const startTime = Date.now();
   btn.disabled = true; 
-  btn.style.background = 'rgba(255,49,49,.2)';
-  btn.style.color = 'var(--neon-red)';
-  btn.style.borderColor = 'var(--neon-red)';
-  
-  btn.onclick = () => { 
-      localStorage.setItem('bkc_sedang_sinkron', 'false');
-      location.reload(); 
-  }; 
-  
-  localStorage.setItem('bkc_sedang_sinkron', 'true');
-  btn.innerHTML = `<div class="spinner"></div> Stop (0/${antrean.length})...`;
+  btn.innerHTML = `<div class="spinner"></div> Memproses...`;
 
-  let berhasil = 0, ditolak = 0, gagalJaringan = 0;
-  let detailError = [];
-  let total = antrean.length;
-  let antreanTersisa = [...antrean]; 
+  const CHUNK_SIZE = 10; // Kirim 10 data per putaran
+  let totalTerkirim = 0;
 
-  for (let i = 0; i < total; i++) {
-    const data = antrean[i];
-    btn.innerHTML = `<div class="spinner"></div> Stop (${i+1}/${total})...`;
-    
-    let nama = data.nis;
-    let dataSiswa = JSON.parse(localStorage.getItem('bkc_master_siswa') || '[]');
-    let org = dataSiswa.find(s => String(s.nis) === String(data.nis));
-    if(org) nama = org.nama;
+  try {
+    // Looping selama masih ada antrean
+    while (antrean.length > 0) {
+      // Ambil 10 data teratas
+      const chunk = antrean.slice(0, CHUNK_SIZE);
+      btn.innerHTML = `<div class="spinner"></div> Kirim ${totalTerkirim + chunk.length}/${totalTerkirim + antrean.length}...`;
 
-    try {
-      const res = await apiCall('presensiGerbang', { 
-        nis: data.nis, sumber: data.sumber, waktu_tap: data.waktu_tap 
-      });
+      // Kirim ke Google
+      const res = await apiCall('sinkronMassalGerbang', { antrean: chunk });
       
-      if (res.ok || (res.message && res.message.toLowerCase().includes('sesi'))) {
-        if(res.ok) berhasil++;
-        else { ditolak++; detailError.push(`${nama}: ${res.message}`); }
-        
-        antreanTersisa = antreanTersisa.filter(item => item !== data);
-        localStorage.setItem('bkc_antrean_absen', JSON.stringify(antreanTersisa));
-        updateAntreanBadge();
-      } else {
-        ditolak++;
-        detailError.push(`${nama}: ${res.message}`);
-        antreanTersisa = antreanTersisa.filter(item => item !== data);
-        localStorage.setItem('bkc_antrean_absen', JSON.stringify(antreanTersisa));
-        updateAntreanBadge();
-      }
-    } catch (e) {
-      gagalJaringan = antreanTersisa.length; 
-      break; 
+      if (!res.ok) throw new Error(res.message);
+
+      // JIKA SUKSES, HAPUS 10 DATA ITU DARI LAPTOP
+      totalTerkirim += chunk.length;
+      antrean = antrean.slice(CHUNK_SIZE); 
+      localStorage.setItem('bkc_antrean_absen', JSON.stringify(antrean));
+      updateAntreanBadge();
     }
+
+    // Jika semua antrean habis
+    const durasi = ((Date.now() - startTime) / 1000).toFixed(1);
+    tambahLog('SINKRON', 'Berhasil', `${totalTerkirim} data terkirim (Waktu: ${durasi}s)`);
+    bunyiNotif(true);
+    alert(`✅ Sinkronisasi Selesai!\n${totalTerkirim} data berhasil masuk ke Spreadsheet.`);
+
+  } catch (err) {
+    // JIKA GAGAL (Misal internet mati di tengah jalan)
+    bunyiNotif(false);
+    tambahLog('SINKRON', 'Terhenti', `${totalTerkirim} terkirim, sisa ${antrean.length} di antrean.`);
+    alert(`❌ Sinkronisasi Terhenti: ${err.message}\n${totalTerkirim} data berhasil dikirim. Sisa ${antrean.length} data aman di laptop.`);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `⬆️ Sinkron (<span id="antrean-count">${antrean.length}</span>)`;
   }
-
-  localStorage.setItem('bkc_sedang_sinkron', 'false');
-
-  const durasi = ((Date.now() - startTime) / 1000).toFixed(1);
-  let statusLog = (gagalJaringan === 0 && ditolak === 0) ? 'Berhasil' : (berhasil > 0 ? 'Sebagian' : 'Gagal');
-  let ketLog = `${berhasil} masuk, ${ditolak} ditolak, ${gagalJaringan} sisa. (Waktu: ${durasi}s)`;
-  
-  tambahLog('SINKRON', statusLog, ketLog, detailError);
-
-  if (antreanTersisa.length === 0) {
-      btn.innerHTML = `<div class="spinner"></div> Memperbarui Data Lokal...`;
-      try {
-        const resSiswa = await apiCall('getMasterSiswa');
-        const resGuru = await apiCall('getMasterGuruFull');
-        const resSetting = await apiCall('getPengaturan');
-
-        if (resSiswa.ok && resGuru.ok) {
-            localStorage.setItem('bkc_master_siswa', JSON.stringify(resSiswa.data || []));
-            localStorage.setItem('bkc_master_guru', JSON.stringify(resGuru.data || []));
-            localStorage.setItem('bkc_setting', JSON.stringify(resSetting.data || {}));
-            updateSettingInfo(resSetting.data);
-            tambahLog('TARIK DATA', 'Berhasil', 'Sinkronisasi 2 arah: Data lokal berhasil diperbarui.');
-        }
-      } catch(err) {
-        console.log("Gagal auto-tarik data:", err);
-      }
-  }
-  
-  if (gagalJaringan > 0 || antreanTersisa.length > 0) bunyiNotif(false); else bunyiNotif(true);
-  
-  btn.disabled = false;
-  btn.style.background = ''; 
-  btn.style.color = '';
-  btn.style.borderColor = '';
-  btn.onclick = sinkronData; 
-  btn.innerHTML = `⬆️ Sinkron (<span id="antrean-count">${antreanTersisa.length}</span>)`;
-
-  let pesan = `Sinkronisasi Selesai dalam ${durasi} detik:\n✅ ${berhasil} data masuk.\n`;
-  if (ditolak > 0) pesan += `⚠️ ${ditolak} data ditolak.\n`;
-  if (gagalJaringan > 0 || antreanTersisa.length > 0) pesan += `❌ ${antreanTersisa.length} data disimpan di antrean (Internet terputus/Sesi habis).\n`;
-  alert(pesan);
 }
 
 function updateAntreanBadge() {

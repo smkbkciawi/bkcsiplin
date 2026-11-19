@@ -1,0 +1,7 @@
+{
+  "name": "BKCSiplin — SMK Bhakti Kencana Ciawi",
+  "description": "Portal kedisiplinan, presensi gerbang, presensi sholat, dan manajemen siswa SMK Bhakti Kencana Ciawi.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

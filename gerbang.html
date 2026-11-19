@@ -365,11 +365,17 @@ function hapusAntreanDarurat() {
 // ==========================================
 // PROGRESS BAR
 // ==========================================
+function todayWIB() {
+  const now = new Date();
+  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
+  return wib.toISOString().slice(0, 10);
+}
+
 function updateProgress() {
   let dataSiswa = JSON.parse(localStorage.getItem('bkc_master_siswa') || '[]');
   let dataGuru = JSON.parse(localStorage.getItem('bkc_master_guru') || '[]');
   let memori = JSON.parse(localStorage.getItem('bkc_memori_tap') || '{}');
-  let tglKey = new Date().toISOString().slice(0,10);
+  let tglKey = todayWIB();
   if (memori.tanggal !== tglKey) memori = { data: {} };
   
   let totalSiswa = dataSiswa.length;
@@ -409,7 +415,7 @@ async function tarikData() {
         updateSettingInfo(resSetting.data);
     } else { throw new Error("Setting dari server kosong."); }
 
-    const today = new Date().toISOString().slice(0,10);
+    const today = todayWIB();
     const resMemori = await apiCall('getAbsenHariIni', { tanggal: today });
     
     if (resMemori.ok && resMemori.data) {
@@ -478,7 +484,7 @@ function prosesPresensi(kode, sumber) {
   
   const now = new Date();
   const jamNow = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const tglKey = new Date().toISOString().slice(0,10);
+  const tglKey = todayWIB();
   
   let memoriHariIni = JSON.parse(localStorage.getItem('bkc_memori_tap') || '{}');
   
@@ -492,9 +498,14 @@ function prosesPresensi(kode, sumber) {
   let dataGuru = JSON.parse(localStorage.getItem('bkc_master_guru') || '[]');
   let setting = JSON.parse(localStorage.getItem('bkc_setting') || '{}');
   
-  let orang = dataSiswa.find(s => String(s.nis) === kode || String(s.uid_rfid) === kode);
+  const normKode = String(kode || '').replace(/[\s\-:]/g, '').toUpperCase();
+  const norm = (u) => String(u || '').replace(/[\s\-:]/g, '').toUpperCase();
+  let orang = dataSiswa.find(s => String(s.nis).trim() === kode || (s.uid_rfid && norm(s.uid_rfid) === normKode));
   let tipe = 'Siswa';
-  if (!orang) { orang = dataGuru.find(g => String(g.id_guru) === kode || String(g.uid_rfid) === kode); tipe = 'Guru'; }
+  if (!orang) {
+    orang = dataGuru.find(g => String(g.id_guru).trim() === kode || (g.uid_rfid && norm(g.uid_rfid) === normKode));
+    tipe = 'Guru';
+  }
 
   if (!orang) {
     $('status-nama').textContent = 'Kartu Tidak Dikenal';
@@ -503,7 +514,8 @@ function prosesPresensi(kode, sumber) {
     bunyiScanner('gagal'); return;
   }
 
-  let rec = memoriHariIni.data[kode] || { masuk: null, pulang: null };
+  const orangId = tipe === 'Siswa' ? String(orang.nis).trim() : String(orang.id_guru).trim();
+  let rec = memoriHariIni.data[orangId] || { masuk: null, pulang: null };
 
   // Cegah Tap ke-3
   if (rec.pulang) {
@@ -555,9 +567,9 @@ function prosesPresensi(kode, sumber) {
   $('status-sub').textContent = `${tipe} · ${jamNow} WIB · ${statusTeks}`;
   bunyiScanner(isTerlambat ? 'terlambat' : 'tepat');
   
-  // Simpan Memori
+  // Simpan Memori (gunakan NIS / ID Guru agar sinkron dengan getAbsenHariIni)
   if (isMasuk) rec.masuk = jamNow; else rec.pulang = jamNow;
-  memoriHariIni.data[kode] = rec;
+  memoriHariIni.data[orangId] = rec;
   localStorage.setItem('bkc_memori_tap', JSON.stringify(memoriHariIni));
 
   state.riwayat.unshift({ nama: orang.nama, tipe, jam: jamNow, status: statusTeks, isTerlambat });
@@ -567,7 +579,7 @@ function prosesPresensi(kode, sumber) {
 
   // Simpan Antrean
   let antrean = JSON.parse(localStorage.getItem('bkc_antrean_absen') || '[]');
-  antrean.push({ nis: kode, sumber: sumber, waktu_tap: now.toISOString(), tipe_tap: isMasuk ? 'PAGI' : 'PULANG' });
+  antrean.push({ nis: orangId, sumber: sumber, waktu_tap: now.toISOString(), tipe_tap: isMasuk ? 'PAGI' : 'PULANG' });
   localStorage.setItem('bkc_antrean_absen', JSON.stringify(antrean));
   updateAntreanBadge();
 

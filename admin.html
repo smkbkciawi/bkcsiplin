@@ -146,6 +146,21 @@
   .raport-zona.merah{background:#FEE2E2;color:#B91C1C}
   .raport-zona.kritis{background:#1F2937;color:#fff}
 
+  .print-laporan-kop { display: none; }
+  .lap-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+  .lap-summary-box{background:#F8FAFF;border:1px solid #E5EEFF;border-radius:12px;padding:.75rem 1rem}
+  .lap-summary-box .lbl{font-size:.7rem;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:.05em}
+  .lap-summary-box .val{font-size:1.35rem;font-weight:800;color:#1E3A8A;line-height:1.2;margin-top:.15rem}
+  .lap-summary-box .sub{font-size:.72rem;color:#64748B;font-weight:600;margin-top:.15rem}
+  .zona-chip{display:inline-block;padding:.2rem .55rem;border-radius:6px;font-size:.72rem;font-weight:800}
+  .zona-chip.hijau{background:#D1FAE5;color:#047857}
+  .zona-chip.kuning{background:#FEF3C7;color:#92400E}
+  .zona-chip.oranye{background:#FFEDD5;color:#C2410C}
+  .zona-chip.merah{background:#FEE2E2;color:#B91C1C}
+  .zona-chip.kritis{background:#1F2937;color:#fff}
+  @media (max-width: 992px){ .lap-summary-grid{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width: 576px){ .lap-summary-grid{grid-template-columns:1fr} }
+
   @media print {
     body * { visibility: hidden; }
     .no-print, .main-sidebar, .main-header, .main-footer, 
@@ -162,6 +177,56 @@
     .raport-hal { padding: 15mm; margin: 0; page-break-after: always; break-after: page; }
     .raport-hal:last-child { page-break-after: auto; break-after: auto; }
     @page { size: A4 portrait; margin: 0; }
+
+    /* KHUSUS CETAK LAPORAN GURU & LAPORAN SISWA */
+    body.print-laporan-guru .content-wrapper,
+    body.print-laporan-siswa .content-wrapper {
+      display: block !important;
+      visibility: visible !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+    }
+    body.print-laporan-guru .content-header,
+    body.print-laporan-siswa .content-header,
+    body.print-laporan-guru .no-print-laporan,
+    body.print-laporan-siswa .no-print-laporan {
+      display: none !important;
+    }
+    body.print-laporan-guru #page-laporan-guru,
+    body.print-laporan-guru #page-laporan-guru *,
+    body.print-laporan-siswa #page-laporan-siswa,
+    body.print-laporan-siswa #page-laporan-siswa * {
+      visibility: visible !important;
+    }
+    body.print-laporan-guru #page-laporan-guru,
+    body.print-laporan-siswa #page-laporan-siswa {
+      display: block !important;
+      position: static !important;
+      width: 100% !important;
+      padding: 10mm !important;
+    }
+    body.print-laporan-guru #page-laporan-guru .card,
+    body.print-laporan-siswa #page-laporan-siswa .card {
+      border: none !important;
+      box-shadow: none !important;
+    }
+    body.print-laporan-guru #page-laporan-guru .card-header,
+    body.print-laporan-siswa #page-laporan-siswa .card-header {
+      display: none !important;
+    }
+    body.print-laporan-guru #lap-guru-table-wrap,
+    body.print-laporan-siswa #lap-table-wrap {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+    body.print-laporan-guru .print-laporan-kop,
+    body.print-laporan-siswa .print-laporan-kop {
+      display: block !important;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #1E3A8A;
+    }
     
     /* KHUSUS CETAK KARTU */
     body.print-kartu #page-kartu { display: block !important; position: absolute; left: 0; top: 0; width: 100%; z-index: 9999; }
@@ -529,26 +594,70 @@
       <div id="page-laporan-siswa" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
-            <h3 class="card-title mb-0"><i class="fas fa-user-graduate text-primary mr-2"></i>Laporan Siswa (Rekap Kehadiran)</h3>
+            <h3 class="card-title mb-0"><i class="fas fa-user-graduate text-primary mr-2"></i>Laporan Siswa (Monitoring & Rekap)</h3>
             <div class="d-flex align-items-center no-print-laporan" style="gap:.5rem">
-              <button class="btn btn-sm btn-primary" id="btn-lap-cari"><i class="fas fa-search mr-1"></i>Tampilkan</button>
+              <button class="btn btn-sm btn-primary" id="btn-lap-cari"><i class="fas fa-sync-alt mr-1"></i>Tampilkan</button>
               <button class="btn btn-sm btn-success" id="btn-lap-export"><i class="fas fa-file-excel mr-1"></i>Export Excel</button>
               <button class="btn btn-sm btn-danger" id="btn-lap-print"><i class="fas fa-file-pdf mr-1"></i>Cetak PDF</button>
             </div>
           </div>
           <div class="card-body">
+            <div class="print-laporan-kop" id="lap-siswa-print-kop">
+              <h4 style="margin:0;font-weight:800;color:#1E3A8A">SMK BHAKTI KENCANA CIAWI — LAPORAN KEHADIRAN & KEDISIPLINAN SISWA</h4>
+              <div style="font-size:.85rem;color:#475569" id="lap-siswa-print-periode"></div>
+            </div>
+
+            <div class="lap-summary-grid no-print-laporan" id="lap-summary-cards">
+              <div class="lap-summary-box">
+                <div class="lbl">Total Siswa</div>
+                <div class="val" id="lap-sum-siswa">0</div>
+                <div class="sub" id="lap-sum-hari">0 hari aktif tercatat</div>
+              </div>
+              <div class="lap-summary-box">
+                <div class="lbl">Masuk (Tepat / Telat)</div>
+                <div class="val" id="lap-sum-hadir">0 / 0</div>
+                <div class="sub" id="lap-sum-sholat">0 kali presensi sholat</div>
+              </div>
+              <div class="lap-summary-box">
+                <div class="lbl">Izin / Sakit / Alpa</div>
+                <div class="val" id="lap-sum-isa">0 / 0 / 0</div>
+                <div class="sub" id="lap-sum-avg">Rata-rata hadir: 0%</div>
+              </div>
+              <div class="lap-summary-box">
+                <div class="lbl">Zona Kuning – Kritis</div>
+                <div class="val text-danger" id="lap-sum-perhatian">0</div>
+                <div class="sub">Siswa perlu pembinaan poin</div>
+              </div>
+            </div>
+
+            <div class="tabs-nav no-print-laporan" id="lap-siswa-tabs">
+              <button class="active" data-tab="rekap"><i class="fas fa-table mr-1"></i>Rekap & Kedisiplinan</button>
+              <button data-tab="harian"><i class="fas fa-clock mr-1"></i>Log Masuk & Pulang Harian</button>
+            </div>
+
             <div class="filter-bar no-print-laporan">
               <div class="field"><label>Dari Tanggal</label><input type="date" id="lap-dari"></div>
               <div class="field"><label>Sampai Tanggal</label><input type="date" id="lap-sampai"></div>
-              <div class="field" id="lap-kelas-wrap"><label>Kelas</label><select id="lap-kelas"><option value="">Semua</option></select></div>
-              <div class="field"><label>Cari Individu (Nama/NIS)</label><input type="text" id="lap-individu" placeholder="Ketik nama/NIS" style="width:200px"></div>
+              <div class="field" id="lap-kelas-wrap"><label>Kelas</label><select id="lap-kelas"><option value="">Semua Kelas</option></select></div>
+              <div class="field"><label>Filter Kondisi</label>
+                <select id="lap-kondisi">
+                  <option value="">Semua Siswa</option>
+                  <option value="telat">Pernah Terlambat</option>
+                  <option value="alpa">Ada Alpa</option>
+                  <option value="rendah">Kehadiran &lt; 80%</option>
+                  <option value="zona">Zona Kuning – Kritis</option>
+                </select>
+              </div>
+              <div class="field"><label>Cari Individu (Nama/NIS)</label><input type="text" id="lap-individu" placeholder="Ketik nama/NIS…" style="width:200px"></div>
             </div>
-            <div class="table-responsive" style="max-height:500px;overflow-y:auto" id="lap-table-wrap">
+
+            <div class="table-responsive" style="max-height:520px;overflow-y:auto" id="lap-table-wrap">
               <table class="table table-sm table-hover" id="tabel-laporan">
                 <thead id="lap-thead"></thead>
                 <tbody id="lap-tbody"></tbody>
               </table>
             </div>
+            <div class="text-muted small mt-2 no-print-laporan" id="lap-footer-info"></div>
           </div>
         </div>
       </div>
@@ -605,6 +714,10 @@
             </div>
           </div>
           <div class="card-body">
+            <div class="print-laporan-kop" id="lap-guru-print-kop">
+              <h4 style="margin:0;font-weight:800;color:#1E3A8A">SMK BHAKTI KENCANA CIAWI — LAPORAN KEHADIRAN GURU</h4>
+              <div style="font-size:.85rem;color:#475569" id="lap-guru-print-periode"></div>
+            </div>
             <div class="filter-bar no-print-laporan">
               <div class="field"><label>Dari Tanggal</label><input type="date" id="lap-guru-dari"></div>
               <div class="field"><label>Sampai Tanggal</label><input type="date" id="lap-guru-sampai"></div>
@@ -851,6 +964,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 const MODUL   = 'admin';
@@ -867,6 +982,12 @@ const state = {
   siswaList: [], guruList: [], tatibList: [], kelasList: [],
   scan: { tipe: 'siswa', uid: '' },
   laporanData: [],
+  laporanHarianData: [],
+  laporanGuruData: [],
+  lapSiswaTab: 'rekap',
+  lapHariAktif: 0,
+  lapSiswaInit: false,
+  lapGuruInit: false,
   charts: {},
   ketSiswaList: [], ketSiswaTerpilih: null, ketKelasAmpu: [],
   importMode: null, importRows: [], importFileName: '',
@@ -1051,10 +1172,8 @@ function terapkanRoleMenu() {
       const li = document.querySelector('.nav-sidebar .nav-link[data-page="' + p + '"]');
       if (li) li.parentElement.style.display = 'none';
     });
-    if ($('lap-kelas-wrap')) $('lap-kelas-wrap').style.display = 'none';
-  } else {
-    if ($('lap-kelas-wrap')) $('lap-kelas-wrap').style.display = '';
   }
+  if ($('lap-kelas-wrap')) $('lap-kelas-wrap').style.display = '';
 
   if (!isSuper) {
     ['siswa','kelas','guru','tatib','rfid','naikkelas','pengaturan'].forEach(p => {
@@ -1134,6 +1253,9 @@ document.querySelectorAll('.nav-sidebar .nav-link[data-page]').forEach(link => {
 });
 
 function loadPage(page) {
+  document.querySelectorAll('.nav-sidebar .nav-link[data-page]').forEach(l => {
+    l.classList.toggle('active', l.dataset.page === page);
+  });
   ['dashboard','siswa','kelas','guru','tatib','rfid','naikkelas','keterangan','laporan-siswa','raport','laporan-guru','pengaturan','kartu'].forEach(p => {
     const el = $('page-' + p); if (el) el.style.display = (p === page) ? '' : 'none';
   });
@@ -1683,96 +1805,517 @@ $('btn-simpan-ket').addEventListener('click', async () => {
 });
 
 // ============ LAPORAN SISWA ============
+function updateOpsiKondisiLaporan() {
+  const sel = $('lap-kondisi');
+  if (!sel) return;
+  const cur = sel.value;
+  if (state.lapSiswaTab === 'harian') {
+    sel.innerHTML = `
+      <option value="">Semua Status</option>
+      <option value="telat">Terlambat Masuk</option>
+      <option value="belum_pulang">Belum Tap Pulang</option>
+      <option value="pulang_cepat">Pulang Cepat</option>
+    `;
+  } else {
+    sel.innerHTML = `
+      <option value="">Semua Siswa</option>
+      <option value="telat">Pernah Terlambat</option>
+      <option value="alpa">Ada Alpa</option>
+      <option value="rendah">Kehadiran &lt; 80%</option>
+      <option value="zona">Zona Kuning – Kritis</option>
+    `;
+  }
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+
 async function initLaporan() {
   if (!$('lap-dari').value) $('lap-dari').value = todayISO();
   if (!$('lap-sampai').value) $('lap-sampai').value = todayISO();
-  $('btn-lap-cari').addEventListener('click', loadLaporan);
-  $('lap-kelas').addEventListener('change', loadLaporan);
-  $('lap-dari').addEventListener('change', loadLaporan);
-  $('lap-sampai').addEventListener('change', loadLaporan);
-  $('btn-lap-export').addEventListener('click', exportLaporanSiswa);
-  $('btn-lap-print').addEventListener('click', () => window.print());
+  if (!state.lapSiswaInit) {
+    $('btn-lap-cari').addEventListener('click', loadLaporan);
+    $('lap-kelas').addEventListener('change', loadLaporan);
+    $('lap-dari').addEventListener('change', loadLaporan);
+    $('lap-sampai').addEventListener('change', loadLaporan);
+    $('lap-kondisi').addEventListener('change', renderLaporan);
+    $('lap-individu').addEventListener('input', renderLaporan);
+    $('btn-lap-export').addEventListener('click', exportLaporanSiswa);
+    $('btn-lap-print').addEventListener('click', printLaporanSiswa);
+    document.querySelectorAll('#lap-siswa-tabs button[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#lap-siswa-tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.lapSiswaTab = btn.dataset.tab;
+        updateOpsiKondisiLaporan();
+        renderLaporan();
+      });
+    });
+    state.lapSiswaInit = true;
+  }
   await loadLaporan();
+}
+
+function hitungZonaSiswa_(saldo, setting) {
+  const zKuning = Number(setting.zona_kuning_min) || 51;
+  const zOranye = Number(setting.zona_oranye_min) || 26;
+  const zMerah  = Number(setting.zona_merah_min) || 1;
+  if (saldo <= 0 || saldo < zMerah) return { kode: 'Kritis', cls: 'kritis' };
+  if (saldo < zOranye) return { kode: 'Merah', cls: 'merah' };
+  if (saldo < zKuning) return { kode: 'Oranye', cls: 'oranye' };
+  if (saldo < zKuning + 25) return { kode: 'Kuning', cls: 'kuning' };
+  return { kode: 'Hijau', cls: 'hijau' };
+}
+
+function ekstrakJamTimestamp_(ts) {
+  const s = String(ts || '').trim();
+  const m = s.match(/(\d{2}:\d{2})/);
+  return m ? m[1] : '-';
 }
 
 async function loadLaporan() {
   const dari = $('lap-dari').value;
   const sampai = $('lap-sampai').value;
-  const kelas = $('lap-kelas').value;
-  const individu = $('lap-individu').value.trim().toLowerCase();
   if (!dari || !sampai) { toast('Isi tanggal', true); return; }
 
+  $('lap-tbody').innerHTML = '<tr><td colspan="13" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat laporan siswa…</td></tr>';
+
   try {
+    const isAdmin = isAdminRole_(state.role);
     let listSiswa = [];
-    if (!isAdminRole_(state.role)) {
+    if (!isAdmin) {
       const resSaya = await apiCall('getSiswaKelasSaya');
       if (!resSaya.ok) { toast(resSaya.message, true); return; }
       listSiswa = resSaya.data || [];
+      const kelasAmpu = resSaya.kelas_ampu || [];
+      const selKelas = $('lap-kelas');
+      const prevVal = selKelas.value;
+      if (kelasAmpu.length <= 1) {
+        selKelas.innerHTML = kelasAmpu.length
+          ? `<option value="${escapeHtml(kelasAmpu[0])}">${escapeHtml(kelasAmpu[0])}</option>`
+          : '<option value="">Tidak ada kelas</option>';
+      } else {
+        selKelas.innerHTML = '<option value="">Semua Kelas Ampu</option>' +
+          kelasAmpu.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+        if (prevVal && kelasAmpu.includes(prevVal)) selKelas.value = prevVal;
+      }
     } else {
       const resSiswa = await apiCall('getMasterSiswa');
       if (!resSiswa.ok) { toast(resSiswa.message, true); return; }
-      listSiswa = resSiswa.data.filter(s => String(s.status).toUpperCase() === 'AKTIF');
-      if (kelas) listSiswa = listSiswa.filter(s => String(s.kelas) === kelas);
+      listSiswa = (resSiswa.data || []).filter(s => String(s.status).toUpperCase() === 'AKTIF');
     }
-    if (individu) listSiswa = listSiswa.filter(s => String(s.nama).toLowerCase().includes(individu) || String(s.nis).toLowerCase().includes(individu));
 
-    const resGerbang = await apiCall('getLaporan', { jenis: 'gerbang', dari, sampai, kelas });
-    const dataGerbang = resGerbang.ok ? resGerbang.data : [];
-    const resKet = await apiCall('getLaporan', { jenis: 'keterangan', dari, sampai, kelas });
-    const dataKet = resKet.ok ? resKet.data : [];
+    const kelasDipilih = $('lap-kelas').value;
+    if (kelasDipilih) listSiswa = listSiswa.filter(s => String(s.kelas) === kelasDipilih);
 
+    const apiKelas = (!isAdmin && !kelasDipilih && listSiswa.length && new Set(listSiswa.map(s => s.kelas)).size === 1)
+      ? listSiswa[0].kelas
+      : kelasDipilih;
+
+    const [resGerbang, resKet, resSholat, resPoin, resSetting, resRekap] = await Promise.all([
+      apiCall('getLaporan', { jenis: 'gerbang', dari, sampai, kelas: apiKelas }),
+      apiCall('getLaporan', { jenis: 'keterangan', dari, sampai, kelas: apiKelas }),
+      apiCall('getLaporan', { jenis: 'sholat', dari, sampai, kelas: apiKelas }).catch(() => ({ ok: false, data: [] })),
+      apiCall('getLaporan', { jenis: 'poin', dari: '', sampai: '', kelas: apiKelas }).catch(() => ({ ok: false, data: [] })),
+      apiCall('getPengaturan').catch(() => ({ ok: false, data: {} })),
+      apiCall('getLaporan', { jenis: 'rekap_siswa', dari, sampai, kelas: apiKelas }).catch(() => ({ ok: false, data: [] }))
+    ]);
+
+    const dataGerbang = resGerbang.ok ? (resGerbang.data || []) : [];
+    const dataKet = resKet.ok ? (resKet.data || []) : [];
+    const dataSholat = resSholat.ok ? (resSholat.data || []) : [];
+    const dataPoin = resPoin.ok ? (resPoin.data || []) : [];
+    const setting = (resSetting.ok && resSetting.data) ? resSetting.data : {};
+    const poinAwal = Number(setting.poin_awal) || 100;
+
+    const tanggalAktifSet = new Set();
     const rekap = {};
-    listSiswa.forEach(s => { rekap[s.nis] = { nis: s.nis, nama: s.nama, kelas: s.kelas, hadir: 0, izin: 0, sakit: 0, alpa: 0 }; });
-    dataGerbang.forEach(r => { if (String(r.sesi).toUpperCase() === 'PAGI' && rekap[r.nis]) rekap[r.nis].hadir++; });
-    dataKet.forEach(r => {
-      if (rekap[r.nis]) {
-        const st = String(r.status).toUpperCase();
-        if (st === 'IZIN') rekap[r.nis].izin++;
-        if (st === 'SAKIT') rekap[r.nis].sakit++;
-        if (st === 'ALPA') rekap[r.nis].alpa++;
+    listSiswa.forEach(s => {
+      const nis = String(s.nis || '').trim();
+      rekap[nis] = {
+        nis: nis,
+        nama: s.nama || '-',
+        kelas: s.kelas || '-',
+        tepat: 0,
+        telat: 0,
+        hadir: 0,
+        izin: 0,
+        sakit: 0,
+        alpa: 0,
+        sholat: 0,
+        poin: poinAwal,
+        zona: 'Hijau',
+        zonaCls: 'hijau',
+        _hadirDates: new Set(),
+        _statusPerTanggal: {}
+      };
+    });
+
+    dataGerbang.forEach(r => {
+      const nis = String(r.nis || '').trim();
+      const sesi = String(r.sesi || '').toUpperCase();
+      const tgl = String(r.tanggal || '').trim();
+      if (sesi === 'PAGI' && tgl) tanggalAktifSet.add(tgl);
+      if (!rekap[nis] || sesi !== 'PAGI') return;
+      const st = String(r.status || '').toUpperCase();
+      if (!rekap[nis]._hadirDates.has(tgl)) {
+        rekap[nis]._hadirDates.add(tgl);
+        rekap[nis].hadir++;
+        if (st === 'TERLAMBAT') rekap[nis].telat++;
+        else rekap[nis].tepat++;
       }
     });
+
+    dataKet.forEach(r => {
+      const nis = String(r.nis || '').trim();
+      if (!rekap[nis]) return;
+      const st = String(r.status || '').toUpperCase();
+      if (st === 'IZIN') rekap[nis].izin++;
+      if (st === 'SAKIT') rekap[nis].sakit++;
+      if (st === 'ALPA') rekap[nis].alpa++;
+    });
+
+    dataSholat.forEach(r => {
+      const nis = String(r.nis || '').trim();
+      if (rekap[nis]) rekap[nis].sholat++;
+    });
+
+    dataPoin.forEach(r => {
+      const nis = String(r.nis || '').trim();
+      if (rekap[nis]) rekap[nis].poin += (Number(r.poin) || 0);
+    });
+
+    const hariAktif = tanggalAktifSet.size;
+    state.lapHariAktif = hariAktif;
+
+    Object.values(rekap).forEach(r => {
+      const z = hitungZonaSiswa_(r.poin, setting);
+      r.zona = z.kode;
+      r.zonaCls = z.cls;
+      const pembagi = Math.max(hariAktif, r.hadir + r.izin + r.sakit + r.alpa);
+      r.totalHari = pembagi;
+      r.persenNum = pembagi > 0 ? Math.min(100, (r.hadir / pembagi) * 100) : 0;
+      r.persenStr = pembagi > 0 ? r.persenNum.toFixed(1) + '%' : '0%';
+      delete r._hadirDates;
+      delete r._statusPerTanggal;
+    });
+
     state.laporanData = Object.values(rekap);
+
+    // Log harian masuk & pulang (prioritaskan REKAP_SISWA, fallback gabung PRESENSI_GERBANG)
+    const allowedMap = {};
+    listSiswa.forEach(s => { allowedMap[String(s.nis || '').trim()] = s; });
+
+    let harian = [];
+    if (resRekap.ok && Array.isArray(resRekap.data) && resRekap.data.length > 0) {
+      harian = resRekap.data
+        .filter(r => allowedMap[String(r.nis || '').trim()])
+        .map(r => ({
+          tanggal: String(r.tanggal || '').trim(),
+          nis: String(r.nis || '').trim(),
+          nama: r.nama || allowedMap[String(r.nis || '').trim()].nama || '-',
+          kelas: r.kelas || allowedMap[String(r.nis || '').trim()].kelas || '-',
+          jam_masuk: bersihkanJam_(r.jam_masuk, r.jam_masuk || '-'),
+          status_masuk: String(r.status_masuk || '-').toUpperCase(),
+          jam_pulang: (r.jam_pulang && r.jam_pulang !== '-') ? bersihkanJam_(r.jam_pulang, r.jam_pulang) : '-',
+          status_pulang: String(r.status_pulang || '-').toUpperCase()
+        }));
+    } else {
+      const pairMap = {};
+      dataGerbang.forEach(r => {
+        const nis = String(r.nis || '').trim();
+        const tgl = String(r.tanggal || '').trim();
+        if (!allowedMap[nis] || !tgl) return;
+        const key = tgl + '_' + nis;
+        if (!pairMap[key]) {
+          pairMap[key] = {
+            tanggal: tgl,
+            nis: nis,
+            nama: r.nama || allowedMap[nis].nama || '-',
+            kelas: r.kelas || allowedMap[nis].kelas || '-',
+            jam_masuk: '-',
+            status_masuk: '-',
+            jam_pulang: '-',
+            status_pulang: '-'
+          };
+        }
+        const sesi = String(r.sesi || '').toUpperCase();
+        const jam = ekstrakJamTimestamp_(r.timestamp);
+        const st = String(r.status || '').toUpperCase();
+        if (sesi === 'PAGI') {
+          pairMap[key].jam_masuk = jam;
+          pairMap[key].status_masuk = st || 'HADIR';
+        } else if (sesi === 'PULANG') {
+          pairMap[key].jam_pulang = jam;
+          pairMap[key].status_pulang = st || 'PULANG';
+        }
+      });
+      harian = Object.values(pairMap);
+    }
+
+    harian.sort((a, b) => (b.tanggal + a.kelas + a.nama).localeCompare(a.tanggal + b.kelas + b.nama));
+    state.laporanHarianData = harian;
+
     renderLaporan();
-  } catch (err) { toast('Gagal memuat laporan', true); }
+  } catch (err) {
+    toast('Gagal memuat laporan siswa', true);
+  }
+}
+
+function getFilteredLaporanRekap_() {
+  const q = ($('lap-individu').value || '').trim().toLowerCase();
+  const kondisi = $('lap-kondisi') ? $('lap-kondisi').value : '';
+  return state.laporanData.filter(r => {
+    if (q && !String(r.nama).toLowerCase().includes(q) && !String(r.nis).toLowerCase().includes(q)) return false;
+    if (kondisi === 'telat' && r.telat <= 0) return false;
+    if (kondisi === 'alpa' && r.alpa <= 0) return false;
+    if (kondisi === 'rendah' && !(r.totalHari > 0 && r.persenNum < 80)) return false;
+    if (kondisi === 'zona' && r.zona === 'Hijau') return false;
+    return true;
+  });
+}
+
+function getFilteredLaporanHarian_() {
+  const q = ($('lap-individu').value || '').trim().toLowerCase();
+  const kondisi = $('lap-kondisi') ? $('lap-kondisi').value : '';
+  return state.laporanHarianData.filter(r => {
+    if (q && !String(r.nama).toLowerCase().includes(q) && !String(r.nis).toLowerCase().includes(q)) return false;
+    if (kondisi === 'telat' && r.status_masuk !== 'TERLAMBAT') return false;
+    if (kondisi === 'belum_pulang' && (r.jam_pulang && r.jam_pulang !== '-')) return false;
+    if (kondisi === 'pulang_cepat' && r.status_pulang !== 'PULANG_CEPAT') return false;
+    return true;
+  });
+}
+
+function updateSummaryLaporanSiswa_(rekapList) {
+  const totalSiswa = rekapList.length;
+  let totTepat = 0, totTelat = 0, totIzin = 0, totSakit = 0, totAlpa = 0, totSholat = 0, totPerhatian = 0, sumPersen = 0;
+  rekapList.forEach(r => {
+    totTepat += r.tepat;
+    totTelat += r.telat;
+    totIzin += r.izin;
+    totSakit += r.sakit;
+    totAlpa += r.alpa;
+    totSholat += r.sholat;
+    if (r.zona !== 'Hijau') totPerhatian++;
+    sumPersen += r.persenNum;
+  });
+  const avg = totalSiswa > 0 ? (sumPersen / totalSiswa).toFixed(1) : '0';
+  $('lap-sum-siswa').textContent = totalSiswa;
+  $('lap-sum-hari').textContent = `${state.lapHariAktif} hari aktif tercatat`;
+  $('lap-sum-hadir').textContent = `${totTepat} / ${totTelat}`;
+  $('lap-sum-sholat').textContent = `${totSholat} kali presensi sholat`;
+  $('lap-sum-isa').textContent = `${totIzin} / ${totSakit} / ${totAlpa}`;
+  $('lap-sum-avg').textContent = `Rata-rata hadir: ${avg}%`;
+  $('lap-sum-perhatian').textContent = totPerhatian;
 }
 
 function renderLaporan() {
-  const data = state.laporanData;
-  const headers = ['NIS', 'Nama', 'Kelas', 'Hadir', 'Izin', 'Sakit', 'Alpa', 'Total Hari', '% Kehadiran'];
-  const rows = data.map(r => {
-    const total = r.hadir + r.izin + r.sakit + r.alpa;
-    const persen = total > 0 ? ((r.hadir / total) * 100).toFixed(1) + '%' : '0%';
-    return [r.nis, r.nama, r.kelas, r.hadir, r.izin, r.sakit, r.alpa, total, persen];
+  const rekapFiltered = getFilteredLaporanRekap_();
+  updateSummaryLaporanSiswa_(rekapFiltered);
+
+  if (state.lapSiswaTab === 'harian') {
+    const harian = getFilteredLaporanHarian_();
+    const headers = ['Tanggal', 'NIS', 'Nama', 'Kelas', 'Jam Masuk', 'Status Masuk', 'Jam Pulang', 'Status Pulang'];
+    $('lap-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+    if (!harian.length) {
+      $('lap-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada log masuk/pulang pada filter ini.</td></tr>`;
+    } else {
+      $('lap-tbody').innerHTML = harian.map(r => {
+        const badgeMasuk = r.status_masuk === 'TERLAMBAT'
+          ? '<span class="badge badge-warning">TERLAMBAT</span>'
+          : (r.status_masuk === '-' ? '<span class="text-muted">-</span>' : `<span class="badge badge-success">${escapeHtml(r.status_masuk)}</span>`);
+        const badgePulang = (!r.jam_pulang || r.jam_pulang === '-')
+          ? '<span class="badge badge-secondary">Belum Tap</span>'
+          : (r.status_pulang === 'PULANG_CEPAT'
+            ? '<span class="badge badge-warning">PULANG CEPAT</span>'
+            : `<span class="badge badge-info">${escapeHtml(r.status_pulang || 'PULANG')}</span>`);
+        return `<tr>
+          <td>${escapeHtml(formatTanggal(r.tanggal))}</td>
+          <td class="font-weight-bold">${escapeHtml(r.nis)}</td>
+          <td>${escapeHtml(r.nama)}</td>
+          <td>${escapeHtml(r.kelas)}</td>
+          <td class="font-weight-bold">${escapeHtml(r.jam_masuk || '-')}</td>
+          <td>${badgeMasuk}</td>
+          <td class="font-weight-bold">${escapeHtml(r.jam_pulang || '-')}</td>
+          <td>${badgePulang}</td>
+        </tr>`;
+      }).join('');
+    }
+    $('lap-footer-info').textContent = `Menampilkan ${harian.length} catatan harian siswa.`;
+    return;
+  }
+
+  const headers = ['NIS', 'Nama', 'Kelas', 'Tepat', 'Telat', 'Izin', 'Sakit', 'Alpa', 'Sholat', 'Poin', 'Zona', '% Hadir', 'Aksi'];
+  $('lap-thead').innerHTML = '<tr>' + headers.map((h, i) => `<th${i === headers.length - 1 ? ' class="no-print-laporan"' : ''}>${h}</th>`).join('') + '</tr>';
+  if (!rekapFiltered.length) {
+    $('lap-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`;
+    $('lap-footer-info').textContent = '0 siswa ditampilkan.';
+    return;
+  }
+
+  $('lap-tbody').innerHTML = rekapFiltered.map(r => {
+    const telatHtml = r.telat > 0 ? `<span class="badge badge-warning">${r.telat}</span>` : '0';
+    const alpaHtml  = r.alpa > 0  ? `<span class="badge badge-danger">${r.alpa}</span>`  : '0';
+    const pctColor  = (r.totalHari > 0 && r.persenNum < 80) ? 'color:#B91C1C;font-weight:800' : 'font-weight:700';
+    return `<tr>
+      <td class="font-weight-bold">${escapeHtml(r.nis)}</td>
+      <td>${escapeHtml(r.nama)}</td>
+      <td>${escapeHtml(r.kelas)}</td>
+      <td>${r.tepat}</td>
+      <td>${telatHtml}</td>
+      <td>${r.izin}</td>
+      <td>${r.sakit}</td>
+      <td>${alpaHtml}</td>
+      <td>${r.sholat}</td>
+      <td class="font-weight-bold">${r.poin}</td>
+      <td><span class="zona-chip ${r.zonaCls}">${escapeHtml(r.zona)}</span></td>
+      <td style="${pctColor}">${r.persenStr}</td>
+      <td class="no-print-laporan" style="white-space:nowrap">
+        <button class="btn-ghost" data-lap-harian="${escapeHtml(r.nis)}" title="Lihat Log Masuk & Pulang"><i class="fas fa-calendar-day"></i></button>
+        <button class="btn-ghost ml-1" data-lap-raport="${escapeHtml(r.nis)}" title="Buka Raport"><i class="fas fa-file-alt"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  $('lap-tbody').querySelectorAll('[data-lap-harian]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const nis = btn.dataset.lapHarian;
+      $('lap-individu').value = nis;
+      state.lapSiswaTab = 'harian';
+      document.querySelectorAll('#lap-siswa-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === 'harian'));
+      updateOpsiKondisiLaporan();
+      renderLaporan();
+    });
   });
-  $('lap-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-  if (!rows.length) { $('lap-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`; return; }
-  $('lap-tbody').innerHTML = rows.map(r => '<tr>' + r.map(c => `<td>${escapeHtml(c)}</td>`).join('') + '</tr>').join('');
+
+  $('lap-tbody').querySelectorAll('[data-lap-raport]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const nis = btn.dataset.lapRaport;
+      const r = state.laporanData.find(x => String(x.nis) === String(nis));
+      if (!r) return;
+      loadPage('raport');
+      setTimeout(() => {
+        pilihRaportSiswa({ nis: r.nis, nama: r.nama, kelas: r.kelas });
+        tampilkanRaport();
+      }, 150);
+    });
+  });
+
+  $('lap-footer-info').textContent = `Menampilkan ${rekapFiltered.length} siswa · Hari sekolah aktif pada periode: ${state.lapHariAktif} hari.`;
 }
 
 function exportLaporanSiswa() {
-  if (!state.laporanData.length) { toast('Tidak ada data', true); return; }
-  const headers = ['NIS', 'Nama', 'Kelas', 'Hadir', 'Izin', 'Sakit', 'Alpa', 'Total Hari', '% Kehadiran'];
-  const rows = state.laporanData.map(r => {
-    const total = r.hadir + r.izin + r.sakit + r.alpa;
-    const persen = total > 0 ? ((r.hadir / total) * 100).toFixed(1) + '%' : '0%';
-    return [r.nis, r.nama, r.kelas, r.hadir, r.izin, r.sakit, r.alpa, total, persen];
-  });
+  const dari = $('lap-dari').value;
+  const sampai = $('lap-sampai').value;
+  if (state.lapSiswaTab === 'harian') {
+    const data = getFilteredLaporanHarian_();
+    if (!data.length) { toast('Tidak ada data', true); return; }
+    const headers = ['Tanggal', 'NIS', 'Nama', 'Kelas', 'Jam Masuk', 'Status Masuk', 'Jam Pulang', 'Status Pulang'];
+    const rows = data.map(r => [formatTanggal(r.tanggal), r.nis, r.nama, r.kelas, r.jam_masuk, r.status_masuk, r.jam_pulang, r.status_pulang]);
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Log_Harian_Siswa');
+    XLSX.writeFile(wb, `Log_Harian_Siswa_${dari}_sd_${sampai}.xlsx`);
+    toast('File Excel diunduh');
+    return;
+  }
+
+  const data = getFilteredLaporanRekap_();
+  if (!data.length) { toast('Tidak ada data', true); return; }
+  const headers = ['NIS', 'Nama', 'Kelas', 'Tepat Waktu', 'Terlambat', 'Izin', 'Sakit', 'Alpa', 'Sholat', 'Saldo Poin', 'Zona', '% Kehadiran'];
+  const rows = data.map(r => [r.nis, r.nama, r.kelas, r.tepat, r.telat, r.izin, r.sakit, r.alpa, r.sholat, r.poin, r.zona, r.persenStr]);
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Laporan_Siswa');
-  XLSX.writeFile(wb, `Laporan_Siswa_${$('lap-dari').value}_sd_${$('lap-sampai').value}.xlsx`);
+  XLSX.writeFile(wb, `Laporan_Siswa_${dari}_sd_${sampai}.xlsx`);
   toast('File Excel diunduh');
+}
+
+function printLaporanSiswa() {
+  const dari = $('lap-dari').value || todayISO();
+  const sampai = $('lap-sampai').value || todayISO();
+  const kelas = $('lap-kelas').value || (isAdminRole_(state.role) ? 'Semua Kelas' : 'Semua Kelas Ampu');
+  const isHarian = state.lapSiswaTab === 'harian';
+  const data = isHarian ? getFilteredLaporanHarian_() : getFilteredLaporanRekap_();
+  if (!data.length) { toast('Tidak ada data untuk dicetak', true); return; }
+
+  if (window.jspdf && window.jspdf.jsPDF) {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('SMK BHAKTI KENCANA CIAWI', 14, 14);
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text(isHarian ? 'LOG MASUK & PULANG HARIAN SISWA' : 'LAPORAN REKAP KEHADIRAN & KEDISIPLINAN SISWA', 14, 20);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Periode: ${formatTanggal(dari)} s/d ${formatTanggal(sampai)}  |  Kelas: ${kelas}`, 14, 26);
+      doc.text(`Dicetak: ${formatTanggal(todayISO())}  |  Total Baris: ${data.length}${!isHarian ? '  |  Hari Aktif: ' + state.lapHariAktif + ' hari' : ''}`, 14, 31);
+
+      const headers = isHarian
+        ? [['No', 'Tanggal', 'NIS', 'Nama Siswa', 'Kelas', 'Jam Masuk', 'Status Masuk', 'Jam Pulang', 'Status Pulang']]
+        : [['No', 'NIS', 'Nama Siswa', 'Kelas', 'Tepat', 'Telat', 'Izin', 'Sakit', 'Alpa', 'Sholat', 'Poin', 'Zona', '% Hadir']];
+
+      const body = isHarian
+        ? data.map((r, idx) => [idx + 1, formatTanggal(r.tanggal), r.nis, r.nama, r.kelas, r.jam_masuk, r.status_masuk, r.jam_pulang, r.status_pulang])
+        : data.map((r, idx) => [idx + 1, r.nis, r.nama, r.kelas, r.tepat, r.telat, r.izin, r.sakit, r.alpa, r.sholat, r.poin, r.zona, r.persenStr]);
+
+      doc.autoTable({
+        head: headers,
+        body: body,
+        startY: 35,
+        styles: { fontSize: 8, cellPadding: 2.2, lineColor: [226, 232, 240], lineWidth: 0.2 },
+        headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [248, 250, 255] },
+        columnStyles: isHarian
+          ? { 0: { halign: 'center', cellWidth: 9 }, 5: { halign: 'center' }, 7: { halign: 'center' } }
+          : {
+              0: { halign: 'center', cellWidth: 9 },
+              4: { halign: 'center', cellWidth: 13 },
+              5: { halign: 'center', cellWidth: 12 },
+              6: { halign: 'center', cellWidth: 12 },
+              7: { halign: 'center', cellWidth: 12 },
+              8: { halign: 'center', cellWidth: 12 },
+              9: { halign: 'center', cellWidth: 14 },
+              10: { halign: 'center', cellWidth: 13 },
+              11: { halign: 'center', cellWidth: 16 },
+              12: { halign: 'center', cellWidth: 16 }
+            },
+        didDrawPage: (d) => {
+          const pageCount = doc.internal.getNumberOfPages();
+          doc.setFontSize(8);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`Halaman ${d.pageNumber} dari ${pageCount}`, doc.internal.pageSize.getWidth() - 14, doc.internal.pageSize.getHeight() - 8, { align: 'right' });
+        }
+      });
+
+      doc.save(`${isHarian ? 'Log_Harian_Siswa' : 'Laporan_Siswa'}_${dari}_sd_${sampai}.pdf`);
+      toast('File PDF diunduh');
+      return;
+    } catch (e) {
+      console.error('PDF fallback:', e);
+    }
+  }
+
+  $('lap-siswa-print-periode').textContent = `Periode: ${formatTanggal(dari)} s/d ${formatTanggal(sampai)} · Kelas: ${kelas}`;
+  document.body.classList.remove('print-kartu', 'print-laporan-guru');
+  document.body.classList.add('print-laporan-siswa');
+  window.print();
 }
 
 // ============ LAPORAN GURU ============
 async function initLaporanGuru() {
   if (!$('lap-guru-dari').value) $('lap-guru-dari').value = todayISO();
   if (!$('lap-guru-sampai').value) $('lap-guru-sampai').value = todayISO();
-  $('btn-lap-guru-cari').addEventListener('click', loadLaporanGuru);
-  $('lap-guru-dari').addEventListener('change', loadLaporanGuru);
-  $('lap-guru-sampai').addEventListener('change', loadLaporanGuru);
-  $('btn-lap-guru-export').addEventListener('click', exportLaporanGuru);
-  $('btn-lap-guru-print').addEventListener('click', () => window.print());
+  if (!state.lapGuruInit) {
+    $('btn-lap-guru-cari').addEventListener('click', loadLaporanGuru);
+    $('lap-guru-dari').addEventListener('change', loadLaporanGuru);
+    $('lap-guru-sampai').addEventListener('change', loadLaporanGuru);
+    $('btn-lap-guru-export').addEventListener('click', exportLaporanGuru);
+    $('btn-lap-guru-print').addEventListener('click', printLaporanGuru);
+    state.lapGuruInit = true;
+  }
   await loadLaporanGuru();
 }
 
@@ -1782,13 +2325,13 @@ async function loadLaporanGuru() {
   try {
     const res = await apiCall('getLaporan', { jenis: 'guru', dari, sampai });
     if (!res.ok) { toast(res.message, true); return; }
-    state.laporanData = res.data;
+    state.laporanGuruData = res.data || [];
     renderLaporanGuru();
   } catch (err) { toast('Gagal memuat laporan guru', true); }
 }
 
 function renderLaporanGuru() {
-  const data = state.laporanData;
+  const data = state.laporanGuruData;
   const headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam'];
   const rows = data.map(r => [formatTanggal(r.tanggal), r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
   $('lap-guru-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
@@ -1797,14 +2340,108 @@ function renderLaporanGuru() {
 }
 
 function exportLaporanGuru() {
-  if (!state.laporanData.length) { toast('Tidak ada data', true); return; }
+  if (!state.laporanGuruData.length) { toast('Tidak ada data', true); return; }
   const headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam'];
-  const rows = state.laporanData.map(r => [formatTanggal(r.tanggal), r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
+  const rows = state.laporanGuruData.map(r => [formatTanggal(r.tanggal), r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Laporan_Guru');
   XLSX.writeFile(wb, `Laporan_Guru_${$('lap-guru-dari').value}_sd_${$('lap-guru-sampai').value}.xlsx`);
   toast('File Excel diunduh');
 }
+
+function printLaporanGuru() {
+  if (!state.laporanGuruData.length) { toast('Tidak ada data untuk dicetak', true); return; }
+  const dari = $('lap-guru-dari').value || todayISO();
+  const sampai = $('lap-guru-sampai').value || todayISO();
+
+  if (window.jspdf && window.jspdf.jsPDF) {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('SMK BHAKTI KENCANA CIAWI', 14, 15);
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text('LAPORAN KEHADIRAN GURU & STAF', 14, 21);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Periode: ${formatTanggal(dari)} s/d ${formatTanggal(sampai)}`, 14, 27);
+      doc.text(`Dicetak: ${formatTanggal(todayISO())}  |  Total: ${state.laporanGuruData.length} catatan`, 14, 32);
+
+      const headers = [['No', 'Tanggal', 'ID Guru', 'Nama Guru', 'Masuk', 'Pulang', 'Status', 'Total Jam']];
+      const body = state.laporanGuruData.map((r, idx) => [
+        idx + 1,
+        formatTanggal(r.tanggal),
+        String(r.id_guru || '-'),
+        String(r.nama_guru || r.id_guru || '-'),
+        String(r.jam_masuk || '-'),
+        String(r.jam_pulang || '-'),
+        String(r.status || '-'),
+        String(r.total_jam || '-')
+      ]);
+
+      doc.autoTable({
+        head: headers,
+        body: body,
+        startY: 36,
+        styles: { fontSize: 8.5, cellPadding: 2.5, lineColor: [226, 232, 240], lineWidth: 0.2 },
+        headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [248, 250, 255] },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 9 },
+          1: { cellWidth: 28 },
+          2: { cellWidth: 18 },
+          4: { halign: 'center', cellWidth: 16 },
+          5: { halign: 'center', cellWidth: 16 },
+          6: { halign: 'center', cellWidth: 18 },
+          7: { cellWidth: 25 }
+        },
+        didDrawPage: (data) => {
+          const pageCount = doc.internal.getNumberOfPages();
+          doc.setFontSize(8);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`Halaman ${data.pageNumber} dari ${pageCount}`, doc.internal.pageSize.getWidth() - 14, doc.internal.pageSize.getHeight() - 8, { align: 'right' });
+        }
+      });
+
+      doc.save(`Laporan_Guru_${dari}_sd_${sampai}.pdf`);
+      toast('File PDF diunduh');
+      return;
+    } catch (e) {
+      console.error('PDF fallback:', e);
+    }
+  }
+
+  $('lap-guru-print-periode').textContent = `Periode: ${formatTanggal(dari)} s/d ${formatTanggal(sampai)}`;
+  document.body.classList.remove('print-kartu', 'print-laporan-siswa');
+  document.body.classList.add('print-laporan-guru');
+  window.print();
+}
+
+window.addEventListener('beforeprint', () => {
+  if ($('modal-raport') && $('modal-raport').classList.contains('show')) return;
+  if (document.body.classList.contains('print-kartu')) return;
+  const lapGuruPage = $('page-laporan-guru');
+  const lapSiswaPage = $('page-laporan-siswa');
+  if (lapGuruPage && lapGuruPage.style.display !== 'none') {
+    const dari = $('lap-guru-dari').value || todayISO();
+    const sampai = $('lap-guru-sampai').value || todayISO();
+    $('lap-guru-print-periode').textContent = `Periode: ${formatTanggal(dari)} s/d ${formatTanggal(sampai)}`;
+    document.body.classList.add('print-laporan-guru');
+  } else if (lapSiswaPage && lapSiswaPage.style.display !== 'none') {
+    const dari = $('lap-dari').value || todayISO();
+    const sampai = $('lap-sampai').value || todayISO();
+    const kelas = $('lap-kelas').value || 'Semua Kelas';
+    $('lap-siswa-print-periode').textContent = `Periode: ${formatTanggal(dari)} s/d ${formatTanggal(sampai)} · Kelas: ${kelas}`;
+    document.body.classList.add('print-laporan-siswa');
+  }
+});
+window.addEventListener('afterprint', () => {
+  document.body.classList.remove('print-laporan-guru', 'print-laporan-siswa');
+});
 
 // ============ PENGATURAN ============
 async function loadPengaturan() {

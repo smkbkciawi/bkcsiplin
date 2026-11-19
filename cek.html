@@ -16,7 +16,7 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Inter',sans-serif;background:linear-gradient(180deg,#EFF6FF 0%,#F0F4FA 100%);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-  
+
   /* HEADER */
   header{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;padding:1rem 1.5rem;box-shadow:0 4px 20px rgba(30,58,138,.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
   header .brand{display:flex;align-items:center;gap:.75rem}
@@ -28,71 +28,106 @@
 
   /* MAIN */
   main{flex:1;padding:2rem 1rem;display:flex;justify-content:center}
-  .container{width:100%;max-width:900px}
+  .container{width:100%;max-width:920px}
 
   /* HERO */
-  .hero{background:#fff;border-radius:20px;padding:2rem;box-shadow:0 8px 30px rgba(30,58,138,.08);margin-bottom:1.5rem;text-align:center;border:1px solid #DBEAFE}
-  .hero .icon{width:64px;height:64px;background:linear-gradient(135deg,var(--brand-2),var(--brand));border-radius:16px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:1.75rem;margin-bottom:1rem;box-shadow:0 8px 24px rgba(59,130,246,.3)}
-  .hero h2{font-size:1.5rem;font-weight:900;color:var(--brand);margin-bottom:.4rem}
-  .hero p{color:var(--muted);font-size:.95rem;font-weight:600;line-height:1.5;max-width:600px;margin:0 auto}
+  .hero{background:#fff;border-radius:20px;padding:1.75rem 2rem;box-shadow:0 8px 30px rgba(30,58,138,.08);margin-bottom:1.25rem;text-align:center;border:1px solid #DBEAFE}
+  .hero .icon{width:60px;height:60px;background:linear-gradient(135deg,var(--brand-2),var(--brand));border-radius:16px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:1.65rem;margin-bottom:.85rem;box-shadow:0 8px 24px rgba(59,130,246,.3)}
+  .hero h2{font-size:1.45rem;font-weight:900;color:var(--brand);margin-bottom:.35rem}
+  .hero p{color:var(--muted);font-size:.93rem;font-weight:600;line-height:1.5;max-width:620px;margin:0 auto}
 
   /* SEARCH BOX */
-  .search-card{background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 8px 30px rgba(30,58,138,.08);margin-bottom:1.5rem;border:1px solid #DBEAFE}
+  .search-card{background:#fff;border-radius:16px;padding:1.4rem 1.5rem;box-shadow:0 8px 30px rgba(30,58,138,.08);margin-bottom:1.25rem;border:1px solid #DBEAFE}
   .search-card label{display:block;font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
   .search-input-wrap{display:flex;gap:.5rem;flex-wrap:wrap}
-  .search-input-wrap input{flex:1;min-width:200px;padding:1rem 1.2rem;border:2px solid #DBEAFE;border-radius:12px;font-family:inherit;font-weight:600;font-size:1rem;outline:none;transition:.15s}
+  .search-input-wrap input{flex:1;min-width:200px;padding:.95rem 1.15rem;border:2px solid #DBEAFE;border-radius:12px;font-family:inherit;font-weight:600;font-size:1rem;outline:none;transition:.15s}
   .search-input-wrap input:focus{border-color:var(--brand-2);box-shadow:0 0 0 4px rgba(59,130,246,.15)}
-  .search-input-wrap button{padding:1rem 2rem;background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 6px 20px rgba(59,130,246,.3);transition:.15s}
+  .search-input-wrap button{padding:.95rem 1.8rem;background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 6px 20px rgba(59,130,246,.3);transition:.15s}
   .search-input-wrap button:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,.4)}
   .search-input-wrap button:disabled{opacity:.6;cursor:not-allowed;transform:none}
-  .search-hint{font-size:.8rem;color:var(--muted);font-weight:600;margin-top:.75rem;display:flex;align-items:center;gap:.4rem}
+  .search-hint{font-size:.8rem;color:var(--muted);font-weight:600;margin-top:.75rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
 
   /* RESULT */
   #result{display:none}
-  #result.show{display:block;animation:fadeIn .3s ease}
+  #result.show{display:block;animation:fadeIn .28s ease}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-  .profile-card{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-radius:20px;padding:1.75rem;margin-bottom:1.25rem;box-shadow:0 10px 30px rgba(30,58,138,.25)}
+  /* PICKER MULTI SISWA */
+  .picker-card{background:#fff;border-radius:16px;padding:1.35rem 1.5rem;box-shadow:0 4px 16px rgba(30,58,138,.08);border:1px solid #DBEAFE;margin-bottom:1.25rem}
+  .picker-card h4{font-size:.98rem;font-weight:900;color:var(--brand);margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem}
+  .picker-card p{font-size:.82rem;color:var(--muted);font-weight:600;margin-bottom:.9rem}
+  .picker-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.65rem}
+  .picker-item{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.85rem 1rem;border:1.5px solid #DBEAFE;border-radius:12px;background:#F8FAFF;cursor:pointer;text-align:left;font-family:inherit;transition:.15s;width:100%}
+  .picker-item:hover{border-color:var(--brand-2);background:#EFF6FF;transform:translateY(-1px)}
+  .picker-item .pname{font-weight:800;color:var(--text);font-size:.92rem}
+  .picker-item .pmeta{font-size:.76rem;color:var(--muted);font-weight:600;margin-top:.15rem}
+  .picker-item i{color:var(--brand-2);flex-shrink:0}
+
+  .back-picker-btn{background:#EFF6FF;color:var(--brand);border:1.5px solid #BFDBFE;border-radius:10px;padding:.45rem .85rem;font-family:inherit;font-weight:800;font-size:.8rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.9rem}
+  .back-picker-btn:hover{background:#DBEAFE}
+
+  /* PROFILE CARD */
+  .profile-card{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-radius:20px;padding:1.65rem;margin-bottom:1.15rem;box-shadow:0 10px 30px rgba(30,58,138,.25)}
   .profile-card .row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
-  .profile-card .avatar{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;flex-shrink:0}
-  .profile-card .info h3{font-size:1.4rem;font-weight:900;line-height:1.2}
-  .profile-card .info .meta{font-size:.9rem;opacity:.9;margin-top:.3rem;font-weight:600}
-  .profile-card .zone-badge{margin-left:auto;padding:.5rem 1rem;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:99px;font-weight:900;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em}
+  .profile-card .avatar{width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:900;flex-shrink:0}
+  .profile-card .info h3{font-size:1.35rem;font-weight:900;line-height:1.2}
+  .profile-card .info .meta{font-size:.88rem;opacity:.92;margin-top:.3rem;font-weight:600;display:flex;flex-wrap:wrap;gap:.45rem .8rem;align-items:center}
+  .profile-card .zone-wrap{margin-left:auto;text-align:right}
+  .profile-card .zone-badge{display:inline-block;padding:.5rem 1rem;border-radius:12px;font-weight:900;font-size:.86rem;text-transform:uppercase;letter-spacing:.04em;border:2px solid rgba(255,255,255,.55);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  .zone-badge.hijau{background:#059669;color:#fff}
+  .zone-badge.kuning{background:#D97706;color:#fff}
+  .zone-badge.oranye{background:#EA580C;color:#fff}
+  .zone-badge.merah,.zone-badge.kritis{background:#DC2626;color:#fff}
+  .zone-sub{font-size:.73rem;opacity:.9;font-weight:700;margin-top:.3rem}
+
+  /* TODAY STATUS BANNER */
+  .today-card{background:#fff;border-radius:16px;padding:1.15rem 1.35rem;box-shadow:0 4px 16px rgba(30,58,138,.06);border:1px solid #DBEAFE;border-left:5px solid var(--brand-2);margin-bottom:1.15rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem}
+  .today-card.ok{border-left-color:var(--success)}
+  .today-card.warn{border-left-color:var(--warn)}
+  .today-card.err{border-left-color:var(--danger)}
+  .today-title{font-size:.73rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem}
+  .today-main{font-size:1rem;font-weight:800;color:var(--text)}
+  .today-sub{font-size:.82rem;color:var(--muted);font-weight:600;margin-top:.2rem}
+  .today-chips{display:flex;gap:.45rem;flex-wrap:wrap;align-items:center}
+  .chip{padding:.3rem .7rem;border-radius:8px;font-size:.76rem;font-weight:800;background:#EFF6FF;color:var(--brand);border:1px solid #DBEAFE}
+  .chip.ok{background:#D1FAE5;color:#047857;border-color:#A7F3D0}
+  .chip.warn{background:#FEF3C7;color:#92400E;border-color:#FDE68A}
+  .chip.err{background:#FEE2E2;color:#B91C1C;border-color:#FECACA}
 
   /* STAT GRID */
-  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.25rem}
-  .stat-card{background:#fff;border-radius:14px;padding:1.2rem;box-shadow:0 4px 16px rgba(30,58,138,.06);border:1px solid #DBEAFE;text-align:center}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.9rem;margin-bottom:1.25rem}
+  .stat-card{background:#fff;border-radius:14px;padding:1.15rem;box-shadow:0 4px 16px rgba(30,58,138,.06);border:1px solid #DBEAFE;text-align:center}
   .stat-card .lbl{font-size:.7rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
-  .stat-card .val{font-size:2rem;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1}
-  .stat-card .sub{font-size:.72rem;color:var(--muted);font-weight:600;margin-top:.3rem}
+  .stat-card .val{font-size:1.9rem;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1}
+  .stat-card .sub{font-size:.72rem;color:var(--muted);font-weight:600;margin-top:.35rem}
   .stat-card.hijau .val{color:var(--success)}
   .stat-card.kuning .val{color:var(--warn)}
   .stat-card.merah .val{color:var(--danger)}
   .stat-card.biru .val{color:var(--brand-2)}
 
   /* CARD */
-  .card{background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 4px 16px rgba(30,58,138,.06);margin-bottom:1.25rem;border:1px solid #DBEAFE}
-  .card h4{font-size:1rem;font-weight:900;color:var(--brand);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+  .card{background:#fff;border-radius:16px;padding:1.4rem;box-shadow:0 4px 16px rgba(30,58,138,.06);margin-bottom:1.25rem;border:1px solid #DBEAFE}
+  .card h4{font-size:1rem;font-weight:900;color:var(--brand);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
   .card h4 i{color:var(--brand-2)}
+  .card h4 .hint-count{margin-left:auto;font-size:.75rem;color:var(--muted);font-weight:700}
 
   /* TABLE */
-  table{width:100%;border-collapse:collapse;font-size:.88rem}
-  th{background:#EFF6FF;padding:.7rem .6rem;text-align:left;font-weight:800;color:var(--brand);border-bottom:2px solid #DBEAFE;font-size:.75rem;text-transform:uppercase;letter-spacing:.03em}
+  table{width:100%;border-collapse:collapse;font-size:.86rem}
+  th{background:#EFF6FF;padding:.7rem .6rem;text-align:left;font-weight:800;color:var(--brand);border-bottom:2px solid #DBEAFE;font-size:.74rem;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
   td{padding:.7rem .6rem;border-bottom:1px solid #F0F4FA;vertical-align:middle}
   tr:hover td{background:#F8FAFF}
-  td.center{text-align:center}
+  td.center, th.center{text-align:center}
   td.num{text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700}
 
-  .badge{display:inline-block;padding:.2rem .6rem;border-radius:6px;font-size:.72rem;font-weight:800;text-transform:uppercase}
-  .badge.hadir{background:#D1FAE5;color:#047857}
-  .badge.izin{background:#DBEAFE;color:#1E40AF}
-  .badge.sakit{background:#FEF3C7;color:#92400E}
+  .badge{display:inline-block;padding:.22rem .58rem;border-radius:6px;font-size:.71rem;font-weight:800;text-transform:uppercase;white-space:nowrap}
+  .badge.hadir,.badge.tepat,.badge.pulang{background:#D1FAE5;color:#047857}
+  .badge.izin,.badge.udzur{background:#DBEAFE;color:#1E40AF}
+  .badge.sakit,.badge.terlambat,.badge.pulang-awal{background:#FEF3C7;color:#92400E}
   .badge.alpa{background:#FEE2E2;color:#B91C1C}
-  .badge.terlambat{background:#FEF3C7;color:#92400E}
-  .badge.tepat{background:#D1FAE5;color:#047857}
+  .badge.muted{background:#F1F5F9;color:#64748B}
 
-  .empty-data{text-align:center;padding:2rem;color:var(--muted);font-weight:600;font-size:.9rem}
-  .empty-data i{font-size:2rem;opacity:.4;display:block;margin-bottom:.5rem}
+  .empty-data{text-align:center;padding:1.85rem;color:var(--muted);font-weight:600;font-size:.88rem}
+  .empty-data i{font-size:1.85rem;opacity:.4;display:block;margin-bottom:.45rem}
 
   /* POIN ITEM */
   .poin-item{display:flex;justify-content:space-between;align-items:center;padding:.7rem .9rem;border-radius:10px;background:#F8FAFF;border:1px solid #DBEAFE;margin-bottom:.5rem;font-size:.88rem;gap:.5rem}
@@ -104,8 +139,7 @@
   .poin-item .val.plus{color:var(--success)}
 
   /* LOADING */
-  .loading{text-align:center;padding:3rem;color:var(--muted);font-weight:600}
-  .loading i{font-size:2rem;color:var(--brand-2);margin-bottom:.5rem;display:block}
+  .loading{text-align:center;padding:2.75rem;color:var(--muted);font-weight:600}
   .spinner{display:inline-block;width:32px;height:32px;border:3px solid #DBEAFE;border-top-color:var(--brand-2);border-radius:50%;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -120,22 +154,22 @@
   @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
 
   /* FOOTER */
-  footer{background:#fff;border-top:1px solid #DBEAFE;padding:1.5rem;text-align:center;font-size:.8rem;color:var(--muted);font-weight:600}
+  footer{background:#fff;border-top:1px solid #DBEAFE;padding:1.35rem;text-align:center;font-size:.8rem;color:var(--muted);font-weight:600}
   footer b{color:var(--brand)}
 
   @media(max-width:600px){
     header .brand h1{font-size:.95rem}
     header .brand .sub{font-size:.65rem}
     header .brand img{width:36px;height:36px}
-    .hero{padding:1.5rem 1rem}
+    .hero{padding:1.35rem 1rem}
     .hero h2{font-size:1.2rem}
     .hero p{font-size:.85rem}
-    .profile-card{padding:1.25rem}
-    .profile-card .avatar{width:56px;height:56px;font-size:1.4rem}
+    .profile-card{padding:1.2rem}
+    .profile-card .avatar{width:54px;height:54px;font-size:1.35rem}
     .profile-card .info h3{font-size:1.15rem}
-    .profile-card .zone-badge{margin-left:0;margin-top:.75rem;width:100%;text-align:center}
+    .profile-card .zone-wrap{margin-left:0;margin-top:.65rem;width:100%;text-align:left}
     .stat-card .val{font-size:1.6rem}
-    .search-input-wrap button{padding:1rem 1.2rem;font-size:.9rem}
+    .search-input-wrap button{padding:.95rem 1.25rem;font-size:.9rem;width:100%;justify-content:center}
     table{font-size:.78rem}
     th,td{padding:.5rem .4rem}
   }
@@ -147,7 +181,7 @@
   <div class="brand">
     <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo" onerror="this.style.display='none'">
     <div>
-      <h1>Cek Kehadiran & Poin</h1>
+      <h1>Cek Kehadiran &amp; Poin</h1>
       <div class="sub">SMK Bhakti Kencana Ciawi</div>
     </div>
   </div>
@@ -160,8 +194,8 @@
     <!-- HERO -->
     <div class="hero">
       <div class="icon"><i class="fas fa-magnifying-glass-chart"></i></div>
-      <h2>Cek Kehadiran & Poin Siswa</h2>
-      <p>Masukkan NIS atau nama siswa untuk melihat kehadiran gerbang, presensi sholat, dan riwayat poin disiplin secara real-time.</p>
+      <h2>Cek Kehadiran &amp; Poin Siswa</h2>
+      <p>Masukkan NIS atau nama siswa untuk melihat status kehadiran hari ini, riwayat gerbang masuk &amp; pulang, presensi sholat, dan saldo poin disiplin secara real-time.</p>
     </div>
 
     <!-- SEARCH -->
@@ -173,7 +207,7 @@
       </div>
       <div class="search-hint">
         <i class="fas fa-circle-info"></i>
-        Minimal 2 karakter. Data ditampilkan sesuai hak akses publik.
+        Minimal 2 karakter lalu tekan Enter atau klik Cari. Jika nama sama, pilih siswa dari daftar hasil.
       </div>
     </div>
 
@@ -185,7 +219,7 @@
 
 <footer>
   <b>BKCSiplin</b> · SMK Bhakti Kencana Ciawi · Yayasan Adhi Guna Kencana
-  <div style="margin-top:.4rem;font-size:.72rem">Data diperbarui secara real-time dari sistem sekolah</div>
+  <div style="margin-top:.35rem;font-size:.72rem">Data diperbarui secara real-time dari sistem sekolah</div>
 </footer>
 
 <div class="toast-wrap" id="toast-wrap"></div>
@@ -193,6 +227,8 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 const $ = (id) => document.getElementById(id);
+
+let lastCandidates = [];
 
 // ==================== UTIL ====================
 function toast(msg, isErr) {
@@ -210,50 +246,69 @@ function escapeHtml(s) {
   }[c]));
 }
 
-// --- FUNGSI HYBRID: Otomatis pilih JSONP atau POST tergantung perangkat ---
-// --- FUNGSI API CALL INSTAN (Khusus untuk halaman baca data seperti cek.html) ---
 function apiCall(action, payload = {}) {
   return new Promise((resolve, reject) => {
-    // Gabungkan parameter ke dalam body
-    const bodyData = { action: action, payload: payload };
-
-    // Langsung tembak pakai FETCH (POST) - Cepat & Anti Blokir HP
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
     fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(bodyData)
+      body: JSON.stringify({ action, payload }),
+      signal: controller.signal
     })
-    .then(r => r.json())
+    .then(r => {
+      clearTimeout(timer);
+      return r.json();
+    })
     .then(res => resolve(res))
-    .catch(err => reject(err));
+    .catch(err => {
+      clearTimeout(timer);
+      reject(err);
+    });
   });
 }
 
-// Format tanggal: "2026-11-15" → "15 Nov 2026"
 function formatTanggal(tgl) {
   if (!tgl) return '-';
   const str = String(tgl).trim();
   const m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!m) return str;
   const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  return `${parseInt(m[3],10)} ${bulan[parseInt(m[2],10)-1]} ${m[1]}`;
+  return `${parseInt(m[3], 10)} ${bulan[parseInt(m[2], 10) - 1]} ${m[1]}`;
 }
 
 function hariIndo(tgl) {
   const str = String(tgl).trim();
   const m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!m) return '';
-  const d = new Date(m[1] + '-' + m[2] + '-' + m[3] + 'T00:00:00+07:00');
+  const d = new Date(`${m[1]}-${m[2]}-${m[3]}T00:00:00+07:00`);
   const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   return hari[d.getUTCDay()] || '';
 }
 
-// ==================== RENDER RESULT ====================
-function renderLoading() {
+function formatJK(jk) {
+  const v = String(jk || '').trim().toUpperCase();
+  if (v === 'L' || v === 'LAKI-LAKI') return 'Laki-laki';
+  if (v === 'P' || v === 'PEREMPUAN') return 'Perempuan';
+  return jk && jk !== '-' ? jk : '-';
+}
+
+function badgeStatusGerbang(st, tipe) {
+  const u = String(st || '-').toUpperCase();
+  if (!u || u === '-') return '<span class="badge muted">Belum Tap</span>';
+  if (u === 'TEPAT_WAKTU') return '<span class="badge tepat">Tepat Waktu</span>';
+  if (u === 'TERLAMBAT') return '<span class="badge terlambat">Terlambat</span>';
+  if (u === 'PULANG_AWAL') return '<span class="badge pulang-awal">Pulang Awal</span>';
+  if (u === 'PULANG') return '<span class="badge pulang">Pulang</span>';
+  return `<span class="badge ${tipe === 'pulang' ? 'pulang' : 'hadir'}">${escapeHtml(u.replace(/_/g, ' '))}</span>`;
+}
+
+// ==================== RENDER STATE ====================
+function renderLoading(teks) {
   $('result').innerHTML = `
     <div class="loading">
       <div class="spinner"></div>
-      <p style="margin-top:1rem">Mencari data siswa…</p>
+      <p style="margin-top:1rem">${escapeHtml(teks || 'Mencari data siswa…')}</p>
     </div>`;
   $('result').classList.add('show');
 }
@@ -267,55 +322,149 @@ function renderError(msg) {
   $('result').classList.add('show');
 }
 
-function renderSiswa(res) {
+function renderCandidates(list, query) {
+  lastCandidates = list;
+  let html = `
+    <div class="picker-card">
+      <h4><i class="fas fa-users"></i> Ditemukan ${list.length} Siswa</h4>
+      <p>Hasil pencarian untuk "<b>${escapeHtml(query)}</b>". Silakan pilih siswa yang ingin dilihat:</p>
+      <div class="picker-list">`;
+  list.forEach(item => {
+    html += `
+      <button type="button" class="picker-item" data-nis="${escapeHtml(item.id)}">
+        <div>
+          <div class="pname">${escapeHtml(item.nama || '-')}</div>
+          <div class="pmeta">NIS ${escapeHtml(item.id)} · ${escapeHtml(item.kelas || '-')}</div>
+        </div>
+        <i class="fas fa-chevron-right"></i>
+      </button>`;
+  });
+  html += `</div></div>`;
+  $('result').innerHTML = html;
+  $('result').classList.add('show');
+  $('result').querySelectorAll('.picker-item').forEach(btn => {
+    btn.addEventListener('click', () => pilihSiswa(btn.dataset.nis));
+  });
+}
+
+function renderSiswa(res, showBackToCandidates) {
   const s = res.siswa || {};
-  const hadir = res.hadir || [];
+  const gerbangRaw = res.gerbang || res.hadir || [];
   const keterangan = res.keterangan || [];
   const poin = res.poin || [];
   const sholat = res.sholat || [];
+  const ring = res.ringkasan || null;
+  const hariIni = res.hari_ini || null;
 
-  // === Hitung statistik ===
-  const totalHadir = hadir.length;
-  const totalSholat = sholat.length;
-  const totalIzin = keterangan.filter(k => String(k.status).toUpperCase() === 'IZIN').length;
-  const totalSakit = keterangan.filter(k => String(k.status).toUpperCase() === 'SAKIT').length;
-  const totalAlpa = keterangan.filter(k => String(k.status).toUpperCase() === 'ALPA').length;
-  const totalPelanggaran = poin.filter(p => Number(p.poin) < 0).length;
-  const totalPrestasi = poin.filter(p => Number(p.poin) > 0).length;
+  // Normalisasi baris gerbang (mendukung format baru masuk+pulang maupun format lama sesi PAGI)
+  const gerbang = gerbangRaw.map(g => {
+    if ('jam_masuk' in g || 'jam_pulang' in g) return g;
+    return {
+      tanggal: g.tanggal,
+      jam_masuk: g.jam || '-',
+      status_masuk: g.status || '-',
+      jam_pulang: '-',
+      status_pulang: '-'
+    };
+  });
 
-  // === Saldo poin ===
-  let saldo = 100;
-  poin.forEach(p => { saldo += Number(p.poin) || 0; });
+  // Statistik (utamakan ringkasan akurat dari server)
+  const totalHadir = ring ? (Number(ring.hadir) || 0) : gerbang.length;
+  const totalTepat = ring ? (Number(ring.tepat) || 0) : gerbang.filter(g => String(g.status_masuk).toUpperCase() === 'TEPAT_WAKTU').length;
+  const totalTelat = ring ? (Number(ring.telat) || 0) : gerbang.filter(g => String(g.status_masuk).toUpperCase() === 'TERLAMBAT').length;
+  const totalSholat = ring ? (Number(ring.sholat) || 0) : sholat.length;
+  const totalIzin = ring ? (Number(ring.izin) || 0) : keterangan.filter(k => String(k.status).toUpperCase() === 'IZIN').length;
+  const totalSakit = ring ? (Number(ring.sakit) || 0) : keterangan.filter(k => String(k.status).toUpperCase() === 'SAKIT').length;
+  const totalAlpa = ring ? (Number(ring.alpa) || 0) : keterangan.filter(k => String(k.status).toUpperCase() === 'ALPA').length;
+  const totalPelanggaran = ring ? (Number(ring.pelanggaran) || 0) : poin.filter(p => Number(p.poin) < 0).length;
+  const totalPrestasi = ring ? (Number(ring.prestasi) || 0) : poin.filter(p => Number(p.poin) > 0).length;
 
-  // === Zona ===
-  let zona = 'HIJAU', zonaClass = 'hijau';
-  if (saldo <= 0) { zona = 'KRITIS'; zonaClass = 'merah'; }
-  else if (saldo < 26) { zona = 'MERAH'; zonaClass = 'merah'; }
-  else if (saldo < 51) { zona = 'ORANYE'; zonaClass = 'kuning'; }
-  else if (saldo < 76) { zona = 'KUNING'; zonaClass = 'kuning'; }
-  else { zona = 'HIJAU'; zonaClass = 'hijau'; }
+  const poinAwal = Number(res.poin_awal) || 100;
+  let saldo = (typeof res.saldo_poin === 'number') ? res.saldo_poin : poinAwal;
+  if (typeof res.saldo_poin !== 'number') {
+    poin.forEach(p => { saldo += Number(p.poin) || 0; });
+  }
 
+  let zonaKode = (res.zona && res.zona.kode) ? String(res.zona.kode).toUpperCase() : '';
+  let zonaLabel = (res.zona && res.zona.label) ? res.zona.label : '';
+  if (!zonaKode) {
+    if (saldo <= 0) { zonaKode = 'KRITIS'; zonaLabel = 'Kritis'; }
+    else if (saldo < 26) { zonaKode = 'MERAH'; zonaLabel = 'Risiko Tinggi'; }
+    else if (saldo < 51) { zonaKode = 'ORANYE'; zonaLabel = 'Perlu Perhatian'; }
+    else if (saldo < 76) { zonaKode = 'KUNING'; zonaLabel = 'Baik'; }
+    else { zonaKode = 'HIJAU'; zonaLabel = 'Sangat Baik'; }
+  }
+  const zonaCls = zonaKode.toLowerCase();
   const inisial = String(s.nama || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
-  // === BUILD HTML ===
   let html = '';
+
+  if (showBackToCandidates && lastCandidates.length > 1) {
+    html += `<button type="button" class="back-picker-btn" id="btn-back-candidates"><i class="fas fa-arrow-left"></i> Kembali ke daftar (${lastCandidates.length} siswa)</button>`;
+  }
 
   // Profil
   html += `
     <div class="profile-card">
       <div class="row">
-        <div class="avatar">${inisial}</div>
+        <div class="avatar">${escapeHtml(inisial)}</div>
         <div class="info">
           <h3>${escapeHtml(s.nama || '-')}</h3>
           <div class="meta">
-            <i class="fas fa-id-card"></i> ${escapeHtml(s.nis || '-')} · 
-            <i class="fas fa-school"></i> ${escapeHtml(s.kelas || '-')} · 
-            <i class="fas fa-venus-mars"></i> ${s.jk || '-'}
+            <span><i class="fas fa-id-card"></i> ${escapeHtml(s.nis || '-')}</span>
+            <span><i class="fas fa-school"></i> ${escapeHtml(s.kelas || '-')}</span>
+            <span><i class="fas fa-venus-mars"></i> ${escapeHtml(formatJK(s.jk))}</span>
           </div>
         </div>
-        <div class="zone-badge">Zona ${zona} · ${saldo} Poin</div>
+        <div class="zone-wrap">
+          <div class="zone-badge ${escapeHtml(zonaCls)}">Zona ${escapeHtml(zonaKode)} · ${saldo} Poin</div>
+          <div class="zone-sub">${escapeHtml(zonaLabel)} (Poin awal: ${poinAwal})</div>
+        </div>
       </div>
     </div>`;
+
+  // Banner Status Hari Ini
+  if (hariIni) {
+    const tglLabel = `${hariIndo(hariIni.tanggal)}, ${formatTanggal(hariIni.tanggal)}`;
+    const hasMasuk = hariIni.jam_masuk && hariIni.jam_masuk !== '-';
+    const hasPulang = hariIni.jam_pulang && hariIni.jam_pulang !== '-';
+    let cardCls = 'warn', statusUtama = 'Belum ada tap masuk hari ini', statusDetail = '';
+
+    if (hasMasuk) {
+      const telat = String(hariIni.status_masuk).toUpperCase() === 'TERLAMBAT';
+      cardCls = telat ? 'warn' : 'ok';
+      statusUtama = `Masuk pukul ${hariIni.jam_masuk} WIB (${telat ? 'Terlambat' : 'Tepat Waktu'})`;
+      statusDetail = hasPulang
+        ? `Sudah tap pulang pukul ${hariIni.jam_pulang} WIB (${String(hariIni.status_pulang).toUpperCase() === 'PULANG_AWAL' ? 'Pulang Awal' : 'Pulang'})`
+        : 'Belum tap pulang hari ini';
+    } else if (hariIni.keterangan_status) {
+      const ks = String(hariIni.keterangan_status).toUpperCase();
+      cardCls = ks === 'ALPA' ? 'err' : 'warn';
+      statusUtama = `Keterangan Absen: ${ks}`;
+      statusDetail = hariIni.keterangan_teks || 'Tercatat oleh sekolah';
+    }
+
+    const chips = [];
+    if (hariIni.sholat && hariIni.sholat.length) {
+      chips.push(`<span class="chip ok"><i class="fas fa-mosque mr-1"></i>Sholat: ${escapeHtml(hariIni.sholat.join(', '))}</span>`);
+    }
+    if (hariIni.udzur) {
+      chips.push(`<span class="chip"><i class="fas fa-circle-info mr-1"></i>Udzur Sholat s/d ${escapeHtml(formatTanggal(hariIni.udzur.tgl_selesai))}</span>`);
+    }
+    if (!chips.length) {
+      chips.push(`<span class="chip">Sholat hari ini: belum tercatat</span>`);
+    }
+
+    html += `
+      <div class="today-card ${cardCls}">
+        <div>
+          <div class="today-title">Status Hari Ini · ${escapeHtml(tglLabel)}</div>
+          <div class="today-main">${escapeHtml(statusUtama)}</div>
+          ${statusDetail ? `<div class="today-sub">${escapeHtml(statusDetail)}</div>` : ''}
+        </div>
+        <div class="today-chips">${chips.join('')}</div>
+      </div>`;
+  }
 
   // Statistik
   html += `
@@ -323,17 +472,17 @@ function renderSiswa(res) {
       <div class="stat-card hijau">
         <div class="lbl">Hadir Gerbang</div>
         <div class="val">${totalHadir}</div>
-        <div class="sub">hari tercatat</div>
+        <div class="sub">${totalTepat} tepat · ${totalTelat} telat</div>
       </div>
       <div class="stat-card biru">
         <div class="lbl">Presensi Sholat</div>
         <div class="val">${totalSholat}</div>
-        <div class="sub">kali scan</div>
+        <div class="sub">kali tercatat</div>
       </div>
       <div class="stat-card kuning">
-        <div class="lbl">Izin / Sakit</div>
-        <div class="val">${totalIzin + totalSakit}</div>
-        <div class="sub">${totalIzin} izin · ${totalSakit} sakit</div>
+        <div class="lbl">Izin / Sakit / Alpa</div>
+        <div class="val">${totalIzin + totalSakit + totalAlpa}</div>
+        <div class="sub">${totalIzin} izin · ${totalSakit} sakit · ${totalAlpa} alpa</div>
       </div>
       <div class="stat-card merah">
         <div class="lbl">Pelanggaran</div>
@@ -345,20 +494,20 @@ function renderSiswa(res) {
   // === Riwayat Kehadiran Gerbang ===
   html += `
     <div class="card">
-      <h4><i class="fas fa-door-open"></i> Riwayat Kehadiran Gerbang (10 terakhir)</h4>`;
-  if (!hadir.length) {
+      <h4><i class="fas fa-door-open"></i> Riwayat Kehadiran Gerbang <span class="hint-count">${gerbang.length ? gerbang.length + ' hari terbaru' : ''}</span></h4>`;
+  if (!gerbang.length) {
     html += `<div class="empty-data"><i class="fas fa-inbox"></i>Belum ada data kehadiran gerbang.</div>`;
   } else {
     html += `<div style="overflow-x:auto"><table>
-      <thead><tr><th>Tanggal</th><th>Hari</th><th class="center">Jam</th><th class="center">Sesi</th><th class="center">Status</th></tr></thead><tbody>`;
-    hadir.slice(0, 10).forEach(h => {
-      const statusClass = String(h.status).toUpperCase() === 'TERLAMBAT' ? 'terlambat' : 'tepat';
+      <thead><tr><th>Tanggal</th><th>Hari</th><th class="center">Jam Masuk</th><th class="center">Status Masuk</th><th class="center">Jam Pulang</th><th class="center">Status Pulang</th></tr></thead><tbody>`;
+    gerbang.slice(0, 15).forEach(g => {
       html += `<tr>
-        <td>${formatTanggal(h.tanggal)}</td>
-        <td>${hariIndo(h.tanggal)}</td>
-        <td class="num">${escapeHtml(h.jam || '-')}</td>
-        <td class="center">${escapeHtml(h.sesi || '-')}</td>
-        <td class="center"><span class="badge ${statusClass}">${escapeHtml(h.status || '-')}</span></td>
+        <td>${escapeHtml(formatTanggal(g.tanggal))}</td>
+        <td>${escapeHtml(hariIndo(g.tanggal))}</td>
+        <td class="num">${escapeHtml(g.jam_masuk || '-')}</td>
+        <td class="center">${badgeStatusGerbang(g.status_masuk, 'masuk')}</td>
+        <td class="num">${escapeHtml(g.jam_pulang || '-')}</td>
+        <td class="center">${badgeStatusGerbang(g.status_pulang, 'pulang')}</td>
       </tr>`;
     });
     html += `</tbody></table></div>`;
@@ -368,18 +517,18 @@ function renderSiswa(res) {
   // === Presensi Sholat ===
   html += `
     <div class="card">
-      <h4><i class="fas fa-mosque"></i> Presensi Sholat (10 terakhir)</h4>`;
+      <h4><i class="fas fa-mosque"></i> Presensi Sholat <span class="hint-count">${sholat.length ? sholat.length + ' catatan terbaru' : ''}</span></h4>`;
   if (!sholat.length) {
     html += `<div class="empty-data"><i class="fas fa-inbox"></i>Belum ada data presensi sholat.</div>`;
   } else {
     html += `<div style="overflow-x:auto"><table>
       <thead><tr><th>Tanggal</th><th class="center">Waktu Sholat</th><th class="center">Status</th><th>Petugas</th></tr></thead><tbody>`;
-    sholat.slice(0, 10).forEach(s => {
+    sholat.slice(0, 15).forEach(sh => {
       html += `<tr>
-        <td>${formatTanggal(s.tanggal)}</td>
-        <td class="center"><b>${escapeHtml(s.waktu_sholat || '-')}</b></td>
-        <td class="center"><span class="badge hadir">${escapeHtml(s.status || 'HADIR')}</span></td>
-        <td>${escapeHtml(s.petugas || '-')}</td>
+        <td>${escapeHtml(formatTanggal(sh.tanggal))}</td>
+        <td class="center"><b>${escapeHtml(sh.waktu_sholat || '-')}</b></td>
+        <td class="center"><span class="badge hadir">${escapeHtml(sh.status || 'HADIR')}</span></td>
+        <td>${escapeHtml(sh.petugas || '-')}</td>
       </tr>`;
     });
     html += `</tbody></table></div>`;
@@ -390,14 +539,14 @@ function renderSiswa(res) {
   if (keterangan.length) {
     html += `
       <div class="card">
-        <h4><i class="fas fa-notes-medical"></i> Keterangan Absen</h4>
+        <h4><i class="fas fa-notes-medical"></i> Keterangan Absen (Izin / Sakit / Alpa) <span class="hint-count">${keterangan.length} catatan</span></h4>
         <div style="overflow-x:auto"><table>
           <thead><tr><th>Tanggal</th><th class="center">Status</th><th>Keterangan</th></tr></thead><tbody>`;
-    keterangan.slice(0, 10).forEach(k => {
-      const st = String(k.status).toUpperCase().toLowerCase();
+    keterangan.slice(0, 15).forEach(k => {
+      const st = String(k.status || '').toLowerCase();
       html += `<tr>
-        <td>${formatTanggal(k.tanggal)}</td>
-        <td class="center"><span class="badge ${st}">${escapeHtml(k.status || '-')}</span></td>
+        <td>${escapeHtml(formatTanggal(k.tanggal))}</td>
+        <td class="center"><span class="badge ${escapeHtml(st)}">${escapeHtml(k.status || '-')}</span></td>
         <td>${escapeHtml(k.keterangan || '-')}</td>
       </tr>`;
     });
@@ -407,11 +556,11 @@ function renderSiswa(res) {
   // === Riwayat Poin ===
   html += `
     <div class="card">
-      <h4><i class="fas fa-star"></i> Riwayat Poin Disiplin (10 terakhir)</h4>`;
+      <h4><i class="fas fa-star"></i> Riwayat Poin Disiplin <span class="hint-count">${poin.length ? poin.length + ' catatan terbaru' : ''}</span></h4>`;
   if (!poin.length) {
-    html += `<div class="empty-data"><i class="fas fa-inbox"></i>Belum ada catatan poin.</div>`;
+    html += `<div class="empty-data"><i class="fas fa-check-circle"></i>Belum ada catatan pelanggaran atau poin tambahan. Saldo awal: <b>${saldo}</b> poin.</div>`;
   } else {
-    poin.slice(0, 10).forEach(p => {
+    poin.slice(0, 15).forEach(p => {
       const poinVal = Number(p.poin) || 0;
       const cls = poinVal < 0 ? 'min' : 'plus';
       const sign = poinVal > 0 ? '+' : '';
@@ -419,13 +568,13 @@ function renderSiswa(res) {
         <div class="poin-item">
           <div class="info">
             <div class="desc">${escapeHtml(p.deskripsi || p.pasal || '-')}</div>
-            <div class="meta">${formatTanggal(p.tanggal)} · ${escapeHtml(p.jenis || '-')} · oleh ${escapeHtml(p.petugas || '-')}</div>
+            <div class="meta">${escapeHtml(formatTanggal(p.tanggal))} · ${escapeHtml(p.jenis || '-')} · oleh ${escapeHtml(p.petugas || '-')}</div>
           </div>
           <div class="val ${cls}">${sign}${poinVal}</div>
         </div>`;
     });
     html += `<div style="text-align:center;margin-top:1rem;padding:.75rem;background:#EFF6FF;border-radius:10px;font-size:.85rem;color:var(--brand);font-weight:700">
-      Saldo Poin Saat Ini: <span style="font-family:'JetBrains Mono',monospace;font-size:1.1rem">${saldo}</span>
+      Poin Awal: ${poinAwal} &nbsp;·&nbsp; Saldo Poin Saat Ini: <span style="font-family:'JetBrains Mono',monospace;font-size:1.1rem">${saldo}</span>
     </div>`;
   }
   html += `</div>`;
@@ -433,123 +582,104 @@ function renderSiswa(res) {
   $('result').innerHTML = html;
   $('result').classList.add('show');
 
-  // Scroll ke hasil
+  if ($('btn-back-candidates')) {
+    $('btn-back-candidates').addEventListener('click', () => {
+      renderCandidates(lastCandidates, $('search-input').value.trim());
+    });
+  }
+
   setTimeout(() => {
     $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 100);
 }
 
-// ==================== SEARCH LOGIC ====================
-let searchTimer = null;
+// ==================== DATA FETCH ====================
+async function pilihSiswa(nis) {
+  renderLoading('Memuat riwayat kehadiran & poin…');
+  try {
+    const res = await apiCall('getRiwayatSiswaPublik', { nis });
+    if (!res || !res.ok || !res.data) {
+      renderError((res && res.message) || 'Data detail siswa gagal dimuat.');
+      return;
+    }
+    renderSiswa(res.data, lastCandidates.length > 1);
+  } catch (e) {
+    renderError('Gagal memuat data siswa. Periksa koneksi internet Anda.');
+    console.error(e);
+  }
+}
 
 async function doSearch() {
   const q = $('search-input').value.trim();
   if (q.length < 2) {
-    toast('Minimal 2 karakter.', true);
+    toast('Masukkan minimal 2 karakter.', true);
     return;
   }
 
   const btn = $('btn-search');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mencari…';
-  renderLoading();
+  renderLoading('Mencari siswa…');
 
   try {
-    // 1. Cari siswa via searchOrangPublik (endpoint publik, tanpa token)
     const res = await apiCall('searchOrangPublik', { q });
 
-    if (!res.ok || !res.data || !res.data.length) {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-search"></i> Cari';
-      renderError('Siswa tidak ditemukan. Periksa NIS atau nama.');
+    if (!res || !res.ok || !res.data || !res.data.length) {
+      lastCandidates = [];
+      renderError('Siswa tidak ditemukan. Periksa kembali NIS atau nama siswa.');
       return;
     }
 
-    // Ambil hasil pertama (prioritas NIS match persis)
-    let siswa = res.data.find(s => String(s.id).trim() === q);
-    if (!siswa) siswa = res.data[0];
-
-    // 2. Ambil data detail siswa
-    const detail = await fetchDetailSiswa(siswa.id);
-
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-search"></i> Cari';
-
-    if (!detail) {
-      renderError('Data siswa ditemukan, tetapi detail tidak bisa dimuat.');
+    lastCandidates = res.data;
+    const exactNis = res.data.find(s => String(s.id).trim().toLowerCase() === q.toLowerCase());
+    if (exactNis) {
+      await pilihSiswa(exactNis.id);
       return;
     }
 
-    renderSiswa(detail);
-
-  } catch (e) {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-search"></i> Cari';
-    renderError('Gagal memuat data. Periksa koneksi internet Anda.');
-    console.error(e);
-  }
-}
-
-async function fetchDetailSiswa(nis) {
-  try {
-    // Panggil getRiwayatPoinPublik (endpoint publik untuk riwayat poin)
-    const poinRes = await apiCall('getRiwayatPoinPublik', { nis });
-
-    // Untuk data gerbang, sholat, dan keterangan — kita TIDAK punya endpoint publiknya.
-    // Solusi: gunakan getLaporan tanpa token? Tidak bisa, karena butuh token.
-    //
-    // ALTERNATIF AMAN: Tampilkan info dasar siswa + riwayat poin (dari endpoint publik).
-    // Untuk data gerbang/sholat, kita bisa meminta user login atau tampilkan placeholder.
-    //
-    // Catatan: Jika sekolah punya endpoint publik tambahan, tinggal diganti di sini.
-
-    // Cari data siswa dasar dari hasil searchOrangPublik
-    const siswaRes = await apiCall('searchOrangPublik', { q: nis });
-    let siswaData = { nis: nis, nama: '-', kelas: '-', jk: '-' };
-    if (siswaRes.ok && siswaRes.data.length) {
-      const s = siswaRes.data.find(x => String(x.id) === String(nis));
-      if (s) siswaData = { nis: s.id, nama: s.nama, kelas: s.kelas, jk: '-' };
+    if (res.data.length === 1) {
+      await pilihSiswa(res.data[0].id);
+      return;
     }
 
-    const poin = (poinRes.ok && poinRes.data) ? poinRes.data : [];
-
-    // Untuk data kehadiran & sholat, kita butuh data dari sheet.
-    // Endpoint publik hanya ada searchOrangPublik & getRiwayatPoinPublik.
-    // Jadi untuk demo ini, kita tampilkan apa yang tersedia.
-    //
-    // REKOMENDASI: minta backend tambah endpoint publik `getRiwayatSiswaPublik`
-    // yang mengembalikan: { siswa, hadir[], sholat[], keterangan[], poin[] }
-    //
-    // Untuk sementara, tampilkan yang ada + placeholder.
-
-    return {
-      siswa: siswaData,
-      hadir: [],
-      sholat: [],
-      keterangan: [],
-      poin: poin
-    };
+    renderCandidates(res.data, q);
   } catch (e) {
+    renderError('Gagal terhubung ke server. Periksa koneksi internet Anda.');
     console.error(e);
-    return null;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-search"></i> Cari';
   }
 }
 
 // ==================== EVENT ====================
 $('btn-search').addEventListener('click', doSearch);
-$('search-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+$('search-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    doSearch();
+  }
+});
 $('search-input').addEventListener('input', () => {
   const q = $('search-input').value.trim();
-  if (q.length < 2) {
+  if (!q) {
+    lastCandidates = [];
     $('result').classList.remove('show');
     $('result').innerHTML = '';
   }
-  // Debounce auto-search
-  if (searchTimer) clearTimeout(searchTimer);
-  if (q.length >= 3) {
-    searchTimer = setTimeout(() => { doSearch(); }, 800);
-  }
 });
+
+// Dukung buka langsung lewat parameter URL ?nis=24001
+(function initFromQuery() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const nisParam = (params.get('nis') || '').trim();
+    if (nisParam) {
+      $('search-input').value = nisParam;
+      doSearch();
+    }
+  } catch (_) {}
+})();
 </script>
 </body>
 </html>

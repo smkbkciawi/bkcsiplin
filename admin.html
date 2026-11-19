@@ -54,6 +54,11 @@
   .field input,.field select,.field textarea{width:100%;padding:.6rem .8rem;border:1.5px solid #E5EEFF;border-radius:8px;font-size:.9rem;font-family:inherit;font-weight:600;outline:none;transition:.15s}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand-2);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
   .field{margin-bottom:.7rem}
+  .pin-wrap{position:relative}
+  .pin-wrap input{padding-right:2.6rem}
+  .toggle-pin{position:absolute;right:.55rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#64748B;cursor:pointer;font-size:.95rem;padding:.2rem;line-height:1}
+  .remember-row{display:flex;align-items:center;gap:.48rem;margin:-.15rem 0 .75rem;font-size:.82rem;font-weight:600;color:#475569;cursor:pointer;user-select:none}
+  .remember-row input{width:16px;height:16px;accent-color:var(--brand-2);cursor:pointer}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
 
   .btn-primary-full{width:100%;padding:.8rem;margin-top:.4rem;background:linear-gradient(135deg,var(--brand-2),#1D4ED8);color:#fff;border:none;border-radius:8px;font-family:inherit;font-weight:800;font-size:.9rem;cursor:pointer;transition:.15s;box-shadow:0 6px 20px rgba(59,130,246,.3)}
@@ -254,6 +259,7 @@
     <ul class="navbar-nav">
       <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></li>
       <li class="nav-item d-none d-sm-inline-block"><span class="nav-link font-weight-bold" style="color:#1E3A8A" id="header-portal-label">Portal Eksekutif</span></li>
+      <li class="nav-item d-flex align-items-center ml-2" id="bkc-admin-nav"></li>
     </ul>
     <ul class="navbar-nav ml-auto align-items-center">
       <li class="nav-item mr-2"><span class="user-pill" id="user-pill" style="display:none"><i class="fas fa-user-circle"></i> <span id="user-name">—</span></span></li>
@@ -419,6 +425,50 @@
               <table class="table table-hover mb-0">
                 <thead><tr><th style="width:90px">Kode</th><th>Kategori</th><th>Deskripsi</th><th style="width:70px">Poin</th><th>Jenis</th><th>Status</th><th style="width:120px">Aksi</th></tr></thead>
                 <tbody id="tbody-tatib"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-3">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
+            <div>
+              <h3 class="card-title mb-0"><i class="fas fa-sliders-h text-primary mr-2"></i>Migrasi Saldo Awal Poin (Buku Manual BK)</h3>
+              <small class="text-muted d-block">Sesuaikan sisa poin awal siswa dari catatan buku manual sebelum memakai aplikasi.</small>
+            </div>
+            <div class="d-flex align-items-center flex-wrap" style="gap:.5rem">
+              <button class="btn btn-sm btn-outline-primary" id="btn-export-saldo-template"><i class="fas fa-file-export mr-1"></i>Unduh Daftar Siswa (.xlsx)</button>
+              <button class="btn btn-sm btn-success" id="btn-import-saldo"><i class="fas fa-file-excel mr-1"></i>Import Excel Saldo</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-end mb-3" style="gap:.5rem 0">
+              <div class="col-md-4">
+                <label class="small font-weight-bold text-muted mb-1">Pilih Kelas (Input Manual)</label>
+                <select class="form-control form-control-sm" id="saldo-filter-kelas"><option value="">— Pilih Kelas —</option></select>
+              </div>
+              <div class="col-md-5">
+                <label class="small font-weight-bold text-muted mb-1">Keterangan Penyesuaian</label>
+                <input type="text" class="form-control form-control-sm" id="saldo-default-catatan" value="Saldo bawaan buku manual BK">
+              </div>
+              <div class="col-md-3 text-md-right">
+                <button class="btn btn-sm btn-primary btn-block" id="btn-simpan-saldo-kelas" disabled><i class="fas fa-save mr-1"></i>Simpan Kelas Ini</button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered mb-0">
+                <thead class="thead-light">
+                  <tr>
+                    <th style="width:110px">NIS</th>
+                    <th>Nama Siswa</th>
+                    <th style="width:130px" class="text-center">Saldo Sistem</th>
+                    <th style="width:170px">Sisa Poin (Buku Manual)</th>
+                    <th style="width:130px" class="text-center">Penyesuaian</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-saldo-kelas">
+                  <tr><td colspan="5" class="text-center text-muted py-3">Pilih kelas terlebih dahulu untuk menampilkan siswa, atau gunakan tombol Import Excel Saldo di atas.</td></tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -706,25 +756,78 @@
       <div id="page-laporan-guru" style="display:none">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
-            <h3 class="card-title mb-0"><i class="fas fa-chalkboard-teacher text-primary mr-2"></i>Laporan Guru</h3>
+            <h3 class="card-title mb-0"><i class="fas fa-chalkboard-teacher text-primary mr-2"></i>Laporan Guru (Evaluasi & Kehadiran)</h3>
             <div class="d-flex align-items-center no-print-laporan" style="gap:.5rem">
-              <button class="btn btn-sm btn-primary" id="btn-lap-guru-cari"><i class="fas fa-search mr-1"></i>Tampilkan</button>
+              <button class="btn btn-sm btn-primary" id="btn-lap-guru-cari"><i class="fas fa-sync-alt mr-1"></i>Tampilkan</button>
               <button class="btn btn-sm btn-success" id="btn-lap-guru-export"><i class="fas fa-file-excel mr-1"></i>Export Excel</button>
               <button class="btn btn-sm btn-danger" id="btn-lap-guru-print"><i class="fas fa-file-pdf mr-1"></i>Cetak PDF</button>
             </div>
           </div>
           <div class="card-body">
             <div class="print-laporan-kop" id="lap-guru-print-kop">
-              <h4 style="margin:0;font-weight:800;color:#1E3A8A">SMK BHAKTI KENCANA CIAWI — LAPORAN KEHADIRAN GURU</h4>
+              <h4 style="margin:0;font-weight:800;color:#1E3A8A">SMK BHAKTI KENCANA CIAWI — LAPORAN KEHADIRAN & EVALUASI GURU</h4>
               <div style="font-size:.85rem;color:#475569" id="lap-guru-print-periode"></div>
             </div>
+
+            <div class="lap-summary-grid no-print-laporan" id="lap-guru-summary-cards">
+              <div class="lap-summary-box">
+                <div class="lbl">Guru Aktif</div>
+                <div class="val" id="lap-guru-sum-total">0</div>
+                <div class="sub" id="lap-guru-sum-hari">0 hari aktif tercatat</div>
+              </div>
+              <div class="lap-summary-box">
+                <div class="lbl">Masuk (Tepat / Telat)</div>
+                <div class="val" id="lap-guru-sum-ketepatan">0 / 0</div>
+                <div class="sub" id="lap-guru-sum-belum">0 belum absen (tgl akhir)</div>
+              </div>
+              <div class="lap-summary-box">
+                <div class="lbl">Pulang (Lengkap / Belum)</div>
+                <div class="val" id="lap-guru-sum-pulang">0 / 0</div>
+                <div class="sub" id="lap-guru-sum-cepat">Pulang cepat: 0 · min. 2 jam kerja</div>
+              </div>
+              <div class="lap-summary-box">
+                <div class="lbl">Rata-rata Jam Kerja</div>
+                <div class="val" id="lap-guru-sum-jam">0j 0m</div>
+                <div class="sub" id="lap-guru-sum-aturan">Batas masuk: 07:00</div>
+              </div>
+            </div>
+
+            <div class="tabs-nav no-print-laporan" id="lap-guru-tabs">
+              <button class="active" data-tab="rekap"><i class="fas fa-chart-bar mr-1"></i>Rekap Evaluasi Guru</button>
+              <button data-tab="harian"><i class="fas fa-clock mr-1"></i>Log Harian Masuk & Pulang</button>
+              <button data-tab="belum"><i class="fas fa-user-clock mr-1"></i>Belum Absen</button>
+            </div>
+
             <div class="filter-bar no-print-laporan">
               <div class="field"><label>Dari Tanggal</label><input type="date" id="lap-guru-dari"></div>
               <div class="field"><label>Sampai Tanggal</label><input type="date" id="lap-guru-sampai"></div>
+              <div class="field"><label>Role / Jabatan</label>
+                <select id="lap-guru-role">
+                  <option value="">Semua Role</option>
+                  <option value="WALI_KELAS">Wali Kelas</option>
+                  <option value="GURU_PIKET">Guru Piket</option>
+                  <option value="GURU_BK">Guru BK</option>
+                  <option value="WAKA_KESISWAAN">Waka Kesiswaan</option>
+                  <option value="KEPSEK">Kepsek</option>
+                  <option value="SUPER_ADMIN">Super Admin</option>
+                </select>
+              </div>
+              <div class="field"><label>Filter Kondisi</label>
+                <select id="lap-guru-kondisi">
+                  <option value="">Semua Guru</option>
+                  <option value="telat">Pernah Terlambat</option>
+                  <option value="belum_pulang">Ada Belum Tap Pulang</option>
+                  <option value="rendah">Kehadiran &lt; 80%</option>
+                  <option value="nol">Belum Pernah Hadir (0%)</option>
+                </select>
+              </div>
+              <div class="field"><label>Cari Guru (Nama / ID)</label><input type="text" id="lap-guru-cari" placeholder="Ketik nama atau ID…" style="width:200px"></div>
             </div>
-            <div class="table-responsive" style="max-height:400px;overflow-y:auto" id="lap-guru-table-wrap">
+
+            <div class="table-responsive" style="max-height:500px;overflow-y:auto" id="lap-guru-table-wrap">
               <table class="table table-sm table-hover" id="tabel-laporan-guru"><thead id="lap-guru-thead"></thead><tbody id="lap-guru-tbody"></tbody></table>
             </div>
+            <div class="text-muted small mt-2 no-print-laporan" id="lap-guru-footer-info"></div>
           </div>
         </div>
       </div>
@@ -811,7 +914,8 @@
     <p class="sub">Super Admin, Kepala Sekolah, Guru BK, atau Wali Kelas.</p>
     <div class="alert-box err" id="login-alert" style="display:none;color:#B91C1C;text-align:center;font-size:.85rem;font-weight:700;margin-bottom:.5rem"></div>
     <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="Contoh: G002" autocomplete="username"></div>
-    <div class="field"><label>PIN</label><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric" autocomplete="current-password"></div>
+    <div class="field"><label>PIN</label><div class="pin-wrap"><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric" autocomplete="current-password"><button type="button" class="toggle-pin" id="btn-toggle-pin" title="Lihat / Sembunyikan PIN"><i class="fas fa-eye"></i></button></div></div>
+    <label class="remember-row"><input type="checkbox" id="login-remember"> Ingat saya di perangkat ini</label>
     <button class="btn-primary-full" id="btn-login">Masuk</button>
   </div>
 </div>
@@ -900,8 +1004,15 @@
     </div>
     <div class="field"><label>Deskripsi</label><input type="text" id="tatib-deskripsi"></div>
     <div class="form-row">
-      <div class="field"><label>Poin</label><input type="number" id="tatib-poin"></div>
+      <div class="field"><label>Poin</label><input type="number" id="tatib-poin" min="0"></div>
       <div class="field"><label>Jenis</label><select id="tatib-jenis"><option value="PELANGGARAN">PELANGGARAN</option><option value="PRESTASI">PRESTASI</option></select></div>
+    </div>
+    <div class="field">
+      <label>Status Aktif</label>
+      <select id="tatib-aktif">
+        <option value="YA">YA (Tampil di Kedisiplinan)</option>
+        <option value="TIDAK">TIDAK (Nonaktif)</option>
+      </select>
     </div>
     <button class="btn-primary-full" id="btn-simpan-tatib">Simpan</button>
     <button class="btn-secondary-full" id="btn-batal-tatib">Batal</button>
@@ -974,9 +1085,9 @@ const IDLE_WARN_MS  = 30 * 1000;
 const HEARTBEAT_MS  = 2 * 60 * 1000;
 
 const state = {
-  token: sessionStorage.getItem('bkc_admin_token') || '',
-  petugas: sessionStorage.getItem('bkc_admin_nama') || '',
-  role: sessionStorage.getItem('bkc_admin_role') || '',
+  token: sessionStorage.getItem('bkc_admin_token') || localStorage.getItem('bkc_admin_token') || '',
+  petugas: sessionStorage.getItem('bkc_admin_nama') || localStorage.getItem('bkc_admin_nama') || '',
+  role: sessionStorage.getItem('bkc_admin_role') || localStorage.getItem('bkc_admin_role') || '',
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null,
   searchTimer: null,
   siswaList: [], guruList: [], tatibList: [], kelasList: [],
@@ -984,6 +1095,12 @@ const state = {
   laporanData: [],
   laporanHarianData: [],
   laporanGuruData: [],
+  laporanGuruRekap: [],
+  laporanGuruBelum: [],
+  lapGuruTab: 'rekap',
+  lapGuruHariAktif: 0,
+  lapGuruBatasMasuk: '07:00',
+  lapGuruJamPulang: '15:00',
   lapSiswaTab: 'rekap',
   lapHariAktif: 0,
   lapSiswaInit: false,
@@ -1096,6 +1213,17 @@ async function doLogin() {
     sessionStorage.setItem('bkc_admin_token', state.token);
     sessionStorage.setItem('bkc_admin_nama', state.petugas);
     sessionStorage.setItem('bkc_admin_role', state.role);
+    if ($('login-remember') && $('login-remember').checked) {
+      localStorage.setItem('bkc_rem_admin', username);
+      localStorage.setItem('bkc_admin_token', state.token);
+      localStorage.setItem('bkc_admin_nama', state.petugas);
+      localStorage.setItem('bkc_admin_role', state.role);
+    } else {
+      localStorage.removeItem('bkc_rem_admin');
+      localStorage.removeItem('bkc_admin_token');
+      localStorage.removeItem('bkc_admin_nama');
+      localStorage.removeItem('bkc_admin_role');
+    }
     $('modal-login').classList.remove('show');
     await afterLogin();
     toast('Selamat datang, ' + state.petugas);
@@ -1129,6 +1257,7 @@ async function afterLogin() {
     }
   }
   mulaiIdleWatcher(); mulaiHeartbeat();
+  if (window.bkcRefreshNav) window.bkcRefreshNav();
   loadPage('dashboard');
 }
 
@@ -1137,19 +1266,33 @@ async function doLogout(reason) {
   sessionStorage.removeItem('bkc_admin_token');
   sessionStorage.removeItem('bkc_admin_nama');
   sessionStorage.removeItem('bkc_admin_role');
+  localStorage.removeItem('bkc_admin_token');
+  localStorage.removeItem('bkc_admin_nama');
+  localStorage.removeItem('bkc_admin_role');
   state.token = ''; state.role = ''; state.petugas = '';
+  if (window.bkcRefreshNav) window.bkcRefreshNav();
   hentikanIdleWatcher(); hentikanHeartbeat();
   $('user-pill').style.display = 'none';
   $('sesi-pill').style.display = 'none';
   $('btn-logout').style.display = 'none';
   $('modal-idle').classList.remove('show');
   $('modal-login').classList.add('show');
-  $('login-user').focus();
+  const rem = localStorage.getItem('bkc_rem_admin');
+  if (rem) { $('login-user').value = rem; if ($('login-remember')) $('login-remember').checked = true; $('login-pin').focus(); }
+  else { $('login-user').focus(); }
 }
 
 $('btn-login').addEventListener('click', doLogin);
 $('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 $('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-pin').focus(); });
+if ($('btn-toggle-pin')) {
+  $('btn-toggle-pin').addEventListener('click', () => {
+    const inp = $('login-pin');
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    $('btn-toggle-pin').innerHTML = show ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+  });
+}
 $('btn-logout').addEventListener('click', () => { if (confirm('Logout?')) doLogout('Manual'); });
 $('btn-logout-now').addEventListener('click', () => doLogout('Idle'));
 
@@ -1520,19 +1663,20 @@ async function loadTatib() {
         if (btn.dataset.act === 'hapus') hapusTatib(kode, tatib.deskripsi);
       });
     });
+    initSaldoAwalAdmin();
   } catch (err) { toast('Gagal memuat tata tertib', true); }
 }
 function openTambahTatib() {
-  $('tatib-mode').value = 'tambah'; $('tatib-kode-lama').value = ''; $('tatib-kode').value = ''; $('tatib-kode').disabled = false; $('tatib-kategori').value = ''; $('tatib-deskripsi').value = ''; $('tatib-poin').value = ''; $('tatib-jenis').value = 'PELANGGARAN';
+  $('tatib-mode').value = 'tambah'; $('tatib-kode-lama').value = ''; $('tatib-kode').value = ''; $('tatib-kode').disabled = false; $('tatib-kategori').value = ''; $('tatib-deskripsi').value = ''; $('tatib-poin').value = ''; $('tatib-jenis').value = 'PELANGGARAN'; $('tatib-aktif').value = 'YA';
   $('modal-tatib-title').textContent = 'Tambah Tata Tertib'; $('tatib-alert').style.display = 'none'; $('modal-tatib').classList.add('show');
 }
 function openEditTatib(t) {
-  $('tatib-mode').value = 'edit'; $('tatib-kode-lama').value = t.kode; $('tatib-kode').value = t.kode; $('tatib-kode').disabled = true; $('tatib-kategori').value = t.kategori || ''; $('tatib-deskripsi').value = t.deskripsi || ''; $('tatib-poin').value = t.poin; $('tatib-jenis').value = t.jenis || 'PELANGGARAN';
+  $('tatib-mode').value = 'edit'; $('tatib-kode-lama').value = t.kode; $('tatib-kode').value = t.kode; $('tatib-kode').disabled = true; $('tatib-kategori').value = t.kategori || ''; $('tatib-deskripsi').value = t.deskripsi || ''; $('tatib-poin').value = t.poin; $('tatib-jenis').value = t.jenis || 'PELANGGARAN'; $('tatib-aktif').value = String(t.aktif || 'YA').trim().toUpperCase() === 'TIDAK' ? 'TIDAK' : 'YA';
   $('modal-tatib-title').textContent = 'Edit Tata Tertib — ' + t.kode; $('tatib-alert').style.display = 'none'; $('modal-tatib').classList.add('show');
 }
 async function simpanTatib() {
   const mode = $('tatib-mode').value;
-  const payload = { kode: mode === 'edit' ? $('tatib-kode-lama').value : $('tatib-kode').value.trim().toUpperCase(), kategori: $('tatib-kategori').value.trim(), deskripsi: $('tatib-deskripsi').value.trim(), poin: parseInt($('tatib-poin').value, 10), jenis: $('tatib-jenis').value };
+  const payload = { kode: mode === 'edit' ? $('tatib-kode-lama').value : $('tatib-kode').value.trim().toUpperCase(), kategori: $('tatib-kategori').value.trim(), deskripsi: $('tatib-deskripsi').value.trim(), poin: parseInt($('tatib-poin').value, 10), jenis: $('tatib-jenis').value, aktif: $('tatib-aktif').value || 'YA' };
   if (!payload.kode || !payload.deskripsi || isNaN(payload.poin)) { $('tatib-alert').textContent = 'Lengkapi data.'; $('tatib-alert').style.display = 'block'; return; }
   const action = mode === 'edit' ? 'editTataTertib' : 'tambahTataTertib'; const btn = $('btn-simpan-tatib'); btn.disabled = true; btn.textContent = 'Menyimpan…';
   try { const res = await apiCall(action, payload, true); if (!res.ok) { $('tatib-alert').textContent = res.message; $('tatib-alert').style.display = 'block'; return; } $('modal-tatib').classList.remove('show'); toast(res.message); loadTatib(); } catch (err) { $('tatib-alert').textContent = err.message; $('tatib-alert').style.display = 'block'; } finally { btn.disabled = false; btn.textContent = 'Simpan'; }
@@ -1544,6 +1688,115 @@ async function hapusTatib(kode, desc) {
 $('btn-tambah-tatib').addEventListener('click', openTambahTatib);
 $('btn-simpan-tatib').addEventListener('click', simpanTatib);
 $('btn-batal-tatib').addEventListener('click', () => $('modal-tatib').classList.remove('show'));
+
+// ============ SALDO AWAL BUKU MANUAL ============
+let saldoRekapCache = [];
+async function initSaldoAwalAdmin() {
+  try {
+    const [kRes, rRes] = await Promise.all([apiCall('getDaftarKelas'), apiCall('getRekapPoinSemua')]);
+    const sel = $('saldo-filter-kelas');
+    const prev = sel.value;
+    if (kRes.ok && Array.isArray(kRes.data)) {
+      sel.innerHTML = '<option value="">— Pilih Kelas —</option>' + kRes.data.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+      if (prev) sel.value = prev;
+    }
+    if (rRes.ok && rRes.data && Array.isArray(rRes.data.siswa)) {
+      saldoRekapCache = rRes.data.siswa;
+    } else {
+      const mRes = await apiCall('getMasterSiswa');
+      saldoRekapCache = mRes.ok ? mRes.data.filter(s => String(s.status).toUpperCase() === 'AKTIF').map(s => ({ nis: String(s.nis), nama: s.nama, kelas: s.kelas, saldo: 100 })) : [];
+    }
+    if (sel.value) renderSaldoKelasAdmin();
+  } catch (e) {}
+}
+
+function renderSaldoKelasAdmin() {
+  const kelas = $('saldo-filter-kelas').value;
+  const tbody = $('tbody-saldo-kelas');
+  const btn = $('btn-simpan-saldo-kelas');
+  if (!kelas) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Pilih kelas terlebih dahulu untuk menampilkan siswa.</td></tr>';
+    btn.disabled = true;
+    return;
+  }
+  const list = saldoRekapCache.filter(s => String(s.kelas) === kelas).sort((a, b) => String(a.nama).localeCompare(String(b.nama)));
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">Tidak ada siswa aktif di kelas ini.</td></tr>';
+    btn.disabled = true;
+    return;
+  }
+  btn.disabled = false;
+  tbody.innerHTML = list.map(s => `
+    <tr>
+      <td class="font-weight-bold">${escapeHtml(s.nis)}</td>
+      <td>${escapeHtml(s.nama)}</td>
+      <td class="text-center"><span class="badge badge-light border">${s.saldo}</span></td>
+      <td>
+        <input type="number" class="form-control form-control-sm input-saldo-target"
+          data-nis="${escapeHtml(s.nis)}" data-cur="${s.saldo}"
+          value="${s.saldo}" min="0" max="1000">
+      </td>
+      <td class="text-center saldo-delta-cell"><span class="text-muted small">Sama</span></td>
+    </tr>
+  `).join('');
+
+  tbody.querySelectorAll('.input-saldo-target').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const cur = Number(inp.dataset.cur) || 0;
+      const val = Number(inp.value);
+      const cell = inp.closest('tr').querySelector('.saldo-delta-cell');
+      if (inp.value === '' || isNaN(val)) { cell.innerHTML = '<span class="badge badge-secondary">-</span>'; return; }
+      const d = Math.round(val - cur);
+      if (d === 0) cell.innerHTML = '<span class="text-muted small">Sama</span>';
+      else if (d < 0) cell.innerHTML = `<span class="badge badge-danger">${d}</span>`;
+      else cell.innerHTML = `<span class="badge badge-success">+${d}</span>`;
+    });
+  });
+}
+
+$('saldo-filter-kelas').addEventListener('change', renderSaldoKelasAdmin);
+
+$('btn-simpan-saldo-kelas').addEventListener('click', async () => {
+  const inputs = Array.from(document.querySelectorAll('#tbody-saldo-kelas .input-saldo-target'));
+  const catatan = ($('saldo-default-catatan').value || '').trim() || 'Saldo bawaan buku manual BK';
+  const items = [];
+  for (const inp of inputs) {
+    const val = Number(inp.value);
+    const cur = Number(inp.dataset.cur) || 0;
+    if (inp.value === '' || isNaN(val) || val < 0 || val > 1000) {
+      toast('Semua nilai poin harus angka 0 - 1000.', true); inp.focus(); return;
+    }
+    if (Math.round(val - cur) !== 0) {
+      items.push({ nis: inp.dataset.nis, target_saldo: Math.round(val), catatan });
+    }
+  }
+  if (!items.length) { toast('Tidak ada perubahan saldo di kelas ini.'); return; }
+  if (!confirm(`Simpan penyesuaian saldo untuk ${items.length} siswa di kelas ${$('saldo-filter-kelas').value}?`)) return;
+  const btn = $('btn-simpan-saldo-kelas');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan…';
+  try {
+    const res = await apiCall('setSaldoAwalBatch', { items }, true);
+    if (!res.ok) { toast(res.message, true); return; }
+    toast(res.message);
+    await initSaldoAwalAdmin();
+  } catch (e) { toast(e.message || 'Gagal menyimpan', true); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save mr-1"></i>Simpan Kelas Ini'; }
+});
+
+$('btn-export-saldo-template').addEventListener('click', async () => {
+  if (!saldoRekapCache.length) await initSaldoAwalAdmin();
+  if (!saldoRekapCache.length) { toast('Data siswa belum tersedia', true); return; }
+  const rows = saldoRekapCache
+    .slice()
+    .sort((a, b) => String(a.kelas).localeCompare(String(b.kelas)) || String(a.nama).localeCompare(String(b.nama)))
+    .map(s => [s.nis, s.nama, s.kelas, s.saldo, 'Saldo bawaan buku manual BK']);
+  const ws = XLSX.utils.aoa_to_sheet([['nis', 'nama', 'kelas', 'sisa_poin', 'catatan'], ...rows]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'SaldoAwalSiswa');
+  XLSX.writeFile(wb, 'Template_Saldo_Awal_Siswa_' + todayISO() + '.xlsx');
+  toast('Daftar siswa aktif diunduh! Edit kolom sisa_poin lalu import kembali.');
+});
+$('btn-import-saldo').addEventListener('click', () => openImport('saldoAwal'));
 
 // ============ RFID ============
 async function loadRfid() {
@@ -2305,6 +2558,52 @@ function printLaporanSiswa() {
 }
 
 // ============ LAPORAN GURU ============
+function updateOpsiKondisiGuru() {
+  const sel = $('lap-guru-kondisi');
+  if (!sel) return;
+  const cur = sel.value;
+  if (state.lapGuruTab === 'harian') {
+    sel.innerHTML = `
+      <option value="">Semua Catatan</option>
+      <option value="telat">Terlambat Masuk</option>
+      <option value="belum_pulang">Belum Tap Pulang</option>
+      <option value="pulang_cepat">Pulang Cepat</option>
+    `;
+  } else if (state.lapGuruTab === 'belum') {
+    sel.innerHTML = `<option value="">Semua Belum Absen</option>`;
+  } else {
+    sel.innerHTML = `
+      <option value="">Semua Guru</option>
+      <option value="telat">Pernah Terlambat</option>
+      <option value="belum_pulang">Ada Belum Tap Pulang</option>
+      <option value="rendah">Kehadiran &lt; 80%</option>
+      <option value="nol">Belum Pernah Hadir (0%)</option>
+    `;
+  }
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+
+function parseMenitJam_(jamStr) {
+  const m = String(jamStr || '').trim().match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+}
+
+function parseDurasiTeksMenit_(txt) {
+  const s = String(txt || '');
+  const mj = s.match(/(\d+)\s*Jam/i);
+  const mm = s.match(/(\d+)\s*Mnt/i);
+  if (!mj && !mm) return 0;
+  return (mj ? parseInt(mj[1], 10) * 60 : 0) + (mm ? parseInt(mm[1], 10) : 0);
+}
+
+function formatDurasiMenit_(totalMenit) {
+  const m = Math.max(0, Math.round(totalMenit || 0));
+  const j = Math.floor(m / 60);
+  const s = m % 60;
+  return `${j} Jam ${s} Mnt`;
+}
+
 async function initLaporanGuru() {
   if (!$('lap-guru-dari').value) $('lap-guru-dari').value = todayISO();
   if (!$('lap-guru-sampai').value) $('lap-guru-sampai').value = todayISO();
@@ -2312,102 +2611,483 @@ async function initLaporanGuru() {
     $('btn-lap-guru-cari').addEventListener('click', loadLaporanGuru);
     $('lap-guru-dari').addEventListener('change', loadLaporanGuru);
     $('lap-guru-sampai').addEventListener('change', loadLaporanGuru);
+    $('lap-guru-role').addEventListener('change', renderLaporanGuru);
+    $('lap-guru-kondisi').addEventListener('change', renderLaporanGuru);
+    $('lap-guru-cari').addEventListener('input', renderLaporanGuru);
     $('btn-lap-guru-export').addEventListener('click', exportLaporanGuru);
     $('btn-lap-guru-print').addEventListener('click', printLaporanGuru);
+    document.querySelectorAll('#lap-guru-tabs button[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#lap-guru-tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.lapGuruTab = btn.dataset.tab;
+        updateOpsiKondisiGuru();
+        renderLaporanGuru();
+      });
+    });
     state.lapGuruInit = true;
   }
   await loadLaporanGuru();
 }
 
 async function loadLaporanGuru() {
-  const dari = $('lap-guru-dari').value; const sampai = $('lap-guru-sampai').value;
+  const dari = $('lap-guru-dari').value;
+  const sampai = $('lap-guru-sampai').value;
   if (!dari || !sampai) { toast('Isi tanggal', true); return; }
+
+  $('lap-guru-tbody').innerHTML = '<tr><td colspan="10" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat evaluasi guru…</td></tr>';
+
   try {
-    const res = await apiCall('getLaporan', { jenis: 'guru', dari, sampai });
-    if (!res.ok) { toast(res.message, true); return; }
-    state.laporanGuruData = res.data || [];
+    const [resLap, resGuru, resSetting] = await Promise.all([
+      apiCall('getLaporan', { jenis: 'guru', dari, sampai }),
+      apiCall('getMasterGuruFull').catch(() => ({ ok: false, data: [] })),
+      apiCall('getPengaturan').catch(() => ({ ok: false, data: {} }))
+    ]);
+    if (!resLap.ok) { toast(resLap.message, true); return; }
+
+    const setting = (resSetting.ok && resSetting.data) ? resSetting.data : {};
+    const jamMasukAturan = bersihkanJam_(setting.jam_masuk, '07:00');
+    const toleransi = Number(setting.toleransi_menit) || 0;
+    const jamPulangAturan = bersihkanJam_(setting.jam_pulang, '15:00');
+    const mMasukAturan = parseMenitJam_(jamMasukAturan);
+    const batasMasukMenit = (mMasukAturan !== null ? mMasukAturan : 420) + toleransi;
+    const batasJamStr = `${String(Math.floor(batasMasukMenit / 60)).padStart(2, '0')}:${String(batasMasukMenit % 60).padStart(2, '0')}`;
+    const mPulangAturan = parseMenitJam_(jamPulangAturan);
+
+    state.lapGuruBatasMasuk = batasJamStr;
+    state.lapGuruJamPulang = jamPulangAturan;
+
+    const guruMaster = (resGuru.ok && Array.isArray(resGuru.data))
+      ? resGuru.data.filter(g => String(g.status || 'AKTIF').toUpperCase() === 'AKTIF')
+      : [];
+    const guruInfoMap = {};
+    guruMaster.forEach(g => {
+      const id = String(g.id_guru || '').trim();
+      guruInfoMap[id] = {
+        id_guru: id,
+        nama: g.nama || id,
+        role: String(g.role || '-').trim(),
+        no_hp: String(g.no_hp || '-').trim()
+      };
+    });
+
+    const rawLogs = resLap.data || [];
+    const tanggalAktifSet = new Set();
+    const harian = rawLogs.map(r => {
+      const id = String(r.id_guru || '').trim();
+      const tgl = String(r.tanggal || '').trim();
+      if (tgl) tanggalAktifSet.add(tgl);
+      const info = guruInfoMap[id] || { id_guru: id, nama: r.nama_guru || id, role: '-', no_hp: '-' };
+      const jm = (r.jam_masuk && r.jam_masuk !== '-') ? bersihkanJam_(r.jam_masuk, String(r.jam_masuk)) : '-';
+      const jp = (r.jam_pulang && r.jam_pulang !== '-') ? bersihkanJam_(r.jam_pulang, String(r.jam_pulang)) : '-';
+
+      const mIn = parseMenitJam_(jm);
+      const mOut = parseMenitJam_(jp);
+      let telatMenit = 0;
+      let ketepatan = '-';
+      if (mIn !== null) {
+        if (mIn > batasMasukMenit) {
+          telatMenit = mIn - batasMasukMenit;
+          ketepatan = 'TERLAMBAT';
+        } else {
+          ketepatan = 'TEPAT_WAKTU';
+        }
+      }
+
+      let durasiMenit = 0;
+      if (mIn !== null && mOut !== null && mOut >= mIn) {
+        durasiMenit = mOut - mIn;
+      } else if (r.total_jam && r.total_jam !== '-') {
+        durasiMenit = parseDurasiTeksMenit_(r.total_jam);
+      }
+
+      let statusPulang = 'BELUM_TAP';
+      if (jp !== '-') {
+        if (mPulangAturan !== null && mOut !== null && mOut < mPulangAturan) {
+          statusPulang = 'PULANG_CEPAT';
+        } else {
+          statusPulang = 'LENGKAP';
+        }
+      }
+
+      return {
+        tanggal: tgl,
+        id_guru: id,
+        nama_guru: r.nama_guru || info.nama,
+        role: info.role,
+        jam_masuk: jm,
+        ketepatan,
+        telat_menit: telatMenit,
+        jam_pulang: jp,
+        total_jam: (r.total_jam && r.total_jam !== '-') ? r.total_jam : (durasiMenit > 0 ? formatDurasiMenit_(durasiMenit) : '-'),
+        durasi_menit: durasiMenit,
+        status_pulang: statusPulang,
+        status_sheet: String(r.status || 'HADIR').toUpperCase()
+      };
+    });
+
+    harian.sort((a, b) => (b.tanggal + a.nama_guru).localeCompare(a.tanggal + b.nama_guru));
+    state.laporanGuruData = harian;
+
+    const hariAktif = tanggalAktifSet.size;
+    state.lapGuruHariAktif = hariAktif;
+
+    // Bangun Rekap Per Guru (mencakup semua guru aktif + guru di log)
+    const rekapMap = {};
+    guruMaster.forEach(g => {
+      const id = String(g.id_guru || '').trim();
+      rekapMap[id] = {
+        id_guru: id,
+        nama_guru: g.nama || id,
+        role: String(g.role || '-').trim(),
+        no_hp: String(g.no_hp || '-').trim(),
+        hadir: 0,
+        tepat: 0,
+        telat: 0,
+        belum_pulang: 0,
+        pulang_cepat: 0,
+        total_menit: 0,
+        _dates: new Set()
+      };
+    });
+
+    harian.forEach(h => {
+      if (!rekapMap[h.id_guru]) {
+        rekapMap[h.id_guru] = {
+          id_guru: h.id_guru,
+          nama_guru: h.nama_guru,
+          role: h.role || '-',
+          no_hp: '-',
+          hadir: 0,
+          tepat: 0,
+          telat: 0,
+          belum_pulang: 0,
+          pulang_cepat: 0,
+          total_menit: 0,
+          _dates: new Set()
+        };
+      }
+      const g = rekapMap[h.id_guru];
+      if (!g._dates.has(h.tanggal)) {
+        g._dates.add(h.tanggal);
+        g.hadir++;
+        if (h.ketepatan === 'TERLAMBAT') g.telat++;
+        else if (h.ketepatan === 'TEPAT_WAKTU') g.tepat++;
+        if (h.status_pulang === 'BELUM_TAP') g.belum_pulang++;
+        else if (h.status_pulang === 'PULANG_CEPAT') g.pulang_cepat++;
+        g.total_menit += (h.durasi_menit || 0);
+      }
+    });
+
+    const rekapList = Object.values(rekapMap).map(g => {
+      const pctNum = hariAktif > 0 ? Math.min(100, (g.hadir / hariAktif) * 100) : 0;
+      delete g._dates;
+      return {
+        ...g,
+        total_jam_str: g.total_menit > 0 ? formatDurasiMenit_(g.total_menit) : '-',
+        persenNum: pctNum,
+        persenStr: hariAktif > 0 ? pctNum.toFixed(1) + '%' : '0%'
+      };
+    });
+    rekapList.sort((a, b) => a.nama_guru.localeCompare(b.nama_guru));
+    state.laporanGuruRekap = rekapList;
+
+    // Guru Belum Absen pada tanggal akhir (sampai)
+    const hadirTglAkhir = new Set(harian.filter(h => h.tanggal === sampai).map(h => h.id_guru));
+    state.laporanGuruBelum = guruMaster
+      .filter(g => !hadirTglAkhir.has(String(g.id_guru || '').trim()))
+      .map(g => ({
+        id_guru: String(g.id_guru || '').trim(),
+        nama_guru: g.nama || '-',
+        role: String(g.role || '-').trim(),
+        no_hp: String(g.no_hp || '-').trim(),
+        tanggal_cek: sampai
+      }))
+      .sort((a, b) => a.nama_guru.localeCompare(b.nama_guru));
+
     renderLaporanGuru();
-  } catch (err) { toast('Gagal memuat laporan guru', true); }
+  } catch (err) {
+    toast('Gagal memuat laporan guru', true);
+  }
+}
+
+function getFilteredGuruRekap_() {
+  const roleF = ($('lap-guru-role') ? $('lap-guru-role').value : '').toUpperCase();
+  const kond = $('lap-guru-kondisi') ? $('lap-guru-kondisi').value : '';
+  const q = ($('lap-guru-cari') ? $('lap-guru-cari').value : '').trim().toLowerCase();
+  return state.laporanGuruRekap.filter(r => {
+    if (roleF && !String(r.role).toUpperCase().includes(roleF)) return false;
+    if (q && !String(r.nama_guru).toLowerCase().includes(q) && !String(r.id_guru).toLowerCase().includes(q)) return false;
+    if (kond === 'telat' && r.telat <= 0) return false;
+    if (kond === 'belum_pulang' && r.belum_pulang <= 0) return false;
+    if (kond === 'rendah' && !(state.lapGuruHariAktif > 0 && r.persenNum < 80)) return false;
+    if (kond === 'nol' && r.hadir > 0) return false;
+    return true;
+  });
+}
+
+function getFilteredGuruHarian_() {
+  const roleF = ($('lap-guru-role') ? $('lap-guru-role').value : '').toUpperCase();
+  const kond = $('lap-guru-kondisi') ? $('lap-guru-kondisi').value : '';
+  const q = ($('lap-guru-cari') ? $('lap-guru-cari').value : '').trim().toLowerCase();
+  return state.laporanGuruData.filter(r => {
+    if (roleF && !String(r.role).toUpperCase().includes(roleF)) return false;
+    if (q && !String(r.nama_guru).toLowerCase().includes(q) && !String(r.id_guru).toLowerCase().includes(q)) return false;
+    if (kond === 'telat' && r.ketepatan !== 'TERLAMBAT') return false;
+    if (kond === 'belum_pulang' && r.status_pulang !== 'BELUM_TAP') return false;
+    if (kond === 'pulang_cepat' && r.status_pulang !== 'PULANG_CEPAT') return false;
+    return true;
+  });
+}
+
+function getFilteredGuruBelum_() {
+  const roleF = ($('lap-guru-role') ? $('lap-guru-role').value : '').toUpperCase();
+  const q = ($('lap-guru-cari') ? $('lap-guru-cari').value : '').trim().toLowerCase();
+  return state.laporanGuruBelum.filter(r => {
+    if (roleF && !String(r.role).toUpperCase().includes(roleF)) return false;
+    if (q && !String(r.nama_guru).toLowerCase().includes(q) && !String(r.id_guru).toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function updateSummaryLaporanGuru_() {
+  const rekap = getFilteredGuruRekap_();
+  const harian = getFilteredGuruHarian_();
+  const belum = getFilteredGuruBelum_();
+
+  let totTepat = 0, totTelat = 0, totLengkap = 0, totBelumPulang = 0, totPulangCepat = 0, totMenit = 0, jmlAdaDurasi = 0;
+  harian.forEach(h => {
+    if (h.ketepatan === 'TEPAT_WAKTU') totTepat++;
+    else if (h.ketepatan === 'TERLAMBAT') totTelat++;
+    if (h.status_pulang === 'BELUM_TAP') totBelumPulang++;
+    else {
+      totLengkap++;
+      if (h.status_pulang === 'PULANG_CEPAT') totPulangCepat++;
+    }
+    if (h.durasi_menit > 0) { totMenit += h.durasi_menit; jmlAdaDurasi++; }
+  });
+  const avgMenit = jmlAdaDurasi > 0 ? Math.round(totMenit / jmlAdaDurasi) : 0;
+
+  $('lap-guru-sum-total').textContent = rekap.length;
+  $('lap-guru-sum-hari').textContent = `${state.lapGuruHariAktif} hari aktif tercatat`;
+  $('lap-guru-sum-ketepatan').textContent = `${totTepat} / ${totTelat}`;
+  $('lap-guru-sum-belum').textContent = `${belum.length} belum absen (${formatTanggal($('lap-guru-sampai').value)})`;
+  $('lap-guru-sum-pulang').textContent = `${totLengkap} / ${totBelumPulang}`;
+  $('lap-guru-sum-cepat').textContent = `Pulang cepat: ${totPulangCepat} · min. 2 jam kerja`;
+  $('lap-guru-sum-jam').textContent = `${Math.floor(avgMenit / 60)}j ${avgMenit % 60}m`;
+  $('lap-guru-sum-aturan').textContent = `Batas masuk: ${state.lapGuruBatasMasuk} · Pulang: ${state.lapGuruJamPulang}`;
 }
 
 function renderLaporanGuru() {
-  const data = state.laporanGuruData;
-  const headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam'];
-  const rows = data.map(r => [formatTanggal(r.tanggal), r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
-  $('lap-guru-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-  if (!data.length) { $('lap-guru-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data.</td></tr>`; return; }
-  $('lap-guru-tbody').innerHTML = rows.map(r => '<tr>' + r.map(c => `<td>${escapeHtml(c)}</td>`).join('') + '</tr>').join('');
+  updateSummaryLaporanGuru_();
+
+  if (state.lapGuruTab === 'harian') {
+    const data = getFilteredGuruHarian_();
+    const headers = ['Tanggal', 'ID Guru', 'Nama Guru', 'Jam Masuk', 'Ketepatan', 'Jam Pulang', 'Total Jam', 'Status Pulang'];
+    $('lap-guru-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+    if (!data.length) {
+      $('lap-guru-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada log kehadiran guru pada filter ini.</td></tr>`;
+      $('lap-guru-footer-info').textContent = '0 catatan harian guru.';
+      return;
+    }
+    $('lap-guru-tbody').innerHTML = data.map(r => {
+      const badgeTepat = r.ketepatan === 'TERLAMBAT'
+        ? `<span class="badge badge-warning">Telat +${r.telat_menit} mnt</span>`
+        : (r.ketepatan === 'TEPAT_WAKTU' ? '<span class="badge badge-success">Tepat Waktu</span>' : '-');
+      const badgePulang = r.status_pulang === 'BELUM_TAP'
+        ? '<span class="badge badge-secondary">Belum Tap Pulang</span>'
+        : (r.status_pulang === 'PULANG_CEPAT'
+          ? '<span class="badge badge-warning">Pulang Cepat</span>'
+          : '<span class="badge badge-info">Lengkap</span>');
+      return `<tr>
+        <td>${escapeHtml(formatTanggal(r.tanggal))}</td>
+        <td class="font-weight-bold">${escapeHtml(r.id_guru)}</td>
+        <td>${escapeHtml(r.nama_guru)}</td>
+        <td class="font-weight-bold">${escapeHtml(r.jam_masuk)}</td>
+        <td>${badgeTepat}</td>
+        <td class="font-weight-bold">${escapeHtml(r.jam_pulang)}</td>
+        <td>${escapeHtml(r.total_jam)}</td>
+        <td>${badgePulang}</td>
+      </tr>`;
+    }).join('');
+    $('lap-guru-footer-info').textContent = `Menampilkan ${data.length} log harian guru (aturan pulang: minimal 2 jam setelah tap masuk).`;
+    return;
+  }
+
+  if (state.lapGuruTab === 'belum') {
+    const data = getFilteredGuruBelum_();
+    const tglCek = formatTanggal($('lap-guru-sampai').value);
+    const headers = ['ID Guru', 'Nama Guru', 'Role', 'No HP', `Status (${tglCek})`];
+    $('lap-guru-thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+    if (!data.length) {
+      $('lap-guru-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-success font-weight-bold py-4"><i class="fas fa-check-circle mr-1"></i>Semua guru aktif sudah absen pada ${escapeHtml(tglCek)}.</td></tr>`;
+      $('lap-guru-footer-info').textContent = `0 guru belum absen pada ${tglCek}.`;
+      return;
+    }
+    $('lap-guru-tbody').innerHTML = data.map(r => `<tr>
+      <td class="font-weight-bold">${escapeHtml(r.id_guru)}</td>
+      <td>${escapeHtml(r.nama_guru)}</td>
+      <td><span class="badge-role">${escapeHtml(r.role)}</span></td>
+      <td>${escapeHtml(r.no_hp)}</td>
+      <td><span class="badge badge-danger">Belum Tap Masuk</span></td>
+    </tr>`).join('');
+    $('lap-guru-footer-info').textContent = `${data.length} guru aktif belum tap masuk pada ${tglCek}.`;
+    return;
+  }
+
+  const data = getFilteredGuruRekap_();
+  const headers = ['ID Guru', 'Nama Guru', 'Role', 'Hadir', 'Tepat', 'Telat', 'Blm Pulang', 'Total Jam Kerja', '% Hadir', 'Aksi'];
+  $('lap-guru-thead').innerHTML = '<tr>' + headers.map((h, i) => `<th${i === headers.length - 1 ? ' class="no-print-laporan"' : ''}>${h}</th>`).join('') + '</tr>';
+  if (!data.length) {
+    $('lap-guru-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada data guru.</td></tr>`;
+    $('lap-guru-footer-info').textContent = '0 guru ditampilkan.';
+    return;
+  }
+  $('lap-guru-tbody').innerHTML = data.map(r => {
+    const telatHtml = r.telat > 0 ? `<span class="badge badge-warning">${r.telat}</span>` : '0';
+    const blmHtml = r.belum_pulang > 0 ? `<span class="badge badge-secondary">${r.belum_pulang}</span>` : '0';
+    const pctColor = (state.lapGuruHariAktif > 0 && r.persenNum < 80) ? 'color:#B91C1C;font-weight:800' : 'font-weight:700';
+    return `<tr>
+      <td class="font-weight-bold">${escapeHtml(r.id_guru)}</td>
+      <td>${escapeHtml(r.nama_guru)}</td>
+      <td><span class="badge-role">${escapeHtml(r.role)}</span></td>
+      <td class="font-weight-bold">${r.hadir}</td>
+      <td>${r.tepat}</td>
+      <td>${telatHtml}</td>
+      <td>${blmHtml}</td>
+      <td class="font-weight-bold">${escapeHtml(r.total_jam_str)}</td>
+      <td style="${pctColor}">${r.persenStr}</td>
+      <td class="no-print-laporan">
+        <button class="btn-ghost" data-guru-harian="${escapeHtml(r.id_guru)}" title="Lihat Log Harian Guru"><i class="fas fa-calendar-day"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  $('lap-guru-tbody').querySelectorAll('[data-guru-harian]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $('lap-guru-cari').value = btn.dataset.guruHarian;
+      state.lapGuruTab = 'harian';
+      document.querySelectorAll('#lap-guru-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === 'harian'));
+      updateOpsiKondisiGuru();
+      renderLaporanGuru();
+    });
+  });
+
+  $('lap-guru-footer-info').textContent = `Menampilkan ${data.length} guru · Hari aktif pada periode: ${state.lapGuruHariAktif} hari.`;
 }
 
 function exportLaporanGuru() {
-  if (!state.laporanGuruData.length) { toast('Tidak ada data', true); return; }
-  const headers = ['Tanggal','ID Guru','Nama Guru','Jam Masuk','Jam Pulang','Status','Total Jam'];
-  const rows = state.laporanGuruData.map(r => [formatTanggal(r.tanggal), r.id_guru, r.nama_guru || r.id_guru, r.jam_masuk, r.jam_pulang, r.status, r.total_jam]);
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Laporan_Guru');
-  XLSX.writeFile(wb, `Laporan_Guru_${$('lap-guru-dari').value}_sd_${$('lap-guru-sampai').value}.xlsx`);
+  const dari = $('lap-guru-dari').value;
+  const sampai = $('lap-guru-sampai').value;
+  const wb = XLSX.utils.book_new();
+
+  if (state.lapGuruTab === 'harian') {
+    const data = getFilteredGuruHarian_();
+    if (!data.length) { toast('Tidak ada data', true); return; }
+    const headers = ['Tanggal', 'ID Guru', 'Nama Guru', 'Jam Masuk', 'Ketepatan', 'Telat (Menit)', 'Jam Pulang', 'Total Jam', 'Status Pulang'];
+    const rows = data.map(r => [formatTanggal(r.tanggal), r.id_guru, r.nama_guru, r.jam_masuk, r.ketepatan, r.telat_menit, r.jam_pulang, r.total_jam, r.status_pulang]);
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    XLSX.utils.book_append_sheet(wb, ws, 'Log_Harian_Guru');
+    XLSX.writeFile(wb, `Log_Harian_Guru_${dari}_sd_${sampai}.xlsx`);
+    toast('File Excel diunduh');
+    return;
+  }
+
+  if (state.lapGuruTab === 'belum') {
+    const data = getFilteredGuruBelum_();
+    if (!data.length) { toast('Tidak ada data', true); return; }
+    const headers = ['ID Guru', 'Nama Guru', 'Role', 'No HP', 'Tanggal Dicek', 'Status'];
+    const rows = data.map(r => [r.id_guru, r.nama_guru, r.role, r.no_hp, formatTanggal(r.tanggal_cek), 'Belum Tap Masuk']);
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    XLSX.utils.book_append_sheet(wb, ws, 'Guru_Belum_Absen');
+    XLSX.writeFile(wb, `Guru_Belum_Absen_${sampai}.xlsx`);
+    toast('File Excel diunduh');
+    return;
+  }
+
+  const data = getFilteredGuruRekap_();
+  if (!data.length) { toast('Tidak ada data', true); return; }
+  const headers = ['ID Guru', 'Nama Guru', 'Role', 'Hari Hadir', 'Tepat Waktu', 'Terlambat', 'Belum Tap Pulang', 'Total Jam Kerja', '% Kehadiran'];
+  const rows = data.map(r => [r.id_guru, r.nama_guru, r.role, r.hadir, r.tepat, r.telat, r.belum_pulang, r.total_jam_str, r.persenStr]);
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  XLSX.utils.book_append_sheet(wb, ws, 'Rekap_Evaluasi_Guru');
+  XLSX.writeFile(wb, `Rekap_Evaluasi_Guru_${dari}_sd_${sampai}.xlsx`);
   toast('File Excel diunduh');
 }
 
 function printLaporanGuru() {
-  if (!state.laporanGuruData.length) { toast('Tidak ada data untuk dicetak', true); return; }
   const dari = $('lap-guru-dari').value || todayISO();
   const sampai = $('lap-guru-sampai').value || todayISO();
+  const tab = state.lapGuruTab;
+  const data = tab === 'harian' ? getFilteredGuruHarian_() : (tab === 'belum' ? getFilteredGuruBelum_() : getFilteredGuruRekap_());
+  if (!data.length) { toast('Tidak ada data untuk dicetak', true); return; }
 
   if (window.jspdf && window.jspdf.jsPDF) {
     try {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const isBelum = tab === 'belum';
+      const doc = new jsPDF({ orientation: isBelum ? 'portrait' : 'landscape', unit: 'mm', format: 'a4' });
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(13);
       doc.setTextColor(30, 58, 138);
-      doc.text('SMK BHAKTI KENCANA CIAWI', 14, 15);
+      doc.text('SMK BHAKTI KENCANA CIAWI', 14, 14);
       doc.setFontSize(11);
       doc.setTextColor(15, 23, 42);
-      doc.text('LAPORAN KEHADIRAN GURU & STAF', 14, 21);
+      const judul = tab === 'harian'
+        ? 'LOG HARIAN KEHADIRAN GURU & STAF'
+        : (isBelum ? `DAFTAR GURU BELUM ABSEN (${formatTanggal(sampai)})` : 'REKAP EVALUASI KEHADIRAN GURU & STAF');
+      doc.text(judul, 14, 20);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor(71, 85, 105);
-      doc.text(`Periode: ${formatTanggal(dari)} s/d ${formatTanggal(sampai)}`, 14, 27);
-      doc.text(`Dicetak: ${formatTanggal(todayISO())}  |  Total: ${state.laporanGuruData.length} catatan`, 14, 32);
+      doc.text(`Periode: ${formatTanggal(dari)} s/d ${formatTanggal(sampai)}  |  Batas Masuk: ${state.lapGuruBatasMasuk}  |  Jam Pulang: ${state.lapGuruJamPulang}`, 14, 26);
+      doc.text(`Dicetak: ${formatTanggal(todayISO())}  |  Total Baris: ${data.length}${tab === 'rekap' ? '  |  Hari Aktif: ' + state.lapGuruHariAktif + ' hari' : ''}`, 14, 31);
 
-      const headers = [['No', 'Tanggal', 'ID Guru', 'Nama Guru', 'Masuk', 'Pulang', 'Status', 'Total Jam']];
-      const body = state.laporanGuruData.map((r, idx) => [
-        idx + 1,
-        formatTanggal(r.tanggal),
-        String(r.id_guru || '-'),
-        String(r.nama_guru || r.id_guru || '-'),
-        String(r.jam_masuk || '-'),
-        String(r.jam_pulang || '-'),
-        String(r.status || '-'),
-        String(r.total_jam || '-')
-      ]);
+      let headers, body, colStyles;
+      if (tab === 'harian') {
+        headers = [['No', 'Tanggal', 'ID Guru', 'Nama Guru', 'Masuk', 'Ketepatan', 'Pulang', 'Total Jam', 'Status Pulang']];
+        body = data.map((r, idx) => [
+          idx + 1, formatTanggal(r.tanggal), r.id_guru, r.nama_guru, r.jam_masuk,
+          r.ketepatan === 'TERLAMBAT' ? `Telat +${r.telat_menit}m` : (r.ketepatan === 'TEPAT_WAKTU' ? 'Tepat' : '-'),
+          r.jam_pulang, r.total_jam,
+          r.status_pulang === 'BELUM_TAP' ? 'Belum Tap' : (r.status_pulang === 'PULANG_CEPAT' ? 'Pulang Cepat' : 'Lengkap')
+        ]);
+        colStyles = { 0: { halign: 'center', cellWidth: 9 }, 4: { halign: 'center' }, 6: { halign: 'center' } };
+      } else if (isBelum) {
+        headers = [['No', 'ID Guru', 'Nama Guru', 'Role', 'No HP', 'Status']];
+        body = data.map((r, idx) => [idx + 1, r.id_guru, r.nama_guru, r.role, r.no_hp, 'Belum Tap Masuk']);
+        colStyles = { 0: { halign: 'center', cellWidth: 9 } };
+      } else {
+        headers = [['No', 'ID Guru', 'Nama Guru', 'Role', 'Hadir', 'Tepat', 'Telat', 'Blm Pulang', 'Total Jam Kerja', '% Hadir']];
+        body = data.map((r, idx) => [idx + 1, r.id_guru, r.nama_guru, r.role, r.hadir, r.tepat, r.telat, r.belum_pulang, r.total_jam_str, r.persenStr]);
+        colStyles = {
+          0: { halign: 'center', cellWidth: 9 },
+          4: { halign: 'center', cellWidth: 14 },
+          5: { halign: 'center', cellWidth: 14 },
+          6: { halign: 'center', cellWidth: 14 },
+          7: { halign: 'center', cellWidth: 20 },
+          9: { halign: 'center', cellWidth: 18 }
+        };
+      }
 
       doc.autoTable({
         head: headers,
         body: body,
-        startY: 36,
-        styles: { fontSize: 8.5, cellPadding: 2.5, lineColor: [226, 232, 240], lineWidth: 0.2 },
+        startY: 35,
+        styles: { fontSize: 8.5, cellPadding: 2.3, lineColor: [226, 232, 240], lineWidth: 0.2 },
         headStyles: { fillColor: [30, 58, 138], textColor: [255, 255, 255], fontStyle: 'bold' },
         alternateRowStyles: { fillColor: [248, 250, 255] },
-        columnStyles: {
-          0: { halign: 'center', cellWidth: 9 },
-          1: { cellWidth: 28 },
-          2: { cellWidth: 18 },
-          4: { halign: 'center', cellWidth: 16 },
-          5: { halign: 'center', cellWidth: 16 },
-          6: { halign: 'center', cellWidth: 18 },
-          7: { cellWidth: 25 }
-        },
-        didDrawPage: (data) => {
+        columnStyles: colStyles,
+        didDrawPage: (d) => {
           const pageCount = doc.internal.getNumberOfPages();
           doc.setFontSize(8);
           doc.setTextColor(100, 116, 139);
-          doc.text(`Halaman ${data.pageNumber} dari ${pageCount}`, doc.internal.pageSize.getWidth() - 14, doc.internal.pageSize.getHeight() - 8, { align: 'right' });
+          doc.text(`Halaman ${d.pageNumber} dari ${pageCount}`, doc.internal.pageSize.getWidth() - 14, doc.internal.pageSize.getHeight() - 8, { align: 'right' });
         }
       });
 
-      doc.save(`Laporan_Guru_${dari}_sd_${sampai}.pdf`);
+      const fileName = tab === 'harian' ? `Log_Harian_Guru_${dari}_sd_${sampai}.pdf` : (isBelum ? `Guru_Belum_Absen_${sampai}.pdf` : `Rekap_Evaluasi_Guru_${dari}_sd_${sampai}.pdf`);
+      doc.save(fileName);
       toast('File PDF diunduh');
       return;
     } catch (e) {
@@ -2569,8 +3249,15 @@ function cetakKartuSekarang() {
 // ============ IMPORT EXCEL ============
 function openImport(mode) {
   state.importMode = mode; state.importRows = [];
-  $('import-title').textContent = mode === 'siswa' ? 'Import Data Siswa' : (mode === 'guru' ? 'Import Data Guru' : 'Import Tata Tertib');
-  $('import-sub').textContent = mode === 'siswa' ? 'File .xlsx dengan header: nis, nama, kelas, jk, status, uid_rfid.' : (mode === 'guru' ? 'File .xlsx dengan header: id_guru, nama, pin, role, status, no_hp.' : 'File .xlsx dengan header: kode, kategori, deskripsi, poin, jenis, aktif.');
+  const titles = { siswa: 'Import Data Siswa', guru: 'Import Data Guru', tatib: 'Import Tata Tertib', saldoAwal: 'Import Saldo Awal Poin (Buku Manual)' };
+  const subs = {
+    siswa: 'File .xlsx dengan header: nis, nama, kelas, jk, status, uid_rfid.',
+    guru: 'File .xlsx dengan header: id_guru, nama, pin, role, status, no_hp.',
+    tatib: 'File .xlsx dengan header: kode, kategori, deskripsi, poin, jenis, aktif.',
+    saldoAwal: 'File .xlsx dengan header: nis, sisa_poin, catatan (kolom nama & kelas opsional).'
+  };
+  $('import-title').textContent = titles[mode] || 'Import Excel';
+  $('import-sub').textContent = subs[mode] || 'Pilih file .xlsx.';
   $('import-preview').textContent = '';
   $('import-alert').style.display = 'none';
   $('import-result').style.display = 'none';
@@ -2646,7 +3333,7 @@ $('btn-do-import').addEventListener('click', async () => {
     return;
   }
 
-  let html = `<div><span class="ok">✓ Berhasil: ${berhasil}</span>${diperbarui > 0 ? ` <span class="warn">(${diperbarui} diperbarui)</span>` : ''} &middot; <span class="err">✗ Dilewati/Error: ${gagal}</span></div>`;
+  let html = `<div><span class="ok">✓ Disesuaikan/Berhasil: ${berhasil}</span>${diperbarui > 0 ? ` <span class="warn">(${diperbarui} ${mode === 'saldoAwal' ? 'sudah sama' : 'diperbarui'})</span>` : ''} &middot; <span class="err">✗ Dilewati/Error: ${gagal}</span></div>`;
   if (detailError.length) {
     html += '<div style="margin-top:.5rem;font-weight:800;color:#B91C1C">Detail error:</div><ul style="max-height:150px;overflow-y:auto">';
     detailError.slice(0, 100).forEach(e => { html += `<li>Baris ${e.baris}: ${escapeHtml(e.alasan)}</li>`; });
@@ -2654,7 +3341,7 @@ $('btn-do-import').addEventListener('click', async () => {
     html += '</ul>';
   }
   if (detailPeringatan.length) {
-    html += '<div style="margin-top:.5rem;font-weight:800;color:#92400E">Peringatan:</div><ul style="max-height:100px;overflow-y:auto">';
+    html += '<div style="margin-top:.5rem;font-weight:800;color:#92400E">Info / Peringatan:</div><ul style="max-height:100px;overflow-y:auto">';
     detailPeringatan.slice(0, 30).forEach(p => { html += `<li>${escapeHtml(p)}</li>`; });
     if (detailPeringatan.length > 30) html += `<li>… dan ${detailPeringatan.length - 30} peringatan lain</li>`;
     html += '</ul>';
@@ -2666,6 +3353,7 @@ $('btn-do-import').addEventListener('click', async () => {
   if (mode === 'siswa') loadSiswa();
   if (mode === 'guru') loadGuru();
   if (mode === 'tatib') loadTatib();
+  if (mode === 'saldoAwal') initSaldoAwalAdmin();
 });
 
 $('btn-cancel-import').addEventListener('click', () => $('modal-import').classList.remove('show'));
@@ -2687,6 +3375,13 @@ $('btn-download-template').addEventListener('click', () => {
       ['G991','Contoh Guru 1, S.Pd.','123456','GURU_PIKET','AKTIF','081200000001'],
       ['G992','Contoh Guru 2, S.Pd.','123456','GURU_BK,WALI_KELAS','AKTIF','081200000002'],
       ['G993','Contoh Guru 3, S.Si.','123456','WALI_KELAS','AKTIF','']
+    ];
+  } else if (mode === 'saldoAwal') {
+    headers = ['nis','nama','kelas','sisa_poin','catatan'];
+    example = [
+      ['99991','Contoh Siswa 1','X Farmasi 1','85','Saldo bawaan buku manual BK'],
+      ['99992','Contoh Siswa 2','X Farmasi 1','60','Sisa poin SP1 dari buku manual'],
+      ['99993','Contoh Siswa 3','X Farmasi 1','100','Masih utuh 100']
     ];
   } else {
     headers = ['kode','kategori','deskripsi','poin','jenis','aktif'];
@@ -3092,7 +3787,15 @@ async function cetakMassalRaport() {
 
 // ============ INIT ============
 window.addEventListener('load', async () => {
+  const remAdmin = localStorage.getItem('bkc_rem_admin');
+  if (remAdmin) {
+    $('login-user').value = remAdmin;
+    if ($('login-remember')) $('login-remember').checked = true;
+  }
   if (state.token) {
+    sessionStorage.setItem('bkc_admin_token', state.token);
+    if (state.petugas) sessionStorage.setItem('bkc_admin_nama', state.petugas);
+    if (state.role) sessionStorage.setItem('bkc_admin_role', state.role);
     try {
       const res = await apiCall('heartbeat');
       if (res.ok) {
@@ -3102,9 +3805,10 @@ window.addEventListener('load', async () => {
     } catch (e) { doLogout('Koneksi gagal'); }
   } else {
     $('modal-login').classList.add('show');
-    setTimeout(() => $('login-user').focus(), 300);
+    setTimeout(() => $(remAdmin ? 'login-pin' : 'login-user').focus(), 300);
   }
 });
 </script>
+<script src="navbar.js"></script>
 </body>
 </html>

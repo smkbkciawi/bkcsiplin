@@ -22,8 +22,8 @@
     color:var(--text); min-height:100vh; overflow-y:auto; overflow-x:hidden; -webkit-tap-highlight-color:transparent;
   }
   header{
-    position:fixed;top:0;left:0;right:0;z-index:40; display:flex;align-items:center;justify-content:space-between;
-    padding:.9rem 1.4rem; background:linear-gradient(180deg, rgba(5,11,31,.92), rgba(5,11,31,.65));
+    position:sticky;top:0;z-index:40; display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;
+    padding:.85rem 1.4rem; background:linear-gradient(180deg, rgba(5,11,31,.94), rgba(5,11,31,.82));
     backdrop-filter:blur(8px); border-bottom:1px solid var(--border);
   }
   .brand{display:flex;align-items:center;gap:.8rem;min-width:0}
@@ -37,7 +37,7 @@
   .btn-icon{width:38px;height:38px;border-radius:10px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#FCA5A5;cursor:pointer;display:grid;place-items:center;font-size:1rem;transition:.15s}
   .btn-icon:hover{background:rgba(239,68,68,.25)}
 
-  main{min-height:100vh;padding:80px 1.4rem 1.4rem; display:grid;grid-template-columns:1.15fr 1fr;gap:1.2rem;}
+  main{min-height:calc(100vh - 70px);padding:1.2rem 1.4rem 1.4rem; display:grid;grid-template-columns:1.15fr 1fr;gap:1.2rem;}
   .left{display:flex;flex-direction:column;gap:1rem;min-height:0;overflow:visible}
   .clock-card{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--card),var(--navy-800));border:1px solid var(--border);border-radius:22px;padding:1rem;text-align:center;position:relative;overflow:hidden;min-height:0}
   .clock-card::after{content:"";position:absolute;inset:auto -20% -40% -20%;height:60%;background:radial-gradient(closest-side, rgba(59,130,246,.18), transparent);pointer-events:none}
@@ -111,6 +111,11 @@
   .field label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--muted);margin-bottom:.35rem}
   .field input{width:100%;padding:.85rem 1rem;background:#081634;border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-size:.95rem;font-family:inherit;font-weight:600;outline:none;transition:.15s}
   .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+  .pin-wrap{position:relative}
+  .pin-wrap input{padding-right:2.75rem}
+  .toggle-pin{position:absolute;right:.65rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#93C5FD;cursor:pointer;font-size:1.05rem;padding:.2rem;line-height:1}
+  .remember-row{display:flex;align-items:center;gap:.5rem;margin:.25rem 0 .4rem;font-size:.82rem;font-weight:600;color:#CBD5E1;cursor:pointer;user-select:none}
+  .remember-row input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
   .btn-primary{width:100%;padding:.95rem;margin-top:.6rem;background:linear-gradient(135deg,var(--accent),#1D4ED8);color:#fff;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:.95rem;letter-spacing:.3px;cursor:pointer;transition:.15s;box-shadow:0 10px 30px rgba(59,130,246,.35)}
   .btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 36px rgba(59,130,246,.45)}
   .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
@@ -128,7 +133,7 @@
   @keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 
   @media (max-width: 900px){
-    main{grid-template-columns:1fr;padding-top:76px;gap:.9rem}
+    main{grid-template-columns:1fr;padding-top:1rem;gap:.9rem}
     .left{order:1} .right{order:2}
     .clock-card{flex:none;min-height:240px}
     .clock-time{font-size:clamp(3rem, 18vw, 6rem)}
@@ -139,7 +144,7 @@
     .brand-txt b{font-size:.8rem}
     .brand-txt span{font-size:.65rem}
     .pill{display:none}
-    main{padding:72px .8rem .8rem}
+    main{padding:.85rem .8rem .8rem}
     .results{max-height:44vh}
     .clock-card{min-height:200px}
   }
@@ -156,6 +161,7 @@
       <span>Presensi Gerbang &middot; Yayasan Adhi Guna Kencana</span>
     </div>
   </div>
+  <nav id="bkc-inline-nav"></nav>
   <div class="header-right">
     <div class="pill"><span class="dot"></span><span id="petugas-label">Belum login</span></div>
     <div class="pill" id="sesi-pill" style="display:none">Sesi: <span id="sesi-timer">10:00</span></div>
@@ -217,7 +223,8 @@
     <p class="sub">Masukkan ID Guru &amp; PIN untuk membuka kios presensi.</p>
     <div class="alert err" id="login-alert"></div>
     <div class="field"><label for="login-user">ID GURU / NAMA</label><input type="text" id="login-user" placeholder="Contoh: G001" autocomplete="username" /></div>
-    <div class="field"><label for="login-pin">PIN</label><input type="password" id="login-pin" placeholder="••••••" autocomplete="current-password" inputmode="numeric" /></div>
+    <div class="field"><label for="login-pin">PIN</label><div class="pin-wrap"><input type="password" id="login-pin" placeholder="••••••" autocomplete="current-password" inputmode="numeric" /><button type="button" class="toggle-pin" id="btn-toggle-pin" title="Lihat / Sembunyikan PIN">👁️</button></div></div>
+    <label class="remember-row"><input type="checkbox" id="login-remember"> Ingat saya di perangkat ini</label>
     <button class="btn-primary" id="btn-login">Masuk &amp; Buka Kios</button>
   </div>
 </div>
@@ -242,9 +249,9 @@ const IDLE_WARN_MS  = 30 * 1000;
 const HEARTBEAT_MS  = 2 * 60 * 1000;
 
 const state = {
-  token: sessionStorage.getItem('bkc_token') || '',
-  petugas: sessionStorage.getItem('bkc_petugas') || '',
-  role: sessionStorage.getItem('bkc_role') || '',
+  token: sessionStorage.getItem('bkc_token') || localStorage.getItem('bkc_token') || '',
+  petugas: sessionStorage.getItem('bkc_petugas') || localStorage.getItem('bkc_petugas') || '',
+  role: sessionStorage.getItem('bkc_role') || localStorage.getItem('bkc_role') || '',
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null,
   searchTimer: null, searchAbort: null,
   scannedHariIni: {},
@@ -389,14 +396,26 @@ async function doLogin() {
     sessionStorage.setItem('bkc_token', state.token); 
     sessionStorage.setItem('bkc_petugas', state.petugas); 
     sessionStorage.setItem('bkc_role', state.role);
+    if ($('login-remember') && $('login-remember').checked) {
+      localStorage.setItem('bkc_rem_gerbang', username);
+      localStorage.setItem('bkc_token', state.token);
+      localStorage.setItem('bkc_petugas', state.petugas);
+      localStorage.setItem('bkc_role', state.role);
+    } else {
+      localStorage.removeItem('bkc_rem_gerbang');
+      localStorage.removeItem('bkc_token');
+      localStorage.removeItem('bkc_petugas');
+      localStorage.removeItem('bkc_role');
+    }
     
     $('petugas-label').textContent = state.petugas; 
     $('sesi-pill').style.display = 'inline-flex';
     $('login-modal').classList.remove('show'); 
     $('login-user').value = ''; 
-    $('login-pin').value = '';
+    $('login-pin').value = ''; 
     
     tampilStatus('ok', 'Siap menerima presensi', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
+    if (window.bkcRefreshNav) window.bkcRefreshNav();
     mulaiIdleWatcher(); 
     mulaiHeartbeat(); 
     fokusRFID();
@@ -408,6 +427,7 @@ async function doLogin() {
         $('petugas-label').textContent = state.petugas || 'Petugas';
         $('sesi-pill').style.display = 'inline-flex';
         tampilStatus('ok', 'Siap menerima presensi (Koneksi lambat)', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
+        if (window.bkcRefreshNav) window.bkcRefreshNav();
         mulaiIdleWatcher(); mulaiHeartbeat(); fokusRFID();
     } else {
         alertEl.textContent = 'Koneksi lambat, silakan coba klik Masuk lagi.'; 
@@ -421,14 +441,27 @@ async function doLogin() {
 $('btn-login').addEventListener('click', doLogin);
 $('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 $('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-pin').focus(); });
+if ($('btn-toggle-pin')) {
+  $('btn-toggle-pin').addEventListener('click', () => {
+    const inp = $('login-pin');
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    $('btn-toggle-pin').textContent = show ? '🙈' : '👁️';
+  });
+}
 
 async function doLogout(reason) {
   try { await apiCall('logout', { alasan: reason || 'Logout manual' }, true); } catch (_) {}
   sessionStorage.removeItem('bkc_token'); sessionStorage.removeItem('bkc_petugas'); sessionStorage.removeItem('bkc_role');
+  localStorage.removeItem('bkc_token'); localStorage.removeItem('bkc_petugas'); localStorage.removeItem('bkc_role');
   state.token = ''; state.petugas = ''; state.role = '';
+  if (window.bkcRefreshNav) window.bkcRefreshNav();
   hentikanIdleWatcher(); hentikanHeartbeat();
   $('petugas-label').textContent = 'Belum login'; $('sesi-pill').style.display = 'none';
-  $('idle-modal').classList.remove('show'); $('login-modal').classList.add('show'); $('login-user').focus();
+  $('idle-modal').classList.remove('show'); $('login-modal').classList.add('show');
+  const rem = localStorage.getItem('bkc_rem_gerbang');
+  if (rem) { $('login-user').value = rem; if ($('login-remember')) $('login-remember').checked = true; $('login-pin').focus(); }
+  else { $('login-user').focus(); }
   tampilStatus('', 'Menunggu kartu…', 'Silakan login untuk membuka kios.', '');
 }
 $('btn-logout').addEventListener('click', () => { if (confirm('Logout dari kios?')) doLogout('Logout manual'); });
@@ -575,16 +608,25 @@ function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;'
 
 (function init() {
   if (API_URL.indexOf('ISI_URL') === 0) alert('API_URL belum diisi.');
+  const rem = localStorage.getItem('bkc_rem_gerbang');
+  if (rem) {
+    $('login-user').value = rem;
+    if ($('login-remember')) $('login-remember').checked = true;
+  }
   if (state.token) {
+    sessionStorage.setItem('bkc_token', state.token);
+    if (state.petugas) sessionStorage.setItem('bkc_petugas', state.petugas);
+    if (state.role) sessionStorage.setItem('bkc_role', state.role);
     apiCall('heartbeat').then(r => {
       if (r.ok) {
         $('petugas-label').textContent = state.petugas; $('sesi-pill').style.display = 'inline-flex'; $('login-modal').classList.remove('show');
         tampilStatus('ok', 'Siap menerima presensi', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
+        if (window.bkcRefreshNav) window.bkcRefreshNav();
         mulaiIdleWatcher(); mulaiHeartbeat(); fokusRFID();
       } else doLogout('Token tidak valid');
     }).catch(() => $('login-modal').classList.add('show'));
   } else {
-    $('login-modal').classList.add('show'); setTimeout(() => $('login-user').focus(), 300);
+    $('login-modal').classList.add('show'); setTimeout(() => $(rem ? 'login-pin' : 'login-user').focus(), 300);
   }
 })();
 </script>

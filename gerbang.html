@@ -528,8 +528,17 @@ function prosesPresensi(kode, sumber) {
       }
   }
 
-  let statusTeks = isMasuk ? 'Masuk' : 'Pulang';
+   let statusTeks = isMasuk ? 'Masuk' : 'Pulang';
   let isTerlambat = false;
+  
+  // LOGIKA PULANG AWAL (SISWA)
+  if (!isMasuk && tipe === 'Siswa') {
+      let jp = String(setting.jam_pulang || '15:00').substring(0,5);
+      if (jamNow < jp) {
+          statusTeks = 'Pulang Awal';
+          isTerlambat = true; // Biar warnanya kuning
+      }
+  }
   
   // Cek Terlambat (Hanya Siswa)
   if (isMasuk && tipe === 'Siswa') {

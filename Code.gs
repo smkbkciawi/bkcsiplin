@@ -451,26 +451,65 @@ function getDashboardWaliKelas_(token) {
     if (!kelasAmpu.length) return { ok: true, data: null, message: 'Anda belum ditugaskan sebagai wali kelas mana pun.' };
     const hariIni = todayStr_();
 
-    const setting = getPengaturan_(null).data;
+    const setting = getPengaturan_(null).data || {};
     const poinAwalSiswa = Number(setting.poin_awal) || 100;
+    const zKuning = Number(setting.zona_kuning_min) || 51;
+    const zOranye = Number(setting.zona_oranye_min) || 26;
+    const zMerah = Number(setting.zona_merah_min) || 1;
 
     const siswaKelas = readAll_(SHEET.SISWA).filter(s => String(s.status).toUpperCase() === 'AKTIF' && kelasAmpu.includes(String(s.kelas).trim()));
-    const nisKelas = siswaKelas.map(s => String(s.nis));
-    const gerbangHariIni = readAll_(SHEET.GERBANG).filter(r => getTanggalBersih_(r.tanggal) === hariIni && String(r.sesi).toUpperCase() === 'PAGI' && nisKelas.includes(String(r.nis)));
-    const keteranganHariIni = readAll_(SHEET.KETERANGAN).filter(r => getTanggalBersih_(r.tanggal) === hariIni && nisKelas.includes(String(r.nis)));
-    const poinAll = readAll_(SHEET.POIN).filter(r => nisKelas.includes(String(r.nis)));
-    const saldo = {}; siswaKelas.forEach(s => saldo[String(s.nis)] = poinAwalSiswa);
-    poinAll.forEach(p => { if (saldo[String(p.nis)] !== undefined) saldo[String(p.nis)] += (Number(p.poin) || 0); });
-    const zonaMerah = Object.keys(saldo).filter(nis => saldo[nis] <= 25).length;
+    const nisKelas = siswaKelas.map(s => String(s.nis).trim());
+    const nisSet = new Set(nisKelas);
+    const gerbangHariIni = readAll_(SHEET.GERBANG).filter(r => getTanggalBersih_(r.tanggal) === hariIni && String(r.sesi).toUpperCase() === 'PAGI' && nisSet.has(String(r.nis).trim()));
+    const keteranganHariIni = readAll_(SHEET.KETERANGAN).filter(r => getTanggalBersih_(r.tanggal) === hariIni && nisSet.has(String(r.nis).trim()));
+    const poinAll = readAll_(SHEET.POIN).filter(r => nisSet.has(String(r.nis).trim()));
+
+    const saldo = {};
+    siswaKelas.forEach(s => { saldo[String(s.nis).trim()] = poinAwalSiswa; });
+    poinAll.forEach(p => {
+      const n = String(p.nis).trim();
+      if (saldo[n] !== undefined) saldo[n] += (Number(p.poin) || 0);
+    });
+
+    let zonaMerah = 0;
+    const prioritasList = [];
+    siswaKelas.forEach(s => {
+      const n = String(s.nis).trim();
+      const v = saldo[n];
+      if (v < zOranye) zonaMerah++;
+      if (v < zKuning + 25) {
+        let zKode = 'Kuning', zCls = 'kuning';
+        if (v <= 0 || v < zMerah) { zKode = 'Kritis'; zCls = 'kritis'; }
+        else if (v < zOranye) { zKode = 'Merah'; zCls = 'merah'; }
+        else if (v < zKuning) { zKode = 'Oranye'; zCls = 'oranye'; }
+        prioritasList.push({ nis: n, nama: s.nama, kelas: s.kelas, saldo: v, zona: zKode, zona_cls: zCls });
+      }
+    });
+    prioritasList.sort((a, b) => a.saldo - b.saldo);
 
     const hadir = new Set(); const tepat = new Set(); const telat = new Set();
+    const siswaTerlambat = [];
     gerbangHariIni.forEach(r => {
-      const n = String(r.nis);
+      const n = String(r.nis).trim();
       hadir.add(n);
       const st = String(r.status).toUpperCase();
       if (st === 'TEPAT_WAKTU' || st === 'HADIR') tepat.add(n);
-      else if (st === 'TERLAMBAT') telat.add(n);
+      else if (st === 'TERLAMBAT') {
+        telat.add(n);
+        siswaTerlambat.push({
+          nis: n,
+          nama: r.nama,
+          kelas: r.kelas,
+          jam: formatJamSheet(r.jam || r.timestamp, '-')
+        });
+      }
     });
+
+    const ketSet = new Set(keteranganHariIni.map(r => String(r.nis).trim()));
+    const belumHadir = siswaKelas
+      .filter(s => !hadir.has(String(s.nis).trim()) && !ketSet.has(String(s.nis).trim()))
+      .map(s => ({ nis: String(s.nis).trim(), nama: s.nama, kelas: s.kelas }));
+
     const izin = keteranganHariIni.filter(r => String(r.status).toUpperCase() === 'IZIN').length;
     const sakit = keteranganHariIni.filter(r => String(r.status).toUpperCase() === 'SAKIT').length;
     const alpa = keteranganHariIni.filter(r => String(r.status).toUpperCase() === 'ALPA').length;
@@ -481,7 +520,11 @@ function getDashboardWaliKelas_(token) {
       hadir_gerbang: hadir.size,
       izin: izin, sakit: sakit, alpa: alpa,
       zona_merah: zonaMerah,
-      ketepatan: { tepat_waktu: tepat.size, terlambat: telat.size, tidak_hadir: Math.max(0, siswaKelas.length - hadir.size - izin - sakit - alpa) }
+      ketepatan: { tepat_waktu: tepat.size, terlambat: telat.size, tidak_hadir: Math.max(0, siswaKelas.length - hadir.size - izin - sakit - alpa) },
+      siswa_terlambat: siswaTerlambat,
+      siswa_prioritas: prioritasList.slice(0, 12),
+      belum_hadir: belumHadir.slice(0, 20),
+      updated_at: nowStr_()
     }};
   } catch (e) { return { ok: false, message: e.message }; }
 }
@@ -527,7 +570,15 @@ function editGuru_(token, p) {
   } catch (e) { return { ok: false, message: e.message }; }
 }
 
-function getGuruTanpaRfid_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.GURU).filter(g => !g.uid_rfid) }; } catch (e) { return { ok: false, message: e.message }; } }
+function getGuruTanpaRfid_(token) {
+  try {
+    verifikasiToken_(token);
+    return {
+      ok: true,
+      data: readAll_(SHEET.GURU).filter(g => String(g.status || 'AKTIF').toUpperCase() === 'AKTIF' && !String(g.uid_rfid || '').trim())
+    };
+  } catch (e) { return { ok: false, message: e.message }; }
+}
 
 function daftarRfidGuru_(token, p) {
   try {
@@ -1425,60 +1476,341 @@ function getDashboardSummary_(token) {
   try {
     verifikasiToken_(token);
     const hariIni = todayStr_();
-    const setting = getPengaturan_(null).data;
+    const bulanIni = hariIni.slice(0, 7);
+    const setting = getPengaturan_(null).data || {};
 
     const poinAwal = Number(setting.poin_awal) || 100;
     const zKuning = Number(setting.zona_kuning_min) || 51;
     const zOranye = Number(setting.zona_oranye_min) || 26;
     const zMerah = Number(setting.zona_merah_min) || 1;
 
-    const siswa = readAll_(SHEET.SISWA).filter(s => String(s.status).toUpperCase() === 'AKTIF');
+    const jamMasukAturan = formatJamSheet(setting.jam_masuk, '07:00');
+    const toleransi = Number(setting.toleransi_menit) || 0;
+    const jmParts = jamMasukAturan.split(':').map(Number);
+    const batasMasukMenit = ((jmParts[0] || 7) * 60) + (jmParts[1] || 0) + toleransi;
+
+    const siswa = readAll_(SHEET.SISWA).filter(s => String(s.status || 'AKTIF').toUpperCase() === 'AKTIF');
+    const guruAktif = readAll_(SHEET.GURU).filter(g => String(g.status || 'AKTIF').toUpperCase() === 'AKTIF');
+    const kelasList = readAll_(SHEET.KELAS);
+
+    const siswaMap = {};
+    let siswaPunyaRfid = 0;
+    const siswaPerKelas = {};
+    siswa.forEach(s => {
+      const nis = String(s.nis || '').trim();
+      siswaMap[nis] = s;
+      if (String(s.uid_rfid || '').trim()) siswaPunyaRfid++;
+      const k = String(s.kelas || '-').trim();
+      siswaPerKelas[k] = (siswaPerKelas[k] || 0) + 1;
+    });
+
     const gerbangHariIni = readAll_(SHEET.GERBANG).filter(r => getTanggalBersih_(r.tanggal) === hariIni && String(r.sesi).toUpperCase() === 'PAGI');
     const sholatHariIni = readAll_(SHEET.SHOLAT).filter(r => getTanggalBersih_(r.tanggal) === hariIni);
+    const udzurAktifList = readAll_(SHEET.UDZUR).filter(u => getTanggalBersih_(u.tgl_mulai) <= hariIni && getTanggalBersih_(u.tgl_selesai) >= hariIni);
+    const ketHariIni = readAll_(SHEET.KETERANGAN).filter(r => getTanggalBersih_(r.tanggal) === hariIni);
 
-    const hadirSet = {}; gerbangHariIni.forEach(r => hadirSet[String(r.nis)] = true);
-    const infoBox = { total_siswa: siswa.length, hadir_gerbang: Object.keys(hadirSet).length, partisipasi_sholat: siswa.length ? Math.round((sholatHariIni.length / siswa.length) * 100) : 0, zona_merah: 0 };
+    // Gerbang & Ketepatan Siswa
+    const hadirSet = {};
+    const tepat = {};
+    const telat = {};
+    const siswaTerlambat = [];
+    gerbangHariIni.forEach(r => {
+      const nis = String(r.nis || '').trim();
+      if (!siswaMap[nis]) return;
+      hadirSet[nis] = true;
+      const st = String(r.status || '').toUpperCase();
+      if (st === 'TEPAT_WAKTU' || st === 'HADIR') {
+        tepat[nis] = true;
+      } else if (st === 'TERLAMBAT') {
+        telat[nis] = true;
+        siswaTerlambat.push({
+          nis: nis,
+          nama: r.nama || siswaMap[nis].nama,
+          kelas: r.kelas || siswaMap[nis].kelas,
+          jam: formatJamSheet(r.jam || r.timestamp, '-')
+        });
+      }
+    });
+    siswaTerlambat.sort((a, b) => String(b.jam).localeCompare(String(a.jam)));
 
-    const pelanggaran = readAll_(SHEET.POIN).filter(r => String(r.jenis).toUpperCase() === 'PELANGGARAN' && getTanggalBersih_(r.tanggal).slice(0, 7) === hariIni.slice(0, 7));
-    const hitungPasal = {}; pelanggaran.forEach(r => { hitungPasal[r.pasal] = (hitungPasal[r.pasal] || 0) + 1; });
-    const topPelanggaran = Object.keys(hitungPasal).map(k => ({ pasal: k, jumlah: hitungPasal[k] })).sort((a, b) => b.jumlah - a.jumlah).slice(0, 5);
+    // Keterangan Absen Hari Ini (Izin / Sakit / Alpa)
+    const ketMap = {};
+    const keteranganList = [];
+    let jmlIzin = 0, jmlSakit = 0, jmlAlpa = 0;
+    ketHariIni.forEach(r => {
+      const nis = String(r.nis || '').trim();
+      if (!siswaMap[nis]) return;
+      const st = String(r.status || '').toUpperCase();
+      if (st === 'IZIN') jmlIzin++;
+      else if (st === 'SAKIT') jmlSakit++;
+      else if (st === 'ALPA') jmlAlpa++;
+      ketMap[nis] = st;
+      keteranganList.push({
+        nis: nis,
+        nama: r.nama || siswaMap[nis].nama,
+        kelas: r.kelas || siswaMap[nis].kelas,
+        status: st,
+        keterangan: r.keterangan || '-'
+      });
+    });
 
-    const kelasSholat = {};
-    sholatHariIni.forEach(r => { if (!kelasSholat[r.kelas]) kelasSholat[r.kelas] = 0; kelasSholat[r.kelas]++; });
-    const raporKelas = Object.keys(kelasSholat).map(k => ({ kelas: k, jumlah: kelasSholat[k] })).sort((a, b) => b.jumlah - a.jumlah);
+    let ketBelumTap = 0;
+    Object.keys(ketMap).forEach(nis => { if (!hadirSet[nis]) ketBelumTap++; });
+    const hadirCount = Object.keys(hadirSet).length;
+    const belumHadirCount = Math.max(0, siswa.length - hadirCount - ketBelumTap);
 
+    // Sholat Unik & Udzur
+    const sholatUnikSet = new Set();
+    const udzurSet = new Set();
+    udzurAktifList.forEach(u => {
+      const nis = String(u.nis || '').trim();
+      if (siswaMap[nis]) udzurSet.add(nis);
+    });
+
+    const kelasSholatUnik = {};
+    const kelasSholatScan = {};
+    sholatHariIni.forEach(r => {
+      const nis = String(r.nis || '').trim();
+      if (!siswaMap[nis]) return;
+      sholatUnikSet.add(nis);
+      const k = String(r.kelas || siswaMap[nis].kelas || '-').trim();
+      if (!kelasSholatUnik[k]) kelasSholatUnik[k] = new Set();
+      kelasSholatUnik[k].add(nis);
+      kelasSholatScan[k] = (kelasSholatScan[k] || 0) + 1;
+    });
+
+    const semuaKelasSet = new Set(Object.keys(siswaPerKelas));
+    kelasList.forEach(k => { if (k.nama_kelas) semuaKelasSet.add(String(k.nama_kelas).trim()); });
+    const raporKelas = Array.from(semuaKelasSet).filter(k => (siswaPerKelas[k] || 0) > 0).map(k => {
+      const tot = siswaPerKelas[k] || 0;
+      const unik = kelasSholatUnik[k] ? kelasSholatUnik[k].size : 0;
+      const scan = kelasSholatScan[k] || 0;
+      const persen = tot > 0 ? Math.min(100, Math.round((unik / tot) * 100)) : 0;
+      return { kelas: k, unik: unik, total_siswa: tot, jumlah: scan, persen: persen };
+    }).sort((a, b) => b.persen - a.persen || b.unik - a.unik || a.kelas.localeCompare(b.kelas));
+
+    // Zonasi Poin & Siswa Prioritas Pembinaan
     const poinRows = readAll_(SHEET.POIN);
-    const saldo = {}; siswa.forEach(s => saldo[String(s.nis)] = poinAwal);
-    poinRows.forEach(p => { if (saldo[String(p.nis)] !== undefined) saldo[String(p.nis)] += (Number(p.poin) || 0); });
+    const saldo = {};
+    siswa.forEach(s => { saldo[String(s.nis).trim()] = poinAwal; });
+    poinRows.forEach(p => {
+      const nis = String(p.nis || '').trim();
+      if (saldo[nis] !== undefined) saldo[nis] += (Number(p.poin) || 0);
+    });
 
     const zonasi = { hijau: 0, kuning: 0, oranye: 0, merah: 0, kritis: 0 };
-    Object.keys(saldo).forEach(nis => {
+    const prioritasList = [];
+    siswa.forEach(s => {
+      const nis = String(s.nis).trim();
       const v = saldo[nis];
-      if (v >= (zKuning + 25)) zonasi.hijau++;
-      else if (v >= zKuning) zonasi.kuning++;
-      else if (v >= zOranye) zonasi.oranye++;
-      else if (v >= zMerah) zonasi.merah++;
-      else zonasi.kritis++;
+      let zKode = 'Hijau', zCls = 'hijau';
+      if (v >= (zKuning + 25)) {
+        zonasi.hijau++;
+      } else if (v >= zKuning) {
+        zonasi.kuning++; zKode = 'Kuning'; zCls = 'kuning';
+      } else if (v >= zOranye) {
+        zonasi.oranye++; zKode = 'Oranye'; zCls = 'oranye';
+      } else if (v >= zMerah && v > 0) {
+        zonasi.merah++; zKode = 'Merah'; zCls = 'merah';
+      } else {
+        zonasi.kritis++; zKode = 'Kritis'; zCls = 'kritis';
+      }
+      if (zCls !== 'hijau') {
+        prioritasList.push({
+          nis: nis,
+          nama: s.nama,
+          kelas: s.kelas,
+          saldo: v,
+          zona: zKode,
+          zona_cls: zCls
+        });
+      }
+    });
+    prioritasList.sort((a, b) => a.saldo - b.saldo || String(a.nama).localeCompare(String(b.nama)));
+
+    // Top 5 Pelanggaran Bulan Ini (kecualikan SALDO_AWAL & tampilkan deskripsi tata tertib)
+    const tatibDescMap = {};
+    readAll_(SHEET.TATA_TERTIB).forEach(t => {
+      const kd = String(t.kode || '').trim().toUpperCase();
+      if (kd) tatibDescMap[kd] = String(t.deskripsi || '').trim();
+    });
+    const pelanggaran = poinRows.filter(r =>
+      String(r.jenis).toUpperCase() === 'PELANGGARAN' &&
+      String(r.pasal || '').trim().toUpperCase() !== 'SALDO_AWAL' &&
+      getTanggalBersih_(r.tanggal).slice(0, 7) === bulanIni
+    );
+    const hitungPasal = {};
+    pelanggaran.forEach(r => {
+      const kd = String(r.pasal || '-').trim().toUpperCase();
+      hitungPasal[kd] = (hitungPasal[kd] || 0) + 1;
+    });
+    const topPelanggaran = Object.keys(hitungPasal)
+      .map(k => ({ pasal: k, deskripsi: tatibDescMap[k] || k, jumlah: hitungPasal[k] }))
+      .sort((a, b) => b.jumlah - a.jumlah)
+      .slice(0, 5);
+
+    // Kehadiran Guru & Staf Hari Ini
+    const guruMap = {};
+    let guruPunyaRfid = 0;
+    guruAktif.forEach(g => {
+      const id = String(g.id_guru || '').trim();
+      guruMap[id] = g;
+      if (String(g.uid_rfid || '').trim()) guruPunyaRfid++;
     });
 
-    const tepat = {}, telat = {};
-    gerbangHariIni.forEach(r => {
-      const st = String(r.status).toUpperCase();
-      if (st === 'TEPAT_WAKTU' || st === 'HADIR') tepat[r.nis] = true;
-      else if (st === 'TERLAMBAT') telat[r.nis] = true;
-    });
-    const ketepatan = { tepat_waktu: Object.keys(tepat).length, terlambat: Object.keys(telat).length, tidak_hadir: Math.max(0, siswa.length - Object.keys(hadirSet).length) };
+    const rekapGuruHariIni = readAll_(SHEET.REKAP_GURU).filter(r => getTanggalBersih_(r.tanggal) === hariIni);
+    const guruLogHariIni = readAll_(SHEET.GURU_HADIR).filter(r => getTanggalBersih_(r.tanggal) === hariIni);
+    const guruTapMap = {};
 
-    return { ok: true, data: { info_box: infoBox, top_pelanggaran: topPelanggaran, zonasi: zonasi, ketepatan: ketepatan, rapor_kelas: raporKelas } };
+    rekapGuruHariIni.forEach(r => {
+      const id = String(r.id_guru || '').trim();
+      if (!guruMap[id]) return;
+      const jm = (r.jam_masuk && r.jam_masuk !== '-') ? formatJamSheet(r.jam_masuk, '') : '';
+      const jp = (r.jam_pulang && r.jam_pulang !== '-') ? formatJamSheet(r.jam_pulang, '') : '';
+      if (jm) guruTapMap[id] = { jam_masuk: jm, jam_pulang: jp || '-' };
+    });
+
+    // Fallback bila PRESENSI_GURU ada tapi belum masuk REKAP_GURU
+    guruLogHariIni.forEach(r => {
+      const id = String(r.id_guru || '').trim();
+      if (!guruMap[id]) return;
+      const jm = formatJamSheet(r.jam || r.timestamp, '');
+      if (!jm) return;
+      if (!guruTapMap[id]) guruTapMap[id] = { jam_masuk: jm, jam_pulang: '-' };
+      else if (jm < guruTapMap[id].jam_masuk) guruTapMap[id].jam_masuk = jm;
+      else if (jm > guruTapMap[id].jam_masuk && guruTapMap[id].jam_pulang === '-') guruTapMap[id].jam_pulang = jm;
+    });
+
+    let guruTepat = 0, guruTelat = 0, guruPulang = 0;
+    const guruHadirList = [];
+    const guruBelumAbsen = [];
+
+    guruAktif.forEach(g => {
+      const id = String(g.id_guru || '').trim();
+      const tap = guruTapMap[id];
+      if (!tap) {
+        guruBelumAbsen.push({
+          id_guru: id,
+          nama: g.nama,
+          role: String(g.role || '-').replace(/,/g, ' · '),
+          no_hp: String(g.no_hp || '-')
+        });
+      } else {
+        const parts = tap.jam_masuk.split(':').map(Number);
+        const mIn = (parts[0] * 60) + (parts[1] || 0);
+        const telatMnt = mIn > batasMasukMenit ? (mIn - batasMasukMenit) : 0;
+        if (telatMnt > 0) guruTelat++; else guruTepat++;
+        if (tap.jam_pulang && tap.jam_pulang !== '-') guruPulang++;
+        guruHadirList.push({
+          id_guru: id,
+          nama: g.nama,
+          role: String(g.role || '-').replace(/,/g, ' · '),
+          jam_masuk: tap.jam_masuk,
+          jam_pulang: tap.jam_pulang || '-',
+          telat_menit: telatMnt
+        });
+      }
+    });
+    guruHadirList.sort((a, b) => b.telat_menit - a.telat_menit || String(b.jam_masuk).localeCompare(String(a.jam_masuk)));
+    guruBelumAbsen.sort((a, b) => String(a.nama).localeCompare(String(b.nama)));
+
+    const infoBox = {
+      total_siswa: siswa.length,
+      hadir_gerbang: hadirCount,
+      tepat_waktu: Object.keys(tepat).length,
+      terlambat: Object.keys(telat).length,
+      partisipasi_sholat: siswa.length ? Math.min(100, Math.round((sholatUnikSet.size / siswa.length) * 100)) : 0,
+      sholat_unik: sholatUnikSet.size,
+      sholat_scan: sholatHariIni.length,
+      udzur_aktif: udzurSet.size,
+      zona_merah: zonasi.merah + zonasi.kritis,
+      zona_perhatian: zonasi.kuning + zonasi.oranye + zonasi.merah + zonasi.kritis,
+      siswa_punya_rfid: siswaPunyaRfid,
+      siswa_tanpa_rfid: Math.max(0, siswa.length - siswaPunyaRfid),
+      guru_tanpa_rfid: Math.max(0, guruAktif.length - guruPunyaRfid)
+    };
+
+    const ketepatan = {
+      tepat_waktu: Object.keys(tepat).length,
+      terlambat: Object.keys(telat).length,
+      izin_sakit_alpa: ketBelumTap,
+      belum_hadir: belumHadirCount,
+      tidak_hadir: Math.max(0, siswa.length - hadirCount)
+    };
+
+    return {
+      ok: true,
+      data: {
+        info_box: infoBox,
+        top_pelanggaran: topPelanggaran,
+        zonasi: zonasi,
+        ketepatan: ketepatan,
+        rapor_kelas: raporKelas,
+        guru_ringkasan: {
+          total: guruAktif.length,
+          hadir: guruHadirList.length,
+          tepat_waktu: guruTepat,
+          terlambat: guruTelat,
+          pulang: guruPulang,
+          belum_absen: guruBelumAbsen.length,
+          batas_masuk: String(Math.floor(batasMasukMenit / 60)).padStart(2, '0') + ':' + String(batasMasukMenit % 60).padStart(2, '0')
+        },
+        guru_belum_absen: guruBelumAbsen,
+        guru_hadir_list: guruHadirList,
+        siswa_zona_prioritas: prioritasList.slice(0, 15),
+        siswa_terlambat: siswaTerlambat.slice(0, 25),
+        keterangan_hari_ini: {
+          izin: jmlIzin,
+          sakit: jmlSakit,
+          alpa: jmlAlpa,
+          total: keteranganList.length,
+          list: keteranganList
+        },
+        updated_at: nowStr_()
+      }
+    };
   } catch (err) { return { ok: false, message: err.message }; }
 }
 
 // --- SISWA & KELAS ---
 function getMasterSiswa_(token, p) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.SISWA) }; } catch (err) { return { ok: false, message: err.message }; } }
 function tambahSiswa_(token, p) { try { verifikasiToken_(token); appendRow_(SHEET.SISWA, p, ['nis', 'uid_rfid']); return { ok: true, message: 'Siswa ditambahkan.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function editSiswa_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA); const d = sh.getDataRange().getValues(); const headers = d[0].map(h => String(h).trim()); const iNama = headers.indexOf('nama'), iKelas = headers.indexOf('kelas'), iJk = headers.indexOf('jk'), iStatus = headers.indexOf('status'); for (let i = 1; i < d.length; i++) { if (String(d[i][0]) === String(p.nis)) { d[i][iNama !== -1 ? iNama : 1] = p.nama; d[i][iKelas !== -1 ? iKelas : 2] = p.kelas; d[i][iJk !== -1 ? iJk : 3] = p.jk; d[i][iStatus !== -1 ? iStatus : 4] = p.status; sh.getRange(i + 1, 1, 1, headers.length).setValues([d[i]]); break; } } return { ok: true, message: 'Siswa diperbarui.' }; } catch (e) { return { ok: false, message: e.message }; } }
+function editSiswa_(token, p) {
+  try {
+    verifikasiToken_(token);
+    const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA);
+    const d = sh.getDataRange().getValues();
+    const headers = ensureHeaders_(sh, SHEET.SISWA).map(h => String(h).trim().toLowerCase());
+    const iNis = headers.indexOf('nis');
+    const iNama = headers.indexOf('nama');
+    const iKelas = headers.indexOf('kelas');
+    const iJk = headers.indexOf('jk');
+    const iStatus = headers.indexOf('status');
+    const iCatatan = headers.indexOf('catatan');
+    for (let i = 1; i < d.length; i++) {
+      if (String(d[i][iNis !== -1 ? iNis : 0]).trim() === String(p.nis).trim()) {
+        if (iNama !== -1) d[i][iNama] = p.nama;
+        if (iKelas !== -1) d[i][iKelas] = p.kelas;
+        if (iJk !== -1) d[i][iJk] = p.jk;
+        if (iStatus !== -1) d[i][iStatus] = p.status;
+        if (iCatatan !== -1 && p.catatan !== undefined) d[i][iCatatan] = p.catatan;
+        sh.getRange(i + 1, 1, 1, headers.length).setValues([d[i]]);
+        break;
+      }
+    }
+    return { ok: true, message: 'Siswa diperbarui.' };
+  } catch (e) { return { ok: false, message: e.message }; }
+}
 function hapusSiswa_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA); const d = sh.getDataRange().getValues(); for (let i = 1; i < d.length; i++) { if (String(d[i][0]) === String(p.nis)) { sh.deleteRow(i + 1); break; } } return { ok: true, message: 'Siswa dihapus.' }; } catch (e) { return { ok: false, message: e.message }; } }
-function getSiswaTanpaRfid_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.SISWA).filter(s => !s.uid_rfid) }; } catch (e) { return { ok: false, message: e.message }; } }
+function getSiswaTanpaRfid_(token) {
+  try {
+    verifikasiToken_(token);
+    return {
+      ok: true,
+      data: readAll_(SHEET.SISWA).filter(s => String(s.status || 'AKTIF').toUpperCase() === 'AKTIF' && !String(s.uid_rfid || '').trim())
+    };
+  } catch (e) { return { ok: false, message: e.message }; }
+}
 function daftarRfid_(token, p) { try { verifikasiToken_(token); const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET.SISWA); const d = sh.getDataRange().getValues(); const headers = d[0].map(h => String(h).trim()); const idxUid = headers.indexOf('uid_rfid'); for (let i = 1; i < d.length; i++) { if (String(d[i][0]) === String(p.nis)) { d[i][idxUid] = normalisasiUid_(p.uid_rfid); sh.getRange(i + 1, idxUid + 1).setNumberFormat('@'); sh.getRange(i + 1, 1, 1, headers.length).setValues([d[i]]); break; } } return { ok: true, message: 'Kartu didaftarkan.' }; } catch (e) { return { ok: false, message: e.message }; } }
 function getMasterKelas_(token) { try { verifikasiToken_(token); return { ok: true, data: readAll_(SHEET.KELAS) }; } catch (err) { return { ok: false, message: err.message }; } }
 function tambahKelas_(token, p) { try { verifikasiToken_(token); appendRow_(SHEET.KELAS, { id_kelas: p.id_kelas, nama_kelas: p.nama_kelas, tingkat: p.tingkat, jurusan: p.jurusan, wali_kelas: p.wali_kelas, status: 'AKTIF' }); return { ok: true, message: 'Kelas ditambahkan.' }; } catch (err) { return { ok: false, message: err.message }; } }

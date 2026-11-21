@@ -8,6 +8,7 @@ const HOST = '0.0.0.0';
 const BLOCKED_PATHS = new Set([
   '/server.js',
   '/Code.gs',
+  '/cloudflare-worker.js',
   '/package.json',
   '/package-lock.json',
   '/metadata.json',

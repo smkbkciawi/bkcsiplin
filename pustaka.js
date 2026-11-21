@@ -18,30 +18,34 @@ function apiCall(action, payload = {}, isPost = false) {
                      sessionStorage.getItem('bkc_token') || '';
     }
 
-    if (isMobile) {
-      // JALUR HP: Pakai FETCH Form-URL-Encoded (Kebal Blokir)
+    const activeUrl = (typeof window !== 'undefined' && window.BKC_API_URL) ? window.BKC_API_URL : API_URL;
+    const usingProxy = Boolean(typeof window !== 'undefined' && window.BKC_USING_PROXY);
+
+    if (isMobile || usingProxy) {
+      // JALUR HP / PROXY CLOUDFLARE: Pakai FETCH Form-URL-Encoded tanpa cookie
       let formBody = `action=${encodeURIComponent(action)}`;
       if (currentToken) formBody += `&token=${encodeURIComponent(currentToken)}`;
       formBody += `&payload=${encodeURIComponent(JSON.stringify(payload))}`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 detik timeout
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-      fetch(API_URL, {
+      fetch(activeUrl, {
         method: 'POST',
+        credentials: 'omit',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formBody,
         signal: controller.signal
       })
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(res => {
         clearTimeout(timeoutId);
         resolve(res);
       })
       .catch(err => {
         clearTimeout(timeoutId);
-        // Jika gagal/diblokir, panggil pop-up
-        tampilkanPeringatanBlokir();
+        // Jika belum pakai Proxy dan gagal/diblokir, tampilkan peringatan browser
+        if (!usingProxy) tampilkanPeringatanBlokir();
         reject(new Error('Gagal koneksi / Diblokir Browser'));
       });
       

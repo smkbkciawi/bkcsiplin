@@ -685,8 +685,9 @@
 <div class="toast-wrap" id="toast-wrap"></div>
 <div id="print-area"></div>
 
+<script src="api-config.js"></script>
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
+const API_URL = window.BKC_API_URL || 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 const MODUL = 'disiplin';
 
 const state = {
@@ -840,7 +841,7 @@ function apiCall(action, payload = {}, isPost = false) {
       sessionStorage.getItem('bkc_disiplin_token') ||
       localStorage.getItem('bkc_disiplin_token') || '';
 
-    if (isPost || isMobile) {
+    if (isPost || isMobile || window.BKC_USING_PROXY) {
       const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
       const timer = setTimeout(() => { if (controller) controller.abort(); }, 25000);
       let formBody = `action=${encodeURIComponent(action)}`;
@@ -849,6 +850,7 @@ function apiCall(action, payload = {}, isPost = false) {
 
       fetch(API_URL, {
         method: 'POST',
+        credentials: 'omit',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formBody,
         signal: controller ? controller.signal : undefined

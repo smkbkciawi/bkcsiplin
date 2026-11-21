@@ -687,52 +687,6 @@
     color: var(--text-soft);
     line-height: 1.5;
   }
-  .guide-actions {
-    display: flex;
-    flex-direction: column;
-    gap: .55rem;
-  }
-  .guide-pdf-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: .5rem;
-    width: 100%;
-    padding: .8rem;
-    border-radius: 12px;
-    border: 1.5px solid var(--brand);
-    background: transparent;
-    color: var(--brand);
-    font-family: inherit;
-    font-weight: 700;
-    font-size: .88rem;
-    text-decoration: none;
-    transition: background .16s ease, color .16s ease;
-  }
-  .guide-pdf-link:hover {
-    background: var(--brand);
-    color: #FFFFFF;
-  }
-  html.dark .guide-pdf-link {
-    border-color: #60A5FA;
-    color: #93C5FD;
-  }
-  html.dark .guide-pdf-link:hover {
-    background: #2563EB;
-    border-color: #2563EB;
-    color: #FFFFFF;
-  }
-  .footer-doc-link {
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    margin-left: .75rem;
-    color: var(--brand);
-    font-weight: 700;
-    text-decoration: none;
-  }
-  .footer-doc-link:hover { text-decoration: underline; }
-  html.dark .footer-doc-link { color: #93C5FD; }
   .guide-close {
     width: 100%;
     padding: .85rem;
@@ -874,7 +828,6 @@
   <div class="footer-inner">
     <div class="footer-left">
       <b>BKCSiplin</b> &copy; 2026 SMK Bhakti Kencana Ciawi · Yayasan Adhi Guna Kencana
-      <a href="presentasi.html" class="footer-doc-link"><i class="fas fa-file-pdf"></i> Buku Pedoman &amp; Presentasi (PDF)</a>
     </div>
     <div class="server-status" id="server-status">
       <i class="fas fa-circle-notch fa-spin" id="server-icon"></i>
@@ -924,15 +877,13 @@
         </ul>
       </div>
     </div>
-    <div class="guide-actions">
-      <a href="presentasi.html" class="guide-pdf-link"><i class="fas fa-file-pdf"></i> Buka Buku Pedoman Lengkap &amp; Download PDF</a>
-      <button type="button" class="guide-close" id="btn-tutup-panduan">Saya Mengerti</button>
-    </div>
+    <button type="button" class="guide-close" id="btn-tutup-panduan">Saya Mengerti</button>
   </div>
 </div>
 
+<script src="api-config.js"></script>
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
+const API_URL = window.BKC_API_URL || 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -1009,6 +960,7 @@ function cekLogin() {
 
   fetch(API_URL, {
     method: 'POST',
+    credentials: 'omit',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ action: 'ping' }),
     signal: controller ? controller.signal : undefined

@@ -1,0 +1,60 @@
+{
+  "id": "./",
+  "name": "BKCSiplin — SMK Bhakti Kencana Ciawi",
+  "short_name": "BKCSiplin",
+  "description": "Sistem kedisiplinan terpadu, presensi gerbang, sholat berjamaah, dan poin karakter SMK Bhakti Kencana Ciawi.",
+  "lang": "id",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0F2B5B",
+  "background_color": "#FCFCFC",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "./icons/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cek Kehadiran & Poin",
+      "short_name": "Cek Siswa",
+      "url": "./cek.html",
+      "icons": [{ "src": "./icons/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Portal Disiplin",
+      "short_name": "Disiplin",
+      "url": "./disiplin.html",
+      "icons": [{ "src": "./icons/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Portal E-Sholat",
+      "short_name": "Sholat",
+      "url": "./sholat.html",
+      "icons": [{ "src": "./icons/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Portal Gerbang",
+      "short_name": "Gerbang",
+      "url": "./gerbang.html",
+      "icons": [{ "src": "./icons/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

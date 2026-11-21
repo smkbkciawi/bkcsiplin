@@ -1876,6 +1876,11 @@
             </ul>
           </div>
         </div>
+        <div class="note-box warn" style="margin-top:1rem">
+          <b>Pengingat Penting Saat Pindah Domain Sekolah &amp; Instalasi PWA:</b>
+          (1) Jika suatu saat alamat web pindah dari <code>https://smkbkciawi.github.io</code> ke domain baru sekolah (misalnya <code>https://bkcsiplin.smkbkc.sch.id</code>), <b>WAJIB tambahkan 1 baris domain baru</b> tersebut ke daftar <code>ALLOWED_EXACT_ORIGINS</code> di Cloudflare Worker <code>bkcsiplin-api</code> lalu klik <b>Deploy</b> (±15 detik) agar domain baru langsung tembus lewat Proxy Cloudflare.
+          (2) Untuk ikon aplikasi <b>PWA</b> di HP, cukup sosialisasikan klik tombol <b>Instal App</b> (Android Chrome) atau <b>Share → Tambah ke Layar Utama</b> (iPhone Safari) setelah domain aktif agar seluruh guru &amp; OSIS tidak perlu memasang ulang ikon dua kali.
+        </div>
       </section>
 
       <!-- BAB 10: FAQ & TROUBLESHOOTING -->
@@ -1904,8 +1909,8 @@
             <p>Ketik <code>/menu</code> di grup. Di HP, <b>ketuk 1x (tap ringan)</b> pesan balasan bot lalu pilih <b>Sematkan (Pin)</b>. Di Telegram Web/Laptop, <b>klik kanan</b> pesan bot lalu pilih <b>Sematkan</b>. Hindari mengubah grup ke Supergroup agar Chat ID tidak berubah.</p>
           </div>
           <div class="info-panel">
-            <h4>5. Muncul peringatan "Akses Diblokir Browser" di Chrome HP</h4>
-            <p>Terjadi karena browser HP sedang login lebih dari 1 akun Google sekaligus saat mengakses Google Apps Script. Solusi sementara: buka lewat <b>Mode Penyamaran (Incognito)</b> atau browser alternatif (Edge/Firefox/Opera). Solusi permanen: pasang jalur Proxy API gratis (Cloudflare Worker).</p>
+            <h4>5. Cara instal ikon aplikasi di HP &amp; akses Chrome biasa</h4>
+            <p>BKCSiplin kini sudah menggunakan jalur <b>Proxy Cloudflare Workers</b> sehingga langsung lancar di Chrome biasa HP, Safari iPhone, dan browser bawaan tanpa perlu Incognito. Untuk memasang ikon di layar utama HP, buka di Chrome lalu ketuk tombol <b>Instal App</b> di kanan atas Beranda (atau <b>Share → Tambah ke Layar Utama</b> di Safari iPhone).</p>
           </div>
           <div class="info-panel">
             <h4>6. Siswa lupa membawa kartu RFID / QR</h4>

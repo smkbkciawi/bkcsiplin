@@ -24,7 +24,10 @@
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 
-// Daftar asal web (Origin) yang diizinkan memakai jembatan ini
+// Daftar asal web (Origin) yang diizinkan memakai jembatan ini.
+// PENGINGAT PENTING SAAT PINDAH DOMAIN SEKOLAH:
+// Jika nanti sekolah pakai domain baru (misal 'https://bkcsiplin.smkbkc.sch.id'),
+// tambahkan 1 baris domain baru tersebut di bawah ini lalu klik Deploy di Cloudflare!
 const ALLOWED_EXACT_ORIGINS = new Set([
   'https://smkbkciawi.github.io',
   'http://localhost:3000',

@@ -6,8 +6,14 @@
 <title>BKCSiplin — SMK Bhakti Kencana Ciawi</title>
 <meta name="description" content="Portal terpadu presensi gerbang, ibadah sholat, poin kedisiplinan, dan administrasi sekolah SMK Bhakti Kencana Ciawi." />
 
-<link rel="icon" type="image/png" href="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png">
-<link rel="apple-touch-icon" href="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png">
+<meta name="theme-color" content="#0F2B5B" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="BKCSiplin" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" sizes="192x192" href="icons/pwa-192x192.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -718,6 +724,7 @@
         <div class="clock-time" id="clock-time">--:--<span class="sec" id="clock-sec">:--</span></div>
         <div class="clock-date" id="clock-date">Memuat tanggal…</div>
       </div>
+      <span id="pwa-install-slot"></span>
       <button type="button" class="theme-btn" id="btn-panduan" title="Panduan Portal &amp; Role Login" aria-label="Buka panduan portal dan role login">
         <i class="fas fa-book-open"></i>
       </button>
@@ -882,6 +889,7 @@
 </div>
 
 <script src="api-config.js"></script>
+<script src="pwa.js" defer></script>
 <script>
 const API_URL = window.BKC_API_URL || 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];

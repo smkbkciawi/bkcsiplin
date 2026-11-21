@@ -8,6 +8,11 @@
 window.BKC_GAS_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 
 // 2. URL Proxy Cloudflare Workers (AKTIF — meneruskan ke Google Apps Script tanpa cookie)
+//    PENGINGAT PENTING SAAT PINDAH DOMAIN SEKOLAH:
+//    Jika nanti web pindah dari https://smkbkciawi.github.io ke domain baru
+//    (misal https://bkcsiplin.smkbkc.sch.id), WAJIB tambahkan 1 baris domain baru
+//    tersebut ke daftar ALLOWED_EXACT_ORIGINS di Cloudflare Worker (bkcsiplin-api)
+//    lalu klik Deploy (15 detik) agar domain baru ikut diizinkan melewati Proxy!
 window.BKC_PROXY_URL = 'https://bkcsiplin-api.limatujuhempat.workers.dev';
 
 // 3. URL Aktif yang dipakai seluruh portal (otomatis memilih Proxy jika terisi)

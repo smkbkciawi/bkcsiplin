@@ -23,10 +23,11 @@
     --neon-blue:#00f3ff; --neon-green:#39ff14; --neon-yellow:#ffea00; --neon-red:#ff3131;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{overflow-x:clip;max-width:100%}
   body{
     font-family:'Inter',system-ui,sans-serif;
     background:radial-gradient(1200px 700px at 10% -10%, #14306B 0%, transparent 60%), radial-gradient(900px 600px at 110% 110%, #0F2450 0%, transparent 55%), var(--navy-900);
-    color:var(--text); min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden;
+    color:var(--text); min-height:100vh; display:flex; flex-direction:column;
   }
 
   /* HEADER */
@@ -76,14 +77,14 @@
 
   /* MAIN LAYOUT */
   main{
-    display:grid; grid-template-columns:1.15fr 1fr; gap:1.25rem;
-    padding:1.25rem; flex:1; max-width:1480px; width:100%; margin:0 auto; align-items:start;
+    display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:1.25rem;
+    padding:1.25rem; flex:1; max-width:1480px; width:100%; margin:0 auto; align-items:start; min-width:0;
   }
-  .col{display:flex; flex-direction:column; gap:1.1rem}
+  .col{display:flex; flex-direction:column; gap:1.1rem; min-width:0; max-width:100%}
   .card{
     background:linear-gradient(180deg, rgba(14,28,66,.96), rgba(10,21,51,.96));
     border:1px solid var(--border); border-radius:20px; padding:1.35rem;
-    display:flex; flex-direction:column; box-shadow:0 16px 40px rgba(0,0,0,.28);
+    display:flex; flex-direction:column; box-shadow:0 16px 40px rgba(0,0,0,.28); min-width:0; max-width:100%;
   }
 
   /* CLOCK & INFO BAR */
@@ -236,8 +237,8 @@
   .riwayat-item span{font-size:.76rem; color:var(--muted)}
 
   /* PANTAU VIEW */
-  #halaman-pantau{display:none; padding:1.25rem; flex-direction:column; gap:1.2rem; max-width:1280px; width:100%; margin:0 auto}
-  .table-scroll{overflow-x:auto; max-height:300px; border:1px solid rgba(96,165,250,.15); border-radius:12px}
+  #halaman-pantau{display:none; padding:1.25rem; flex-direction:column; gap:1.2rem; max-width:1280px; width:100%; margin:0 auto; min-width:0}
+  .table-scroll{overflow-x:auto; max-height:300px; border:1px solid rgba(96,165,250,.15); border-radius:12px; width:100%; max-width:100%; min-width:0; -webkit-overflow-scrolling:touch}
   .log-table{width:100%; border-collapse:collapse; font-size:.84rem; background:rgba(0,0,0,.22); min-width:540px}
   .log-table th,.log-table td{padding:.75rem .9rem; text-align:left; border-bottom:1px solid rgba(255,255,255,.06); vertical-align:top}
   .log-table th{background:rgba(5,11,31,.85); font-weight:800; color:var(--muted); position:sticky; top:0; font-size:.74rem; text-transform:uppercase}
@@ -310,12 +311,14 @@
   @keyframes spin{to{transform:rotate(360deg)}}
 
   @media(max-width:920px){
-    main{grid-template-columns:1fr; padding:.9rem; gap:1rem}
+    main{grid-template-columns:minmax(0,1fr); padding:.9rem; gap:1rem}
+    #halaman-pantau{padding:.9rem}
     header{padding:.7rem .95rem}
   }
   @media(max-width:600px){
     .field input,.guru-select,.search-box input{font-size:16px !important}
-    .header-controls{width:100%; justify-content:space-between}
+    .header-controls{width:100%; justify-content:space-between; gap:.4rem}
+    .card{padding:1rem; border-radius:16px}
     .btn{padding:.48rem .65rem; font-size:.75rem}
     .clock-time{font-size:clamp(2.8rem, 16vw, 4.4rem)}
     .status-box{min-height:150px; padding:1.1rem .9rem}

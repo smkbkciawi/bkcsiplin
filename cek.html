@@ -22,6 +22,7 @@
     --bg:#F0F4FA; --card:#fff; --text:#0F172A; --muted:#64748B;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  html,body{overflow-x:clip;max-width:100%}
   body{font-family:'Inter',sans-serif;background:linear-gradient(180deg,#EFF6FF 0%,#F0F4FA 100%);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
 
   /* HEADER */
@@ -35,8 +36,8 @@
   header .back-btn:hover{background:rgba(255,255,255,.25)}
 
   /* MAIN */
-  main{flex:1;padding:2rem 1rem;display:flex;justify-content:center}
-  .container{width:100%;max-width:920px}
+  main{flex:1;padding:2rem 1rem;display:flex;justify-content:center;min-width:0}
+  .container{width:100%;max-width:920px;min-width:0}
 
   /* HERO */
   .hero{background:#fff;border-radius:20px;padding:1.75rem 2rem;box-shadow:0 8px 30px rgba(30,58,138,.08);margin-bottom:1.25rem;text-align:center;border:1px solid #DBEAFE}
@@ -180,18 +181,24 @@
   .btn-close-modal{width:100%;padding:.85rem;border:none;border-radius:12px;background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;font-family:inherit;font-weight:800;font-size:.92rem;cursor:pointer}
 
   @media(max-width:600px){
+    header{padding:.75rem 1rem}
     header .brand h1{font-size:.95rem}
     header .brand .sub{font-size:.65rem}
     header .brand img{width:36px;height:36px}
+    header .back-btn{padding:.42rem .72rem;font-size:.78rem}
+    main{padding:1.1rem .8rem}
     .hero{padding:1.35rem 1rem}
     .hero h2{font-size:1.2rem}
     .hero p{font-size:.85rem}
+    .search-card{padding:1.1rem}
+    .search-input-wrap input{min-width:0;width:100%}
     .profile-card{padding:1.2rem}
     .profile-card .avatar{width:54px;height:54px;font-size:1.35rem}
     .profile-card .info h3{font-size:1.15rem}
     .profile-card .zone-wrap{margin-left:0;margin-top:.65rem;width:100%;text-align:left}
+    .card{padding:1.1rem;min-width:0;max-width:100%}
     .stat-card .val{font-size:1.6rem}
-    .search-input-wrap button{padding:.95rem 1.25rem;font-size:.9rem;width:100%;justify-content:center}
+    .search-input-wrap button{padding:.9rem 1.25rem;font-size:.9rem;width:100%;justify-content:center}
     table{font-size:.78rem}
     th,td{padding:.5rem .4rem}
   }

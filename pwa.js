@@ -56,9 +56,9 @@
       .bkc-pwa-btn:hover { background: #1D4ED8; transform: translateY(-1px); }
       html.dark .bkc-pwa-btn { background: #2563EB; border-color: rgba(147,197,253,0.35); }
       html.dark .bkc-pwa-btn:hover { background: #1D4ED8; }
-      @media (max-width: 560px) {
+      @media (max-width: 640px) {
         .bkc-pwa-btn span { display: none; }
-        .bkc-pwa-btn { width: 42px; padding: 0; justify-content: center; }
+        .bkc-pwa-btn { width: 38px; height: 38px; border-radius: 10px; padding: 0; justify-content: center; }
       }
 
       .bkc-pwa-modal-bg {

@@ -205,10 +205,27 @@
   .zona-chip.oranye{background:#FFEDD5;color:#C2410C}
   .zona-chip.merah{background:#FEE2E2;color:#B91C1C}
   .zona-chip.kritis{background:#1F2937;color:#fff}
+  html, body { overflow-x: clip; max-width: 100%; }
+  .main-header.navbar { flex-wrap: nowrap; }
+  .main-header .navbar-nav { flex-wrap: nowrap; align-items: center; }
+  #btn-auto-reload, #btn-panduan, #btn-logout {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
   @media (max-width: 992px){ .lap-summary-grid{grid-template-columns:repeat(2,1fr)} }
   @media (max-width: 576px){
     .lap-summary-grid{grid-template-columns:1fr}
-    .user-pill{max-width:135px;font-size:.72rem;padding:.28rem .55rem}
+    .main-header.navbar{padding:.35rem .45rem}
+    .main-header .nav-link[data-widget="pushmenu"]{padding:.35rem .45rem}
+    #bkc-admin-nav{margin-left:.2rem !important}
+    .main-header .navbar-nav.ml-auto > .nav-item{margin-right:.24rem !important;margin-left:0 !important}
+    .main-header .navbar-nav.ml-auto > .nav-item:last-child{margin-right:0 !important}
+    #btn-auto-reload, #btn-panduan, #btn-logout{padding:.24rem .45rem;font-size:.72rem;line-height:1.25}
+    #btn-panduan i{margin-right:0 !important}
+    .user-pill{max-width:92px;font-size:.7rem;padding:.24rem .45rem;gap:.28rem}
     #sesi-pill{display:none!important}
   }
 
@@ -273,7 +290,7 @@
       <li class="nav-item d-flex align-items-center ml-2" id="bkc-admin-nav"></li>
     </ul>
     <ul class="navbar-nav ml-auto align-items-center">
-      <li class="nav-item mr-2"><button type="button" class="btn btn-sm btn-outline-success font-weight-bold" id="btn-auto-reload" style="display:none" title="Muat ulang data otomatis setiap 45 detik tanpa tekan F5"><i class="fas fa-sync-alt mr-1"></i><span id="auto-reload-label">Auto: ON</span></button></li>
+      <li class="nav-item mr-2"><button type="button" class="btn btn-sm btn-outline-success font-weight-bold" id="btn-auto-reload" style="display:none" title="Muat ulang data otomatis setiap 45 detik tanpa tekan F5"><i class="fas fa-sync-alt mr-1"></i><span class="d-none d-sm-inline">Auto:&nbsp;</span><span id="auto-reload-label">ON</span></button></li>
       <li class="nav-item mr-2"><button type="button" class="btn btn-sm btn-outline-primary font-weight-bold" id="btn-panduan" title="Panduan &amp; Hak Akses Role"><i class="fas fa-book-open mr-1"></i><span class="d-none d-sm-inline">Panduan</span></button></li>
       <li class="nav-item mr-2"><span class="user-pill" id="user-pill" style="display:none"><i class="fas fa-user-circle"></i> <span id="user-name">—</span></span></li>
       <li class="nav-item"><span class="user-pill" id="sesi-pill" style="display:none"><i class="fas fa-clock"></i> <span id="sesi-timer">10:00</span></span></li>
@@ -2045,10 +2062,10 @@ function updateAutoReloadBtn_() {
   btn.style.display = state.token ? '' : 'none';
   if (state.autoReloadEnabled) {
     btn.className = 'btn btn-sm btn-outline-success font-weight-bold';
-    lbl.textContent = 'Auto: ON';
+    lbl.textContent = 'ON';
   } else {
     btn.className = 'btn btn-sm btn-outline-secondary font-weight-bold';
-    lbl.textContent = 'Auto: OFF';
+    lbl.textContent = 'OFF';
   }
 }
 function isSafeToAutoRefresh_() {

@@ -19,27 +19,30 @@
 <style>
   :root{--emerald:#059669;--emerald-l:#10B981;--emerald-d:#047857;--bg:#ECFDF5;--text:#064E3B;--card:#fff;--border:#A7F3D0;--muted:#6B7280;--danger:#EF4444;--warn:#F59E0B}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{overflow-x:clip;max-width:100%}
   body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
-  header{background:linear-gradient(135deg,var(--emerald),var(--emerald-d));color:#fff;padding:.85rem 1.25rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 12px rgba(5,150,105,.2);flex-wrap:wrap;gap:.5rem;position:sticky;top:0;z-index:40}
+  header{background:linear-gradient(135deg,var(--emerald),var(--emerald-d));color:#fff;padding:.85rem 1.25rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 12px rgba(5,150,105,.2);flex-wrap:wrap;gap:.5rem;position:sticky;top:0;z-index:40;width:100%}
   header h1{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:.5rem}
   .header-right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
   .user-pill{background:rgba(255,255,255,.2);padding:.36rem .75rem;border-radius:99px;font-size:.78rem;font-weight:700;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .btn-logout{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:.38rem .75rem;cursor:pointer;font-weight:700;font-size:.78rem}
+  .btn-logout{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:.38rem .75rem;cursor:pointer;font-weight:700;font-size:.78rem;white-space:nowrap}
 
   .tabs-nav{display:flex;gap:.5rem;padding:1rem 1.5rem 0;max-width:1400px;margin:0 auto;width:100%;flex-wrap:wrap}
   .tabs-nav button{background:#fff;border:1px solid var(--border);padding:.7rem 1.2rem;border-radius:12px 12px 0 0;font-family:inherit;font-weight:700;font-size:.85rem;color:var(--muted);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:.5rem;border-bottom:none}
   .tabs-nav button.active{background:var(--emerald);color:#fff;border-color:var(--emerald)}
   .tabs-nav button:hover:not(.active){background:#F0FDF4}
 
-  main{flex:1;padding:1.25rem 1.5rem;max-width:1400px;margin:0 auto;width:100%}
+  main{flex:1;padding:1.25rem 1.5rem;max-width:1400px;margin:0 auto;width:100%;min-width:0}
+  .tab-content{min-width:0;max-width:100%}
 
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
+  .grid-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.5rem;align-items:start}
+  .grid-2 > *{min-width:0;max-width:100%}
   @media(max-width:900px){
     main{padding:.85rem}
-    .grid-2{grid-template-columns:1fr;gap:1rem}
+    .grid-2{grid-template-columns:minmax(0,1fr);gap:1rem}
   }
 
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem;box-shadow:0 4px 20px rgba(5,150,105,.05);display:flex;flex-direction:column}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem;box-shadow:0 4px 20px rgba(5,150,105,.05);display:flex;flex-direction:column;min-width:0;max-width:100%}
   .card h2{font-size:.98rem;font-weight:800;color:var(--emerald);margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
 
   .clock-head{display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.9rem;padding-bottom:.85rem;border-bottom:1px solid #E6F7EF}
@@ -81,7 +84,7 @@
   .rfid-bar input::placeholder{color:var(--muted);font-family:'Inter',sans-serif;font-weight:600;font-size:.82rem}
 
   .search-box{display:flex;gap:.5rem;margin-bottom:.7rem}
-  .search-box input{flex:1;padding:.78rem .95rem;border:1.5px solid var(--border);border-radius:12px;font-family:inherit;font-weight:600;outline:none;font-size:.9rem}
+  .search-box input{flex:1;min-width:0;width:100%;padding:.78rem .95rem;border:1.5px solid var(--border);border-radius:12px;font-family:inherit;font-weight:600;outline:none;font-size:.9rem}
   .search-box input:focus{border-color:var(--emerald-l);box-shadow:0 0 0 3px rgba(16,185,129,.15)}
 
   .result-box{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;margin-bottom:.85rem}
@@ -137,7 +140,7 @@
   .guide-step ul{padding-left:1.15rem;margin-top:.25rem;display:flex;flex-direction:column;gap:.2rem}
   .guide-pill{display:inline-block;padding:.1rem .45rem;border-radius:6px;font-size:.7rem;font-weight:800;background:#D1FAE5;color:#047857}
 
-  .table-wrap{overflow-x:auto;margin-top:.85rem;border:1px solid var(--border);border-radius:12px;background:#fff;-webkit-overflow-scrolling:touch}
+  .table-wrap{overflow-x:auto;margin-top:.85rem;border:1px solid var(--border);border-radius:12px;background:#fff;-webkit-overflow-scrolling:touch;width:100%;max-width:100%;min-width:0}
   table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:600px}
   th{background:#F0FDF4;padding:.7rem .6rem;text-align:left;font-weight:800;color:var(--emerald);border-bottom:2px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em}
   td{padding:.6rem;border-bottom:1px solid #F0FDF4;vertical-align:middle}
@@ -182,7 +185,18 @@
     body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
     header{padding:.7rem .95rem}
     header h1{font-size:1rem}
-    .field input,.field select,.search-box input,.search-lap,.rfid-bar input{font-size:16px !important}
+    .header-right{gap:.4rem}
+    .user-pill{max-width:120px;padding:.3rem .62rem;font-size:.74rem}
+    .btn-logout{padding:.32rem .62rem;font-size:.74rem}
+    .card{padding:1rem}
+    .field input,.field select,.search-box input,.search-lap,.rfid-bar input{font-size:15px !important}
+    .filter-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+    .filter-grid .field{min-width:0}
+    .filter-grid .field:last-child{grid-column:1 / -1}
+    .filter-grid .field input,.filter-grid .field select{padding:.65rem .58rem;font-size:14px !important;min-width:0;max-width:100%}
+    .filter-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+    .filter-actions #btn-load-laporan{grid-column:1 / -1}
+    .filter-actions .btn{width:100%;min-width:0;white-space:nowrap;padding:.72rem .65rem;font-size:.84rem}
     .clock-head{margin-bottom:.65rem;padding-bottom:.6rem}
     .jam-sekarang .waktu{font-size:1.7rem}
     .jam-sekarang .tanggal{font-size:.74rem}
@@ -207,7 +221,6 @@
     .tabs-nav button i{font-size:1.05rem}
     .tabs-nav button span{display:block !important;line-height:1.1}
     .tabs-nav button.active{background:#ECFDF5;color:var(--emerald);box-shadow:none}
-    .filter-actions .btn{flex:1;min-width:120px}
     .toast-wrap{top:auto;bottom:calc(82px + env(safe-area-inset-bottom));align-items:center}
   }
 
@@ -1447,6 +1460,7 @@ async function loadLaporan() {
   if (dari > sampai) { toast('Tanggal "Dari" tidak boleh melebihi "Sampai".', true); return; }
   if (kelas === '__NONE__') { toast('Anda belum ditugaskan sebagai Wali Kelas.', true); return; }
 
+  const cacheKey = `${dari}|${sampai}|${kelas}`;
   state.lapFilter = { dari, sampai, kelas, waktu, mode };
   state.lapMode = mode;
 
@@ -1456,7 +1470,7 @@ async function loadLaporan() {
 
   try {
     const res = await apiCall('getLaporan', { jenis: 'sholat', dari, sampai, kelas });
-    if (!res.ok) { toast(res.message, true); $('lap-loading').style.display='none'; return; }
+    if (!res.ok) { toast(res.message || 'Gagal memuat laporan.', true); $('lap-loading').style.display='none'; return; }
     state.lapDataRaw = (res.data || []).map(r => ({
       tanggal: String(r.tanggal || '').trim(),
       jam: ambilJam(r.timestamp) || ambilJam(r.jam) || '',
@@ -1471,6 +1485,7 @@ async function loadLaporan() {
     state.lapLastFetch = cacheKey;
     applyLaporanRender();
   } catch(e) {
+    console.error('loadLaporan error:', e);
     toast('Gagal memuat laporan.', true);
     $('lap-loading').style.display='none';
   }

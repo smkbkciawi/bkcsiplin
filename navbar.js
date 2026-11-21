@@ -198,6 +198,14 @@
         .bkc-admin-pills { display: none; }
         .bkc-admin-drop-wrap { display: inline-block; }
       }
+      @media (max-width: 576px) {
+        .bkc-admin-drop-btn {
+          padding: .25rem .48rem;
+          font-size: .72rem;
+          gap: .28rem;
+          white-space: nowrap;
+        }
+      }
 
       @media (max-width: 820px) {
         .bkc-inline-nav {

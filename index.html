@@ -611,8 +611,16 @@
     .section-head { flex-direction: column; align-items: flex-start; gap: .2rem; }
     .footer-inner { padding: 1rem 1.15rem; }
   }
+  @media (max-width: 640px) {
+    .clock-inline { display: none; }
+    .header-inner { padding: .72rem 1rem; gap: .6rem; }
+    .brand { gap: .6rem; }
+    .brand-logo { width: 38px; height: 38px; border-radius: 10px; }
+    .brand-name { font-size: 1.05rem; }
+    .header-right { gap: .45rem; }
+    .theme-btn { width: 38px; height: 38px; border-radius: 10px; font-size: .95rem; }
+  }
   @media (max-width: 520px) {
-    .clock-date { display: none; }
     .portal-grid { grid-template-columns: 1fr; gap: .85rem; }
     .portal-card { min-height: auto; padding: 1.2rem; }
     .session-bar.show { width: 100%; justify-content: space-between; }

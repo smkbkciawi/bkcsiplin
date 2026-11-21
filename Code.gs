@@ -266,9 +266,15 @@ function formatJamSheet(val, def) {
   return def;
 }
 
+let _ssCache = null;
+function getSS_() {
+  if (!_ssCache) _ssCache = SpreadsheetApp.openById(SPREADSHEET_ID);
+  return _ssCache;
+}
+
 function readAll_(name) {
   try {
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const ss = getSS_();
     const sh = ss.getSheetByName(name);
     if (!sh) return [];
     const values = sh.getDataRange().getValues();
@@ -285,7 +291,7 @@ function readAll_(name) {
 }
 
 function appendRow_(name, obj, textColumns) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = getSS_();
   const sh = getOrCreateSheet_(ss, name);
   const headers = ensureHeaders_(sh, name);
   if (!headers.length) return;
@@ -303,7 +309,7 @@ function appendRow_(name, obj, textColumns) {
 
 function appendRowsObjects_(name, objList, textColumns) {
   if (!objList || !objList.length) return;
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = getSS_();
   const sh = getOrCreateSheet_(ss, name);
   const headers = ensureHeaders_(sh, name);
   if (!headers.length) return;
@@ -2672,7 +2678,7 @@ function getPengaturan_(token) {
 function simpanPengaturan_(token, p) {
   try {
     verifikasiToken_(token);
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const ss = getSS_();
     const sh = getOrCreateSheet_(ss, SHEET.PENGATURAN);
     const d = sh.getDataRange().getValues();
     for (let k in p) {
@@ -4044,6 +4050,10 @@ function tgEsc_(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function tgWaktuUpdate_() {
+  return '\n\n<i>🕒 Update: ' + Utilities.formatDate(new Date(), TZ, 'HH:mm:ss') + ' WIB</i>';
+}
+
 function tgConfig_(setting) {
   const s = setting || getPengaturan_(null).data || {};
   const aktif = String(s.tg_aktif || 'TIDAK').trim().toUpperCase() === 'YA';
@@ -4062,6 +4072,7 @@ function tgConfig_(setting) {
     notifTelat: String(s.tg_notif_telat || 'YA').trim().toUpperCase() === 'YA',
     rekapPagi: String(s.tg_rekap_pagi || 'YA').trim().toUpperCase() === 'YA',
     rekapSore: String(s.tg_rekap_sore || 'YA').trim().toUpperCase() === 'YA',
+    rekapMingguan: String(s.tg_rekap_mingguan || 'YA').trim().toUpperCase() === 'YA',
     perintahAktif: String(s.tg_perintah_aktif || 'YA').trim().toUpperCase() === 'YA',
     validasiAktif: String(s.tg_validasi_aktif || 'YA').trim().toUpperCase() === 'YA',
     validatorIds: validatorIds,
@@ -4417,6 +4428,204 @@ function bangunRekapSorePimpinan_(d) {
   return txt;
 }
 
+function bangunRekapMingguanPimpinan_(setting) {
+  const s = setting || getPengaturan_(null).data || {};
+  const sekolah = String(s.nama_sekolah || 'SMK Bhakti Kencana Ciawi');
+  const now = new Date();
+  const dowMap = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
+  const dow = dowMap[Utilities.formatDate(now, TZ, 'EEE')] || 1;
+  const mondayDate = new Date(now.getTime() - (dow - 1) * 86400000);
+  const tglMulai = Utilities.formatDate(mondayDate, TZ, 'yyyy-MM-dd');
+  const tglAkhir = todayStr_();
+
+  const siswaAktif = readAll_(SHEET.SISWA).filter(x => isAktifStatus_(x.status));
+  const guruAktif = readAll_(SHEET.GURU).filter(x => isAktifStatus_(x.status));
+  const siswaMap = {};
+  const totalPerKelas = {};
+  siswaAktif.forEach(x => {
+    const nis = String(x.nis || '').trim();
+    const kls = String(x.kelas || 'TANPA KELAS').trim();
+    if (nis) {
+      siswaMap[nis] = { nama: x.nama, kelas: kls };
+      totalPerKelas[kls] = (totalPerKelas[kls] || 0) + 1;
+    }
+  });
+  const guruIdSet = new Set(guruAktif.map(g => String(g.id_guru || '').trim()).filter(Boolean));
+
+  const gerbangPekan = readAll_(SHEET.GERBANG).filter(r => {
+    const t = getTanggalBersih_(r.tanggal);
+    return t >= tglMulai && t <= tglAkhir && String(r.sesi || 'PAGI').toUpperCase() === 'PAGI';
+  });
+  const sholatPekan = readAll_(SHEET.SHOLAT).filter(r => {
+    const t = getTanggalBersih_(r.tanggal);
+    return t >= tglMulai && t <= tglAkhir;
+  });
+  const rekapGuruPekan = readAll_(SHEET.REKAP_GURU).filter(r => {
+    const t = getTanggalBersih_(r.tanggal);
+    return t >= tglMulai && t <= tglAkhir;
+  });
+  const logGuruPekan = readAll_(SHEET.GURU_HADIR).filter(r => {
+    const t = getTanggalBersih_(r.tanggal);
+    return t >= tglMulai && t <= tglAkhir;
+  });
+  const poinAll = readAll_(SHEET.POIN);
+
+  const hariSiswaMap = {};   // tgl -> Set(nis)
+  const kelasHadirHari = {}; // kelas -> { hadirSum, telatSum }
+  const telatPerSiswa = {};  // nis -> Set(tgl)
+  gerbangPekan.forEach(r => {
+    const t = getTanggalBersih_(r.tanggal);
+    const nis = String(r.nis || '').trim();
+    const sw = siswaMap[nis];
+    if (!t || !sw) return;
+    if (!hariSiswaMap[t]) hariSiswaMap[t] = new Set();
+    const belumHariIni = !hariSiswaMap[t].has(nis);
+    if (belumHariIni) {
+      hariSiswaMap[t].add(nis);
+      if (!kelasHadirHari[sw.kelas]) kelasHadirHari[sw.kelas] = { hadirSum: 0, telatSum: 0 };
+      kelasHadirHari[sw.kelas].hadirSum++;
+    }
+    if (String(r.status || '').toUpperCase() === 'TERLAMBAT') {
+      if (!telatPerSiswa[nis]) telatPerSiswa[nis] = new Set();
+      if (!telatPerSiswa[nis].has(t)) {
+        telatPerSiswa[nis].add(t);
+        if (!kelasHadirHari[sw.kelas]) kelasHadirHari[sw.kelas] = { hadirSum: 0, telatSum: 0 };
+        kelasHadirHari[sw.kelas].telatSum++;
+      }
+    }
+  });
+
+  const hariGuruMap = {}; // tgl -> Set(id_guru)
+  rekapGuruPekan.forEach(r => {
+    const t = getTanggalBersih_(r.tanggal);
+    const id = String(r.id_guru || '').trim();
+    const jm = formatJamSheet(r.jam_masuk, '');
+    if (t && id && jm && guruIdSet.has(id)) {
+      if (!hariGuruMap[t]) hariGuruMap[t] = new Set();
+      hariGuruMap[t].add(id);
+    }
+  });
+  logGuruPekan.forEach(r => {
+    const t = getTanggalBersih_(r.tanggal);
+    const id = String(r.id_guru || '').trim();
+    const jm = formatJamSheet(r.jam || r.timestamp, '');
+    if (t && id && jm && guruIdSet.has(id)) {
+      if (!hariGuruMap[t]) hariGuruMap[t] = new Set();
+      hariGuruMap[t].add(id);
+    }
+  });
+
+  const hariAktifSet = new Set(Object.keys(hariSiswaMap).concat(Object.keys(hariGuruMap)));
+  const hariAktifList = Array.from(hariAktifSet).sort();
+  const jmlHari = hariAktifList.length;
+
+  const sholatHariMap = {};
+  let totalTapSholat = 0;
+  sholatPekan.forEach(r => {
+    const t = getTanggalBersih_(r.tanggal);
+    const nis = String(r.nis || '').trim();
+    if (!t || !siswaMap[nis]) return;
+    totalTapSholat++;
+    if (!sholatHariMap[t]) sholatHariMap[t] = new Set();
+    sholatHariMap[t].add(nis);
+  });
+
+  // Poin & zona aktif saat ini
+  const poinAwal = Number(s.poin_awal) || 100;
+  const saldoMap = {};
+  let pelanggaranPekan = 0, prestasiPekan = 0, pendingOsis = 0;
+  poinAll.forEach(r => {
+    const st = String(r.divalidasi || '').trim().toUpperCase();
+    if (st === 'MENUNGGU') pendingOsis++;
+    if (!isPoinSah_(r)) return;
+    const nis = String(r.nis || '').trim();
+    const pVal = Number(r.poin) || 0;
+    if (siswaMap[nis]) {
+      if (saldoMap[nis] === undefined) saldoMap[nis] = poinAwal;
+      saldoMap[nis] += pVal;
+    }
+    const t = getTanggalBersih_(r.tanggal);
+    const pasal = String(r.pasal || '').toUpperCase();
+    if (t >= tglMulai && t <= tglAkhir && pasal !== 'SALDO_AWAL') {
+      if (pVal < 0) pelanggaranPekan++;
+      else if (pVal > 0) prestasiPekan++;
+    }
+  });
+
+  let cntKritis = 0, cntMerah = 0, cntOranye = 0, cntKuning = 0;
+  Object.keys(siswaMap).forEach(nis => {
+    const saldo = saldoMap[nis] !== undefined ? saldoMap[nis] : poinAwal;
+    const z = hitungZona_(saldo, s).kode;
+    if (z === 'KRITIS') cntKritis++;
+    else if (z === 'MERAH') cntMerah++;
+    else if (z === 'ORANYE') cntOranye++;
+    else if (z === 'KUNING') cntKuning++;
+  });
+
+  if (jmlHari === 0) {
+    return {
+      hasData: false,
+      text: '📊 <b>REKAP MINGGUAN (' + tglMulai + ' s/d ' + tglAkhir + ')</b>\n🏫 ' + tgEsc_(sekolah) +
+        '\n\nℹ️ Belum ada aktivitas presensi yang tercatat pada pekan ini.' + tgWaktuUpdate_()
+    };
+  }
+
+  let sumHadirSiswa = 0, sumHadirGuru = 0, sumSholatUnik = 0;
+  hariAktifList.forEach(t => {
+    sumHadirSiswa += (hariSiswaMap[t] ? hariSiswaMap[t].size : 0);
+    sumHadirGuru += (hariGuruMap[t] ? hariGuruMap[t].size : 0);
+    sumSholatUnik += (sholatHariMap[t] ? sholatHariMap[t].size : 0);
+  });
+  const avgSiswa = Math.round(sumHadirSiswa / jmlHari);
+  const pctSiswa = siswaAktif.length ? Math.round((sumHadirSiswa / (jmlHari * siswaAktif.length)) * 100) : 0;
+  const avgGuru = Math.round(sumHadirGuru / jmlHari);
+  const pctGuru = guruAktif.length ? Math.round((sumHadirGuru / (jmlHari * guruAktif.length)) * 100) : 0;
+  const avgSholat = Math.round(sumSholatUnik / jmlHari);
+
+  // Top 3 Kelas paling disiplin
+  const rankingKelas = Object.keys(totalPerKelas).map(kls => {
+    const tot = totalPerKelas[kls] || 1;
+    const st = kelasHadirHari[kls] || { hadirSum: 0, telatSum: 0 };
+    const pct = Math.min(100, Math.round((st.hadirSum / (jmlHari * tot)) * 100));
+    return { kelas: kls, pct: pct, telat: st.telatSum };
+  }).sort((a, b) => (b.pct - a.pct) || (a.telat - b.telat) || a.kelas.localeCompare(b.kelas, 'id'));
+
+  // Top 5 Siswa paling sering terlambat
+  const topTelat = Object.keys(telatPerSiswa).map(nis => ({
+    nis: nis,
+    nama: siswaMap[nis] ? siswaMap[nis].nama : nis,
+    kelas: siswaMap[nis] ? siswaMap[nis].kelas : '-',
+    kali: telatPerSiswa[nis].size
+  })).sort((a, b) => (b.kali - a.kali) || String(a.kelas).localeCompare(String(b.kelas))).slice(0, 5);
+
+  let txt =
+    '📊 <b>REKAP MINGGUAN PIMPINAN &amp; BK</b>\n' +
+    '🏫 ' + tgEsc_(sekolah) + '\n' +
+    '📅 Periode: <code>' + tglMulai + '</code> s/d <code>' + tglAkhir + '</code> (' + jmlHari + ' hari aktif)\n\n' +
+    '👨‍🎓 <b>Rata-rata Hadir Siswa:</b> ' + avgSiswa + '/' + siswaAktif.length + ' (' + pctSiswa + '%)\n' +
+    '👩‍🏫 <b>Rata-rata Hadir Guru:</b> ' + avgGuru + '/' + guruAktif.length + ' (' + pctGuru + '%)\n' +
+    '🕌 <b>Sholat Pekan Ini:</b> ' + totalTapSholat + ' presensi (rata-rata ' + avgSholat + ' siswa/hari)\n' +
+    '⚖️ <b>Kedisiplinan Pekan Ini:</b> ' + pelanggaranPekan + ' pelanggaran · ' + prestasiPekan + ' prestasi\n' +
+    '🚨 <b>Posisi Zona Siswa:</b> ⚫ ' + cntKritis + ' Kritis · 🔴 ' + cntMerah + ' Merah · 🟠 ' + cntOranye + ' Oranye · 🟡 ' + cntKuning + ' Kuning';
+
+  if (rankingKelas.length) {
+    txt += '\n\n🏆 <b>Top 3 Kelas Paling Disiplin Pekan Ini:</b>\n' +
+      rankingKelas.slice(0, 3).map((k, i) =>
+        (i === 0 ? '🥇' : (i === 1 ? '🥈' : '🥉')) + ' <b>' + tgEsc_(k.kelas) + '</b> — ' + k.pct + '% hadir' +
+        (k.telat ? ' (' + k.telat + ' telat)' : ' (0 telat)')
+      ).join('\n');
+  }
+  if (topTelat.length) {
+    txt += '\n\n⏰ <b>Sering Terlambat Pekan Ini:</b>\n' +
+      topTelat.map((t, i) => (i + 1) + '. <b>' + tgEsc_(t.nama) + '</b> (' + tgEsc_(t.kelas) + ') — <b>' + t.kali + 'x</b>').join('\n');
+  }
+  if (pendingOsis > 0) {
+    txt += '\n\n🔔 <b>Catatan:</b> Masih ada <b>' + pendingOsis + ' laporan OSIS</b> menunggu validasi.';
+  }
+  txt += tgWaktuUpdate_();
+  return { hasData: true, text: txt };
+}
+
 // Fungsi pemicu terjadwal otomatis (pasang 1 klik dari Admin atau menu Triggers Apps Script)
 function KirimRekapPagiTelegram() {
   const setting = getPengaturan_(null).data || {};
@@ -4426,12 +4635,16 @@ function KirimRekapPagiTelegram() {
   // Lewati hari Minggu bila tidak ada aktivitas tap sama sekali (libur)
   const isMinggu = Utilities.formatDate(new Date(), TZ, 'EEE') === 'Sun';
   if (isMinggu && d.hadirCount === 0 && d.guruHadirList.length === 0) return;
-  if (cfg.chatPimpinan) kirimTelegram_(cfg.token, cfg.chatPimpinan, bangunRekapPagiPimpinan_(d), {
-    reply_markup: { inline_keyboard: [[{ text: '🏫 Lihat Rekap Per Kelas', callback_data: 'kl:LIST' }]] }
+  if (cfg.chatPimpinan) kirimTelegram_(cfg.token, cfg.chatPimpinan, bangunRekapPagiPimpinan_(d) + tgWaktuUpdate_(), {
+    reply_markup: { inline_keyboard: [
+      [{ text: '🏫 Rekap Per Kelas', callback_data: 'kl:LIST' }, { text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+    ] }
   });
   if (cfg.chatWali && cfg.chatWali !== cfg.chatPimpinan) {
-    kirimTelegram_(cfg.token, cfg.chatWali, bangunRekapPagiWaliKelas_(d), {
-      reply_markup: { inline_keyboard: [[{ text: '🏫 Lihat Detail Per Kelas', callback_data: 'kl:LIST' }]] }
+    kirimTelegram_(cfg.token, cfg.chatWali, bangunRekapPagiWaliKelas_(d) + tgWaktuUpdate_(), {
+      reply_markup: { inline_keyboard: [
+        [{ text: '🏫 Detail Per Kelas', callback_data: 'kl:LIST' }, { text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+      ] }
     });
   }
 }
@@ -4443,8 +4656,24 @@ function KirimRekapSoreTelegram() {
   const d = kumpulkanDataRekapTelegram_(setting);
   const isMinggu = Utilities.formatDate(new Date(), TZ, 'EEE') === 'Sun';
   if (isMinggu && d.hadirCount === 0 && d.guruHadirList.length === 0) return;
-  if (cfg.chatPimpinan) kirimTelegram_(cfg.token, cfg.chatPimpinan, bangunRekapSorePimpinan_(d), {
-    reply_markup: { inline_keyboard: [[{ text: '🏫 Lihat Rekap Per Kelas', callback_data: 'kl:LIST' }]] }
+  if (cfg.chatPimpinan) kirimTelegram_(cfg.token, cfg.chatPimpinan, bangunRekapSorePimpinan_(d) + tgWaktuUpdate_(), {
+    reply_markup: { inline_keyboard: [
+      [{ text: '🏫 Rekap Per Kelas', callback_data: 'kl:LIST' }, { text: '🕌 Rekap Sholat', callback_data: 'sh:MAIN' }],
+      [{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+    ] }
+  });
+}
+
+function KirimRekapMingguanTelegram() {
+  const setting = getPengaturan_(null).data || {};
+  const cfg = tgConfig_(setting);
+  if (!cfg.aktif || !cfg.rekapMingguan || !cfg.chatPimpinan) return;
+  const res = bangunRekapMingguanPimpinan_(setting);
+  if (!res.hasData) return;
+  kirimTelegram_(cfg.token, cfg.chatPimpinan, res.text, {
+    reply_markup: { inline_keyboard: [
+      [{ text: '🚨 Siswa Zona Peringatan', callback_data: 'zn:HIGH' }, { text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+    ] }
   });
 }
 
@@ -4452,13 +4681,14 @@ function PasangTriggerTelegram() {
   HapusTriggerTelegram();
   ScriptApp.newTrigger('KirimRekapPagiTelegram').timeBased().everyDays(1).atHour(8).inTimezone(TZ).create();
   ScriptApp.newTrigger('KirimRekapSoreTelegram').timeBased().everyDays(1).atHour(16).inTimezone(TZ).create();
+  ScriptApp.newTrigger('KirimRekapMingguanTelegram').timeBased().onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(16).inTimezone(TZ).create();
 }
 
 function HapusTriggerTelegram() {
   const triggers = ScriptApp.getProjectTriggers();
   triggers.forEach(t => {
     const fn = t.getHandlerFunction();
-    if (fn === 'KirimRekapPagiTelegram' || fn === 'KirimRekapSoreTelegram') {
+    if (fn === 'KirimRekapPagiTelegram' || fn === 'KirimRekapSoreTelegram' || fn === 'KirimRekapMingguanTelegram') {
       ScriptApp.deleteTrigger(t);
     }
   });
@@ -4556,12 +4786,16 @@ function setWebhookTelegram_(token, p) {
         contentType: 'application/json',
         payload: JSON.stringify({
           commands: [
+            { command: 'menu', description: 'Panel tombol utama BKCSiplin (bisa di-Pin)' },
             { command: 'rekap', description: 'Ringkasan kehadiran hari ini' },
             { command: 'kelas', description: 'Rekap kehadiran per kelas (pilih tombol)' },
+            { command: 'sholat', description: 'Rekap sholat & siswa belum sholat' },
             { command: 'telat', description: 'Daftar siswa terlambat hari ini' },
+            { command: 'belum', description: 'Siswa belum hadir & belum ada kabar' },
             { command: 'cek', description: 'Cek siswa: /cek Nama atau NIS' },
             { command: 'guru', description: 'Rekap kehadiran guru (Grup Pimpinan)' },
             { command: 'pending', description: 'Pilah & sahkan laporan OSIS (Grup Pimpinan)' },
+            { command: 'zona', description: 'Siswa zona Kritis/Merah/Oranye/Kuning (Grup 1)' },
             { command: 'id', description: 'Lihat User ID Telegram Anda' },
             { command: 'bantuan', description: 'Daftar perintah Bot BKCSiplin' }
           ]
@@ -4569,7 +4803,7 @@ function setWebhookTelegram_(token, p) {
         muteHttpExceptions: true
       });
     } catch (_) {}
-    return { ok: true, message: 'Perintah 2 arah & tombol interaktif (Webhook) berhasil diaktifkan! Di grup kini tersedia /rekap, /kelas, /telat, /cek, /guru, /pending, /id, serta tombol validasi OSIS.' };
+    return { ok: true, message: 'Perintah 2 arah & tombol interaktif (Webhook) berhasil diaktifkan! Kini tersedia /menu (panel tombol), /rekap, /kelas, /sholat, /telat, /belum, /cek, /guru, /pending, /zona, /id.' };
   } catch (e) { return { ok: false, message: e.message }; }
 }
 
@@ -4581,16 +4815,32 @@ function kirimRekapTelegramManual_(token, p) {
     const cfg = tgConfig_(setting);
     if (!cfg.token || !cfg.chatPimpinan) return { ok: false, message: 'Simpan Bot Token dan Chat ID Grup terlebih dahulu.' };
     const jenis = String((p && p.jenis) || 'pagi').toLowerCase();
+    if (jenis === 'mingguan') {
+      const resM = bangunRekapMingguanPimpinan_(setting);
+      const rM = kirimTelegram_(cfg.token, cfg.chatPimpinan, resM.text, {
+        reply_markup: { inline_keyboard: [
+          [{ text: '🚨 Siswa Zona Peringatan', callback_data: 'zn:HIGH' }, { text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+        ] }
+      });
+      return rM.ok ? { ok: true, message: 'Rekap Mingguan berhasil dikirim ke Grup Pimpinan & BK.' } : { ok: false, message: rM.message };
+    }
     const d = kumpulkanDataRekapTelegram_(setting);
-    const btnKelas = { reply_markup: { inline_keyboard: [[{ text: '🏫 Lihat Rekap Per Kelas', callback_data: 'kl:LIST' }]] } };
+    const btnKelas = { reply_markup: { inline_keyboard: [
+      [{ text: '🏫 Rekap Per Kelas', callback_data: 'kl:LIST' }, { text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+    ] } };
     if (jenis === 'sore') {
-      const r = kirimTelegram_(cfg.token, cfg.chatPimpinan, bangunRekapSorePimpinan_(d), btnKelas);
+      const r = kirimTelegram_(cfg.token, cfg.chatPimpinan, bangunRekapSorePimpinan_(d) + tgWaktuUpdate_(), {
+        reply_markup: { inline_keyboard: [
+          [{ text: '🏫 Rekap Per Kelas', callback_data: 'kl:LIST' }, { text: '🕌 Rekap Sholat', callback_data: 'sh:MAIN' }],
+          [{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+        ] }
+      });
       return r.ok ? { ok: true, message: 'Rekap Sore berhasil dikirim ke Grup Pimpinan & BK.' } : { ok: false, message: r.message };
     }
-    const r1 = kirimTelegram_(cfg.token, cfg.chatPimpinan, bangunRekapPagiPimpinan_(d), btnKelas);
+    const r1 = kirimTelegram_(cfg.token, cfg.chatPimpinan, bangunRekapPagiPimpinan_(d) + tgWaktuUpdate_(), btnKelas);
     if (!r1.ok) return { ok: false, message: 'Gagal kirim: ' + r1.message };
     if (cfg.chatWali && cfg.chatWali !== cfg.chatPimpinan) {
-      kirimTelegram_(cfg.token, cfg.chatWali, bangunRekapPagiWaliKelas_(d), btnKelas);
+      kirimTelegram_(cfg.token, cfg.chatWali, bangunRekapPagiWaliKelas_(d) + tgWaktuUpdate_(), btnKelas);
     }
     return { ok: true, message: 'Rekap Pagi berhasil dikirim ke Grup Telegram.' };
   } catch (e) { return { ok: false, message: e.message }; }
@@ -4603,10 +4853,10 @@ function aturJadwalTelegram_(token, p) {
     const pasang = !(p && p.aktif === false);
     if (pasang) {
       PasangTriggerTelegram();
-      return { ok: true, message: 'Jadwal otomatis Rekap Pagi (08:00 WIB) & Sore (16:00 WIB) berhasil dipasang!' };
+      return { ok: true, message: 'Jadwal otomatis Rekap Pagi (08:00), Sore (16:00) & Mingguan (Jumat 16:00 WIB) berhasil dipasang!' };
     } else {
       HapusTriggerTelegram();
-      return { ok: true, message: 'Jadwal otomatis Rekap Pagi & Sore telah dimatikan.' };
+      return { ok: true, message: 'Semua jadwal otomatis Rekap Telegram telah dimatikan.' };
     }
   } catch (e) {
     return { ok: false, message: 'Gagal mengatur trigger otomatis: ' + e.message + ' (Anda juga bisa jalankan fungsi PasangTriggerTelegram 1x dari editor Apps Script).' };
@@ -4687,8 +4937,10 @@ function bangunDaftarKelasTelegram_(setting, filterQuery) {
 
   if (!filtered.length) {
     return {
-      text: '❌ Kelas dengan kata kunci <b>' + tgEsc_(filterQuery) + '</b> tidak ditemukan.\nKetik <code>/kelas</code> untuk melihat semua kelas.',
-      reply_markup: { inline_keyboard: [[{ text: '🏫 Tampilkan Semua Kelas', callback_data: 'kl:LIST' }]] }
+      text: '❌ Kelas dengan kata kunci <b>' + tgEsc_(filterQuery) + '</b> tidak ditemukan.\nKetik <code>/kelas</code> untuk melihat semua kelas.' + tgWaktuUpdate_(),
+      reply_markup: { inline_keyboard: [
+        [{ text: '🏫 Tampilkan Semua Kelas', callback_data: 'kl:LIST' }, { text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+      ] }
     };
   }
   if (q && filtered.length === 1) {
@@ -4705,7 +4957,7 @@ function bangunDaftarKelasTelegram_(setting, filterQuery) {
       (k.telat.length ? ' · Telat ' + k.telat.length : '') +
       (k.belum.length ? ' · Belum ' + k.belum.length : '') + '\n';
   });
-  txt += '\n<i>Klik tombol kelas di bawah untuk melihat rincian nama siswa:</i>';
+  txt += '\n<i>Klik tombol kelas di bawah untuk melihat rincian nama siswa:</i>' + tgWaktuUpdate_();
 
   const keyboard = [];
   const btnClasses = filtered.slice(0, 24);
@@ -4723,6 +4975,7 @@ function bangunDaftarKelasTelegram_(setting, filterQuery) {
     { text: '🔄 Refresh', callback_data: 'kl:LIST' },
     { text: '📋 Rekap Sekolah', callback_data: 'kl:REKAP' }
   ]);
+  keyboard.push([{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]);
   return { text: txt, reply_markup: { inline_keyboard: keyboard } };
 }
 
@@ -4761,14 +5014,461 @@ function bangunDetailKelasTelegram_(setting, kelasKey) {
       k.belum.slice(0, 25).map((b, i) => (i + 1) + '. ' + tgEsc_(b.nama)).join('\n') +
       (k.belum.length > 25 ? '\n<i>…dan ' + (k.belum.length - 25) + ' lainnya.</i>' : '');
   }
+  txt += tgWaktuUpdate_();
 
   return {
     text: txt,
     reply_markup: {
-      inline_keyboard: [[
-        { text: '⬅️ Semua Kelas', callback_data: 'kl:LIST' },
-        { text: '🔄 Refresh Kelas', callback_data: 'kl:V:' + k.kelas.slice(0, 48) }
-      ]]
+      inline_keyboard: [
+        [
+          { text: '⬅️ Semua Kelas', callback_data: 'kl:LIST' },
+          { text: '🔄 Refresh Kelas', callback_data: 'kl:V:' + k.kelas.slice(0, 48) }
+        ],
+        [{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+      ]
+    }
+  };
+}
+
+// --- PANEL MENU UTAMA INTERAKTIF (/menu — BISA DI-PIN DI GRUP) ---
+function bangunMenuUtamaTelegram_(isPimpinan, setting) {
+  const s = setting || getPengaturan_(null).data || {};
+  const sekolah = String(s.nama_sekolah || 'SMK Bhakti Kencana Ciawi');
+  const hariIni = todayStr_();
+  const txt =
+    '🏠 <b>PANEL KONTROL BKCSIPLIN</b>\n' +
+    '🏫 ' + tgEsc_(sekolah) + ' | 📅 ' + hariIni + '\n\n' +
+    'Pilih menu pemantauan di bawah ini — semua rekap diperbarui langsung dari database sekolah.\n' +
+    '<i>💡 Tips: Sematkan (Pin) pesan ini di grup agar cukup 1 klik tanpa perlu mengetik perintah.</i>' +
+    tgWaktuUpdate_();
+
+  const kb = [
+    [
+      { text: '📋 Rekap Hari Ini', callback_data: 'mn:REKAP' },
+      { text: '🏫 Rekap Per Kelas', callback_data: 'kl:LIST' }
+    ],
+    [
+      { text: '⏰ Siswa Terlambat', callback_data: 'mn:TELAT' },
+      { text: '⚠️ Belum Ada Kabar', callback_data: 'mn:BELUM' }
+    ]
+  ];
+  if (isPimpinan) {
+    kb.push([
+      { text: '🕌 Rekap Sholat', callback_data: 'sh:MAIN' },
+      { text: '👩‍🏫 Kehadiran Guru', callback_data: 'mn:GURU' }
+    ]);
+    kb.push([
+      { text: '🔔 Validasi OSIS', callback_data: 'op:REF' },
+      { text: '🚨 Zona Peringatan', callback_data: 'zn:HIGH' }
+    ]);
+  } else {
+    kb.push([
+      { text: '🕌 Rekap Sholat', callback_data: 'sh:MAIN' }
+    ]);
+  }
+  return { text: txt, reply_markup: { inline_keyboard: kb } };
+}
+
+function bangunRekapSekolahTelegram_(isPimpinan, setting) {
+  const d = kumpulkanDataRekapTelegram_(setting);
+  const reply = (isPimpinan ? bangunRekapPagiPimpinan_(d) : bangunRekapPagiWaliKelas_(d)) + tgWaktuUpdate_();
+  return {
+    text: reply,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '🏫 Rekap Per Kelas', callback_data: 'kl:LIST' },
+          { text: '🔄 Refresh', callback_data: 'mn:REKAP' }
+        ],
+        [{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+      ]
+    }
+  };
+}
+
+// --- REKAP CEPAT TERLAMBAT (/telat — BACA 2 SHEET SAJA) ---
+function bangunRekapTelatTelegram_(setting) {
+  const hariIni = todayStr_();
+  const siswaMap = {};
+  readAll_(SHEET.SISWA).forEach(x => {
+    if (isAktifStatus_(x.status)) siswaMap[String(x.nis || '').trim()] = x;
+  });
+  const telatSet = new Set();
+  const telatList = [];
+  readAll_(SHEET.GERBANG).forEach(r => {
+    if (getTanggalBersih_(r.tanggal) !== hariIni) return;
+    if (String(r.sesi || 'PAGI').toUpperCase() !== 'PAGI') return;
+    if (String(r.status || '').toUpperCase() !== 'TERLAMBAT') return;
+    const n = String(r.nis || '').trim();
+    if (!siswaMap[n] || telatSet.has(n)) return;
+    telatSet.add(n);
+    telatList.push({ nama: siswaMap[n].nama, kelas: siswaMap[n].kelas, jam: formatJamSheet(r.jam || r.timestamp, '-') });
+  });
+  telatList.sort((a, b) => String(a.kelas).localeCompare(String(b.kelas), 'id') || String(a.jam).localeCompare(String(b.jam)));
+
+  let txt;
+  if (!telatList.length) {
+    txt = '✅ Belum ada siswa yang tercatat terlambat hari ini (<code>' + hariIni + '</code>).' + tgWaktuUpdate_();
+  } else {
+    const listTxt = telatList.slice(0, 35).map((t, i) =>
+      (i + 1) + '. <b>' + tgEsc_(t.nama) + '</b> (' + tgEsc_(t.kelas) + ') — <code>' + tgEsc_(t.jam) + ' WIB</code>'
+    ).join('\n');
+    const sisa = telatList.length > 35 ? '\n<i>…dan ' + (telatList.length - 35) + ' siswa lainnya.</i>' : '';
+    txt = '⏰ <b>SISWA TERLAMBAT HARI INI (' + telatList.length + ')</b>\n📅 ' + hariIni + '\n\n' + listTxt + sisa + tgWaktuUpdate_();
+  }
+  return {
+    text: txt,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '🔄 Refresh', callback_data: 'mn:TELAT' },
+          { text: '🏫 Per Kelas', callback_data: 'kl:LIST' }
+        ],
+        [{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+      ]
+    }
+  };
+}
+
+// --- REKAP CEPAT BELUM ADA KABAR (/belum — BACA 3 SHEET SAJA) ---
+function bangunRekapBelumTelegram_(setting) {
+  const hariIni = todayStr_();
+  const siswaAktif = readAll_(SHEET.SISWA).filter(x => isAktifStatus_(x.status));
+  const hadirSet = new Set();
+  readAll_(SHEET.GERBANG).forEach(r => {
+    if (getTanggalBersih_(r.tanggal) === hariIni && String(r.sesi || 'PAGI').toUpperCase() === 'PAGI') {
+      hadirSet.add(String(r.nis || '').trim());
+    }
+  });
+  const ketMap = {};
+  readAll_(SHEET.KETERANGAN).forEach(k => {
+    if (getTanggalBersih_(k.tanggal) === hariIni) {
+      ketMap[String(k.nis || '').trim()] = String(k.status || '').toUpperCase();
+    }
+  });
+
+  let izin = 0, sakit = 0, alpa = 0;
+  const perKelas = {};
+  let totalBelum = 0;
+  siswaAktif.forEach(sw => {
+    const nis = String(sw.nis || '').trim();
+    if (!nis || hadirSet.has(nis)) return;
+    if (ketMap[nis]) {
+      if (ketMap[nis] === 'IZIN') izin++;
+      else if (ketMap[nis] === 'SAKIT') sakit++;
+      else if (ketMap[nis] === 'ALPA') alpa++;
+      return;
+    }
+    const kls = String(sw.kelas || 'TANPA KELAS').trim();
+    if (!perKelas[kls]) perKelas[kls] = [];
+    perKelas[kls].push(String(sw.nama || nis));
+    totalBelum++;
+  });
+
+  let txt = '⚠️ <b>SISWA BELUM HADIR &amp; BELUM ADA KABAR</b>\n📅 ' + hariIni + '\n' +
+    '• Belum Ada Kabar: <b>' + totalBelum + '</b> siswa\n' +
+    '• Sudah Keterangan: Izin ' + izin + ' | Sakit ' + sakit + ' | Alpa ' + alpa;
+
+  if (totalBelum === 0) {
+    txt += '\n\n✅ Semua siswa aktif sudah tercatat hadir atau memiliki keterangan hari ini.';
+  } else {
+    const keys = Object.keys(perKelas).sort((a, b) => a.localeCompare(b, 'id'));
+    txt += '\n\n';
+    keys.slice(0, 20).forEach(kls => {
+      const names = perKelas[kls].sort((a, b) => a.localeCompare(b, 'id'));
+      txt += '📘 <b>' + tgEsc_(kls) + ' (' + names.length + '):</b> ' +
+        names.slice(0, 10).map(tgEsc_).join(', ') +
+        (names.length > 10 ? ', <i>…+' + (names.length - 10) + '</i>' : '') + '\n';
+    });
+    if (keys.length > 20) txt += '\n<i>…dan ' + (keys.length - 20) + ' kelas lainnya.</i>';
+  }
+  txt += tgWaktuUpdate_();
+
+  return {
+    text: txt,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '🔄 Refresh', callback_data: 'mn:BELUM' },
+          { text: '🏫 Detail Per Kelas', callback_data: 'kl:LIST' }
+        ],
+        [{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+      ]
+    }
+  };
+}
+
+// --- REKAP CEPAT KEHADIRAN GURU (/guru — BACA 3 SHEET SAJA) ---
+function bangunRekapGuruTelegram_(setting) {
+  const hariIni = todayStr_();
+  const guruAktif = readAll_(SHEET.GURU).filter(x => isAktifStatus_(x.status));
+  const guruHadirMap = {};
+  readAll_(SHEET.REKAP_GURU).forEach(r => {
+    if (getTanggalBersih_(r.tanggal) !== hariIni) return;
+    const id = String(r.id_guru || '').trim();
+    const jm = formatJamSheet(r.jam_masuk, '');
+    if (id && jm) guruHadirMap[id] = { masuk: jm, pulang: formatJamSheet(r.jam_pulang, '-') };
+  });
+  readAll_(SHEET.GURU_HADIR).forEach(r => {
+    if (getTanggalBersih_(r.tanggal) !== hariIni) return;
+    const id = String(r.id_guru || '').trim();
+    const jm = formatJamSheet(r.jam || r.timestamp, '');
+    if (id && jm && !guruHadirMap[id]) guruHadirMap[id] = { masuk: jm, pulang: '-' };
+  });
+
+  const hadirList = [];
+  const belumList = [];
+  guruAktif.forEach(g => {
+    const id = String(g.id_guru || '').trim();
+    if (guruHadirMap[id]) hadirList.push({ nama: g.nama, masuk: guruHadirMap[id].masuk, pulang: guruHadirMap[id].pulang });
+    else belumList.push({ nama: g.nama });
+  });
+  const pct = guruAktif.length ? Math.round((hadirList.length / guruAktif.length) * 100) : 0;
+
+  let txt = '👩‍🏫 <b>KEHADIRAN GURU &amp; STAF (' + hariIni + ')</b>\n' +
+    '✅ Hadir: <b>' + hadirList.length + ' / ' + guruAktif.length + '</b> (' + pct + '%)\n';
+  if (hadirList.length) {
+    txt += '\n<b>Sudah Hadir:</b>\n' + hadirList.slice(0, 25).map((g, i) =>
+      (i + 1) + '. ' + tgEsc_(g.nama) + ' (<code>' + g.masuk + '</code>' + (g.pulang && g.pulang !== '-' ? '–<code>' + g.pulang + '</code>' : '') + ')'
+    ).join('\n') + (hadirList.length > 25 ? '\n<i>…dan ' + (hadirList.length - 25) + ' lainnya.</i>' : '');
+  }
+  if (belumList.length) {
+    txt += '\n\n⏳ <b>Belum Absen (' + belumList.length + '):</b>\n' +
+      belumList.slice(0, 25).map((g, i) => (i + 1) + '. ' + tgEsc_(g.nama)).join('\n') +
+      (belumList.length > 25 ? '\n<i>…dan ' + (belumList.length - 25) + ' lainnya.</i>' : '');
+  }
+  txt += tgWaktuUpdate_();
+
+  return {
+    text: txt,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '🔄 Refresh', callback_data: 'mn:GURU' },
+          { text: '🏠 Menu Utama', callback_data: 'mn:HOME' }
+        ]
+      ]
+    }
+  };
+}
+
+// --- REKAP SHOLAT & DETEKSI BOLOS SHOLAT (/sholat) ---
+function bangunRekapSholatTelegram_(setting, mode) {
+  const m = String(mode || 'MAIN').toUpperCase();
+  const hariIni = todayStr_();
+  const siswaAktif = readAll_(SHEET.SISWA).filter(x => isAktifStatus_(x.status));
+  const siswaMap = {};
+  siswaAktif.forEach(x => {
+    const nis = String(x.nis || '').trim();
+    if (nis) siswaMap[nis] = { nis: nis, nama: String(x.nama || nis), kelas: String(x.kelas || 'TANPA KELAS').trim() };
+  });
+
+  const hadirPagiSet = new Set();
+  readAll_(SHEET.GERBANG).forEach(r => {
+    if (getTanggalBersih_(r.tanggal) === hariIni && String(r.sesi || 'PAGI').toUpperCase() === 'PAGI') {
+      const nis = String(r.nis || '').trim();
+      if (siswaMap[nis]) hadirPagiSet.add(nis);
+    }
+  });
+
+  const udzurSet = new Set();
+  readAll_(SHEET.UDZUR).forEach(u => {
+    const tMulai = getTanggalBersih_(u.tgl_mulai);
+    const tSelesai = getTanggalBersih_(u.tgl_selesai);
+    const nis = String(u.nis || '').trim();
+    if (nis && siswaMap[nis] && tMulai && tSelesai && tMulai <= hariIni && hariIni <= tSelesai) {
+      udzurSet.add(nis);
+    }
+  });
+
+  const waktuMap = {}; // waktu -> Set(nis)
+  const sholatUnikSet = new Set();
+  readAll_(SHEET.SHOLAT).forEach(r => {
+    if (getTanggalBersih_(r.tanggal) !== hariIni) return;
+    const nis = String(r.nis || '').trim();
+    if (!siswaMap[nis]) return;
+    sholatUnikSet.add(nis);
+    const w = String(r.waktu_sholat || 'LAINNYA').trim().toUpperCase();
+    if (!waktuMap[w]) waktuMap[w] = new Set();
+    waktuMap[w].add(nis);
+  });
+
+  // Siswa hadir pagi, belum tercatat sholat sama sekali hari ini, dan tidak udzur syar'i
+  const bolosPerKelas = {};
+  let totalBolos = 0;
+  const perKelas = {};
+  siswaAktif.forEach(sw => {
+    const nis = String(sw.nis || '').trim();
+    const kls = String(sw.kelas || 'TANPA KELAS').trim();
+    if (!perKelas[kls]) perKelas[kls] = { kelas: kls, total: 0, hadir: 0, sholat: 0, udzur: 0, bolos: 0 };
+    const b = perKelas[kls];
+    b.total++;
+    const isHadir = hadirPagiSet.has(nis);
+    const isSholat = sholatUnikSet.has(nis);
+    const isUdzur = udzurSet.has(nis);
+    if (isHadir) b.hadir++;
+    if (isSholat) b.sholat++;
+    if (isUdzur) b.udzur++;
+    if (isHadir && !isSholat && !isUdzur) {
+      b.bolos++;
+      totalBolos++;
+      if (!bolosPerKelas[kls]) bolosPerKelas[kls] = [];
+      bolosPerKelas[kls].push(String(sw.nama || nis));
+    }
+  });
+
+  let txt = '';
+  if (m === 'KELAS') {
+    const listKls = Object.values(perKelas).sort((a, b) => a.kelas.localeCompare(b.kelas, 'id'));
+    txt = '🕌 <b>REKAP SHOLAT PER KELAS</b>\n📅 ' + hariIni + '\n\n';
+    listKls.slice(0, 30).forEach(k => {
+      const target = Math.max(0, k.hadir - k.udzur);
+      const pct = target > 0 ? Math.min(100, Math.round((k.sholat / target) * 100)) : (k.sholat > 0 ? 100 : 0);
+      const icon = k.hadir === 0 ? '⚪' : (pct >= 85 ? '🟢' : (pct >= 60 ? '🟡' : '🔴'));
+      txt += icon + ' <b>' + tgEsc_(k.kelas) + '</b>: Sholat <b>' + k.sholat + '/' + k.hadir + '</b> hadir' +
+        (k.udzur ? ' · Udzur ' + k.udzur : '') +
+        (k.bolos ? ' · Belum ' + k.bolos : '') + '\n';
+    });
+  } else if (m === 'BOLOS') {
+    txt = '⚠️ <b>HADIR PAGI — BELUM TERCATAT SHOLAT</b>\n📅 ' + hariIni + '\n' +
+      '<i>(Siswa yang sudah tap gerbang pagi, tidak sedang Udzur Syar\'i, dan belum tap sholat)</i>\n\n';
+    if (totalBolos === 0) {
+      txt += '✅ Semua siswa yang hadir pagi hari ini sudah tercatat sholat atau berstatus Udzur Syar\'i.';
+    } else {
+      txt += 'Total: <b>' + totalBolos + ' siswa</b>\n\n';
+      const keys = Object.keys(bolosPerKelas).sort((a, b) => a.localeCompare(b, 'id'));
+      keys.slice(0, 18).forEach(kls => {
+        const names = bolosPerKelas[kls].sort((a, b) => a.localeCompare(b, 'id'));
+        txt += '📘 <b>' + tgEsc_(kls) + ' (' + names.length + '):</b> ' +
+          names.slice(0, 10).map(tgEsc_).join(', ') +
+          (names.length > 10 ? ', <i>…+' + (names.length - 10) + '</i>' : '') + '\n';
+      });
+      if (keys.length > 18) txt += '\n<i>…dan ' + (keys.length - 18) + ' kelas lainnya.</i>';
+    }
+  } else {
+    const baseWajib = Math.max(0, hadirPagiSet.size - udzurSet.size);
+    const pctSholat = baseWajib > 0
+      ? Math.min(100, Math.round((sholatUnikSet.size / baseWajib) * 100))
+      : (siswaAktif.length ? Math.min(100, Math.round((sholatUnikSet.size / siswaAktif.length) * 100)) : 0);
+
+    const urutanUtama = ['SUBUH', 'DZUHUR', 'ASHAR', 'MAGHRIB', 'ISYA'];
+    const waktuLain = Object.keys(waktuMap).filter(w => !urutanUtama.includes(w)).sort();
+    const semuaWaktu = urutanUtama.concat(waktuLain);
+    const detailWaktu = semuaWaktu.map(w => {
+      const cnt = waktuMap[w] ? waktuMap[w].size : 0;
+      const label = w.charAt(0) + w.slice(1).toLowerCase();
+      return '• ' + label + ': <b>' + cnt + '</b> siswa';
+    }).join('\n');
+
+    txt =
+      '🕌 <b>REKAP PRESENSI SHOLAT HARI INI</b>\n' +
+      '📅 ' + hariIni + '\n\n' +
+      '👨‍🎓 Hadir Gerbang Pagi: <b>' + hadirPagiSet.size + '</b> / ' + siswaAktif.length + ' siswa\n' +
+      '✅ Sudah Sholat (Unik): <b>' + sholatUnikSet.size + '</b> siswa (' + pctSholat + '%)\n' +
+      '🩺 Udzur Syar\'i Aktif: <b>' + udzurSet.size + '</b> siswa\n' +
+      '⚠️ Hadir Pagi Belum Sholat: <b>' + totalBolos + '</b> siswa\n\n' +
+      '<b>Rincian Per Waktu Sholat:</b>\n' + detailWaktu;
+  }
+  txt += tgWaktuUpdate_();
+
+  const refCode = (m === 'KELAS' || m === 'BOLOS') ? ('sh:' + m) : 'sh:MAIN';
+  return {
+    text: txt,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '🕌 Ringkasan', callback_data: 'sh:MAIN' },
+          { text: '🏫 Per Kelas', callback_data: 'sh:KELAS' }
+        ],
+        [
+          { text: '⚠️ Belum Sholat (' + totalBolos + ')', callback_data: 'sh:BOLOS' },
+          { text: '🔄 Refresh', callback_data: refCode }
+        ],
+        [{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+      ]
+    }
+  };
+}
+
+// --- PANTAUAN SISWA ZONA PERINGATAN (/zona — KHUSUS GRUP 1) ---
+function bangunRekapZonaTelegram_(setting, filterMode) {
+  const s = setting || getPengaturan_(null).data || {};
+  const mode = String(filterMode || 'HIGH').toUpperCase();
+  const poinAwal = Number(s.poin_awal) || 100;
+  const siswaAktif = readAll_(SHEET.SISWA).filter(x => isAktifStatus_(x.status));
+  const saldoMap = {};
+  readAll_(SHEET.POIN).forEach(r => {
+    if (!isPoinSah_(r)) return;
+    const nis = String(r.nis || '').trim();
+    if (!nis) return;
+    if (saldoMap[nis] === undefined) saldoMap[nis] = poinAwal;
+    saldoMap[nis] += (Number(r.poin) || 0);
+  });
+
+  const counts = { KRITIS: 0, MERAH: 0, ORANYE: 0, KUNING: 0, HIJAU: 0 };
+  const daftar = [];
+  siswaAktif.forEach(sw => {
+    const nis = String(sw.nis || '').trim();
+    const saldo = saldoMap[nis] !== undefined ? saldoMap[nis] : poinAwal;
+    const z = hitungZona_(saldo, s);
+    if (counts[z.kode] !== undefined) counts[z.kode]++;
+    if (z.kode !== 'HIJAU') {
+      daftar.push({
+        nis: nis,
+        nama: String(sw.nama || nis),
+        kelas: String(sw.kelas || '-'),
+        saldo: saldo,
+        zona: z.kode,
+        label: z.label
+      });
+    }
+  });
+  daftar.sort((a, b) => (a.saldo - b.saldo) || a.kelas.localeCompare(b.kelas, 'id') || a.nama.localeCompare(b.nama, 'id'));
+
+  let filtered = daftar;
+  let judulFilter = 'Semua Zona Peringatan';
+  if (mode === 'HIGH') {
+    filtered = daftar.filter(x => x.zona === 'KRITIS' || x.zona === 'MERAH');
+    judulFilter = 'Zona Kritis & Merah';
+  } else if (mode === 'MID') {
+    filtered = daftar.filter(x => x.zona === 'ORANYE' || x.zona === 'KUNING');
+    judulFilter = 'Zona Oranye & Kuning';
+  }
+
+  const iconZona = { KRITIS: '⚫', MERAH: '🔴', ORANYE: '🟠', KUNING: '🟡' };
+  let txt =
+    '🚨 <b>PANTAUAN ZONA POIN SISWA</b>\n' +
+    '⚫ Kritis: <b>' + counts.KRITIS + '</b> | 🔴 Merah: <b>' + counts.MERAH + '</b> | 🟠 Oranye: <b>' + counts.ORANYE + '</b> | 🟡 Kuning: <b>' + counts.KUNING + '</b>\n' +
+    '🟢 Zona Hijau (Aman): ' + counts.HIJAU + ' siswa\n\n' +
+    '<b>Filter: ' + judulFilter + ' (' + filtered.length + ' siswa)</b>\n';
+
+  if (!filtered.length) {
+    txt += '\n✅ Tidak ada siswa di kategori ' + judulFilter.toLowerCase() + ' saat ini.';
+  } else {
+    txt += '\n' + filtered.slice(0, 30).map((x, i) =>
+      (i + 1) + '. ' + (iconZona[x.zona] || '⚠️') + ' <b>' + tgEsc_(x.nama) + '</b> (' + tgEsc_(x.kelas) + ') — Saldo <b>' + x.saldo + '</b> [<code>/cek ' + tgEsc_(x.nis) + '</code>]'
+    ).join('\n');
+    if (filtered.length > 30) {
+      txt += '\n<i>…dan ' + (filtered.length - 30) + ' siswa lainnya.</i>';
+    }
+  }
+  txt += tgWaktuUpdate_();
+
+  const refCode = (mode === 'MID' || mode === 'ALL') ? ('zn:' + mode) : 'zn:HIGH';
+  return {
+    text: txt,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '⚫🔴 Kritis & Merah (' + (counts.KRITIS + counts.MERAH) + ')', callback_data: 'zn:HIGH' },
+          { text: '🟠🟡 Oranye & Kuning (' + (counts.ORANYE + counts.KUNING) + ')', callback_data: 'zn:MID' }
+        ],
+        [
+          { text: '📋 Semua Zona (' + daftar.length + ')', callback_data: 'zn:ALL' },
+          { text: '🔄 Refresh', callback_data: refCode }
+        ],
+        [{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+      ]
     }
   };
 }
@@ -4778,8 +5478,10 @@ function bangunPesanPendingTelegram_(setting, cfg) {
   const pending = readAll_(SHEET.POIN).filter(r => String(r.divalidasi || '').trim().toUpperCase() === 'MENUNGGU');
   if (!pending.length) {
     return {
-      text: '✅ Tidak ada laporan OSIS yang menunggu validasi saat ini.',
-      reply_markup: { inline_keyboard: [[{ text: '🔄 Cek Ulang', callback_data: 'op:REF' }]] }
+      text: '✅ Tidak ada laporan OSIS yang menunggu validasi saat ini.' + tgWaktuUpdate_(),
+      reply_markup: { inline_keyboard: [
+        [{ text: '🔄 Cek Ulang', callback_data: 'op:REF' }, { text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]
+      ] }
     };
   }
   const tampil = pending.slice(0, 8);
@@ -4808,12 +5510,16 @@ function bangunPesanPendingTelegram_(setting, cfg) {
   } else {
     txt += '\n\n<i>Silakan validasi di halaman Kedisiplinan → Validasi OSIS.</i>';
   }
-  keyboard.push([{ text: '🔄 Refresh Antrean', callback_data: 'op:REF' }]);
+  txt += tgWaktuUpdate_();
+  keyboard.push([
+    { text: '🔄 Refresh Antrean', callback_data: 'op:REF' },
+    { text: '🏠 Menu Utama', callback_data: 'mn:HOME' }
+  ]);
   return { text: txt, reply_markup: { inline_keyboard: keyboard } };
 }
 
 // --- PROSES VALIDASI OSIS DARI TOMBOL TELEGRAM (DENGAN LOCK ANTI KLIK GANDA) ---
-function prosesValidasiOsisTelegram_(cfg, setting, actionCode, targetId, fromUser) {
+function prosesValidasiOsisTelegram_(cfg, setting, actionCode, targetId, fromUser, skipCardBuild) {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(10000)) {
     return { ok: false, alertText: 'Server sedang sibuk memproses klik lain. Coba lagi 2 detik.' };
@@ -4824,7 +5530,7 @@ function prosesValidasiOsisTelegram_(cfg, setting, actionCode, targetId, fromUse
     const validatorNama = [fromUser && fromUser.first_name, fromUser && fromUser.last_name].filter(Boolean).join(' ').trim() ||
                           (fromUser && fromUser.username ? '@' + fromUser.username : 'BK/Pimpinan');
 
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const ss = getSS_();
     const sh = getOrCreateSheet_(ss, SHEET.POIN);
     const headers = ensureHeaders_(sh, SHEET.POIN).map(h => String(h).trim().toLowerCase());
     const d = sh.getDataRange().getValues();
@@ -4853,11 +5559,6 @@ function prosesValidasiOsisTelegram_(cfg, setting, actionCode, targetId, fromUse
     }
 
     const batchPrefix = isBatch ? targetId : String(targetId || '').replace(/-\d+$/, '');
-    const tatibMap = {};
-    readAll_(SHEET.TATA_TERTIB).forEach(t => {
-      tatibMap[String(t.kode || '').trim().toUpperCase()] = String(t.deskripsi || '').trim();
-    });
-
     const zonaAlertQueue = [];
     let diproses = 0;
     let lastInfo = '';
@@ -4905,40 +5606,6 @@ function prosesValidasiOsisTelegram_(cfg, setting, actionCode, targetId, fromUse
       diproses++;
     }
 
-    // Kumpulkan semua baris saudara dalam batch yang sama untuk pembaruan tampilan kartu
-    const siblingItems = [];
-    let siswaCard = null;
-    let kronologiCard = '';
-    let pelaporCard = '';
-    for (let i = 1; i < d.length; i++) {
-      const idRow = String(d[i][iId !== -1 ? iId : 0] || '').trim();
-      const sameBatch = batchPrefix ? (idRow === targetId || idRow.indexOf(batchPrefix + '-') === 0) : (idRow === targetId);
-      if (!sameBatch) continue;
-      if (!siswaCard) {
-        siswaCard = {
-          nis: String(d[i][iNis] || ''),
-          nama: iNama !== -1 ? String(d[i][iNama] || '') : '',
-          kelas: iKelas !== -1 ? String(d[i][iKelas] || '') : ''
-        };
-        kronologiCard = iDesk !== -1 ? String(d[i][iDesk] || '') : '';
-        pelaporCard = (iPetugas !== -1 ? String(d[i][iPetugas] || '') : '').replace(/\s*\[[✓✕].*$/, '').trim();
-      }
-      const st = String(d[i][iValid] || 'MENUNGGU').trim().toUpperCase();
-      const kode = iPasal !== -1 ? String(d[i][iPasal] || '').trim().toUpperCase() : '';
-      const petTagMatch = (iPetugas !== -1 ? String(d[i][iPetugas] || '') : '').match(/\[([✓✕][^\]]+)\]/);
-      const infoStr = st === 'YA'
-        ? ('Saldo: ' + d[i][iSaldo] + (petTagMatch ? ' · ' + petTagMatch[1] : ''))
-        : (st === 'DITOLAK' && petTagMatch ? petTagMatch[1] : '');
-      siblingItems.push({
-        id_poin: idRow,
-        kode: kode,
-        deskripsi: tatibMap[kode] || kode,
-        poinVal: Number(d[i][iPoin]) || 0,
-        status: st,
-        info: infoStr
-      });
-    }
-
     if (diproses > 0) {
       catatAudit_({
         id_guru: 'TG:' + String(fromUser && fromUser.id || ''),
@@ -4952,9 +5619,48 @@ function prosesValidasiOsisTelegram_(cfg, setting, actionCode, targetId, fromUse
       });
     }
 
-    const updatedCard = siswaCard
-      ? bangunKartuOsisTelegram_(siswaCard, siblingItems, kronologiCard, pelaporCard, batchPrefix, cfg.validasiAktif)
-      : null;
+    let updatedCard = null;
+    if (!skipCardBuild) {
+      const tatibMap = {};
+      readAll_(SHEET.TATA_TERTIB).forEach(t => {
+        tatibMap[String(t.kode || '').trim().toUpperCase()] = String(t.deskripsi || '').trim();
+      });
+      const siblingItems = [];
+      let siswaCard = null;
+      let kronologiCard = '';
+      let pelaporCard = '';
+      for (let i = 1; i < d.length; i++) {
+        const idRow = String(d[i][iId !== -1 ? iId : 0] || '').trim();
+        const sameBatch = batchPrefix ? (idRow === targetId || idRow.indexOf(batchPrefix + '-') === 0) : (idRow === targetId);
+        if (!sameBatch) continue;
+        if (!siswaCard) {
+          siswaCard = {
+            nis: String(d[i][iNis] || ''),
+            nama: iNama !== -1 ? String(d[i][iNama] || '') : '',
+            kelas: iKelas !== -1 ? String(d[i][iKelas] || '') : ''
+          };
+          kronologiCard = iDesk !== -1 ? String(d[i][iDesk] || '') : '';
+          pelaporCard = (iPetugas !== -1 ? String(d[i][iPetugas] || '') : '').replace(/\s*\[[✓✕].*$/, '').trim();
+        }
+        const st = String(d[i][iValid] || 'MENUNGGU').trim().toUpperCase();
+        const kode = iPasal !== -1 ? String(d[i][iPasal] || '').trim().toUpperCase() : '';
+        const petTagMatch = (iPetugas !== -1 ? String(d[i][iPetugas] || '') : '').match(/\[([✓✕][^\]]+)\]/);
+        const infoStr = st === 'YA'
+          ? ('Saldo: ' + d[i][iSaldo] + (petTagMatch ? ' · ' + petTagMatch[1] : ''))
+          : (st === 'DITOLAK' && petTagMatch ? petTagMatch[1] : '');
+        siblingItems.push({
+          id_poin: idRow,
+          kode: kode,
+          deskripsi: tatibMap[kode] || kode,
+          poinVal: Number(d[i][iPoin]) || 0,
+          status: st,
+          info: infoStr
+        });
+      }
+      if (siswaCard) {
+        updatedCard = bangunKartuOsisTelegram_(siswaCard, siblingItems, kronologiCard, pelaporCard, batchPrefix, cfg.validasiAktif);
+      }
+    }
 
     const alertText = diproses > 0
       ? ((keputusan === 'SETUJU' ? '✅ Disetujui (' + diproses + '). ' : '❌ Ditolak (' + diproses + '). ') + lastInfo)
@@ -4992,20 +5698,32 @@ function handleTelegramWebhook_(update) {
     const cmd = parts[0].split('@')[0].toLowerCase();
     const arg = parts.slice(1).join(' ').trim();
 
+    if (cmd === '/menu') {
+      const mPanel = bangunMenuUtamaTelegram_(isPimpinan, setting);
+      kirimTelegram_(cfg.token, chatId, mPanel.text, { reply_markup: mPanel.reply_markup });
+      return;
+    }
+
     if (cmd === '/start' || cmd === '/help' || cmd === '/bantuan') {
       let bantuan =
         '🤖 <b>PERINTAH BOT BKCSIPLIN</b>\n\n' +
+        '• <code>/menu</code> — Panel tombol utama 1 klik (bisa di-Pin di grup)\n' +
         '• <code>/rekap</code> — Ringkasan kehadiran hari ini\n' +
         '• <code>/kelas</code> — Rekap kehadiran per kelas (pilih tombol)\n' +
+        '• <code>/sholat</code> — Rekap sholat &amp; deteksi belum sholat\n' +
         '• <code>/telat</code> — Daftar siswa terlambat hari ini\n' +
+        '• <code>/belum</code> — Siswa belum hadir &amp; belum ada kabar\n' +
         '• <code>/cek Nama/NIS</code> — Cek kehadiran &amp; poin siswa (contoh: <code>/cek Budi</code>)';
       if (isPimpinan) {
         bantuan +=
           '\n• <code>/guru</code> — Rekap hadir &amp; guru belum absen\n' +
-          '• <code>/pending</code> — Pilah &amp; sahkan antrean laporan OSIS';
+          '• <code>/pending</code> — Pilah &amp; sahkan antrean laporan OSIS\n' +
+          '• <code>/zona</code> — Daftar siswa zona Kritis/Merah/Oranye/Kuning';
       }
       bantuan += '\n• <code>/id</code> — Lihat User ID Telegram Anda';
-      kirimTelegram_(cfg.token, chatId, bantuan);
+      kirimTelegram_(cfg.token, chatId, bantuan, {
+        reply_markup: { inline_keyboard: [[{ text: '🏠 Buka Panel Menu Utama', callback_data: 'mn:HOME' }]] }
+      });
       return;
     }
 
@@ -5017,11 +5735,8 @@ function handleTelegramWebhook_(update) {
     }
 
     if (cmd === '/rekap') {
-      const d = kumpulkanDataRekapTelegram_(setting);
-      const reply = isPimpinan ? bangunRekapPagiPimpinan_(d) : bangunRekapPagiWaliKelas_(d);
-      kirimTelegram_(cfg.token, chatId, reply, {
-        reply_markup: { inline_keyboard: [[{ text: '🏫 Lihat Rekap Per Kelas', callback_data: 'kl:LIST' }]] }
-      });
+      const rSek = bangunRekapSekolahTelegram_(isPimpinan, setting);
+      kirimTelegram_(cfg.token, chatId, rSek.text, { reply_markup: rSek.reply_markup });
       return;
     }
 
@@ -5031,16 +5746,23 @@ function handleTelegramWebhook_(update) {
       return;
     }
 
+    if (cmd === '/sholat') {
+      const sub = arg.toLowerCase();
+      const mode = sub.indexOf('kelas') !== -1 ? 'KELAS' : (sub.indexOf('bolos') !== -1 || sub.indexOf('belum') !== -1 ? 'BOLOS' : 'MAIN');
+      const rSh = bangunRekapSholatTelegram_(setting, mode);
+      kirimTelegram_(cfg.token, chatId, rSh.text, { reply_markup: rSh.reply_markup });
+      return;
+    }
+
     if (cmd === '/telat') {
-      const d = kumpulkanDataRekapTelegram_(setting);
-      if (!d.telatList.length) {
-        kirimTelegram_(cfg.token, chatId, '✅ Belum ada siswa yang tercatat terlambat hari ini (' + d.hariIni + ').');
-        return;
-      }
-      const listTxt = d.telatList.slice(0, 35).map((t, i) =>
-        (i + 1) + '. <b>' + tgEsc_(t.nama) + '</b> (' + tgEsc_(t.kelas) + ') — <code>' + t.jam + ' WIB</code>'
-      ).join('\n');
-      kirimTelegram_(cfg.token, chatId, '⏰ <b>SISWA TERLAMBAT HARI INI (' + d.telatList.length + ')</b>\n📅 ' + d.hariIni + '\n\n' + listTxt);
+      const rTlt = bangunRekapTelatTelegram_(setting);
+      kirimTelegram_(cfg.token, chatId, rTlt.text, { reply_markup: rTlt.reply_markup });
+      return;
+    }
+
+    if (cmd === '/belum') {
+      const rBlm = bangunRekapBelumTelegram_(setting);
+      kirimTelegram_(cfg.token, chatId, rBlm.text, { reply_markup: rBlm.reply_markup });
       return;
     }
 
@@ -5049,19 +5771,20 @@ function handleTelegramWebhook_(update) {
         kirimTelegram_(cfg.token, chatId, '🔒 Perintah <code>/guru</code> hanya tersedia di Grup Pimpinan &amp; BK.');
         return;
       }
-      const d = kumpulkanDataRekapTelegram_(setting);
-      let txt = '👩‍🏫 <b>KEHADIRAN GURU &amp; STAF (' + d.hariIni + ')</b>\n' +
-        '✅ Hadir: <b>' + d.guruHadirList.length + ' / ' + d.totalGuru + '</b>\n';
-      if (d.guruHadirList.length) {
-        txt += '\n<b>Sudah Hadir:</b>\n' + d.guruHadirList.slice(0, 25).map((g, i) =>
-          (i + 1) + '. ' + tgEsc_(g.nama) + ' (<code>' + g.masuk + '</code>' + (g.pulang && g.pulang !== '-' ? '–<code>' + g.pulang + '</code>' : '') + ')'
-        ).join('\n');
+      const rGr = bangunRekapGuruTelegram_(setting);
+      kirimTelegram_(cfg.token, chatId, rGr.text, { reply_markup: rGr.reply_markup });
+      return;
+    }
+
+    if (cmd === '/zona') {
+      if (!isPimpinan) {
+        kirimTelegram_(cfg.token, chatId, '🔒 Perintah <code>/zona</code> hanya tersedia di Grup Pimpinan &amp; BK.');
+        return;
       }
-      if (d.guruBelumList.length) {
-        txt += '\n\n⏳ <b>Belum Absen (' + d.guruBelumList.length + '):</b>\n' +
-          d.guruBelumList.slice(0, 25).map((g, i) => (i + 1) + '. ' + tgEsc_(g.nama)).join('\n');
-      }
-      kirimTelegram_(cfg.token, chatId, txt);
+      const subZ = arg.toLowerCase();
+      const modeZ = subZ === 'semua' || subZ === 'all' ? 'ALL' : (subZ === 'kuning' || subZ === 'oranye' ? 'MID' : 'HIGH');
+      const rZn = bangunRekapZonaTelegram_(setting, modeZ);
+      kirimTelegram_(cfg.token, chatId, rZn.text, { reply_markup: rZn.reply_markup });
       return;
     }
 
@@ -5114,13 +5837,16 @@ function handleTelegramWebhook_(update) {
         '⭐ <b>Kedisiplinan:</b>\n' +
         '• Saldo Poin: <b>' + dt.saldo_poin + '</b> (Zona ' + tgEsc_(dt.zona.kode) + ' — ' + tgEsc_(dt.zona.label) + ')\n' +
         '• Total Pelanggaran: ' + (dt.ringkasan.pelanggaran || 0) + ' | Prestasi: ' + (dt.ringkasan.prestasi || 0) + '\n' +
-        '• Riwayat Hadir: ' + (dt.ringkasan.hadir || 0) + ' hari (Telat: ' + (dt.ringkasan.telat || 0) + ')';
-      kirimTelegram_(cfg.token, chatId, reply);
+        '• Riwayat Hadir: ' + (dt.ringkasan.hadir || 0) + ' hari (Telat: ' + (dt.ringkasan.telat || 0) + ')' +
+        tgWaktuUpdate_();
+      kirimTelegram_(cfg.token, chatId, reply, {
+        reply_markup: { inline_keyboard: [[{ text: '🏠 Menu Utama', callback_data: 'mn:HOME' }]] }
+      });
     }
   } catch (_) {}
 }
 
-// --- HANDLER TOMBOL INLINE INTERAKTIF (VALIDASI OSIS & REKAP PER KELAS) ---
+// --- HANDLER TOMBOL INLINE INTERAKTIF (MENU, KELAS, SHOLAT, ZONA, VALIDASI OSIS) ---
 function handleTelegramCallback_(update) {
   try {
     if (update && update.update_id !== undefined) {
@@ -5150,40 +5876,89 @@ function handleTelegramCallback_(update) {
     const dataStr = String(cq.data || '').trim();
     const fromUser = cq.from || {};
 
-    // 1. Navigasi Rekap Per Kelas (Tersedia di Grup 1 & Grup 2)
-    if (dataStr === 'kl:LIST') {
-      const resKls = bangunDaftarKelasTelegram_(setting, '');
-      editTelegramMessage_(cfg.token, chatId, messageId, resKls.text, resKls.reply_markup);
-      jawabCallbackTelegram_(cfg.token, cq.id, 'Daftar kelas diperbarui', false);
+    // 1. Panel Menu Utama & Navigasi Cepat (Jawab callback DULUAN agar tombol responsif instan!)
+    if (dataStr === 'mn:HOME') {
+      jawabCallbackTelegram_(cfg.token, cq.id, 'Membuka Menu Utama…', false);
+      const mPanel = bangunMenuUtamaTelegram_(isPimpinan, setting);
+      editTelegramMessage_(cfg.token, chatId, messageId, mPanel.text, mPanel.reply_markup);
       return;
     }
-    if (dataStr === 'kl:REKAP') {
-      const d = kumpulkanDataRekapTelegram_(setting);
-      const reply = isPimpinan ? bangunRekapPagiPimpinan_(d) : bangunRekapPagiWaliKelas_(d);
-      editTelegramMessage_(cfg.token, chatId, messageId, reply, {
-        inline_keyboard: [[{ text: '🏫 Lihat Rekap Per Kelas', callback_data: 'kl:LIST' }]]
-      });
-      jawabCallbackTelegram_(cfg.token, cq.id, 'Kembali ke rekap sekolah', false);
+    if (dataStr === 'mn:REKAP' || dataStr === 'kl:REKAP') {
+      jawabCallbackTelegram_(cfg.token, cq.id, '⏳ Memuat rekap sekolah…', false);
+      const rSek = bangunRekapSekolahTelegram_(isPimpinan, setting);
+      editTelegramMessage_(cfg.token, chatId, messageId, rSek.text, rSek.reply_markup);
+      return;
+    }
+    if (dataStr === 'mn:TELAT') {
+      jawabCallbackTelegram_(cfg.token, cq.id, '⏳ Memuat siswa terlambat…', false);
+      const rTlt = bangunRekapTelatTelegram_(setting);
+      editTelegramMessage_(cfg.token, chatId, messageId, rTlt.text, rTlt.reply_markup);
+      return;
+    }
+    if (dataStr === 'mn:BELUM') {
+      jawabCallbackTelegram_(cfg.token, cq.id, '⏳ Memuat siswa belum ada kabar…', false);
+      const rBlm = bangunRekapBelumTelegram_(setting);
+      editTelegramMessage_(cfg.token, chatId, messageId, rBlm.text, rBlm.reply_markup);
+      return;
+    }
+    if (dataStr === 'mn:GURU') {
+      if (!isPimpinan) {
+        jawabCallbackTelegram_(cfg.token, cq.id, '🔒 Kehadiran guru hanya tersedia di Grup Pimpinan & BK.', true);
+        return;
+      }
+      jawabCallbackTelegram_(cfg.token, cq.id, '⏳ Memuat kehadiran guru…', false);
+      const rGr = bangunRekapGuruTelegram_(setting);
+      editTelegramMessage_(cfg.token, chatId, messageId, rGr.text, rGr.reply_markup);
+      return;
+    }
+
+    // 2. Navigasi Rekap Per Kelas (Grup 1 & Grup 2)
+    if (dataStr === 'kl:LIST') {
+      jawabCallbackTelegram_(cfg.token, cq.id, '⏳ Memuat daftar kelas…', false);
+      const resKls = bangunDaftarKelasTelegram_(setting, '');
+      editTelegramMessage_(cfg.token, chatId, messageId, resKls.text, resKls.reply_markup);
       return;
     }
     if (dataStr.indexOf('kl:V:') === 0) {
       const kelasKey = dataStr.slice(5);
+      jawabCallbackTelegram_(cfg.token, cq.id, '⏳ Memuat kelas ' + kelasKey + '…', false);
       const det = bangunDetailKelasTelegram_(setting, kelasKey);
       editTelegramMessage_(cfg.token, chatId, messageId, det.text, det.reply_markup);
-      jawabCallbackTelegram_(cfg.token, cq.id, 'Menampilkan kelas ' + kelasKey, false);
       return;
     }
 
-    // 2. Refresh & Validasi OSIS (KHUSUS Grup 1 Pimpinan & BK)
+    // 3. Rekap Sholat & Deteksi Bolos Sholat (Grup 1 & Grup 2)
+    if (dataStr.indexOf('sh:') === 0) {
+      const shMode = dataStr.slice(3) || 'MAIN';
+      jawabCallbackTelegram_(cfg.token, cq.id, '⏳ Memuat rekap sholat…', false);
+      const rSh = bangunRekapSholatTelegram_(setting, shMode);
+      editTelegramMessage_(cfg.token, chatId, messageId, rSh.text, rSh.reply_markup);
+      return;
+    }
+
+    // 4. Pantauan Zona Poin Siswa (KHUSUS Grup 1 Pimpinan & BK)
+    if (dataStr.indexOf('zn:') === 0) {
+      if (!isPimpinan) {
+        jawabCallbackTelegram_(cfg.token, cq.id, '🔒 Pantauan zona poin hanya tersedia di Grup Pimpinan & BK.', true);
+        return;
+      }
+      const znMode = dataStr.slice(3) || 'HIGH';
+      jawabCallbackTelegram_(cfg.token, cq.id, '⏳ Menghitung zona poin siswa…', false);
+      const rZn = bangunRekapZonaTelegram_(setting, znMode);
+      editTelegramMessage_(cfg.token, chatId, messageId, rZn.text, rZn.reply_markup);
+      return;
+    }
+
+    // 5. Refresh & Validasi OSIS (KHUSUS Grup 1 Pimpinan & BK)
     if (dataStr === 'op:REF' || dataStr.indexOf('os:') === 0 || dataStr.indexOf('op:') === 0) {
       if (!isPimpinan) {
         jawabCallbackTelegram_(cfg.token, cq.id, '🔒 Fitur validasi OSIS hanya tersedia di Grup Pimpinan & BK.', true);
         return;
       }
       if (dataStr === 'op:REF') {
+        jawabCallbackTelegram_(cfg.token, cq.id, '⏳ Memperbarui antrean OSIS…', false);
         const pMsg = bangunPesanPendingTelegram_(setting, cfg);
         editTelegramMessage_(cfg.token, chatId, messageId, pMsg.text, pMsg.reply_markup);
-        jawabCallbackTelegram_(cfg.token, cq.id, 'Antrean diperbarui', false);
         return;
       }
       if (!cfg.validasiAktif) {
@@ -5205,7 +5980,7 @@ function handleTelegramCallback_(update) {
         return;
       }
 
-      const hasil = prosesValidasiOsisTelegram_(cfg, setting, act, targetId, fromUser);
+      const hasil = prosesValidasiOsisTelegram_(cfg, setting, act, targetId, fromUser, prefix === 'op');
       jawabCallbackTelegram_(cfg.token, cq.id, hasil.alertText || 'Selesai', !hasil.ok || hasil.diproses === 0);
 
       if (prefix === 'op') {

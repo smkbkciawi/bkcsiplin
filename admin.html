@@ -1241,8 +1241,12 @@
                       <label class="form-check-label small" for="set-tg-rekap-sore"><b>Rekap Penutup Sore (16:00 WIB)</b> — Kehadiran, Sholat &amp; Poin</label>
                     </div>
                     <div class="form-check mb-1">
+                      <input class="form-check-input" type="checkbox" id="set-tg-rekap-mingguan" checked>
+                      <label class="form-check-label small" for="set-tg-rekap-mingguan"><b>Rekap Mingguan (Jumat 16:00 WIB)</b> — Tren Kehadiran, Top 3 Kelas &amp; Zona</label>
+                    </div>
+                    <div class="form-check mb-1">
                       <input class="form-check-input" type="checkbox" id="set-tg-perintah" checked>
-                      <label class="form-check-label small" for="set-tg-perintah"><b>Perintah 2 Arah di Grup</b> (<code>/rekap</code>, <code>/kelas</code>, <code>/telat</code>, <code>/cek</code>, <code>/guru</code>, <code>/pending</code>, <code>/id</code>)</label>
+                      <label class="form-check-label small" for="set-tg-perintah"><b>Perintah 2 Arah &amp; Panel Menu</b> (<code>/menu</code>, <code>/rekap</code>, <code>/kelas</code>, <code>/sholat</code>, <code>/telat</code>, <code>/belum</code>, <code>/cek</code>, <code>/guru</code>, <code>/pending</code>, <code>/zona</code>, <code>/id</code>)</label>
                     </div>
                     <div class="form-check mb-0">
                       <input class="form-check-input" type="checkbox" id="set-tg-validasi" checked>
@@ -1260,12 +1264,13 @@
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-tg-webhook-off"><i class="fas fa-unlink mr-1"></i>Matikan Webhook</button>
                   </div>
                   <div class="d-flex flex-wrap mb-2" style="gap:.4rem">
-                    <button type="button" class="btn btn-sm btn-success font-weight-bold" id="btn-tg-jadwal-on"><i class="fas fa-clock mr-1"></i>Pasang Jadwal 08:00 &amp; 16:00</button>
+                    <button type="button" class="btn btn-sm btn-success font-weight-bold" id="btn-tg-jadwal-on"><i class="fas fa-clock mr-1"></i>Pasang Jadwal Harian &amp; Mingguan</button>
                     <button type="button" class="btn btn-sm btn-outline-danger" id="btn-tg-jadwal-off"><i class="fas fa-stop-circle mr-1"></i>Hapus Jadwal</button>
                   </div>
                   <div class="d-flex flex-wrap" style="gap:.4rem">
-                    <button type="button" class="btn btn-sm btn-outline-primary" id="btn-tg-kirim-pagi"><i class="fas fa-sun mr-1"></i>Kirim Rekap Pagi Sekarang</button>
-                    <button type="button" class="btn btn-sm btn-outline-warning" id="btn-tg-kirim-sore"><i class="fas fa-cloud-sun mr-1"></i>Kirim Rekap Sore Sekarang</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="btn-tg-kirim-pagi"><i class="fas fa-sun mr-1"></i>Kirim Rekap Pagi</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" id="btn-tg-kirim-sore"><i class="fas fa-cloud-sun mr-1"></i>Kirim Rekap Sore</button>
+                    <button type="button" class="btn btn-sm btn-outline-info" id="btn-tg-kirim-mingguan"><i class="fas fa-chart-bar mr-1"></i>Kirim Rekap Mingguan</button>
                   </div>
                 </div>
               </div>
@@ -4794,6 +4799,7 @@ async function loadPengaturan() {
     if ($('set-tg-notif-telat')) $('set-tg-notif-telat').checked = String(s.tg_notif_telat || 'YA').toUpperCase() === 'YA';
     if ($('set-tg-rekap-pagi')) $('set-tg-rekap-pagi').checked = String(s.tg_rekap_pagi || 'YA').toUpperCase() === 'YA';
     if ($('set-tg-rekap-sore')) $('set-tg-rekap-sore').checked = String(s.tg_rekap_sore || 'YA').toUpperCase() === 'YA';
+    if ($('set-tg-rekap-mingguan')) $('set-tg-rekap-mingguan').checked = String(s.tg_rekap_mingguan || 'YA').toUpperCase() === 'YA';
     if ($('set-tg-perintah')) $('set-tg-perintah').checked = String(s.tg_perintah_aktif || 'YA').toUpperCase() === 'YA';
     if ($('set-tg-validasi')) $('set-tg-validasi').checked = String(s.tg_validasi_aktif || 'YA').toUpperCase() === 'YA';
     if ($('set-tg-validator-ids')) $('set-tg-validator-ids').value = s.tg_validator_ids || '';
@@ -4840,6 +4846,7 @@ $('btn-simpan-pengaturan').addEventListener('click', async () => {
     tg_notif_telat: ($('set-tg-notif-telat') && $('set-tg-notif-telat').checked) ? 'YA' : 'TIDAK',
     tg_rekap_pagi: ($('set-tg-rekap-pagi') && $('set-tg-rekap-pagi').checked) ? 'YA' : 'TIDAK',
     tg_rekap_sore: ($('set-tg-rekap-sore') && $('set-tg-rekap-sore').checked) ? 'YA' : 'TIDAK',
+    tg_rekap_mingguan: ($('set-tg-rekap-mingguan') && $('set-tg-rekap-mingguan').checked) ? 'YA' : 'TIDAK',
     tg_perintah_aktif: ($('set-tg-perintah') && $('set-tg-perintah').checked) ? 'YA' : 'TIDAK',
     tg_validasi_aktif: ($('set-tg-validasi') && $('set-tg-validasi').checked) ? 'YA' : 'TIDAK',
     tg_validator_ids: $('set-tg-validator-ids') ? $('set-tg-validator-ids').value.trim() : ''
@@ -4995,6 +5002,12 @@ if ($('btn-tg-kirim-pagi')) {
 if ($('btn-tg-kirim-sore')) {
   $('btn-tg-kirim-sore').addEventListener('click', () => {
     jalankanAksiTelegram_('btn-tg-kirim-sore', 'Mengirim…', 'kirimRekapTelegramManual', { jenis: 'sore' });
+  });
+}
+
+if ($('btn-tg-kirim-mingguan')) {
+  $('btn-tg-kirim-mingguan').addEventListener('click', () => {
+    jalankanAksiTelegram_('btn-tg-kirim-mingguan', 'Mengirim…', 'kirimRekapTelegramManual', { jenis: 'mingguan' });
   });
 }
 

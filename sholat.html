@@ -117,8 +117,10 @@
 
   .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1rem}
   .modal-overlay.show{display:flex}
-  .modal{width:100%;max-width:410px;background:#fff;border-radius:20px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto}
-  .modal h2{text-align:center;margin-bottom:1rem;color:var(--emerald);font-size:1.15rem}
+  .modal{position:relative;width:100%;max-width:410px;background:#fff;border-radius:20px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto}
+  .modal-close-x{position:absolute;top:.9rem;right:.9rem;width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:#F0FDF4;color:var(--emerald-d);font-size:1.25rem;font-weight:700;line-height:1;cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .modal-close-x:hover{background:var(--emerald);color:#fff;border-color:var(--emerald)}
+  .modal h2{text-align:center;margin-bottom:1rem;color:var(--emerald);font-size:1.15rem;padding-right:1.5rem;padding-left:1.5rem}
   .field{margin-bottom:.9rem}
   .field label{display:block;font-size:.73rem;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:.3rem}
   .field input,.field select{width:100%;padding:.78rem;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-weight:600;outline:none;font-size:.92rem;background:#fff}
@@ -131,6 +133,8 @@
   .btn-full{width:100%;padding:.9rem;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;margin-top:.45rem}
   .btn-primary-full{background:var(--emerald);color:#fff}
   .btn-secondary-full{background:#F1F5F9;color:#475569;margin-top:.5rem}
+  .btn-home-link{background:transparent;border:1.5px solid var(--border);color:var(--emerald-d);margin-top:.45rem;padding:.72rem;font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;gap:.45rem}
+  .btn-home-link:hover{background:#ECFDF5}
   .role-note{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:10px;padding:.6rem .8rem;font-size:.78rem;font-weight:600;line-height:1.45;text-align:center;margin-bottom:.85rem}
   .modal.modal-wide{max-width:650px}
   .guide-list{display:flex;flex-direction:column;gap:.7rem;margin:.85rem 0 1rem}
@@ -442,6 +446,7 @@
 
 <div class="modal-overlay show" id="modal-login">
   <div class="modal">
+    <button type="button" class="modal-close-x" onclick="window.BKC_SSO ? BKC_SSO.goHome() : (location.href='index.html')" title="Tutup &amp; Kembali ke Beranda" aria-label="Kembali ke Beranda">&times;</button>
     <h2><i class="fas fa-mosque"></i> Login Petugas E-Sholat</h2>
     <div class="role-note">Role login: <b>GURU_PIKET, WALI_KELAS, GURU_BK, WAKA_KESISWAAN, KEPSEK, SUPER_ADMIN</b>.<br>Tab <b>Laporan</b> tersedia untuk Wali Kelas (kelas binaan), BK, Waka, Kepsek, &amp; Super Admin.</div>
     <div id="login-alert" style="color:#EF4444;font-size:.85rem;font-weight:700;text-align:center;margin-bottom:.8rem;display:none"></div>
@@ -450,6 +455,7 @@
     <label class="remember-row"><input type="checkbox" id="login-remember"> Ingat saya di perangkat ini</label>
     <button type="button" class="btn-full btn-primary-full" id="btn-login">Masuk</button>
     <button type="button" class="btn-full btn-secondary-full" id="btn-panduan-login"><i class="fas fa-book-open"></i> Panduan &amp; Pembagian Role</button>
+    <button type="button" class="btn-full btn-home-link" onclick="window.BKC_SSO ? BKC_SSO.goHome() : (location.href='index.html')"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
   </div>
 </div>
 
@@ -861,6 +867,7 @@ async function doLogin() {
       localStorage.removeItem('bkc_sholat_role');
       localStorage.removeItem('bkc_sholat_kelas_ampu');
     }
+    if (window.BKC_SSO) BKC_SSO.clearAllLoggedOut();
     simpanSesi(res.data.token, res.data.nama, res.data.role, res.data.kelas_ampu || []);
     toast('Selamat datang, ' + state.nama);
     await onLoggedIn();
@@ -882,7 +889,7 @@ if ($('btn-toggle-pin')) {
   });
 }
 
-function doLogout(silent = false) {
+function doLogout(silent = false, goHomeOnManual = false) {
   clearInterval(state.idleCountdownTimer);
   state.idleCountdownTimer = null;
   if ($('modal-confirm-sholat')) $('modal-confirm-sholat').classList.remove('show');
@@ -896,6 +903,15 @@ function doLogout(silent = false) {
   localStorage.removeItem('bkc_sholat_kelas_ampu');
   state.token=''; state.nama=''; state.role=''; state.kelasAmpu=[];
   hentikanIdleWatcher(); hentikanHeartbeat(); stopKamera();
+  if (goHomeOnManual) {
+    if (window.BKC_SSO) {
+      BKC_SSO.markLoggedOut('sholat');
+      BKC_SSO.goHome('Berhasil keluar dari E-Sholat.');
+      return;
+    }
+    window.location.href = 'index.html';
+    return;
+  }
   $('modal-login').classList.add('show');
   $('user-label').textContent = 'Belum login';
   $('btn-logout').style.display = 'none';
@@ -906,7 +922,7 @@ function doLogout(silent = false) {
   else { if (!silent) $('login-user').focus(); }
 }
 $('btn-logout').addEventListener('click', async ()=>{
-  if (await askConfirmSholat('Keluar E-Sholat', 'Keluar dari akun E-Sholat saat ini?', 'Ya, Logout', true)) doLogout();
+  if (await askConfirmSholat('Keluar E-Sholat', 'Keluar dari akun E-Sholat saat ini?', 'Ya, Logout', true)) doLogout(false, true);
 });
 
 // ============ IDLE & HEARTBEAT ============
@@ -1728,21 +1744,46 @@ if (remSholat) {
 }
 
 (async function verifyAutoLogin() {
+  let fromSSO = false;
+  let ssoPersisted = false;
+  if (!state.token && window.BKC_SSO) {
+    const cand = BKC_SSO.findCandidate('sholat');
+    if (cand) {
+      state.token = cand.token;
+      state.nama = cand.nama;
+      state.role = cand.role;
+      fromSSO = true;
+      ssoPersisted = cand.persisted;
+    }
+  }
   if (!state.token) {
     autoPilihWaktuSholat();
     return;
   }
   try {
     const hb = await apiCall('heartbeat');
-    if (!hb || !hb.ok) {
-      doLogout(true);
+    const serverRole = (hb && hb.data && hb.data.role) || state.role;
+    const roleOk = !window.BKC_SSO || BKC_SSO.roleAllowed('sholat', serverRole);
+    if (!hb || !hb.ok || !roleOk) {
+      if (fromSSO) {
+        state.token = ''; state.nama = ''; state.role = ''; state.kelasAmpu = [];
+      } else {
+        doLogout(true);
+      }
       autoPilihWaktuSholat();
       return;
     }
     const d = hb.data || {};
+    if (fromSSO && ssoPersisted && $('login-remember')) $('login-remember').checked = true;
     simpanSesi(state.token, d.nama || state.nama, d.role || state.role, d.kelas_ampu || state.kelasAmpu);
     await onLoggedIn();
+    if (fromSSO) toast('Masuk otomatis sebagai ' + state.nama);
   } catch(e) {
+    if (fromSSO) {
+      state.token = ''; state.nama = ''; state.role = ''; state.kelasAmpu = [];
+      autoPilihWaktuSholat();
+      return;
+    }
     // Jika offline sementara saat load, tetap pakai sesi cached supaya bisa retry
     await onLoggedIn();
   }
@@ -1754,6 +1795,7 @@ if ($('btn-panduan-login')) $('btn-panduan-login').addEventListener('click', buk
 $('btn-tutup-panduan').addEventListener('click', tutupPanduanSholat);
 $('modal-panduan').addEventListener('click', (e) => { if (e.target === $('modal-panduan')) tutupPanduanSholat(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('modal-panduan').classList.contains('show')) tutupPanduanSholat(); });
+if (window.BKC_SSO) BKC_SSO.bindLoginEsc('modal-login', ['modal-panduan', 'modal-konfirmasi-udzur', 'modal-confirm-sholat']);
 </script>
 </body>
 </html>

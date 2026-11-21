@@ -79,7 +79,9 @@
 
   .overlay-modal{position:fixed;inset:0;z-index:2000;background:rgba(3,7,20,.88);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
   .overlay-modal.show{display:flex}
-  .overlay-box{width:100%;max-width:450px;background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:boxIn .3s ease;margin:auto;max-height:90vh;overflow-y:auto}
+  .overlay-box{position:relative;width:100%;max-width:450px;background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:boxIn .3s ease;margin:auto;max-height:90vh;overflow-y:auto}
+  .modal-close-x{position:absolute;top:.85rem;right:.85rem;width:34px;height:34px;border-radius:10px;border:1px solid #DBEAFE;background:#EFF6FF;color:#1E3A8A;font-size:1.25rem;font-weight:700;line-height:1;cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .modal-close-x:hover{background:#1E3A8A;color:#fff;border-color:#1E3A8A}
   .overlay-box.wide{max-width:700px}
   .overlay-box.xwide{max-width:1000px}
   @keyframes boxIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
@@ -100,6 +102,8 @@
   .btn-primary-full:hover{transform:translateY(-1px);color:#fff}
   .btn-primary-full:disabled{opacity:.6;cursor:not-allowed;transform:none}
   .btn-secondary-full{width:100%;padding:.75rem;margin-top:.4rem;background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:8px;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
+  .btn-home-link{width:100%;padding:.7rem;margin-top:.4rem;background:transparent;color:#1E3A8A;border:1.5px solid #BFDBFE;border-radius:8px;font-family:inherit;font-weight:700;font-size:.84rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.45rem}
+  .btn-home-link:hover{background:#EFF6FF}
   .role-note{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E3A8A;border-radius:10px;padding:.6rem .75rem;font-size:.75rem;font-weight:600;line-height:1.5;margin-bottom:.85rem;text-align:left}
   .guide-list{display:flex;flex-direction:column;gap:.7rem;margin:.75rem 0 1rem}
   .guide-step{background:#F8FAFF;border:1px solid #E5EEFF;border-radius:12px;padding:.85rem 1rem}
@@ -1341,6 +1345,7 @@
 <!-- MODAL LOGIN -->
 <div class="overlay-modal show" id="modal-login">
   <div class="overlay-box">
+    <button type="button" class="modal-close-x" onclick="window.BKC_SSO ? BKC_SSO.goHome() : (location.href='index.html')" title="Tutup &amp; Kembali ke Beranda" aria-label="Kembali ke Beranda">&times;</button>
     <div class="overlay-logo">BK</div>
     <h2>Login Portal Admin</h2>
     <p class="sub" style="margin-bottom:.65rem">Masuk menggunakan ID Guru / Nama dan PIN.</p>
@@ -1357,6 +1362,7 @@
     <label class="remember-row"><input type="checkbox" id="login-remember"> Ingat saya di perangkat ini</label>
     <button class="btn-primary-full" id="btn-login">Masuk</button>
     <button type="button" class="btn-secondary-full" id="btn-panduan-login"><i class="fas fa-book-open mr-1"></i> Baca Panduan &amp; Hak Akses Role</button>
+    <button type="button" class="btn-home-link" onclick="window.BKC_SSO ? BKC_SSO.goHome() : (location.href='index.html')"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
   </div>
 </div>
 
@@ -1898,6 +1904,7 @@ async function doLogin() {
       localStorage.removeItem('bkc_admin_nama');
       localStorage.removeItem('bkc_admin_role');
     }
+    if (window.BKC_SSO) BKC_SSO.clearAllLoggedOut();
     $('modal-login').classList.remove('show');
     await afterLogin();
     toast('Selamat datang, ' + state.petugas);
@@ -1935,7 +1942,7 @@ async function afterLogin() {
   loadPage('dashboard');
 }
 
-async function doLogout(reason) {
+async function doLogout(reason, goHomeOnManual = false) {
   try { await apiCall('logout', { alasan: reason || 'Logout' }, true); } catch (_) {}
   sessionStorage.removeItem('bkc_admin_token');
   sessionStorage.removeItem('bkc_admin_nama');
@@ -1944,8 +1951,17 @@ async function doLogout(reason) {
   localStorage.removeItem('bkc_admin_nama');
   localStorage.removeItem('bkc_admin_role');
   state.token = ''; state.role = ''; state.petugas = '';
-  if (window.bkcRefreshNav) window.bkcRefreshNav();
   hentikanIdleWatcher(); hentikanHeartbeat();
+  if (goHomeOnManual) {
+    if (window.BKC_SSO) {
+      BKC_SSO.markLoggedOut('admin');
+      BKC_SSO.goHome('Berhasil keluar dari Portal Admin.');
+      return;
+    }
+    window.location.href = 'index.html';
+    return;
+  }
+  if (window.bkcRefreshNav) window.bkcRefreshNav();
   $('user-pill').style.display = 'none';
   $('sesi-pill').style.display = 'none';
   $('btn-logout').style.display = 'none';
@@ -1974,12 +1990,13 @@ if ($('btn-panduan-login')) $('btn-panduan-login').addEventListener('click', buk
 if ($('btn-tutup-panduan')) $('btn-tutup-panduan').addEventListener('click', tutupPanduanAdmin);
 if ($('modal-panduan')) $('modal-panduan').addEventListener('click', (e) => { if (e.target === $('modal-panduan')) tutupPanduanAdmin(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('modal-panduan') && $('modal-panduan').classList.contains('show')) tutupPanduanAdmin(); });
+if (window.BKC_SSO) BKC_SSO.bindLoginEsc('modal-login', ['modal-panduan', 'modal-idle', 'modal-konfirmasi']);
 $('btn-logout').addEventListener('click', async () => {
   if (await askConfirm('Keluar dari Sistem', 'Apakah Anda yakin ingin logout dari Portal Admin?', 'Ya, Logout', 'btn-danger')) {
-    doLogout('Manual');
+    doLogout('Manual', true);
   }
 });
-$('btn-logout-now').addEventListener('click', () => doLogout('Idle'));
+$('btn-logout-now').addEventListener('click', () => doLogout('Idle', false));
 
 // ============ ROLE MENU ============
 function terapkanRoleMenu() {
@@ -5573,24 +5590,62 @@ async function jalankanCetakMassalRaport_() {
   }
 }
 
-// ============ INIT ============
+// ============ INIT (+ AUTO-LOGIN LINTAS PORTAL) ============
 window.addEventListener('load', async () => {
   const remAdmin = localStorage.getItem('bkc_rem_admin');
   if (remAdmin) {
     $('login-user').value = remAdmin;
     if ($('login-remember')) $('login-remember').checked = true;
   }
+  let fromSSO = false;
+  let ssoPersisted = false;
+  if (!state.token && window.BKC_SSO) {
+    const cand = BKC_SSO.findCandidate('admin');
+    if (cand) {
+      state.token = cand.token;
+      state.petugas = cand.nama;
+      state.role = cand.role;
+      fromSSO = true;
+      ssoPersisted = cand.persisted;
+    }
+  }
   if (state.token) {
-    sessionStorage.setItem('bkc_admin_token', state.token);
-    if (state.petugas) sessionStorage.setItem('bkc_admin_nama', state.petugas);
-    if (state.role) sessionStorage.setItem('bkc_admin_role', state.role);
     try {
       const res = await apiCall('heartbeat');
-      if (res.ok) {
+      const serverRole = (res && res.data && res.data.role) || state.role;
+      const roleOk = !window.BKC_SSO || BKC_SSO.roleAllowed('admin', serverRole);
+      if (res && res.ok && roleOk) {
+        if (res.data && res.data.nama) {
+          state.petugas = res.data.nama;
+          state.role = res.data.role || state.role;
+        }
+        sessionStorage.setItem('bkc_admin_token', state.token);
+        if (state.petugas) sessionStorage.setItem('bkc_admin_nama', state.petugas);
+        if (state.role) sessionStorage.setItem('bkc_admin_role', state.role);
+        if (fromSSO && ssoPersisted) {
+          localStorage.setItem('bkc_admin_token', state.token);
+          if (state.petugas) localStorage.setItem('bkc_admin_nama', state.petugas);
+          if (state.role) localStorage.setItem('bkc_admin_role', state.role);
+        }
         $('modal-login').classList.remove('show');
         await afterLogin();
-      } else { doLogout('Token expired'); }
-    } catch (e) { doLogout('Koneksi gagal'); }
+        if (fromSSO) toast('Masuk otomatis sebagai ' + state.petugas);
+      } else {
+        if (fromSSO) {
+          state.token = ''; state.petugas = ''; state.role = '';
+          $('modal-login').classList.add('show');
+        } else {
+          doLogout('Token expired');
+        }
+      }
+    } catch (e) {
+      if (fromSSO) {
+        state.token = ''; state.petugas = ''; state.role = '';
+        $('modal-login').classList.add('show');
+      } else {
+        doLogout('Koneksi gagal');
+      }
+    }
   } else {
     $('modal-login').classList.add('show');
     setTimeout(() => $(remAdmin ? 'login-pin' : 'login-user').focus(), 300);

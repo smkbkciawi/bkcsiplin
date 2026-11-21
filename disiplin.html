@@ -579,7 +579,8 @@
 <!-- MODAL LOGIN -->
 <div class="modal-overlay show" id="modal-login">
   <div class="modal">
-    <h2><i class="fas fa-balance-scale"></i> Login Petugas / Wali Kelas</h2>
+    <button class="modal-close" type="button" onclick="window.BKC_SSO ? BKC_SSO.goHome() : (location.href='index.html')" title="Tutup &amp; Kembali ke Beranda" aria-label="Kembali ke Beranda">×</button>
+    <h2 style="padding:0 1.5rem"><i class="fas fa-balance-scale"></i> Login Petugas / Wali Kelas</h2>
     <div class="role-note">Role login: <b>GURU_BK, WAKA_KESISWAAN, KEPSEK, SUPER_ADMIN</b> (akses penuh + validasi), <b>WALI_KELAS</b> (kelas binaan), &amp; <b>PETUGAS_OSIS</b> (khusus lapor pelanggaran, wajib validasi BK/Wakasis).<br>Siswa / Orang Tua gunakan <b>Cek Poin Saya</b> tanpa perlu login.</div>
     <div id="login-alert" style="color:#EF4444;font-size:.85rem;font-weight:700;text-align:center;margin-bottom:.8rem;display:none"></div>
     <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="G003" autocomplete="username"></div>
@@ -589,6 +590,7 @@
     <button class="btn-login-baru" id="btn-login" type="button" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button>
     <button class="btn-cek-poin-baru" type="button" onclick="bukaCekPoin()"><i class="fas fa-search"></i> Cek Poin Saya (Siswa)</button>
     <button class="btn-secondary-full" type="button" onclick="bukaPanduanDisiplin()" style="margin-top:.55rem;padding:.72rem;font-size:.84rem"><i class="fas fa-book-open"></i> Panduan &amp; Pembagian Role</button>
+    <button class="btn-secondary-full" type="button" onclick="window.BKC_SSO ? BKC_SSO.goHome() : (location.href='index.html')" style="margin-top:.45rem;padding:.72rem;font-size:.84rem;background:transparent;border:1.5px solid var(--border);color:var(--maroon)"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
   </div>
 </div>
 
@@ -1014,6 +1016,7 @@ async function doLogin() {
       localStorage.removeItem('bkc_disiplin_role');
     }
 
+    if (window.BKC_SSO) BKC_SSO.clearAllLoggedOut();
     tutupModal('modal-login');
     applyUserSessionUI();
     toast('Selamat datang, ' + state.nama);
@@ -1051,12 +1054,21 @@ function clearAuthTokens() {
 
 async function confirmLogout() {
   if (await askConfirmDisiplin('Keluar Akun', 'Yakin ingin keluar dari modul Kedisiplinan?', 'Ya, Logout', true)) {
-    doLogout();
+    doLogout('', true);
   }
 }
 
-function doLogout(expiredMsg) {
+function doLogout(expiredMsg, goHomeOnManual = false) {
   clearAuthTokens();
+  if (goHomeOnManual) {
+    if (window.BKC_SSO) {
+      BKC_SSO.markLoggedOut('disiplin');
+      BKC_SSO.goHome('Berhasil keluar dari Kedisiplinan.');
+      return;
+    }
+    window.location.href = 'index.html';
+    return;
+  }
   if (window.bkcRefreshNav) window.bkcRefreshNav();
   $('modal-login').classList.add('show');
   $('user-label').textContent = 'Belum login';
@@ -2370,19 +2382,37 @@ async function simpanKoreksi() {
   finally { btn.disabled = false; }
 }
 
-// INIT + CEK TOKEN HEARTBEAT
+// INIT + CEK TOKEN HEARTBEAT (+ AUTO-LOGIN LINTAS PORTAL)
 (async function init() {
   const remDisiplin = localStorage.getItem('bkc_rem_disiplin');
   if (remDisiplin) {
     $('login-user').value = remDisiplin;
     if ($('login-remember')) $('login-remember').checked = true;
   }
+  let fromSSO = false;
+  let ssoPersisted = false;
+  if (!state.token && window.BKC_SSO) {
+    const cand = BKC_SSO.findCandidate('disiplin');
+    if (cand) {
+      state.token = cand.token;
+      state.nama = cand.nama;
+      state.role = cand.role;
+      fromSSO = true;
+      ssoPersisted = cand.persisted;
+    }
+  }
   if (!state.token) return;
 
   try {
     const hb = await apiCall('heartbeat');
-    if (!hb || !hb.ok) {
-      doLogout('Sesi sebelumnya sudah kedaluwarsa, silakan login kembali.');
+    const serverRole = (hb && hb.data && hb.data.role) || state.role;
+    const roleOk = !window.BKC_SSO || BKC_SSO.roleAllowed('disiplin', serverRole);
+    if (!hb || !hb.ok || !roleOk) {
+      if (fromSSO) {
+        state.token = ''; state.nama = ''; state.role = '';
+      } else {
+        doLogout('Sesi sebelumnya sudah kedaluwarsa, silakan login kembali.');
+      }
       return;
     }
     if (hb.data && hb.data.nama) {
@@ -2392,10 +2422,20 @@ async function simpanKoreksi() {
     sessionStorage.setItem('bkc_disiplin_token', state.token);
     if (state.nama) sessionStorage.setItem('bkc_disiplin_nama', state.nama);
     if (state.role) sessionStorage.setItem('bkc_disiplin_role', state.role);
+    if (fromSSO && ssoPersisted) {
+      localStorage.setItem('bkc_disiplin_token', state.token);
+      if (state.nama) localStorage.setItem('bkc_disiplin_nama', state.nama);
+      if (state.role) localStorage.setItem('bkc_disiplin_role', state.role);
+    }
     tutupModal('modal-login');
     applyUserSessionUI();
+    if (fromSSO) toast('Masuk otomatis sebagai ' + state.nama);
     await initAfterAuth();
   } catch (e) {
+    if (fromSSO) {
+      state.token = ''; state.nama = ''; state.role = '';
+      return;
+    }
     // Tetap biarkan user masuk jika hanya gangguan jaringan sementara, tapi muat data
     sessionStorage.setItem('bkc_disiplin_token', state.token);
     if (state.nama) sessionStorage.setItem('bkc_disiplin_nama', state.nama);
@@ -2408,8 +2448,11 @@ async function simpanKoreksi() {
 function bukaPanduanDisiplin() { $('modal-panduan').classList.add('show'); }
 function tutupPanduanDisiplin() { $('modal-panduan').classList.remove('show'); }
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && $('modal-panduan') && $('modal-panduan').classList.contains('show')) tutupPanduanDisiplin();
+  if (e.key !== 'Escape') return;
+  if ($('modal-panduan') && $('modal-panduan').classList.contains('show')) { tutupPanduanDisiplin(); return; }
+  if ($('modal-cek-poin') && $('modal-cek-poin').classList.contains('show')) { tutupModal('modal-cek-poin'); return; }
 });
+if (window.BKC_SSO) BKC_SSO.bindLoginEsc('modal-login', ['modal-panduan', 'modal-cek-poin', 'modal-confirm-disiplin']);
 </script>
 
 <div class="modal-overlay" id="modal-panduan" style="z-index:2500" onclick="if(event.target===this)tutupPanduanDisiplin()">

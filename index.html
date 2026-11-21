@@ -626,6 +626,34 @@
     .session-bar.show { width: 100%; justify-content: space-between; }
   }
 
+  /* FLASH TOAST (KEMBALI DARI LOGOUT PORTAL) */
+  .bkc-flash-toast {
+    position: fixed;
+    top: 76px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    z-index: 90;
+    background: #047857;
+    color: #FFFFFF;
+    padding: .72rem 1.2rem;
+    border-radius: 12px;
+    font-size: .85rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    box-shadow: 0 12px 32px rgba(4, 120, 87, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .22s ease, transform .22s ease;
+    max-width: calc(100vw - 2rem);
+    text-align: center;
+  }
+  .bkc-flash-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
   /* MODAL PANDUAN (LIGHT & DARK SAFE) */
   .modal-overlay {
     position: fixed;
@@ -964,6 +992,24 @@ function cekLogin() {
   link.href = user.url;
   link.innerHTML = `Lanjut ke ${user.modul} <i class="fas fa-arrow-right"></i>`;
   document.getElementById('session-bar').classList.add('show');
+})();
+
+// ============ NOTIFIKASI SINGKAT SETELAH LOGOUT MANUAL ============
+(function showFlashToast() {
+  if (!window.BKC_SSO) return;
+  const msg = window.BKC_SSO.consumeFlash();
+  if (!msg) return;
+  const el = document.createElement('div');
+  el.className = 'bkc-flash-toast';
+  el.setAttribute('role', 'status');
+  el.innerHTML = `<i class="fas fa-check-circle"></i><span></span>`;
+  el.querySelector('span').textContent = msg;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 300);
+  }, 3200);
 })();
 
 // ============ STATUS SERVER DENGAN TIMEOUT ============

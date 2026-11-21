@@ -120,7 +120,9 @@
 
   .modal-overlay{position:fixed;inset:0;z-index:100;background:radial-gradient(800px 500px at 50% 20%, rgba(29,78,216,.35), transparent 60%), rgba(3,7,20,.92);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:1rem}
   .modal-overlay.show{display:flex}
-  .modal{width:100%;max-width:420px;background:linear-gradient(180deg,#0E1C42,#0A1533);border:1px solid var(--border);border-radius:22px;padding:2rem 1.7rem 1.7rem;box-shadow:0 40px 80px rgba(0,0,0,.6);animation:modalIn .3s ease}
+  .modal{position:relative;width:100%;max-width:420px;background:linear-gradient(180deg,#0E1C42,#0A1533);border:1px solid var(--border);border-radius:22px;padding:2rem 1.7rem 1.7rem;box-shadow:0 40px 80px rgba(0,0,0,.6);animation:modalIn .3s ease}
+  .modal-close-x{position:absolute;top:.9rem;right:.9rem;width:34px;height:34px;border-radius:10px;background:rgba(148,163,184,.14);border:1px solid rgba(148,163,184,.32);color:#E2E8F0;font-size:1.25rem;font-weight:700;line-height:1;cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .modal-close-x:hover{background:rgba(59,130,246,.32);border-color:var(--accent-2);color:#fff}
   @keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
   .modal-logo{width:56px;height:56px;border-radius:16px;margin:0 auto 1rem;background:linear-gradient(135deg,var(--accent),#1E40AF);display:grid;place-items:center;font-weight:900;font-size:1.2rem;box-shadow:0 10px 30px rgba(59,130,246,.4)}
   .modal h2{font-size:1.25rem;text-align:center;margin-bottom:.25rem}
@@ -254,6 +256,7 @@
 
 <div class="modal-overlay show" id="login-modal">
   <div class="modal">
+    <button type="button" class="modal-close-x" onclick="window.BKC_SSO ? BKC_SSO.goHome() : (location.href='index.html')" title="Tutup &amp; Kembali ke Beranda" aria-label="Kembali ke Beranda">&times;</button>
     <div class="modal-logo">BK</div>
     <h2>Login Petugas Gerbang</h2>
     <p class="sub">Role diizinkan: <b>GURU_PIKET</b> atau <b>SUPER_ADMIN</b>.<br>Mode ini mengirim tap langsung online ke server.</p>
@@ -263,6 +266,7 @@
     <label class="remember-row"><input type="checkbox" id="login-remember"> Ingat saya di perangkat ini</label>
     <button class="btn-primary" id="btn-login">Masuk &amp; Buka Kios</button>
     <button type="button" id="btn-panduan-login" style="width:100%;padding:.72rem;margin-top:.5rem;background:rgba(148,163,184,.12);color:#CBD5E1;border:1px solid rgba(148,163,184,.28);border-radius:12px;font-family:inherit;font-weight:700;font-size:.82rem;cursor:pointer">📖 Baca Panduan &amp; Role Login</button>
+    <button type="button" onclick="window.BKC_SSO ? BKC_SSO.goHome() : (location.href='index.html')" style="width:100%;padding:.7rem;margin-top:.45rem;background:transparent;color:#93C5FD;border:1px solid rgba(96,165,250,.35);border-radius:12px;font-family:inherit;font-weight:700;font-size:.82rem;cursor:pointer">← Kembali ke Beranda</button>
   </div>
 </div>
 
@@ -480,6 +484,7 @@ async function doLogin() {
     state.token = res.data.token; 
     state.petugas = res.data.nama; 
     state.role = res.data.role;
+    if (window.BKC_SSO) BKC_SSO.clearAllLoggedOut();
     
     sessionStorage.setItem('bkc_token', state.token); 
     sessionStorage.setItem('bkc_petugas', state.petugas); 
@@ -542,6 +547,7 @@ async function doLogout(reason) {
   try { await apiCall('logout', { alasan: reason || 'Logout manual' }, true); } catch (_) {}
   sessionStorage.removeItem('bkc_token'); sessionStorage.removeItem('bkc_petugas'); sessionStorage.removeItem('bkc_role');
   localStorage.removeItem('bkc_token'); localStorage.removeItem('bkc_petugas'); localStorage.removeItem('bkc_role');
+  if (window.BKC_SSO && reason === 'Logout manual') BKC_SSO.markLoggedOut('gerbang');
   state.token = ''; state.petugas = ''; state.role = '';
   if (window.bkcRefreshNav) window.bkcRefreshNav();
   hentikanIdleWatcher(); hentikanHeartbeat();
@@ -551,6 +557,7 @@ async function doLogout(reason) {
   if (rem) { $('login-user').value = rem; if ($('login-remember')) $('login-remember').checked = true; $('login-pin').focus(); }
   else { $('login-user').focus(); }
   tampilStatus('', 'Menunggu kartu…', 'Silakan login untuk membuka kios.', '');
+  if (reason === 'Logout manual') toast('Berhasil keluar. Silakan login petugas berikutnya.');
 }
 $('btn-logout').addEventListener('click', () => { $('confirm-modal').classList.add('show'); });
 $('btn-confirm-cancel').addEventListener('click', () => { $('confirm-modal').classList.remove('show'); fokusRFID(); });
@@ -781,18 +788,50 @@ function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;'
     $('login-user').value = rem;
     if ($('login-remember')) $('login-remember').checked = true;
   }
+  let fromSSO = false;
+  let ssoPersisted = false;
+  if (!state.token && window.BKC_SSO) {
+    const cand = BKC_SSO.findCandidate('gerbang');
+    if (cand) {
+      state.token = cand.token;
+      state.petugas = cand.nama;
+      state.role = cand.role;
+      fromSSO = true;
+      ssoPersisted = cand.persisted;
+    }
+  }
   if (state.token) {
-    sessionStorage.setItem('bkc_token', state.token);
-    if (state.petugas) sessionStorage.setItem('bkc_petugas', state.petugas);
-    if (state.role) sessionStorage.setItem('bkc_role', state.role);
     apiCall('heartbeat').then(r => {
-      if (r.ok) {
+      const serverRole = (r && r.data && r.data.role) || state.role;
+      const roleOk = !window.BKC_SSO || BKC_SSO.roleAllowed('gerbang', serverRole);
+      if (r && r.ok && roleOk) {
+        if (r.data && r.data.nama) {
+          state.petugas = r.data.nama;
+          state.role = r.data.role || state.role;
+        }
+        sessionStorage.setItem('bkc_token', state.token);
+        if (state.petugas) sessionStorage.setItem('bkc_petugas', state.petugas);
+        if (state.role) sessionStorage.setItem('bkc_role', state.role);
+        if (fromSSO && ssoPersisted) {
+          localStorage.setItem('bkc_token', state.token);
+          if (state.petugas) localStorage.setItem('bkc_petugas', state.petugas);
+          if (state.role) localStorage.setItem('bkc_role', state.role);
+        }
         $('petugas-label').textContent = state.petugas; $('sesi-pill').style.display = 'inline-flex'; $('login-modal').classList.remove('show');
         tampilStatus('ok', 'Siap menerima presensi', `Petugas: ${state.petugas}`, 'KIOS AKTIF');
         if (window.bkcRefreshNav) window.bkcRefreshNav();
+        if (fromSSO) toast('Masuk otomatis sebagai ' + state.petugas);
         mulaiIdleWatcher(); mulaiHeartbeat(); fokusRFID();
-      } else doLogout('Token tidak valid');
-    }).catch(() => $('login-modal').classList.add('show'));
+      } else if (fromSSO) {
+        state.token = ''; state.petugas = ''; state.role = '';
+        $('login-modal').classList.add('show');
+      } else {
+        doLogout('Token tidak valid');
+      }
+    }).catch(() => {
+      if (fromSSO) { state.token = ''; state.petugas = ''; state.role = ''; }
+      $('login-modal').classList.add('show');
+    });
   } else {
     $('login-modal').classList.add('show'); setTimeout(() => $(rem ? 'login-pin' : 'login-user').focus(), 300);
   }
@@ -807,6 +846,7 @@ if ($('btn-panduan-login')) $('btn-panduan-login').addEventListener('click', buk
 $('btn-tutup-panduan').addEventListener('click', tutupPanduan);
 $('modal-panduan').addEventListener('click', (e) => { if (e.target === $('modal-panduan')) tutupPanduan(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('modal-panduan').classList.contains('show')) tutupPanduan(); });
+if (window.BKC_SSO) BKC_SSO.bindLoginEsc('login-modal', ['modal-panduan', 'confirm-modal', 'idle-modal']);
 </script>
 </body>
 </html>

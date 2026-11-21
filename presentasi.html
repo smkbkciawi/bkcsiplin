@@ -3,743 +3,2645 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Presentasi BKCSiplin — SMK Bhakti Kencana Ciawi</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<title>Presentasi & Buku Pedoman BKCSiplin — SMK Bhakti Kencana Ciawi</title>
+<meta name="description" content="Presentasi resmi dan buku pedoman lengkap penggunaan sistem informasi kedisiplinan dan kehadiran BKCSiplin SMK Bhakti Kencana Ciawi, siap unduh PDF.">
+<link rel="icon" type="image/png" href="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js" defer></script>
+
 <style>
-  :root{
-    --bg:#0A1533; --bg-2:#102252;
-    --brand:#1E3A8A; --brand-2:#3B82F6; --brand-3:#60A5FA; --brand-4:#93C5FD;
-    --success:#10B981; --success-l:#6EE7B7;
-    --warn:#F59E0B; --warn-l:#FCD34D;
-    --danger:#EF4444; --danger-l:#FCA5A5;
-    --text:#E5EEFF; --text-soft:#CBD5E1; --muted:#93C5FD;
+  :root {
+    --ink: #141923;
+    --ink-soft: #334155;
+    --muted: #5B667A;
+    --paper: #FBF9F5;
+    --sheet: #FFFFFF;
+    --surface: #F3F0E9;
+    --line: #E5E0D6;
+    --line-strong: #D0C9BC;
+    --lapis: #1E3A8A;
+    --lapis-2: #2563EB;
+    --lapis-soft: #EFF4FF;
+    --emerald: #047857;
+    --emerald-soft: #ECFDF5;
+    --maroon: #9F1239;
+    --maroon-soft: #FFF1F2;
+    --amber: #B45309;
+    --amber-soft: #FFFBEB;
+    --violet: #5B21B6;
+    --violet-soft: #F5F3FF;
+    --deck-bg: #0B1324;
+    --deck-card: #121D35;
+    --deck-line: rgba(148, 163, 184, 0.2);
+    --deck-ink: #F8FAFC;
+    --deck-soft: #CBD5E1;
+    --deck-muted: #94A3B8;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:20px}
 
-  /* DECK */
-  .deck{position:relative;width:100vw;height:100vh;overflow:hidden}
-  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:4.5rem 3.5rem 5.5rem;opacity:0;transition:opacity .3s ease}
-  .slide.active{display:flex;opacity:1}
-  .slide.center{align-items:center;justify-content:center;text-align:center}
-
-  /* TOP BAR */
-  .topbar{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(10,21,51,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000}
-  .topbar .brand{font-weight:900;font-size:1.15rem;color:#fff;display:flex;align-items:center;gap:.6rem;letter-spacing:.02em}
-  .topbar .brand-icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand-2),var(--brand));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;font-weight:900}
-  .topbar .progress{flex:1;max-width:420px;height:7px;background:rgba(59,130,246,.15);border-radius:99px;margin:0 1.5rem;overflow:hidden}
-  .topbar .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand-2),var(--brand-4));transition:width .3s ease;border-radius:99px}
-  .topbar .counter{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:1.05rem;color:var(--brand-3);min-width:85px;text-align:right}
-  .topbar .btn{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);color:#DBEAFE;border-radius:8px;padding:.45rem .85rem;font-size:.85rem;cursor:pointer;font-family:inherit;font-weight:700;margin-left:.6rem;transition:.15s;display:inline-flex;align-items:center;gap:.4rem}
-  .topbar .btn:hover{background:rgba(59,130,246,.3)}
-
-  /* SLIDE HEADER */
-  .slide-header{margin-bottom:1.8rem;padding-bottom:1.2rem;border-bottom:2px solid rgba(59,130,246,.25)}
-  .slide-header .eyebrow{font-size:.85rem;font-weight:800;letter-spacing:.25em;color:var(--brand-3);text-transform:uppercase;margin-bottom:.5rem}
-  .slide-header h1{font-size:2.6rem;font-weight:900;line-height:1.15;color:#fff;letter-spacing:-.01em}
-  .slide-header h1 .hl{color:var(--brand-3)}
-  .slide-body{flex:1;overflow:hidden;display:grid;gap:1.5rem}
-  .slide-body.cols-2{grid-template-columns:1fr 1fr}
-  .slide-body.cols-3{grid-template-columns:repeat(3,1fr)}
-  .slide-body.cols-4{grid-template-columns:repeat(4,1fr)}
-  .slide-body.full{grid-template-columns:1fr}
-  .slide-body.center{place-items:center;text-align:center}
-
-  /* TEXT */
-  .txt{font-size:1.3rem;line-height:1.6;color:var(--text-soft)}
-  .txt b,.txt strong{color:#fff;font-weight:800}
-  .txt .hl{color:var(--brand-4);font-weight:700}
-  .txt .ok{color:var(--success-l);font-weight:700}
-  .txt .warn{color:var(--warn-l);font-weight:700}
-  .txt .danger{color:var(--danger-l);font-weight:700}
-  .txt ul{margin:.6rem 0 0 1.5rem}
-  .txt li{margin-bottom:.7rem;font-size:1.2rem;line-height:1.5}
-
-  /* BOX */
-  .box{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:16px;padding:1.5rem 1.6rem;display:flex;flex-direction:column}
-  .box h3{font-size:1.15rem;font-weight:900;color:var(--brand-4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.9rem;display:flex;align-items:center;gap:.6rem}
-  .box h3 i{font-size:1.3rem}
-  .box .big{font-size:3.5rem;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace;line-height:1}
-  .box .lbl{font-size:1rem;color:var(--muted);font-weight:700;margin-top:.4rem}
-  .box.ok{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.35)} .box.ok h3{color:var(--success-l)}
-  .box.warn{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.35)} .box.warn h3{color:var(--warn-l)}
-  .box.danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35)} .box.danger h3{color:var(--danger-l)}
-
-  /* CHECKLIST */
-  .chk{display:flex;align-items:flex-start;gap:.8rem;padding:.6rem 0;border-bottom:1px dashed rgba(59,130,246,.15)}
-  .chk:last-child{border-bottom:none}
-  .chk .ico{flex-shrink:0;width:32px;height:32px;border-radius:9px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);display:flex;align-items:center;justify-content:center;color:var(--success-l);font-size:.9rem}
-  .chk.no .ico{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);color:var(--danger-l)}
-  .chk .body{font-size:1.1rem;color:var(--text-soft);line-height:1.4}
-  .chk .body b{color:#fff;font-weight:800}
-
-  /* MATRIX */
-  table.matrix{width:100%;border-collapse:collapse;font-size:1.05rem;border-radius:12px;overflow:hidden}
-  table.matrix th{background:rgba(59,130,246,.2);padding:.9rem .7rem;text-align:left;color:#fff;font-weight:800;border-bottom:2px solid rgba(59,130,246,.4);font-size:.85rem;text-transform:uppercase;letter-spacing:.04em}
-  table.matrix td{padding:.8rem .7rem;border-bottom:1px solid rgba(59,130,246,.12);color:var(--text-soft);font-size:1.05rem}
-  table.matrix tr:last-child td{border-bottom:none}
-  table.matrix tr:hover td{background:rgba(59,130,246,.06)}
-  table.matrix td.yes{color:var(--success-l);text-align:center;font-weight:900;font-size:1.4rem}
-  table.matrix td.no{color:#64748B;text-align:center;font-size:1.1rem}
-  table.matrix td.role{color:#fff;font-weight:800}
-
-  /* TIMELINE */
-  .timeline{position:relative;padding-left:2rem}
-  .timeline::before{content:'';position:absolute;left:.55rem;top:.5rem;bottom:.5rem;width:3px;background:linear-gradient(180deg,var(--brand-2),var(--brand-4),transparent);border-radius:2px}
-  .tl-item{position:relative;padding:0 0 1.4rem 1.1rem}
-  .tl-item::before{content:'';position:absolute;left:-1.7rem;top:.4rem;width:16px;height:16px;border-radius:50%;background:var(--brand-2);border:3px solid var(--bg);box-shadow:0 0 0 2px rgba(59,130,246,.4)}
-  .tl-item .time{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:900;color:var(--brand-3);margin-bottom:.3rem}
-  .tl-item .desc{font-size:1.1rem;color:var(--text-soft);line-height:1.5}
-  .tl-item .desc b{color:#fff}
-
-  /* NAV BOTTOM */
-  .navbar{position:fixed;bottom:0;left:0;right:0;height:70px;background:rgba(10,21,51,.95);backdrop-filter:blur(10px);border-top:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000}
-  .navbar .hint{font-size:.9rem;color:var(--muted);font-weight:600}
-  .navbar .hint kbd{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:5px;padding:.15rem .45rem;font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#DBEAFE;margin:0 .1rem}
-  .navbar .navbtns{display:flex;gap:.6rem}
-  .navbar button{background:linear-gradient(135deg,var(--brand-2),var(--brand));border:none;color:#fff;border-radius:10px;padding:.75rem 1.4rem;font-family:inherit;font-weight:800;font-size:1rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 4px 14px rgba(59,130,246,.3)}
-  .navbar button:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(59,130,246,.45)}
-  .navbar button:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
-  .navbar button.ghost{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);color:#DBEAFE}
-  .navbar button.ghost:hover{background:rgba(59,130,246,.3)}
-
-  /* COVER & END */
-  .slide.cover{background:radial-gradient(circle at 25% 20%, rgba(59,130,246,.3), transparent 55%), radial-gradient(circle at 75% 80%, rgba(16,185,129,.15), transparent 55%), var(--bg)}
-  .slide.cover .logo-row{display:flex;align-items:center;gap:1.2rem;margin-bottom:2rem;justify-content:center}
-  .slide.cover .logo-box{width:110px;height:110px;border-radius:24px;background:linear-gradient(135deg,var(--brand-2),var(--brand));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:3rem;color:#fff;box-shadow:0 20px 60px rgba(59,130,246,.4)}
-  .slide.cover .logo-row img{width:110px;height:110px;object-fit:contain;background:#fff;border-radius:24px;padding:10px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-  .slide.cover h1{font-size:6rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--brand-3));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:.8rem;letter-spacing:-.02em}
-  .slide.cover h2{font-size:2rem;font-weight:700;color:#DBEAFE;margin-bottom:.8rem;line-height:1.3}
-  .slide.cover p{font-size:1.4rem;color:var(--muted);font-weight:600}
-  .slide.cover .footer-info{margin-top:2.5rem;font-size:1.15rem;color:var(--text-soft);font-weight:600;line-height:1.9}
-  .slide.cover .footer-info b{color:#fff;font-size:1.3rem}
-
-  .slide.end{background:radial-gradient(circle at 50% 50%, rgba(59,130,246,.25), transparent 65%), var(--bg)}
-  .slide.end h1{font-size:5rem;font-weight:900;background:linear-gradient(135deg,#fff,var(--brand-3));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:1.5rem;letter-spacing:-.02em}
-  .slide.end p{font-size:1.8rem;color:#DBEAFE;margin-bottom:.8rem;font-weight:600}
-  .slide.end .sub{font-size:1.3rem;color:var(--muted);max-width:800px;line-height:1.7;margin-top:1.5rem}
-  .slide.end .quote{font-size:1.3rem;color:var(--text-soft);font-style:italic;max-width:900px;line-height:1.7;margin-top:1.5rem;padding:1.2rem 1.5rem;background:rgba(59,130,246,.12);border-left:5px solid var(--brand-2);border-radius:0 12px 12px 0;text-align:left}
-
-  /* STAT GRID */
-  .stat-grid-big{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-top:1rem}
-  .stat-big{background:rgba(16,185,129,.12);border:2px solid rgba(16,185,129,.4);border-radius:16px;padding:1.8rem 1.2rem;text-align:center}
-  .stat-big .val{font-size:3.5rem;font-weight:900;color:var(--success-l);font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:.4rem}
-  .stat-big .lbl{font-size:1.05rem;color:#fff;font-weight:800}
-
-  /* OVERVIEW */
-  .overview{position:fixed;inset:0;z-index:2000;background:rgba(5,10,25,.97);backdrop-filter:blur(12px);display:none;padding:2rem;overflow-y:auto}
-  .overview.show{display:block}
-  .overview h2{text-align:center;color:#fff;font-size:1.8rem;margin-bottom:2rem;font-weight:900}
-  .overview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;max-width:1400px;margin:0 auto}
-  .ov-card{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:10px;padding:1rem;cursor:pointer;transition:.15s}
-  .ov-card:hover{background:rgba(59,130,246,.25);transform:translateY(-2px)}
-  .ov-card .num{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--brand-3);font-weight:800;margin-bottom:.3rem}
-  .ov-card .ttl{font-size:1rem;color:#fff;font-weight:700;line-height:1.3}
-  .ov-card.active{border-color:var(--brand-3);background:rgba(59,130,246,.3);box-shadow:0 0 12px rgba(59,130,246,.5)}
-
-  /* RESPONSIVE */
-  @media(max-width:1366px){
-    html,body{font-size:18px}
-    .slide{padding:4rem 2.5rem 5rem}
-    .slide-header h1{font-size:2.2rem}
-    .slide.cover h1{font-size:5rem}
-    .txt{font-size:1.15rem}
-    .txt li{font-size:1.1rem}
-    .box h3{font-size:1.05rem}
-    .box .big{font-size:3rem}
-    .chk .body{font-size:1rem}
-    table.matrix td,table.matrix th{font-size:.95rem;padding:.7rem .6rem}
-    .tl-item .time,.tl-item .desc{font-size:1rem}
-    .stat-big .val{font-size:3rem}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
   }
-  @media(max-width:1024px){
-    html,body{font-size:16px}
-    .slide{padding:3.5rem 1.8rem 5rem}
-    .slide-header h1{font-size:1.9rem}
-    .slide-header .eyebrow{font-size:.75rem}
-    .slide-body.cols-2,.slide-body.cols-3,.slide-body.cols-4{grid-template-columns:1fr}
-    .txt{font-size:1.1rem}
-    .txt li{font-size:1.05rem}
-    .chk .body{font-size:1rem}
-    .chk .ico{width:30px;height:30px;font-size:.85rem}
-    .box{padding:1.2rem 1.3rem}
-    .box h3{font-size:1rem}
-    .box .big{font-size:2.5rem}
-    .slide.cover h1{font-size:4rem}
-    .slide.cover h2{font-size:1.5rem}
-    .slide.cover p{font-size:1.1rem}
-    .slide.cover .logo-box,.slide.cover .logo-row img{width:80px;height:80px;font-size:2rem}
-    table.matrix{font-size:.85rem}
-    table.matrix td,table.matrix th{padding:.65rem .5rem;font-size:.85rem}
-    table.matrix td.yes{font-size:1.15rem}
-    .tl-item .time,.tl-item .desc{font-size:.95rem}
-    .tl-item{padding:0 0 1.1rem 1rem}
-    .stat-big .val{font-size:2.5rem}
-    .slide.end h1{font-size:3rem}
-    .slide.end p{font-size:1.3rem}
+
+  /* =========================================================
+     TOP BAR (3-ZONE CONTRACT)
+     ========================================================= */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 64px;
+    background: rgba(251, 249, 245, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 0 1.75rem;
   }
-  @media(max-width:768px){
-    .topbar{height:56px;padding:0 1rem}
-    .topbar .brand{font-size:.95rem}
-    .topbar .progress{display:none}
-    .topbar .btn{padding:.35rem .6rem;font-size:.75rem;margin-left:.4rem}
-    .navbar{height:60px;padding:0 1rem}
-    .navbar .hint{display:none}
-    .navbar button{padding:.6rem 1rem;font-size:.85rem}
-    .slide.cover h1{font-size:3rem}
-    .slide.cover h2{font-size:1.2rem}
-    .slide.cover p{font-size:1rem}
-    .slide.end h1{font-size:2.5rem}
-    .slide.end p{font-size:1.1rem}
+  body.mode-slide .site-header {
+    background: rgba(11, 19, 36, 0.94);
+    border-bottom-color: var(--deck-line);
   }
-  @media(max-height:800px){
-    .slide{padding:3rem 2rem 4.5rem}
-    .slide-header{margin-bottom:1.2rem;padding-bottom:.9rem}
-    .slide-header h1{font-size:1.9rem}
-    .txt{font-size:1.05rem}
-    .txt li{font-size:1rem;margin-bottom:.5rem}
-    .chk{padding:.5rem 0}
-    .chk .body{font-size:.95rem}
-    .box{padding:1rem 1.2rem}
-    .box h3{font-size:.95rem;margin-bottom:.6rem}
-    .box .big{font-size:2.5rem}
-    .tl-item{padding:0 0 1rem .9rem}
-    .tl-item .time,.tl-item .desc{font-size:.9rem}
-    .stat-big .val{font-size:2.5rem}
+
+  .brand-wordmark {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  body.mode-slide .brand-wordmark { color: var(--deck-ink); }
+
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .top-nav a,
+  .top-nav button {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0.35rem 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: color 0.16s ease, border-color 0.16s ease;
+  }
+  .top-nav a:hover,
+  .top-nav button:hover { color: var(--lapis); }
+  .top-nav button.is-active {
+    color: var(--lapis);
+    border-bottom-color: var(--lapis);
+  }
+  body.mode-slide .top-nav a,
+  body.mode-slide .top-nav button { color: var(--deck-soft); }
+  body.mode-slide .top-nav a:hover,
+  body.mode-slide .top-nav button:hover { color: #FFFFFF; }
+  body.mode-slide .top-nav button.is-active {
+    color: #93C5FD;
+    border-bottom-color: #60A5FA;
+  }
+
+  .header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 9px;
+    border: none;
+    background: var(--lapis);
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background-color 0.16s ease, transform 0.16s ease;
+  }
+  .header-cta:hover { background: #172E6E; transform: translateY(-1px); }
+  .header-cta:disabled { opacity: 0.65; cursor: wait; transform: none; }
+  body.mode-slide .header-cta { background: var(--lapis-2); }
+  body.mode-slide .header-cta:hover { background: #1D4ED8; }
+
+  .site-header button:focus-visible,
+  .site-header a:focus-visible,
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--lapis-2);
+    outline-offset: 2px;
+  }
+
+  /* =========================================================
+     MODE VISIBILITY
+     ========================================================= */
+  #manual-view { display: block; }
+  #deck-view { display: none; }
+  body.mode-slide { background: var(--deck-bg); color: var(--deck-ink); overflow: hidden; }
+  body.mode-slide #manual-view { display: none; }
+  body.mode-slide #deck-view { display: block; }
+
+  /* =========================================================
+     MANUAL UTILITY RIBBON (BELOW HEADER)
+     ========================================================= */
+  .utility-bar {
+    max-width: 1120px;
+    margin: 1.25rem auto 0;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .utility-meta {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .utility-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .btn-sec {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.95rem;
+    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    background: var(--sheet);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-sec:hover { background: var(--surface); border-color: var(--lapis); color: var(--lapis); }
+
+  /* =========================================================
+     MANUAL / PDF BOOK LAYOUT (EDITORIAL INSTITUTIONAL)
+     ========================================================= */
+  .manual-shell {
+    max-width: 1120px;
+    margin: 1.25rem auto 4rem;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 2.25rem;
+    align-items: start;
+  }
+
+  .toc-rail {
+    position: sticky;
+    top: 84px;
+    padding-right: 1rem;
+    border-right: 1px solid var(--line);
+  }
+  .toc-heading {
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .toc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .toc-list a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    padding: 0.38rem 0.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: background-color 0.14s ease, color 0.14s ease;
+  }
+  .toc-list a:hover { background: var(--surface); color: var(--lapis); }
+  .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.72rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .doc-pages {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 0;
+  }
+
+  .doc-sheet {
+    background: var(--sheet);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 2.5rem 2.75rem;
+    page-break-after: always;
+    break-after: page;
+  }
+  .doc-sheet:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* Cover Page */
+  .doc-cover {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F7FAFF 100%);
+    padding: 3rem 2.75rem;
+  }
+  .cover-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 2.25rem;
+  }
+  .cover-school {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .cover-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: #FFFFFF;
+    padding: 5px;
+    flex-shrink: 0;
+  }
+  .cover-school-name {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+  .cover-school-sub {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+  }
+  .cover-docno {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .cover-kicker {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--lapis);
+    margin-bottom: 0.65rem;
+  }
+  .cover-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(2rem, 3.6vw, 2.85rem);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-wrap: balance;
+    max-width: 18ch;
+  }
+  .cover-lead {
+    margin-top: 1rem;
+    font-size: 1.02rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    line-height: 1.7;
+  }
+
+  .cover-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+  }
+  .cm-item {
+    padding: 0.85rem 1rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+  }
+  .cm-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--lapis);
+    line-height: 1.1;
+  }
+  .cm-lbl {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 0.3rem;
+  }
+
+  .cover-toc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 1.5rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+  }
+  .cover-toc-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+  .cover-toc-row strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--lapis);
+  }
+
+  /* Chapter Headers */
+  .ch-head {
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .ch-meta {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+  .ch-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .ch-lead {
+    margin-top: 0.55rem;
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+    max-width: 68ch;
+  }
+
+  .sub-h {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin: 1.5rem 0 0.65rem;
+    letter-spacing: -0.01em;
+  }
+  .prose {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.72;
+    max-width: 72ch;
+  }
+
+  /* Step List */
+  .steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-top: 0.85rem;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .step-n {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: var(--lapis);
+    color: #FFFFFF;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    margin-top: 0.1rem;
+  }
+  .step b { color: var(--ink); font-weight: 700; }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface);
+    color: var(--lapis);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+  }
+  table.doc-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+  }
+  table.doc-tbl th {
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 700;
+    text-align: left;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--line-strong);
+    white-space: nowrap;
+  }
+  table.doc-tbl td {
+    padding: 0.58rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-soft);
+    vertical-align: top;
+  }
+  table.doc-tbl tr:last-child td { border-bottom: none; }
+  table.doc-tbl td.c-yes { text-align: center; color: var(--emerald); font-weight: 800; }
+  table.doc-tbl td.c-part { text-align: center; color: var(--amber); font-weight: 700; }
+  table.doc-tbl td.c-no { text-align: center; color: #94A3B8; }
+  table.doc-tbl td.c-role { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--ink); white-space: nowrap; }
+
+  /* Two-Column Content Grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+  .info-panel {
+    padding: 1.05rem 1.2rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+  }
+  .info-panel h4 {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 0.45rem;
+  }
+  .info-panel p,
+  .info-panel li {
+    font-size: 0.83rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .info-panel ul { padding-left: 1.1rem; margin-top: 0.3rem; }
+  .info-panel li { margin-bottom: 0.25rem; }
+
+  .note-box {
+    margin-top: 1.1rem;
+    padding: 0.9rem 1.15rem;
+    border-radius: 9px;
+    border: 1px solid #BFDBFE;
+    background: var(--lapis-soft);
+    font-size: 0.84rem;
+    color: #1E3A8A;
+    line-height: 1.6;
+  }
+  .note-box.warn {
+    border-color: #FCD34D;
+    background: var(--amber-soft);
+    color: #92400E;
+  }
+  .note-box.ok {
+    border-color: #A7F3D0;
+    background: var(--emerald-soft);
+    color: #065F46;
+  }
+
+  /* =========================================================
+     HIGH-FIDELITY WEB & TELEGRAM UI PREVIEWS (VECTOR CRISP!)
+     ========================================================= */
+  .fig-block {
+    margin: 1.25rem 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .fig-cap {
+    margin-top: 0.55rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .browser-frame {
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #F8FAFC;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  }
+  .browser-bar {
+    height: 30px;
+    background: #E2E8F0;
+    border-bottom: 1px solid #CBD5E1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.75rem;
+    gap: 0.75rem;
+  }
+  .browser-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: #334155;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 5px;
+    padding: 0.12rem 0.6rem;
+    flex: 1;
+    max-width: 420px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .browser-tag {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+  }
+  .browser-body {
+    padding: 0.9rem;
+    color: #0F172A;
+    font-size: 0.75rem;
+  }
+
+  /* Mini Callout Number inside UI Preview */
+  .pin-n {
+    display: inline-grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: #DC2626;
+    color: #FFFFFF;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    font-weight: 700;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  /* Mini App Header Strips inside Mockups */
+  .m-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 0.8rem;
+    border-radius: 8px;
+    color: #FFFFFF;
+    margin-bottom: 0.65rem;
+    font-weight: 700;
+    font-size: 0.74rem;
+  }
+  .m-hdr.navy { background: linear-gradient(135deg, #1E3A8A, #0F172A); }
+  .m-hdr.emerald { background: linear-gradient(135deg, #059669, #047857); }
+  .m-hdr.maroon { background: linear-gradient(135deg, #BE123C, #881337); }
+  .m-hdr.blue { background: linear-gradient(135deg, #1D4ED8, #1E40AF); }
+  .m-hdr.violet { background: linear-gradient(135deg, #5B21B6, #4338CA); }
+  .m-hdr.light { background: #FFFFFF; color: #0F172A; border: 1px solid #E2E8F0; }
+
+  .m-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
+  .m-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+  .m-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+
+  .m-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 0.6rem 0.7rem;
+  }
+  .m-card-t { font-weight: 800; font-size: 0.74rem; color: #0F172A; margin-bottom: 0.18rem; }
+  .m-card-s { font-size: 0.66rem; color: #64748B; line-height: 1.35; }
+  .m-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.28rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.67rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .m-btn.primary { background: #1D4ED8; color: #FFFFFF; }
+  .m-btn.emerald { background: #059669; color: #FFFFFF; }
+  .m-btn.amber { background: #D97706; color: #FFFFFF; }
+  .m-btn.maroon { background: #BE123C; color: #FFFFFF; }
+  .m-btn.ghost { background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; }
+
+  .m-input {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 0.32rem 0.55rem;
+    font-size: 0.7rem;
+    color: #475569;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .m-tabs {
+    display: flex;
+    gap: 0.35rem;
+    margin-bottom: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .m-tab {
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: #E2E8F0;
+    color: #475569;
+  }
+  .m-tab.active { background: #047857; color: #FFFFFF; }
+  .m-tab.active-m { background: #BE123C; color: #FFFFFF; }
+
+  .m-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.38rem 0;
+    border-bottom: 1px solid #F1F5F9;
+    font-size: 0.7rem;
+    gap: 0.5rem;
+  }
+  .m-row:last-child { border-bottom: none; }
+
+  /* Telegram Mockup */
+  .tg-frame {
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #E6EEF8;
+  }
+  .tg-top {
+    background: #1E3A8A;
+    color: #FFFFFF;
+    padding: 0.55rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+  .tg-pinbar {
+    background: #FFFFFF;
+    border-bottom: 1px solid #CBD5E1;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.69rem;
+    color: #1E3A8A;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .tg-chat {
+    padding: 0.85rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+  .tg-bubble {
+    background: #FFFFFF;
+    border: 1px solid #D5E0EE;
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.71rem;
+    color: #0F172A;
+    line-height: 1.48;
+  }
+  .tg-sender {
+    font-weight: 800;
+    color: #1D4ED8;
+    font-size: 0.7rem;
+    margin-bottom: 0.25rem;
+  }
+  .tg-kb {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.28rem;
+    margin-top: 0.45rem;
+  }
+  .tg-kbtn {
+    background: #F1F5F9;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 0.3rem 0.4rem;
+    text-align: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #1E293B;
+  }
+  .tg-kbtn.ok { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
+  .tg-kbtn.no { background: #FFF1F2; border-color: #FECDD3; color: #9F1239; }
+
+  /* Flow Strip */
+  .flow-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .flow-box {
+    padding: 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--paper);
+  }
+  .flow-step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--lapis);
+    margin-bottom: 0.25rem;
+  }
+  .flow-title {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+  .flow-desc {
+    font-size: 0.77rem;
+    color: var(--ink-soft);
+    line-height: 1.45;
+  }
+
+  /* =========================================================
+     SLIDE DECK MODE (INTERACTIVE PRESENTATION)
+     ========================================================= */
+  .deck-stage {
+    position: relative;
+    width: 100vw;
+    height: calc(100vh - 128px);
+    overflow: hidden;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 2rem 3.5rem 1.5rem;
+    max-width: 1380px;
+    margin: 0 auto;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; }
+
+  .sl-head {
+    padding-bottom: 0.9rem;
+    margin-bottom: 1.3rem;
+    border-bottom: 1px solid var(--deck-line);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .sl-kicker {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #93C5FD;
+    margin-bottom: 0.25rem;
+  }
+  .sl-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(1.65rem, 2.7vw, 2.35rem);
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+  .sl-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--deck-muted);
+    white-space: nowrap;
+  }
+
+  .sl-body {
+    flex: 1;
+    display: grid;
+    gap: 1.4rem;
+    align-content: start;
+  }
+  .sl-body.c2 { grid-template-columns: 1.05fr 0.95fr; align-items: start; }
+  .sl-body.c2-eq { grid-template-columns: 1fr 1fr; }
+  .sl-body.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sl-body.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .dk-card {
+    background: var(--deck-card);
+    border: 1px solid var(--deck-line);
+    border-radius: 12px;
+    padding: 1.2rem 1.35rem;
+  }
+  .dk-card h3 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #93C5FD;
+    margin-bottom: 0.55rem;
+  }
+  .dk-card.ok h3 { color: #6EE7B7; }
+  .dk-card.warn h3 { color: #FCD34D; }
+  .dk-card.rose h3 { color: #FDA4AF; }
+  .dk-card p,
+  .dk-card li {
+    font-size: 0.9rem;
+    color: var(--deck-soft);
+    line-height: 1.55;
+  }
+  .dk-card ul { padding-left: 1.15rem; margin-top: 0.25rem; }
+  .dk-card li { margin-bottom: 0.35rem; }
+  .dk-card b { color: #FFFFFF; }
+  .dk-stat {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 2.3rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.05;
+  }
+  .dk-stat-lbl {
+    font-size: 0.84rem;
+    color: var(--deck-muted);
+    margin-top: 0.35rem;
+    font-weight: 600;
+  }
+
+  .slide.is-cover {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .slide.is-cover h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(2.8rem, 5.5vw, 4.4rem);
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.05;
+    margin: 0.75rem 0;
+  }
+  .slide.is-cover .cv-sub {
+    font-size: 1.25rem;
+    color: #CBD5E1;
+    max-width: 52ch;
+    line-height: 1.5;
+  }
+  .slide.is-cover .cv-meta {
+    margin-top: 1.5rem;
+    font-size: 0.92rem;
+    color: #93C5FD;
+    font-weight: 600;
+  }
+
+  /* Deck Table */
+  table.dk-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    background: var(--deck-card);
+    border: 1px solid var(--deck-line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  table.dk-tbl th {
+    background: rgba(37, 99, 235, 0.2);
+    color: #FFFFFF;
+    text-align: left;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--deck-line);
+    font-weight: 700;
+  }
+  table.dk-tbl td {
+    padding: 0.58rem 0.75rem;
+    border-bottom: 1px solid var(--deck-line);
+    color: var(--deck-soft);
+  }
+  table.dk-tbl tr:last-child td { border-bottom: none; }
+  table.dk-tbl td.y { text-align: center; color: #6EE7B7; font-weight: 800; }
+  table.dk-tbl td.p { text-align: center; color: #FCD34D; font-weight: 700; }
+  table.dk-tbl td.n { text-align: center; color: #64748B; }
+  table.dk-tbl td.r { font-family: 'JetBrains Mono', monospace; color: #FFFFFF; font-weight: 700; }
+
+  /* Deck Bottom Bar */
+  .deck-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(11, 19, 36, 0.96);
+    border-top: 1px solid var(--deck-line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.75rem;
+    gap: 1rem;
+    z-index: 90;
+  }
+  .deck-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex: 1;
+    max-width: 420px;
+  }
+  .deck-progress {
+    flex: 1;
+    height: 6px;
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .deck-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #3B82F6;
+    transition: width 0.2s ease;
+  }
+  .deck-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #93C5FD;
+    min-width: 64px;
+  }
+  .deck-btns {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .dk-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--deck-line);
+    background: rgba(255, 255, 255, 0.06);
+    color: #E2E8F0;
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+  }
+  .dk-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); }
+  .dk-btn.primary { background: var(--lapis-2); border-color: var(--lapis-2); color: #FFFFFF; }
+  .dk-btn.primary:hover:not(:disabled) { background: #1D4ED8; }
+  .dk-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Overview Overlay */
+  .ov-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(7, 12, 24, 0.96);
+    display: none;
+    flex-direction: column;
+    padding: 2rem;
+    overflow-y: auto;
+  }
+  .ov-modal.show { display: flex; }
+  .ov-top {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ov-top h2 { font-family: 'Fraunces', Georgia, serif; color: #FFFFFF; font-size: 1.45rem; }
+  .ov-grid {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 0.9rem;
+  }
+  .ov-item {
+    background: var(--deck-card);
+    border: 1px solid var(--deck-line);
+    border-radius: 10px;
+    padding: 0.95rem 1rem;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .ov-item:hover { border-color: #60A5FA; transform: translateY(-2px); }
+  .ov-item.active { border-color: #3B82F6; background: rgba(37, 99, 235, 0.22); }
+  .ov-item-n { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: #93C5FD; margin-bottom: 0.25rem; }
+  .ov-item-t { font-size: 0.9rem; font-weight: 700; color: #FFFFFF; line-height: 1.3; }
+
+  /* Inline Toast */
+  .toast-bar {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 300;
+    background: #0F172A;
+    color: #FFFFFF;
+    padding: 0.75rem 1.15rem;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    display: none;
+    align-items: center;
+    gap: 0.55rem;
+    max-width: 380px;
+  }
+  .toast-bar.show { display: flex; }
+
+  /* =========================================================
+     PDF EXPORT HELPER CLASS (WHEN html2pdf CAPTURES)
+     ========================================================= */
+  body.pdf-capturing .doc-sheet {
+    border: none;
+    border-radius: 0;
+    padding: 1.2rem 1.35rem;
+  }
+
+  /* =========================================================
+     PRINT STYLESHEET (NATIVE A4 VECTOR PDF!)
+     ========================================================= */
+  @page {
+    size: A4 portrait;
+    margin: 14mm 13mm;
+  }
+  @media print {
+    body, body.mode-slide {
+      background: #FFFFFF !important;
+      color: #141923 !important;
+      overflow: visible !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .site-header,
+    .utility-bar,
+    .toc-rail,
+    #deck-view,
+    .ov-modal,
+    .toast-bar {
+      display: none !important;
+    }
+    #manual-view {
+      display: block !important;
+    }
+    .manual-shell {
+      display: block !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .doc-pages { gap: 0 !important; }
+    .doc-sheet {
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      box-shadow: none !important;
+    }
+    .fig-block, .info-panel, .note-box, .table-wrap, .flow-row {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+  }
+
+  /* =========================================================
+     RESPONSIVE
+     ========================================================= */
+  @media (max-width: 980px) {
+    .manual-shell { grid-template-columns: 1fr; }
+    .toc-rail { position: static; border-right: none; border-bottom: 1px solid var(--line); padding: 0 0 1rem; }
+    .toc-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sl-body.c2, .sl-body.c2-eq, .sl-body.c3, .sl-body.c4 { grid-template-columns: 1fr; }
+    .tg-chat { grid-template-columns: 1fr; }
+    .flow-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cover-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 720px) {
+    .site-header { padding: 0 1rem; gap: 0.75rem; }
+    .top-nav { gap: 0.85rem; }
+    .top-nav a.hide-sm { display: none; }
+    .doc-sheet, .doc-cover { padding: 1.4rem 1.2rem; }
+    .grid-2, .cover-toc-grid, .m-grid-4, .m-grid-3, .m-grid-2 { grid-template-columns: 1fr; }
+    .slide { padding: 1.25rem 1.15rem; }
+    .deck-footer { padding: 0 1rem; }
+    .deck-progress-wrap { display: none; }
   }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand"><div class="brand-icon">BK</div> Presentasi BKCSiplin</div>
-  <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
-  <div class="counter"><span id="slide-counter">1 / 25</span></div>
-  <button class="btn" onclick="toggleFullscreen()"><i class="fas fa-expand"></i></button>
-  <button class="btn" onclick="toggleOverview()"><i class="fas fa-th"></i></button>
-</div>
+<!-- =========================================================
+     TOP BAR (EXACTLY 3 ZONES)
+     ========================================================= -->
+<header class="site-header">
+  <a href="index.html" class="brand-wordmark">BKCSiplin</a>
 
-<div class="deck" id="deck">
+  <nav class="top-nav" aria-label="Navigasi Dokumen">
+    <button type="button" id="nav-mode-manual" class="is-active">Buku Pedoman</button>
+    <button type="button" id="nav-mode-slide">Mode Presentasi</button>
+    <a href="#bab-telegram" id="nav-jump-tg" class="hide-sm">Bot Telegram</a>
+    <a href="#bab-golive" id="nav-jump-clean" class="hide-sm">Reset Data</a>
+    <a href="index.html" class="hide-sm">Beranda App</a>
+  </nav>
 
-  <!-- 1. COVER -->
-  <div class="slide cover center active" data-title="Judul">
-    <div class="logo-row">
-      <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo" onerror="this.style.display='none'">
-      <div class="logo-box">BK</div>
+  <button type="button" class="header-cta" id="btn-download-pdf">
+    <i class="fas fa-file-arrow-down"></i><span>Download PDF</span>
+  </button>
+</header>
+
+<!-- =========================================================
+     VIEW 1: BUKU PEDOMAN & TUTORIAL LENGKAP (SIAP PDF)
+     ========================================================= -->
+<div id="manual-view">
+  <div class="utility-bar">
+    <div class="utility-meta">
+      Pedoman Resmi SMK Bhakti Kencana Ciawi · Edisi Pembaruan 2026 · 6 Layanan Web · 7 Role · Bot Telegram 2 Arah
     </div>
-    <h1>BKCSiplin</h1>
-    <h2>Sistem Informasi Terpadu<br>Kedisiplinan & Kehadiran</h2>
-    <p>Berbasis Web · Real-time · Terintegrasi</p>
-    <div class="footer-info">
-      <b>SMK Bhakti Kencana Ciawi</b><br>
-      Yayasan Adhi Guna Kencana<br>
-      <span id="tanggal-cover"></span>
+    <div class="utility-actions">
+      <button type="button" class="btn-sec" id="btn-print-pdf"><i class="fas fa-print"></i> Cetak / PDF Vektor</button>
+      <button type="button" class="btn-sec" id="btn-open-slide"><i class="fas fa-display"></i> Tayangkan Slide</button>
     </div>
   </div>
 
-  <!-- 2. APA ITU -->
-  <div class="slide" data-title="Apa itu BKCSiplin">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 1 · Pembukaan</div>
-      <h1>Apa itu <span class="hl">BKCSiplin</span>?</h1>
-    </div>
-    <div class="slide-body full center">
-      <div class="box" style="max-width:1000px;text-align:center">
-        <h3 style="justify-content:center"><i class="fas fa-circle-info"></i> Definisi</h3>
-        <div class="txt" style="font-size:1.5rem;line-height:1.5;margin-top:.8rem">
-          Sistem informasi <span class="hl">berbasis web</span> yang mengintegrasikan seluruh proses administrasi <b>kedisiplinan</b> dan <b>kehadiran</b> di SMK Bhakti Kencana Ciawi dalam <span class="ok">satu platform terpadu</span>.
+  <div class="manual-shell">
+    <!-- Daftar Isi Sidebar -->
+    <aside class="toc-rail" aria-label="Daftar Isi Pedoman">
+      <div class="toc-heading">DAFTAR ISI PEDOMAN</div>
+      <ul class="toc-list">
+        <li><a href="#sampul"><span class="toc-num">00</span><span>Sampul &amp; Ringkasan</span></a></li>
+        <li><a href="#bab-1"><span class="toc-num">01</span><span>Arsitektur &amp; 7 Role</span></a></li>
+        <li><a href="#bab-2"><span class="toc-num">02</span><span>Beranda &amp; Cek Publik</span></a></li>
+        <li><a href="#bab-3"><span class="toc-num">03</span><span>Portal Gerbang</span></a></li>
+        <li><a href="#bab-4"><span class="toc-num">04</span><span>Portal E-Sholat</span></a></li>
+        <li><a href="#bab-5"><span class="toc-num">05</span><span>Disiplin &amp; Zona Poin</span></a></li>
+        <li><a href="#bab-6"><span class="toc-num">06</span><span>Alur OSIS &amp; Validasi</span></a></li>
+        <li><a href="#bab-7"><span class="toc-num">07</span><span>Portal Admin &amp; Wali</span></a></li>
+        <li><a href="#bab-telegram"><span class="toc-num">08</span><span>Bot Telegram 2 Arah</span></a></li>
+        <li><a href="#bab-golive"><span class="toc-num">09</span><span>Jadwal &amp; Reset Uji Coba</span></a></li>
+        <li><a href="#bab-10"><span class="toc-num">10</span><span>FAQ &amp; Solusi Kendala</span></a></li>
+      </ul>
+    </aside>
+
+    <!-- Konten Buku Pedoman (Target PDF) -->
+    <main class="doc-pages" id="pedoman-pdf-root">
+
+      <!-- SAMPUL -->
+      <section class="doc-sheet doc-cover" id="sampul">
+        <div class="cover-top">
+          <div class="cover-school">
+            <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo SMK Bhakti Kencana Ciawi" class="cover-logo" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'">
+            <div>
+              <div class="cover-school-name">SMK Bhakti Kencana Ciawi</div>
+              <div class="cover-school-sub">Yayasan Adhi Guna Kencana · Kabupaten Tasikmalaya</div>
+            </div>
+          </div>
+          <div class="cover-docno">
+            DOK. PEDOMAN BKCSIPLIN<br>
+            <span id="tgl-pedoman">Edisi 2026</span>
+          </div>
         </div>
-        <div class="txt" style="font-size:1.2rem;margin-top:1.5rem;color:var(--muted)">
-          <b style="color:#fff">BKC</b> = Bhakti Kencana Ciawi &nbsp; + &nbsp; <b style="color:#fff">Siplin</b> = Disiplin
+
+        <div class="cover-kicker">Buku Pedoman Operasional &amp; Tutorial Lengkap</div>
+        <h1 class="cover-title">Panduan Penggunaan Aplikasi Web BKCSiplin</h1>
+        <p class="cover-lead">
+          Sistem informasi terpadu berbasis web untuk presensi gerbang siswa &amp; guru (offline-first), presensi ibadah sholat 5 waktu, pencatatan poin kedisiplinan karakter, validasi laporan OSIS, manajemen administrasi sekolah, serta pemantauan real-time melalui Bot Telegram 2 arah.
+        </p>
+
+        <div class="cover-metrics">
+          <div class="cm-item">
+            <div class="cm-val">6</div>
+            <div class="cm-lbl">Portal &amp; Layanan Web</div>
+          </div>
+          <div class="cm-item">
+            <div class="cm-val">7</div>
+            <div class="cm-lbl">Role Kewenangan</div>
+          </div>
+          <div class="cm-item">
+            <div class="cm-val">14</div>
+            <div class="cm-lbl">Sheet Database Cloud</div>
+          </div>
+          <div class="cm-item">
+            <div class="cm-val">12</div>
+            <div class="cm-lbl">Perintah Bot Telegram</div>
+          </div>
+        </div>
+
+        <div class="cover-toc-grid">
+          <div class="cover-toc-row"><strong>Bab 01</strong><span>Arsitektur Sistem, Keamanan &amp; Matriks 7 Role</span></div>
+          <div class="cover-toc-row"><strong>Bab 06</strong><span>Alur Input OSIS &amp; Validasi BK / Waka Kesiswaan</span></div>
+          <div class="cover-toc-row"><strong>Bab 02</strong><span>Beranda Utama &amp; Portal Cek Publik (Ortu/Siswa)</span></div>
+          <div class="cover-toc-row"><strong>Bab 07</strong><span>Portal Admin &amp; Dashboard Khusus Wali Kelas</span></div>
+          <div class="cover-toc-row"><strong>Bab 03</strong><span>Portal Gerbang Offline-First (RFID &amp; Manual)</span></div>
+          <div class="cover-toc-row"><strong>Bab 08</strong><span>Bot Telegram 2 Arah, Panel /menu &amp; Jadwal Otomatis</span></div>
+          <div class="cover-toc-row"><strong>Bab 04</strong><span>Portal E-Sholat 5 Waktu &amp; Manajemen Udzur Syar'i</span></div>
+          <div class="cover-toc-row"><strong>Bab 09</strong><span>Rutinitas Harian &amp; Pembersihan Data Uji Coba</span></div>
+          <div class="cover-toc-row"><strong>Bab 05</strong><span>Portal Kedisiplinan, 5 Zona Poin &amp; Surat SP1–SP3</span></div>
+          <div class="cover-toc-row"><strong>Bab 10</strong><span>Pemecahan Masalah Umum (FAQ &amp; Tips Lapangan)</span></div>
+        </div>
+      </section>
+
+      <!-- BAB 1: ARSITEKTUR & MATRIKS ROLE -->
+      <section class="doc-sheet" id="bab-1">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 01 · Fondasi Sistem · Keamanan &amp; Hak Akses</div>
+          <h2 class="ch-title">Arsitektur Sistem &amp; Matriks 7 Role Pengguna</h2>
+          <p class="ch-lead">Seluruh portal BKCSiplin terhubung ke satu pusat data Google Spreadsheet melalui layanan Google Apps Script, dilengkapi kontrol akses per role, pencatatan audit, dan integrasi Bot Telegram 2 arah.</p>
+        </div>
+
+        <div class="flow-row">
+          <div class="flow-box">
+            <div class="flow-step">LAPISAN 01</div>
+            <div class="flow-title">Antarmuka Web</div>
+            <div class="flow-desc">Beranda, Cek Publik, Gerbang, Sholat, Disiplin, dan Admin di HP maupun Laptop.</div>
+          </div>
+          <div class="flow-box">
+            <div class="flow-step">LAPISAN 02</div>
+            <div class="flow-title">Server Apps Script</div>
+            <div class="flow-desc">Verifikasi ID Guru + PIN/Password (huruf/angka), pembatasan role, hitung poin &amp; log audit.</div>
+          </div>
+          <div class="flow-box">
+            <div class="flow-step">LAPISAN 03</div>
+            <div class="flow-title">Database 14 Sheet</div>
+            <div class="flow-desc">Master Siswa, Guru, Kelas, Tatib, Gerbang, Sholat, Udzur, Poin BK, Absen, Audit, Pengaturan.</div>
+          </div>
+          <div class="flow-box">
+            <div class="flow-step">LAPISAN 04</div>
+            <div class="flow-title">Bot Telegram 2 Arah</div>
+            <div class="flow-desc">Notifikasi OSIS, peringatan zona, validasi tombol, rekap otomatis harian &amp; Jumat sore.</div>
+          </div>
+        </div>
+
+        <h3 class="sub-h">Matriks Kewenangan 7 Role Aktif</h3>
+        <div class="table-wrap">
+          <table class="doc-tbl">
+            <thead>
+              <tr>
+                <th>Role Akun</th>
+                <th style="text-align:center">Gerbang</th>
+                <th style="text-align:center">Sholat</th>
+                <th style="text-align:center">Disiplin</th>
+                <th style="text-align:center">Admin</th>
+                <th>Ruang Lingkup Tugas Utama</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="c-role">SUPER_ADMIN</td>
+                <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td>
+                <td>Kendali penuh semua modul, master data, pengaturan sekolah, dan konfigurasi Bot Telegram.</td>
+              </tr>
+              <tr>
+                <td class="c-role">KEPSEK</td>
+                <td class="c-no">—</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td>
+                <td>Monitoring eksekutif, dashboard kehadiran, laporan seluruh sekolah, raport, dan validasi.</td>
+              </tr>
+              <tr>
+                <td class="c-role">WAKA_KESISWAAN</td>
+                <td class="c-no">—</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td>
+                <td>Kelola tatib, sahkan laporan OSIS, terbitkan SP1–SP3, absen, laporan &amp; raport.</td>
+              </tr>
+              <tr>
+                <td class="c-role">GURU_BK</td>
+                <td class="c-no">—</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td>
+                <td>Pembinaan siswa, validasi OSIS &amp; bolos sholat, koreksi poin, konseling, cetak SP &amp; raport.</td>
+              </tr>
+              <tr>
+                <td class="c-role">GURU_PIKET</td>
+                <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-no">—</td><td class="c-no">—</td>
+                <td>Scan tap gerbang masuk/pulang (siswa &amp; guru) serta scan presensi sholat berjamaah.</td>
+              </tr>
+              <tr>
+                <td class="c-role">WALI_KELAS</td>
+                <td class="c-no">—</td><td class="c-yes">✓</td><td class="c-part">Kelas</td><td class="c-part">Kelas</td>
+                <td>Khusus kelas binaan: dashboard kelas, input Izin/Sakit/Alpa, sholat, poin &amp; raport kelas.</td>
+              </tr>
+              <tr>
+                <td class="c-role">PETUGAS_OSIS</td>
+                <td class="c-no">—</td><td class="c-no">—</td><td class="c-part">Lapor</td><td class="c-no">—</td>
+                <td>Hanya menginput laporan pelanggaran (berstatus <b>Menunggu Validasi BK</b>). Saldo siswa disembunyikan.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note-box">
+          <b>Catatan Keamanan Login:</b> Setiap akun menggunakan <b>ID Guru/Petugas</b> dan <b>PIN / Password</b> yang mendukung kombinasi huruf dan angka (keyboard teks standar di HP). Satu pengguna juga dapat memiliki multi-role (misalnya <code>GURU_PIKET,WALI_KELAS</code>) yang dipisahkan koma pada Master Guru.
+        </div>
+      </section>
+
+      <!-- BAB 2: BERANDA & CEK PUBLIK -->
+      <section class="doc-sheet" id="bab-2">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 02 · Akses Awal · Orang Tua, Siswa &amp; Petugas</div>
+          <h2 class="ch-title">Beranda Utama &amp; Portal Cek Publik</h2>
+          <p class="ch-lead">Halaman beranda menampilkan 1 layanan publik tanpa login serta 4 portal petugas, dilengkapi jam WIB real-time, saklar mode terang/gelap, dan deteksi sesi aktif.</p>
+        </div>
+
+        <!-- Preview Tampilan Web: Beranda & Cek Publik -->
+        <div class="fig-block">
+          <div class="browser-frame">
+            <div class="browser-bar">
+              <div class="browser-url">https://smkbkciawi.github.io/bkcsiplin/index.html</div>
+              <div class="browser-tag">Tampilan Beranda &amp; Cek Publik</div>
+            </div>
+            <div class="browser-body">
+              <div class="m-hdr light">
+                <span><b>BKCSiplin</b> · SMK Bhakti Kencana Ciawi</span>
+                <span>07:14:22 WIB · <i class="fas fa-book-open"></i> <span class="pin-n">1</span> · <i class="fas fa-moon"></i></span>
+              </div>
+              <div class="m-card" style="background:#F5F3FF;border-color:#DDD6FE;margin-bottom:.6rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem">
+                <div>
+                  <div style="font-size:.64rem;font-weight:700;color:#6D28D9">Tanpa Login · Orang Tua &amp; Siswa <span class="pin-n">2</span></div>
+                  <div class="m-card-t">Cek Kehadiran &amp; Poin Siswa</div>
+                  <div class="m-card-s">Pantau jam masuk/pulang, catatan sholat, dan saldo poin kedisiplinan secara langsung.</div>
+                </div>
+                <span class="m-btn primary" style="background:#4F46E5">Cek Sekarang →</span>
+              </div>
+              <div class="m-grid-4">
+                <div class="m-card"><div class="m-card-t">01 · Gerbang <span class="pin-n">3</span></div><div class="m-card-s">Presensi masuk/pulang RFID &amp; manual</div></div>
+                <div class="m-card"><div class="m-card-t">02 · Sholat</div><div class="m-card-s">Presensi 5 waktu &amp; udzur syar'i</div></div>
+                <div class="m-card"><div class="m-card-t">03 · Disiplin</div><div class="m-card-s">Poin, validasi OSIS &amp; cetak SP</div></div>
+                <div class="m-card"><div class="m-card-t">04 · Admin</div><div class="m-card-s">Dashboard, master data &amp; Telegram</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="fig-cap">Gambar 2.1 — Tampilan Halaman Beranda BKCSiplin: (1) Tombol Panduan &amp; Mode Gelap, (2) Akses Cek Publik tanpa login, (3) Empat portal operasional petugas.</div>
+        </div>
+
+        <h3 class="sub-h">Cara Orang Tua / Siswa Mengecek Kehadiran &amp; Poin</h3>
+        <ol class="steps">
+          <li class="step"><span class="step-n">1</span><div>Buka halaman <b>Beranda</b> lalu klik kartu <b>Cek Kehadiran &amp; Poin Siswa</b> (<code>cek.html</code>) — tidak memerlukan login maupun kata sandi.</div></li>
+          <li class="step"><span class="step-n">2</span><div>Ketik <b>NIS</b> atau <b>nama lengkap siswa</b> pada kolom pencarian, lalu pilih nama siswa yang sesuai.</div></li>
+          <li class="step"><span class="step-n">3</span><div>Sistem langsung menampilkan status hari ini (jam masuk/pulang, status Tepat Waktu/Terlambat, keterangan Izin/Sakit/Alpa, catatan sholat/udzur), serta <b>Saldo Poin</b>, <b>Zona Karakter</b>, dan riwayat 30 hari terakhir.</div></li>
+        </ol>
+      </section>
+
+      <!-- BAB 3: PORTAL GERBANG -->
+      <section class="doc-sheet" id="bab-3">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 03 · Role: GURU_PIKET · SUPER_ADMIN</div>
+          <h2 class="ch-title">Portal Gerbang (Presensi Offline-First)</h2>
+          <p class="ch-lead">Dirancang cepat di gerbang sekolah (kurang dari 2 detik per tap) dengan penyimpanan lokal anti-gangguan internet, dukungan kartu RFID maupun pencarian nama manual, serta deteksi keterlambatan otomatis.</p>
+        </div>
+
+        <!-- Preview Tampilan Web: Portal Gerbang -->
+        <div class="fig-block">
+          <div class="browser-frame">
+            <div class="browser-bar">
+              <div class="browser-url">https://smkbkciawi.github.io/bkcsiplin/gerbang.html</div>
+              <div class="browser-tag">Tampilan Portal Gerbang</div>
+            </div>
+            <div class="browser-body">
+              <div class="m-hdr navy">
+                <span>🚪 Presensi Gerbang · Sesi: PAGI (Batas 07:00)</span>
+                <span style="display:flex;gap:.35rem;align-items:center">
+                  <span class="m-btn amber">⬇️ Tarik Data <span class="pin-n">1</span></span>
+                  <span class="m-btn emerald">⬆️ Sinkron (14) <span class="pin-n">4</span></span>
+                </span>
+              </div>
+              <div class="m-grid-2">
+                <div class="m-card">
+                  <div class="m-card-t">Input Tap RFID / Cari Nama <span class="pin-n">2</span></div>
+                  <div class="m-input" style="margin:.4rem 0">Tempel kartu RFID atau ketik NIS / Nama…</div>
+                  <div style="display:flex;gap:.35rem;margin-top:.45rem">
+                    <span class="m-btn primary">Sesi Pagi</span>
+                    <span class="m-btn ghost">Sesi Pulang</span>
+                    <span class="m-btn ghost">Mode Guru</span>
+                  </div>
+                </div>
+                <div class="m-card" style="background:#ECFDF5;border-color:#A7F3D0">
+                  <div class="m-card-t" style="color:#065F46">Hasil Tap Terakhir <span class="pin-n">3</span></div>
+                  <div style="font-weight:800;font-size:.82rem;color:#0F172A;margin-top:.2rem">Aulia Rahma — XI Farmasi 1</div>
+                  <div style="font-size:.69rem;color:#047857;margin-top:.15rem">✓ TEPAT WAKTU · 06:48 WIB · Tersimpan di antrean lokal</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fig-cap">Gambar 3.1 — Alur layar Portal Gerbang: (1) Tarik Data Pagi sebelum jam masuk, (2) Area scan RFID/manual, (3) Konfirmasi instan suara &amp; layar, (4) Sinkronisasi manual ke server.</div>
+        </div>
+
+        <h3 class="sub-h">Langkah Operasional Harian Guru Piket</h3>
+        <ol class="steps">
+          <li class="step"><span class="step-n">1</span><div><b>Login &amp; Tarik Data Pagi (06:20 WIB):</b> Masuk dengan ID Guru &amp; PIN/Password, lalu wajib klik <b>⬇️ Tarik Data</b> agar daftar siswa, guru, UID kartu RFID, dan aturan jam masuk terbaru tersimpan di perangkat.</div></li>
+          <li class="step"><span class="step-n">2</span><div><b>Pilih Sesi &amp; Mulai Scan:</b> Pastikan kursor aktif di kotak scan (otomatis menangkap input pembaca RFID USB/Bluetooth) atau ketik sebagian nama/NIS jika kartu tertinggal. Siswa dan guru yang tap otomatis dikenali.</div></li>
+          <li class="step"><span class="step-n">3</span><div><b>Deteksi Terlambat &amp; Auto-Potong Poin:</b> Jika siswa tap melewati jam masuk + toleransi menit (diatur di Admin), status tercatat <b>TERLAMBAT</b>. Bila fitur <i>Auto-Potong Poin Terlambat</i> aktif di Admin, poin otomatis terpotong saat sinkron.</div></li>
+          <li class="step"><span class="step-n">4</span><div><b>Sinkron Manual ke Server:</b> Setelah gelombang masuk selesai (sekitar 07:30) dan setelah jam pulang (15:30), klik <b>⬆️ Sinkron</b>. Data masuk ke Spreadsheet dan ringkasan siswa terlambat langsung terkirim ke Bot Telegram.</div></li>
+        </ol>
+
+        <div class="note-box warn">
+          <b>Penting — Reset Harian 00:00 WIB:</b> Antrean lokal perangkat otomatis dibersihkan saat pergantian hari. Selalu pastikan angka antrean pada tombol <b>⬆️ Sinkron</b> sudah menjadi <b>(0)</b> sebelum meninggalkan perangkat di sore hari.
+        </div>
+      </section>
+
+      <!-- BAB 4: PORTAL E-SHOLAT -->
+      <section class="doc-sheet" id="bab-4">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 04 · Role: PIKET · WALI KELAS · BK · WAKA · KEPSEK · ADMIN</div>
+          <h2 class="ch-title">Portal E-Sholat &amp; Manajemen Udzur Syar'i</h2>
+          <p class="ch-lead">Mencatat partisipasi sholat berjamaah 5 waktu (Subuh, Dzuhur, Ashar, Maghrib, Isya), mengelola masa udzur syar'i siswi secara otomatis, dan menyediakan laporan 4 mode siap cetak atau ekspor Excel.</p>
+        </div>
+
+        <!-- Preview Tampilan Web: Portal Sholat -->
+        <div class="fig-block">
+          <div class="browser-frame">
+            <div class="browser-bar">
+              <div class="browser-url">https://smkbkciawi.github.io/bkcsiplin/sholat.html</div>
+              <div class="browser-tag">Tampilan Portal E-Sholat</div>
+            </div>
+            <div class="browser-body">
+              <div class="m-hdr emerald">
+                <span>🕌 Presensi E-Sholat · Waktu Aktif: DZUHUR</span>
+                <span>Petugas: Guru Piket</span>
+              </div>
+              <div class="m-tabs">
+                <span class="m-tab active">📷 Scan Sholat <span class="pin-n">1</span></span>
+                <span class="m-tab">🩺 Udzur Syar'i <span class="pin-n">2</span></span>
+                <span class="m-tab">📊 Laporan 4 Mode <span class="pin-n">3</span></span>
+              </div>
+              <div class="m-grid-2">
+                <div class="m-card">
+                  <div class="m-card-t">Pilih Waktu &amp; Scan QR / RFID / Manual</div>
+                  <div style="display:flex;gap:.25rem;flex-wrap:wrap;margin:.35rem 0">
+                    <span class="m-btn ghost">Subuh</span>
+                    <span class="m-btn emerald">Dzuhur ✓</span>
+                    <span class="m-btn ghost">Ashar</span>
+                    <span class="m-btn ghost">Maghrib</span>
+                    <span class="m-btn ghost">Isya</span>
+                  </div>
+                  <div class="m-input">Scan QR Kartu / Ketik Nama Siswa…</div>
+                </div>
+                <div class="m-card">
+                  <div class="m-card-t">Ringkasan Dzuhur Hari Ini</div>
+                  <div class="m-row"><span>Tercatat Sholat</span><b style="color:#047857">318 Siswa</b></div>
+                  <div class="m-row"><span>Udzur Syar'i Aktif</span><b style="color:#B45309">24 Siswi</b></div>
+                  <div class="m-row"><span>Hadir Pagi Belum Sholat</span><b style="color:#BE123C">12 Siswa</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fig-cap">Gambar 4.1 — Portal E-Sholat: (1) Tab Scan per waktu sholat, (2) Tab Udzur Syar'i dengan rentang tanggal mulai–selesai, (3) Tab Laporan 4 mode (Harian, Per Kelas, Per Siswa, Bolos Sholat).</div>
+        </div>
+
+        <ol class="steps">
+          <li class="step"><span class="step-n">1</span><div><b>Presensi Sholat:</b> Pilih waktu sholat (misalnya <b>Dzuhur</b> atau <b>Ashar</b>), lalu scan kartu QR/RFID siswa atau ketik nama siswa pada kolom manual. Bunyi <i>beep</i> menandakan catatan berhasil dan anti-duplikat di waktu yang sama.</div></li>
+          <li class="step"><span class="step-n">2</span><div><b>Input Udzur Syar'i:</b> Buka tab <b>Udzur</b>, cari nama siswi, tentukan <b>Tanggal Mulai</b> dan <b>Tanggal Selesai</b> (misal 5–7 hari), lalu simpan. Selama rentang tanggal tersebut, siswi otomatis tidak dianggap bolos sholat di laporan maupun Bot Telegram <code>/sholat</code>.</div></li>
+          <li class="step"><span class="step-n">3</span><div><b>Laporan &amp; Ekspor:</b> Buka tab <b>Laporan</b> (tersedia untuk Wali Kelas khusus kelasnya, BK, Waka, Kepsek, dan Admin) untuk memfilter per tanggal/kelas, mencetak PDF, atau mengunduh Excel.</div></li>
+        </ol>
+      </section>
+
+      <!-- BAB 5: PORTAL DISIPLIN & ZONA POIN -->
+      <section class="doc-sheet" id="bab-5">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 05 · Role: BK · WAKA · KEPSEK · WALI KELAS · OSIS · ADMIN</div>
+          <h2 class="ch-title">Portal Kedisiplinan, 5 Zona Poin &amp; Surat Peringatan</h2>
+          <p class="ch-lead">Mengelola pencatatan pelanggaran (-) dan prestasi (+) berbasis pasal tata tertib, menghitung saldo poin otomatis dari saldo awal 100, serta mencetak Surat Peringatan resmi (SP1–SP3).</p>
+        </div>
+
+        <!-- Preview Tampilan Web: Portal Disiplin -->
+        <div class="fig-block">
+          <div class="browser-frame">
+            <div class="browser-bar">
+              <div class="browser-url">https://smkbkciawi.github.io/bkcsiplin/disiplin.html</div>
+              <div class="browser-tag">Tampilan Portal Kedisiplinan</div>
+            </div>
+            <div class="browser-body">
+              <div class="m-hdr maroon">
+                <span>⚖️ Kedisiplinan &amp; Poin Karakter</span>
+                <span>Saldo Awal: 100 Poin</span>
+              </div>
+              <div class="m-tabs">
+                <span class="m-tab active-m">Catat Poin <span class="pin-n">1</span></span>
+                <span class="m-tab">Validasi OSIS (3) <span class="pin-n">2</span></span>
+                <span class="m-tab">Bolos Sholat</span>
+                <span class="m-tab">Surat Peringatan (SP) <span class="pin-n">3</span></span>
+              </div>
+              <div class="m-grid-2">
+                <div class="m-card">
+                  <div class="m-card-t">Form Catat Multi-Pasal</div>
+                  <div class="m-input" style="margin:.35rem 0">Siswa: Dimas Pratama (XI RPL 2)</div>
+                  <div class="m-row"><span><code>P-04</code> Atribut tidak lengkap</span><b style="color:#BE123C">-5</b></div>
+                  <div class="m-row"><span><code>P-11</code> Terlambat apel pagi</span><b style="color:#BE123C">-5</b></div>
+                  <div style="margin-top:.4rem;display:flex;justify-content:space-between;align-items:center">
+                    <span style="font-size:.66rem;color:#64748B">Total: <b>-10 poin</b></span>
+                    <span class="m-btn maroon">Simpan Catatan</span>
+                  </div>
+                </div>
+                <div class="m-card">
+                  <div class="m-card-t">5 Zona Karakter Otomatis</div>
+                  <div class="m-row"><span style="color:#047857;font-weight:700">● HIJAU (≥ 76)</span><span>Sangat Baik</span></div>
+                  <div class="m-row"><span style="color:#B45309;font-weight:700">● KUNING (51–75)</span><span>Pembinaan / SP 1</span></div>
+                  <div class="m-row"><span style="color:#C2410C;font-weight:700">● ORANYE (26–50)</span><span>Perhatian / SP 2</span></div>
+                  <div class="m-row"><span style="color:#BE123C;font-weight:700">● MERAH (1–25)</span><span>Risiko Tinggi / SP 3</span></div>
+                  <div class="m-row"><span style="color:#1E293B;font-weight:700">● KRITIS (≤ 0)</span><span>Konferensi Kasus</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fig-cap">Gambar 5.1 — Portal Kedisiplinan: (1) Input pelanggaran/prestasi multi-pasal dalam satu kronologi, (2) Antrean Validasi OSIS, (3) Pembuatan &amp; ekspor Surat Peringatan (SP1/SP2/SP3).</div>
+        </div>
+
+        <ol class="steps">
+          <li class="step"><span class="step-n">1</span><div><b>Catat Pelanggaran / Prestasi:</b> Pilih siswa, centang satu atau beberapa pasal tata tertib sekaligus (multi-pasal), tulis kronologi singkat, lalu simpan. Saldo poin otomatis terhitung dan jika siswa turun zona, notifikasi peringatan langsung terkirim ke Grup 1 Telegram.</div></li>
+          <li class="step"><span class="step-n">2</span><div><b>Validasi Bolos Sholat:</b> Menu khusus bagi BK/Wakasis untuk mengecek siswa yang hadir gerbang pagi namun tidak tercatat sholat dan tidak udzur syar'i, lalu memproses pembinaan bila perlu.</div></li>
+          <li class="step"><span class="step-n">3</span><div><b>Cetak / Unduh Word Surat Peringatan:</b> Pilih siswa dan jenis surat (SP 1, SP 2, atau SP 3). Sistem otomatis mengisi nomor surat, identitas siswa, rincian riwayat pelanggaran, serta kolom tanda tangan Kepala Sekolah, Waka Kesiswaan, dan Guru BK.</div></li>
+        </ol>
+      </section>
+
+      <!-- BAB 6: ALUR OSIS & VALIDASI BK -->
+      <section class="doc-sheet" id="bab-6">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 06 · Kolaborasi Disiplin · PETUGAS_OSIS ↔ GURU_BK / WAKA</div>
+          <h2 class="ch-title">Alur Laporan OSIS &amp; Validasi BK / Wakasis</h2>
+          <p class="ch-lead">Petugas OSIS dapat membantu mencatat pelanggaran di lapangan tanpa risiko salah potong poin. Setiap laporan OSIS bersifat tertunda hingga disahkan oleh Guru BK atau Waka Kesiswaan.</p>
+        </div>
+
+        <div class="flow-row">
+          <div class="flow-box">
+            <div class="flow-step">LANGKAH 01</div>
+            <div class="flow-title">OSIS Input Laporan</div>
+            <div class="flow-desc">Login di <code>disiplin.html</code> dengan akun <code>PETUGAS_OSIS</code>, pilih siswa, pasal &amp; kronologi.</div>
+          </div>
+          <div class="flow-box">
+            <div class="flow-step">LANGKAH 02</div>
+            <div class="flow-title">Status MENUNGGU</div>
+            <div class="flow-desc">Data tersimpan ke sheet Poin BK dengan status <b>MENUNGGU</b>. Saldo siswa belum berkurang.</div>
+          </div>
+          <div class="flow-box">
+            <div class="flow-step">LANGKAH 03</div>
+            <div class="flow-title">Notif Telegram Instan</div>
+            <div class="flow-desc">Bot langsung mengirim kartu laporan beserta tombol <b>Setujui / Tolak</b> ke Grup 1 Pimpinan &amp; BK.</div>
+          </div>
+          <div class="flow-box">
+            <div class="flow-step">LANGKAH 04</div>
+            <div class="flow-title">Sah &amp; Tercatat Audit</div>
+            <div class="flow-desc">BK/Wakasis pilah via Telegram atau Web. Jika disetujui, saldo terpotong &amp; nama validator tercatat.</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="info-panel">
+            <h4>Batasan Keamanan Akun PETUGAS_OSIS</h4>
+            <ul>
+              <li>Hanya dapat login ke <b>Portal Disiplin</b> untuk melaporkan pelanggaran.</li>
+              <li>Tidak dapat melihat saldo poin akhir, riwayat konseling, maupun mencetak surat SP siswa.</li>
+              <li>Tidak dapat menyetujui, mengubah, atau menghapus laporan yang sudah masuk.</li>
+            </ul>
+          </div>
+          <div class="info-panel">
+            <h4>Dua Cara Validasi oleh BK / Wakasis</h4>
+            <ul>
+              <li><b>Langsung di Grup 1 Telegram:</b> Klik tombol <code>✅ Setujui</code> atau <code>❌ Tolak</code> per pasal (atau <i>Setujui/Tolak Semua</i>) pada kartu notifikasi, atau ketik <code>/pending</code>.</li>
+              <li><b>Lewat Web Kedisiplinan:</b> Buka tab <b>Validasi OSIS</b> di <code>disiplin.html</code> untuk meninjau daftar antrean dan memvalidasi.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="note-box ok">
+          <b>Anti Klik Ganda &amp; Pengaman Validator:</b> Sistem mengunci transaksi saat tombol diklik sehingga bila 2 guru BK menekan tombol bersamaan, poin siswa hanya terpotong 1 kali. Admin juga dapat mengisi daftar <b>User ID Telegram Validator</b> (didapat lewat perintah <code>/id</code>) jika ingin membatasi siapa saja yang berhak menekan tombol sahkan di grup.
+        </div>
+      </section>
+
+      <!-- BAB 7: PORTAL ADMIN & WALI KELAS -->
+      <section class="doc-sheet" id="bab-7">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 07 · Role: SUPER_ADMIN · KEPSEK · BK · WAKA · WALI KELAS</div>
+          <h2 class="ch-title">Portal Admin &amp; 13 Modul Manajemen Sekolah</h2>
+          <p class="ch-lead">Pusat kendali seluruh data sekolah dengan menu yang menyesuaikan role akun secara otomatis. Wali Kelas langsung diarahkan ke data kelas binaannya sendiri.</p>
+        </div>
+
+        <!-- Preview Tampilan Web: Portal Admin -->
+        <div class="fig-block">
+          <div class="browser-frame">
+            <div class="browser-bar">
+              <div class="browser-url">https://smkbkciawi.github.io/bkcsiplin/admin.html</div>
+              <div class="browser-tag">Tampilan Portal Admin &amp; Pengaturan</div>
+            </div>
+            <div class="browser-body">
+              <div style="display:grid;grid-template-columns:165px minmax(0,1fr);gap:.65rem">
+                <div style="background:#0F172A;color:#E2E8F0;border-radius:8px;padding:.6rem;font-size:.66rem">
+                  <div style="font-weight:800;color:#93C5FD;margin-bottom:.4rem">MENU ADMIN <span class="pin-n">1</span></div>
+                  <div style="padding:.22rem .35rem;background:#1E3A8A;border-radius:5px;margin-bottom:.2rem">Dashboard</div>
+                  <div style="padding:.18rem .35rem;color:#CBD5E1">Master Siswa / Kelas</div>
+                  <div style="padding:.18rem .35rem;color:#CBD5E1">Master Guru &amp; Role</div>
+                  <div style="padding:.18rem .35rem;color:#CBD5E1">Tata Tertib &amp; RFID</div>
+                  <div style="padding:.18rem .35rem;color:#CBD5E1">Naik Kelas / Lulus</div>
+                  <div style="padding:.18rem .35rem;color:#CBD5E1">Keterangan Absen</div>
+                  <div style="padding:.18rem .35rem;color:#CBD5E1">Laporan &amp; Raport A4</div>
+                  <div style="padding:.18rem .35rem;color:#CBD5E1">Cetak Kartu CR80</div>
+                  <div style="padding:.18rem .35rem;color:#93C5FD;font-weight:700">Pengaturan + Telegram <span class="pin-n">3</span></div>
+                </div>
+                <div>
+                  <div class="m-hdr blue" style="margin-bottom:.5rem">
+                    <span>📊 Dashboard Eksekutif Real-Time</span>
+                    <span>Hari Ini · Semua Kelas</span>
+                  </div>
+                  <div class="m-grid-4" style="margin-bottom:.55rem">
+                    <div class="m-card"><div class="m-card-s">Siswa Hadir <span class="pin-n">2</span></div><div class="m-card-t" style="font-size:.9rem;color:#047857">94%</div></div>
+                    <div class="m-card"><div class="m-card-s">Terlambat</div><div class="m-card-t" style="font-size:.9rem;color:#B45309">7</div></div>
+                    <div class="m-card"><div class="m-card-s">Guru Hadir</div><div class="m-card-t" style="font-size:.9rem;color:#1D4ED8">38/41</div></div>
+                    <div class="m-card"><div class="m-card-s">Pending OSIS</div><div class="m-card-t" style="font-size:.9rem;color:#BE123C">2</div></div>
+                  </div>
+                  <div class="m-card">
+                    <div class="m-card-t">Ringkasan Fitur Pengaturan</div>
+                    <div class="m-card-s">Jam Masuk/Pulang · Toleransi Menit · Auto-Potong Poin Terlambat · Identitas Kop Surat · Batas 5 Zona Poin · Konfigurasi Bot Telegram 2 Arah &amp; Jadwal Otomatis.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fig-cap">Gambar 7.1 — Portal Admin: (1) Bilah menu 13 modul yang otomatis menyaring akses sesuai role, (2) Ringkasan statistik harian real-time, (3) Pengaturan sistem &amp; aktivasi Bot Telegram.</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="info-panel">
+            <h4>Modul Master &amp; Administrasi Tahunan</h4>
+            <ul>
+              <li><b>Master Siswa &amp; Import Excel:</b> Tambah satuan atau unggah massal dari file Excel/CSV.</li>
+              <li><b>Master Guru &amp; Role:</b> Atur ID Guru, PIN/Password (boleh huruf + angka), dan multi-role.</li>
+              <li><b>Registrasi RFID:</b> Pasangkan UID kartu RFID siswa maupun guru cukup dengan 1 kali tap.</li>
+              <li><b>Naik Kelas &amp; Kelulusan:</b> Pindahkan kelas massal saat tahun ajaran baru &amp; luluskan kelas XII.</li>
+            </ul>
+          </div>
+          <div class="info-panel">
+            <h4>Modul Monitoring, Cetak &amp; Wali Kelas</h4>
+            <ul>
+              <li><b>Keterangan Absen:</b> Wali Kelas/BK mencatat Izin, Sakit, atau Alpa siswa yang tidak tap gerbang.</li>
+              <li><b>Laporan &amp; Raport A4:</b> Rekap kehadiran siswa, guru, sholat, dan cetak Raport Karakter per periode.</li>
+              <li><b>Cetak Kartu Pelajar CR80:</b> Buat kartu pelajar ber-QR &amp; foto siap potong di kertas A4.</li>
+              <li><b>Pengaturan &amp; Bot Telegram:</b> Atur jam operasional, zona poin, dan kontrol penuh bot Telegram.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- BAB 8: BOT TELEGRAM 2 ARAH -->
+      <section class="doc-sheet" id="bab-telegram">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 08 · Pemantauan Mobile Real-Time · @bkcsiplin_bot</div>
+          <h2 class="ch-title">Bot Telegram 2 Arah &amp; Panel Kontrol 1 Klik</h2>
+          <p class="ch-lead">Memungkinkan Kepala Sekolah, Waka Kesiswaan, Guru BK, dan Admin memantau sekolah serta mengesahkan laporan OSIS langsung dari Grup Telegram tanpa membuka laptop.</p>
+        </div>
+
+        <!-- Preview Tampilan Chat Telegram -->
+        <div class="fig-block">
+          <div class="tg-frame">
+            <div class="tg-top">
+              <span>✈️ Monitoring BKCSiplin (Grup 1 · Pimpinan &amp; BK)</span>
+              <span style="font-weight:500;font-size:.68rem">@bkcsiplin_bot</span>
+            </div>
+            <div class="tg-pinbar">
+              <i class="fas fa-thumbtack"></i> <span>Pesan Disematkan: 🏠 PANEL KONTROL BKCSIPLIN (/menu) <span class="pin-n">1</span></span>
+            </div>
+            <div class="tg-chat">
+              <div class="tg-bubble">
+                <div class="tg-sender">BKCSiplin Bot</div>
+                🏠 <b>PANEL KONTROL BKCSIPLIN</b><br>
+                SMK Bhakti Kencana Ciawi · Pilih menu pemantauan 1 klik di bawah:<br>
+                <span style="color:#64748B;font-style:italic">🕒 Update: 08:05:14 WIB</span>
+                <div class="tg-kb">
+                  <div class="tg-kbtn">📋 Rekap Hari Ini</div>
+                  <div class="tg-kbtn">🏫 Rekap Per Kelas</div>
+                  <div class="tg-kbtn">⏰ Siswa Terlambat</div>
+                  <div class="tg-kbtn">⚠️ Belum Ada Kabar</div>
+                  <div class="tg-kbtn">🕌 Rekap Sholat</div>
+                  <div class="tg-kbtn">👩‍🏫 Kehadiran Guru</div>
+                  <div class="tg-kbtn">🔔 Validasi OSIS</div>
+                  <div class="tg-kbtn">🚨 Zona Peringatan</div>
+                </div>
+              </div>
+              <div class="tg-bubble">
+                <div class="tg-sender">BKCSiplin Bot <span class="pin-n">2</span></div>
+                🔔 <b>LAPORAN OSIS (MENUNGGU VALIDASI)</b><br>
+                👤 Siswa: <b>Raka Saputra</b> (XI TKR 1)<br>
+                📌 1. <b>P-04</b> Atribut tidak lengkap (<code>-5</code>) · ⏳<br>
+                📝 Kronologi: Tidak memakai dasi saat apel<br>
+                👮 Pelapor: Pengurus OSIS
+                <div class="tg-kb">
+                  <div class="tg-kbtn ok">✅ Setujui (-5 poin)</div>
+                  <div class="tg-kbtn no">❌ Tolak Laporan</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fig-cap">Gambar 8.1 — Tampilan Grup 1 Telegram: (1) Panel /menu yang disematkan (Pin) di atas grup agar tinggal 1 klik, (2) Kartu notifikasi OSIS dengan tombol validasi langsung.</div>
+        </div>
+
+        <h3 class="sub-h">Daftar Lengkap 12 Perintah Bot Telegram</h3>
+        <div class="table-wrap">
+          <table class="doc-tbl">
+            <thead>
+              <tr>
+                <th>Perintah</th>
+                <th>Fungsi &amp; Tampilan Interaktif</th>
+                <th>Hak Akses Grup</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="c-role">/menu</td><td>Membuka Panel Kontrol 1 Klik (disarankan di-<b>Pin</b> di atas grup).</td><td>Grup 1 &amp; Grup 2</td></tr>
+              <tr><td class="c-role">/rekap</td><td>Ringkasan kehadiran siswa, guru, terlambat, izin/sakit/alpa &amp; antrean OSIS hari ini.</td><td>Grup 1 &amp; Grup 2</td></tr>
+              <tr><td class="c-role">/kelas</td><td>Rekap kehadiran semua kelas dengan tombol klik per kelas untuk rincian nama siswa.</td><td>Grup 1 &amp; Grup 2</td></tr>
+              <tr><td class="c-role">/sholat</td><td>Rekap sholat 5 waktu, Udzur Syar'i aktif, per kelas, &amp; deteksi hadir pagi belum sholat.</td><td>Grup 1 &amp; Grup 2</td></tr>
+              <tr><td class="c-role">/telat</td><td>Daftar lengkap siswa terlambat hari ini beserta jam tap WIB.</td><td>Grup 1 &amp; Grup 2</td></tr>
+              <tr><td class="c-role">/belum</td><td>Daftar siswa aktif yang belum tap gerbang &amp; belum ada keterangan, dikelompokkan per kelas.</td><td>Grup 1 &amp; Grup 2</td></tr>
+              <tr><td class="c-role">/cek Nama</td><td>Cek cepat 1 siswa berdasarkan nama atau NIS (gerbang, sholat, saldo poin, zona).</td><td>Grup 1 &amp; Grup 2</td></tr>
+              <tr><td class="c-role">/guru</td><td>Daftar guru/staf yang sudah hadir (jam masuk–pulang) dan yang belum absen.</td><td>Khusus Grup 1</td></tr>
+              <tr><td class="c-role">/pending</td><td>Antrean laporan OSIS menunggu validasi + tombol langsung <code>✅ Setujui</code> / <code>❌ Tolak</code>.</td><td>Khusus Grup 1</td></tr>
+              <tr><td class="c-role">/zona</td><td>Daftar siswa zona Kritis, Merah, Oranye &amp; Kuning (bisa difilter per kategori).</td><td>Khusus Grup 1</td></tr>
+              <tr><td class="c-role">/id</td><td>Menampilkan User ID Telegram Anda (untuk daftar pengaman validator opsional).</td><td>Grup 1 &amp; Grup 2</td></tr>
+              <tr><td class="c-role">/bantuan</td><td>Menampilkan ringkasan daftar perintah yang tersedia di grup tersebut.</td><td>Grup 1 &amp; Grup 2</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note-box">
+          <b>Jadwal Kirim Otomatis:</b> Setelah klik <b>Pasang Jadwal Harian &amp; Mingguan</b> di Admin (cukup 1x), bot otomatis mengirim <b>Rekap Pagi (08:00 WIB)</b>, <b>Rekap Sore (16:00 WIB)</b>, dan <b>Rekap Mingguan (Jumat 16:00 WIB)</b>. Semua fitur bisa dinyalakan atau dimatikan lewat centang di <b>Admin → Pengaturan → Bot Telegram</b>.
+        </div>
+      </section>
+
+      <!-- BAB 9: RUTINITAS HARIAN & PEMBERSIHAN DATA UJI COBA -->
+      <section class="doc-sheet" id="bab-golive">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 09 · Operasional Sekolah &amp; Daftar Periksa Go-Live</div>
+          <h2 class="ch-title">Jadwal Operasional &amp; Pembersihan Data Uji Coba</h2>
+          <p class="ch-lead">Panduan alur kerja harian seluruh tim sekolah serta panduan aman membersihkan data percobaan di Google Spreadsheet sebelum pemakaian resmi dimulai.</p>
+        </div>
+
+        <h3 class="sub-h">Alur Kerja Harian Sekolah (06:20 – 16:30 WIB)</h3>
+        <div class="table-wrap">
+          <table class="doc-tbl">
+            <thead>
+              <tr>
+                <th>Waktu (WIB)</th>
+                <th>Pelaksana</th>
+                <th>Aktivitas Utama di BKCSiplin</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="c-role">06:20 – 06:30</td><td>Guru Piket</td><td>Buka <b>Portal Gerbang</b> → klik <b>Tarik Data</b> untuk menyegarkan database lokal perangkat.</td></tr>
+              <tr><td class="c-role">06:30 – 07:30</td><td>Guru Piket</td><td>Scan kartu RFID / manual siswa &amp; guru masuk → selesai gelombang, klik <b>Sinkron</b>.</td></tr>
+              <tr><td class="c-role">08:00</td><td>Otomatis Bot</td><td>Bot Telegram mengirim <b>Rekap Pagi</b> ke Grup 1. Wali Kelas melengkapi Izin/Sakit/Alpa.</td></tr>
+              <tr><td class="c-role">08:00 – 15:00</td><td>OSIS &amp; BK</td><td>OSIS melapor pelanggaran jika ada → BK/Wakasis pilah &amp; sahkan via Telegram/Web.</td></tr>
+              <tr><td class="c-role">11:45 &amp; 15:00</td><td>Piket / Wali</td><td>Scan <b>E-Sholat</b> Dzuhur &amp; Ashar serta catat <b>Udzur Syar'i</b> siswi bila berhalangan.</td></tr>
+              <tr><td class="c-role">15:15 – 16:00</td><td>Guru Piket</td><td>Ubah Gerbang ke <b>Sesi Pulang</b> → scan siswa &amp; guru pulang → klik <b>Sinkron</b> (pastikan antrean 0).</td></tr>
+              <tr><td class="c-role">16:00</td><td>Otomatis Bot</td><td>Bot Telegram mengirim <b>Rekap Sore</b> (harian) dan <b>Rekap Mingguan</b> (khusus hari Jumat).</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="sub-h">Checklist Pembersihan Sheet Uji Coba Sebelum Go-Live</h3>
+        <p class="prose">Sebelum aplikasi mulai dipakai resmi, bersihkan data percobaan di Google Spreadsheet dengan hati-hati: <b>hapus HANYA isi mulai baris ke-2 ke bawah</b> (jangan pernah menghapus baris 1 / judul kolom!).</p>
+        <div class="grid-2">
+          <div class="info-panel" style="border-color:#FECDD3;background:#FFF5F6">
+            <h4 style="color:#9F1239">Sheet Transaksi (BOLEH Dikosongkan Baris 2 ke Bawah)</h4>
+            <ul>
+              <li><code>PRESENSI_GERBANG</code> — log tap gerbang uji coba</li>
+              <li><code>REKAP_SISWA</code> — rekap harian siswa uji coba</li>
+              <li><code>PRESENSI_GURU</code> &amp; <code>REKAP_GURU</code> — presensi guru uji coba</li>
+              <li><code>PRESENSI_SHOLAT</code> &amp; <code>UDZUR_SYARI</code> — tes sholat &amp; udzur</li>
+              <li><code>POIN_BK</code> — pelanggaran/prestasi &amp; laporan OSIS uji coba</li>
+              <li><code>KETERANGAN_ABSEN</code> &amp; <code>LOG_AUDIT</code> — tes absen &amp; riwayat audit</li>
+            </ul>
+          </div>
+          <div class="info-panel" style="border-color:#A7F3D0;background:#F0FDF8">
+            <h4 style="color:#065F46">Sheet Master (WAJIB DIPERTAHANKAN — JANGAN DIHAPUS!)</h4>
+            <ul>
+              <li><code>MASTER_SISWA</code> — seluruh data siswa &amp; UID RFID (hapus hanya siswa dummy bila ada)</li>
+              <li><code>MASTER_GURU</code> — seluruh akun guru, PIN/Password &amp; pembagian role</li>
+              <li><code>MASTER_KELAS</code> — daftar kelas &amp; pemetaan Wali Kelas</li>
+              <li><code>MASTER_TATA_TERTIB</code> — daftar pasal pelanggaran &amp; prestasi</li>
+              <li><code>PENGATURAN</code> — jam sekolah, zona poin, token &amp; Chat ID Bot Telegram</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- BAB 10: FAQ & TROUBLESHOOTING -->
+      <section class="doc-sheet" id="bab-10">
+        <div class="ch-head">
+          <div class="ch-meta">Bab 10 · Panduan Pemecahan Masalah Lapangan</div>
+          <h2 class="ch-title">Pertanyaan Umum &amp; Solusi Cepat (FAQ)</h2>
+          <p class="ch-lead">Ringkasan kendala yang paling sering ditemui petugas di lapangan beserta langkah penyelesaian cepatnya.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="info-panel">
+            <h4>1. Tidak bisa mengetik huruf pada kolom PIN di HP</h4>
+            <p>Semua halaman login BKCSiplin kini menggunakan keyboard teks standar (<b>PIN / Password</b>) sehingga mendukung huruf maupun angka. Jika HP masih memunculkan tampilan lama, muat ulang halaman (refresh) atau hapus cache browser.</p>
+          </div>
+          <div class="info-panel">
+            <h4>2. Tombol Bot Telegram hanya berputar atau tidak membalas</h4>
+            <p>Pastikan saat memperbarui kode Apps Script sudah memilih <b>Kelola Deployment → Edit → Versi baru → Terapkan</b>, lalu klik tombol <b>Aktifkan Perintah 2 Arah</b> 1x di halaman Admin → Pengaturan Bot Telegram.</p>
+          </div>
+          <div class="info-panel">
+            <h4>3. Data tap Gerbang belum muncul di Dashboard / Telegram</h4>
+            <p>Portal Gerbang bekerja <i>offline-first</i> agar tidak macet saat sinyal lemah. Cek tombol <b>⬆️ Sinkron</b> di kanan atas Portal Gerbang — jika angkanya lebih dari 0, klik tombol tersebut untuk mengirim antrean ke server.</p>
+          </div>
+          <div class="info-panel">
+            <h4>4. Cara menyematkan (Pin) tombol /menu di Grup Telegram</h4>
+            <p>Ketik <code>/menu</code> di grup. Di HP, <b>ketuk 1x (tap ringan)</b> pesan balasan bot lalu pilih <b>Sematkan (Pin)</b>. Di Telegram Web/Laptop, <b>klik kanan</b> pesan bot lalu pilih <b>Sematkan</b>. Hindari mengubah grup ke Supergroup agar Chat ID tidak berubah.</p>
+          </div>
+          <div class="info-panel">
+            <h4>5. Muncul peringatan "Akses Diblokir Browser" di Chrome HP</h4>
+            <p>Terjadi karena browser HP sedang login lebih dari 1 akun Google sekaligus saat mengakses Google Apps Script. Solusi sementara: buka lewat <b>Mode Penyamaran (Incognito)</b> atau browser alternatif (Edge/Firefox/Opera). Solusi permanen: pasang jalur Proxy API gratis (Cloudflare Worker).</p>
+          </div>
+          <div class="info-panel">
+            <h4>6. Siswa lupa membawa kartu RFID / QR</h4>
+            <p>Petugas gerbang maupun sholat tetap bisa mencatat kehadiran dengan mengetik sebagian <b>nama siswa</b> atau <b>NIS</b> di kolom pencarian manual yang tersedia tepat di samping kolom scan.</p>
+          </div>
+        </div>
+
+        <div class="note-box ok" style="margin-top:1.5rem">
+          <b>Penutup:</b> Dokumen pedoman ini dapat dibagikan dalam bentuk PDF kepada Kepala Sekolah, Waka Kesiswaan, Guru BK, Wali Kelas, Guru Piket, dan Pengurus OSIS SMK Bhakti Kencana Ciawi sebagai acuan resmi operasional BKCSiplin.
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- =========================================================
+     VIEW 2: MODE PRESENTASI (SLIDE DECK 2026)
+     ========================================================= -->
+<div id="deck-view">
+  <div class="deck-stage" id="deck-stage">
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide is-cover active" data-title="Sampul BKCSiplin 2026">
+      <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo SMK Bhakti Kencana Ciawi" style="width:92px;height:92px;object-fit:contain;background:#fff;border-radius:18px;padding:8px" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+      <h1>BKCSiplin</h1>
+      <p class="cv-sub">Sistem Informasi Terpadu Kedisiplinan, Kehadiran &amp; Pemantauan Telegram Real-Time</p>
+      <div class="cv-meta">SMK Bhakti Kencana Ciawi · Yayasan Adhi Guna Kencana · <span id="tgl-slide">2026</span></div>
+      <div style="margin-top:1.5rem;display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center">
+        <button type="button" class="dk-btn primary" onclick="nextSlide()">Mulai Presentasi <i class="fas fa-arrow-right"></i></button>
+        <button type="button" class="dk-btn" onclick="switchMode('manual')"><i class="fas fa-book-open"></i> Buka Buku Pedoman (PDF)</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: TRANSFORMASI -->
+    <section class="slide" data-title="Transformasi & Manfaat">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 01 · Latar Belakang</div>
+          <h2 class="sl-title">Dari Pencatatan Manual ke Sistem Terpadu Real-Time</h2>
+        </div>
+        <div class="sl-num">02 / 14</div>
+      </div>
+      <div class="sl-body c2-eq">
+        <div class="dk-card rose">
+          <h3>Kendala Sebelumnya</h3>
+          <ul>
+            <li>Presensi kertas rawan hilang dan rekap memakan waktu berjam-jam.</li>
+            <li>Laporan kehadiran &amp; pelanggaran ke Pimpinan tidak real-time.</li>
+            <li>Poin kedisiplinan dan ibadah sholat terpisah antar unit.</li>
+            <li>Laporan pelanggaran OSIS rawan terlewat atau langsung memotong poin tanpa validasi BK.</li>
+            <li>Orang tua kesulitan memantau kehadiran anak setiap hari.</li>
+          </ul>
+        </div>
+        <div class="dk-card ok">
+          <h3>Solusi BKCSiplin Saat Ini</h3>
+          <ul>
+            <li><b>Gerbang Offline-First:</b> Tap RFID/manual &lt;2 detik, tahan sinyal lemah, sinkron 1 klik.</li>
+            <li><b>Bot Telegram 2 Arah:</b> Pimpinan cek rekap &amp; sahkan laporan OSIS langsung dari HP.</li>
+            <li><b>Terintegrasi 14 Sheet:</b> Gerbang, Sholat, Udzur, Poin BK, Absen &amp; Raport dalam 1 data.</li>
+            <li><b>Alur OSIS Terkendali:</b> Input OSIS masuk status <i>Menunggu Validasi BK/Wakasis</i>.</li>
+            <li><b>Portal Cek Publik:</b> Orang tua &amp; siswa pantau kehadiran dan poin 24 jam tanpa login.</li>
+          </ul>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 3. 7 FUNGSI -->
-  <div class="slide" data-title="7 Fungsi Utama">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 1 · Pembukaan</div>
-      <h1>7 Fungsi <span class="hl">Utama</span></h1>
-    </div>
-    <div class="slide-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem">
-        <div class="chk"><div class="ico"><i class="fas fa-door-open"></i></div><div class="body"><b>Presensi Gerbang</b><br>Kehadiran masuk & pulang</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-mosque"></i></div><div class="body"><b>Presensi Sholat</b><br>5 waktu sholat berjamaah</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-gavel"></i></div><div class="body"><b>Kedisiplinan</b><br>Poin pelanggaran & prestasi</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-chalkboard-teacher"></i></div><div class="body"><b>Presensi Guru</b><br>Masuk, pulang, jam kerja</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-notes-medical"></i></div><div class="body"><b>Keterangan Absen</b><br>Izin, sakit, alpa</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-file-alt"></i></div><div class="body"><b>Raport Digital</b><br>Otomatis per periode</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-chart-line"></i></div><div class="body"><b>Laporan</b><br>Real-time ke pimpinan</div></div>
+    <!-- SLIDE 3: ARSITEKTUR & KEAMANAN -->
+    <section class="slide" data-title="Arsitektur & Keamanan">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 01 · Fondasi Teknis</div>
+          <h2 class="sl-title">Arsitektur Cloud Gratis &amp; Keamanan Berlapis</h2>
+        </div>
+        <div class="sl-num">03 / 14</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 4. MASALAH -->
-  <div class="slide" data-title="Masalah Sebelumnya">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 2 · Latar Belakang</div>
-      <h1>Masalah <span class="hl">Sebelumnya</span></h1>
-    </div>
-    <div class="slide-body">
-      <div class="box danger" style="height:100%">
-        <h3><i class="fas fa-triangle-exclamation"></i> 8 Masalah Utama</h3>
-        <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Presensi manual kertas → mudah hilang, susah dilacak</div></div>
-        <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Rekap kehadiran → memakan waktu berjam-jam</div></div>
-        <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Laporan ke Kepsek → lambat, tidak real-time</div></div>
-        <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Poin pelanggaran → susah dihitung, rawan konflik</div></div>
-        <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Presensi sholat → tidak terdokumentasi rapi</div></div>
-        <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Orang tua → tidak tahu kehadiran anak</div></div>
-        <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Wali kelas → sulit pantau kelasnya</div></div>
-        <div class="chk no"><div class="ico"><i class="fas fa-xmark"></i></div><div class="body">Data antar unit → tidak terhubung</div></div>
+      <div class="sl-body c3">
+        <div class="dk-card">
+          <h3>6 Layanan Web</h3>
+          <p>Beranda (Light/Dark), Cek Publik, Portal Gerbang, Portal E-Sholat, Portal Disiplin, dan Portal Admin — semuanya ringan diakses dari laptop maupun HP.</p>
+        </div>
+        <div class="dk-card">
+          <h3>Google Apps Script &amp; 14 Sheet</h3>
+          <p>Server dan database cloud milik sekolah sendiri di Google Drive. Tanpa biaya sewa server bulanan (<b>Rp 0</b>) dan ter-backup otomatis.</p>
+        </div>
+        <div class="dk-card ok">
+          <h3>Bot Telegram 2 Arah</h3>
+          <p>Terhubung langsung ke Grup 1 (Monitoring Pimpinan &amp; BK) untuk notifikasi real-time, validasi tombol interaktif, dan rekap terjadwal otomatis.</p>
+        </div>
+        <div class="dk-card">
+          <h3>Login ID + PIN/Password</h3>
+          <p>Mendukung kombinasi huruf dan angka di seluruh perangkat, dilengkapi sesi otomatis serta dukungan multi-role per akun guru.</p>
+        </div>
+        <div class="dk-card">
+          <h3>Hak Akses 7 Role Ketat</h3>
+          <p>Wali Kelas hanya mengakses kelas binaannya; OSIS hanya mengirim laporan tertunda tanpa bisa melihat saldo poin rahasia siswa.</p>
+        </div>
+        <div class="dk-card ok">
+          <h3>Jejak Audit Lengkap</h3>
+          <p>Setiap validasi OSIS (baik lewat Web maupun Telegram), koreksi poin, dan perubahan data tercatat lengkap beserta nama pelaku &amp; waktu.</p>
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 5. SOLUSI -->
-  <div class="slide" data-title="Solusi">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 2 · Solusi</div>
-      <h1>Solusi <span class="hl">BKCSiplin</span></h1>
-    </div>
-    <div class="slide-body">
-      <div class="box ok" style="height:100%">
-        <h3><i class="fas fa-circle-check"></i> 8 Solusi Otomatis</h3>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Presensi gerbang <b>scan QR/RFID</b> — otomatis</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Rekap kehadiran <b>instan &lt;5 detik</b> — real-time</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Laporan ke Kepsek <b>real-time</b> — langsung tersedia</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Poin pelanggaran <b>otomatis tersaldo</b> — akurat</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Presensi sholat <b>terdokumentasi rapi</b> — 5 waktu</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Orang tua <b>pantau mandiri</b> — via portal publik</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Wali kelas <b>dashboard khusus</b> — kelas sendiri</div></div>
-        <div class="chk"><div class="ico"><i class="fas fa-check"></i></div><div class="body">Semua data <b>terintegrasi</b> — satu sistem</div></div>
+    <!-- SLIDE 4: MATRIKS 7 ROLE -->
+    <section class="slide" data-title="Matriks 7 Role Pengguna">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 02 · Kewenangan</div>
+          <h2 class="sl-title">Tujuh Role Pengguna dengan Akses Jelas</h2>
+        </div>
+        <div class="sl-num">04 / 14</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 6. MANFAAT -->
-  <div class="slide" data-title="Manfaat">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 2 · Solusi</div>
-      <h1>Manfaat untuk <span class="hl">Semua</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-user-graduate"></i> Siswa</h3><div class="txt">✓ Kehadiran tercatat rapi<br>✓ Poin disiplin transparan<br>✓ Rapor digital<br>✓ Cek riwayat poin sendiri</div></div>
-      <div class="box"><h3><i class="fas fa-chalkboard-teacher"></i> Guru</h3><div class="txt">✓ Presensi otomatis<br>✓ Poin pelanggaran instan<br>✓ Laporan kelas mudah<br>✓ Rapor kelas cepat</div></div>
-      <div class="box"><h3><i class="fas fa-people-roof"></i> Orang Tua</h3><div class="txt">✓ Pantau kehadiran anak<br>✓ Tahu pelanggaran anak<br>✓ Tidak perlu tanya sekolah<br>✓ Akses 24 jam</div></div>
-      <div class="box"><h3><i class="fas fa-user-tie"></i> Pimpinan</h3><div class="txt">✓ Dashboard real-time<br>✓ Data akurat<br>✓ Laporan otomatis<br>✓ Keputusan cepat</div></div>
-    </div>
-  </div>
-
-  <!-- 7. ARSITEKTUR -->
-  <div class="slide" data-title="Arsitektur">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 3 · Teknis</div>
-      <h1>Arsitektur <span class="hl">Sistem</span></h1>
-    </div>
-    <div class="slide-body">
-      <div style="display:grid;gap:.8rem;width:100%;max-width:850px;margin:0 auto;text-align:center">
-        <div class="box" style="padding:.8rem"><b>Pengguna</b><br><span class="txt" style="font-size:.95rem">Siswa · Guru · BK · Kepsek · Ortu</span></div>
-        <div style="color:var(--brand-3)"><i class="fas fa-arrow-down"></i></div>
-        <div class="box" style="padding:.8rem"><b>Portal Web</b><br><span class="txt" style="font-size:.95rem">Gerbang · Sholat · Disiplin · Admin · Publik</span></div>
-        <div style="color:var(--brand-3)"><i class="fas fa-arrow-down"></i></div>
-        <div class="box" style="padding:.8rem"><b>Backend — Google Apps Script</b><br><span class="txt" style="font-size:.95rem">Login · Logika Bisnis · Verifikasi Akses</span></div>
-        <div style="color:var(--brand-3)"><i class="fas fa-arrow-down"></i></div>
-        <div class="box ok" style="padding:.8rem"><b>Database — Google Spreadsheet</b><br><span class="txt" style="font-size:.95rem">12 Sheet Terstruktur</span></div>
+      <div class="sl-body">
+        <table class="dk-tbl">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th style="text-align:center">Gerbang</th>
+              <th style="text-align:center">Sholat</th>
+              <th style="text-align:center">Disiplin</th>
+              <th style="text-align:center">Admin</th>
+              <th>Kewenangan Utama</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="r">SUPER_ADMIN</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td>Akses penuh semua modul, master data &amp; Bot Telegram</td></tr>
+            <tr><td class="r">KEPSEK</td><td class="n">—</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td>Dashboard eksekutif, laporan sekolah, raport &amp; monitoring</td></tr>
+            <tr><td class="r">WAKA_KESISWAAN</td><td class="n">—</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td>Disiplin penuh, validasi OSIS, SP1–SP3, tatib &amp; raport</td></tr>
+            <tr><td class="r">GURU_BK</td><td class="n">—</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td>Pembinaan, validasi OSIS/sholat, koreksi poin &amp; surat SP</td></tr>
+            <tr><td class="r">GURU_PIKET</td><td class="y">✓</td><td class="y">✓</td><td class="n">—</td><td class="n">—</td><td>Scan gerbang pagi/pulang (siswa &amp; guru) serta scan sholat</td></tr>
+            <tr><td class="r">WALI_KELAS</td><td class="n">—</td><td class="y">✓</td><td class="p">Kelas</td><td class="p">Kelas</td><td>Khusus kelas binaan: dashboard, absen I/S/A, raport &amp; sholat</td></tr>
+            <tr><td class="r">PETUGAS_OSIS</td><td class="n">—</td><td class="n">—</td><td class="p">Lapor</td><td class="n">—</td><td>Input laporan pelanggaran (menunggu validasi BK/Wakasis)</td></tr>
+          </tbody>
+        </table>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 8. KEAMANAN -->
-  <div class="slide" data-title="Keamanan">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 3 · Teknis</div>
-      <h1>Keamanan <span class="hl">Berlapis</span></h1>
-    </div>
-    <div class="slide-body cols-3">
-      <div class="box"><h3><i class="fas fa-key"></i> 2 Faktor</h3><div class="txt" style="font-size:1.05rem">ID Guru + PIN</div></div>
-      <div class="box"><h3><i class="fas fa-clock"></i> Session</h3><div class="txt" style="font-size:1.05rem">30 menit, auto-logout</div></div>
-      <div class="box"><h3><i class="fas fa-user-shield"></i> Role-Based</h3><div class="txt" style="font-size:1.05rem">6 role, hak akses ketat</div></div>
-      <div class="box"><h3><i class="fas fa-clipboard-list"></i> Audit Trail</h3><div class="txt" style="font-size:1.05rem">Semua aksi tercatat</div></div>
-      <div class="box ok"><h3><i class="fas fa-cloud-arrow-up"></i> Backup</h3><div class="txt" style="font-size:1.05rem">Otomatis via Google</div></div>
-      <div class="box ok"><h3><i class="fas fa-lock"></i> HTTPS</h3><div class="txt" style="font-size:1.05rem">Komunikasi terenkripsi</div></div>
-    </div>
-  </div>
-
-  <!-- 9. 5 PORTAL -->
-  <div class="slide" data-title="5 Portal">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal</div>
-      <h1>Lima <span class="hl">Portal Utama</span></h1>
-    </div>
-    <div class="slide-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
-        <div class="box"><h3><i class="fas fa-door-open"></i> 01 Gerbang</h3><div class="txt" style="font-size:.95rem">Guru Piket<br>Scan pagi/pulang</div></div>
-        <div class="box"><h3><i class="fas fa-mosque"></i> 02 Sholat</h3><div class="txt" style="font-size:.95rem">Piket, BK, Wali Kelas<br>Presensi 5 waktu</div></div>
-        <div class="box"><h3><i class="fas fa-gavel"></i> 03 Disiplin</h3><div class="txt" style="font-size:.95rem">BK, Wakasek<br>Poin & surat SP</div></div>
-        <div class="box"><h3><i class="fas fa-user-tie"></i> 04 Admin</h3><div class="txt" style="font-size:.95rem">Admin, Kepsek<br>Dashboard</div></div>
-        <div class="box ok"><h3><i class="fas fa-globe"></i> 05 Cek Publik</h3><div class="txt" style="font-size:.95rem">Orang tua & Siswa<br>Tanpa login</div></div>
+    <!-- SLIDE 5: TUTORIAL BERANDA & CEK PUBLIK -->
+    <section class="slide" data-title="Tutorial: Beranda & Cek Publik">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 03 · Tutorial Visual Portal 01</div>
+          <h2 class="sl-title">Beranda Utama &amp; Portal Cek Publik</h2>
+        </div>
+        <div class="sl-num">05 / 14</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 10. MATRIKS ROLE -->
-  <div class="slide" data-title="Matriks Role">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal</div>
-      <h1>Enam Role, <span class="hl">Akses Jelas</span></h1>
-    </div>
-    <div class="slide-body full">
-      <table class="matrix">
-        <thead><tr><th>Role</th><th style="text-align:center">Gerbang</th><th style="text-align:center">Sholat</th><th style="text-align:center">Disiplin</th><th style="text-align:center">Admin</th></tr></thead>
-        <tbody>
-          <tr><td class="role">SUPER_ADMIN</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-          <tr><td class="role">KEPSEK</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-          <tr><td class="role">WAKA_KESISWAAN</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-          <tr><td class="role">GURU_BK</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
-          <tr><td class="role">GURU_PIKET</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr>
-          <tr><td class="role">WALI_KELAS</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 11. PORTAL GERBANG -->
-  <div class="slide" data-title="Portal Gerbang">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal</div>
-      <h1>Portal <span class="hl">Gerbang</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Presensi kehadiran siswa & guru di pintu gerbang.</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.1rem">1. Login<br>2. Scan QR/RFID<br>3. Catat masuk/pulang<br>4. Notifikasi + suara</div>
+      <div class="sl-body c2">
+        <div class="browser-frame">
+          <div class="browser-bar"><div class="browser-url">bkcsiplin/index.html &amp; cek.html</div><div class="browser-tag">Tampilan Web</div></div>
+          <div class="browser-body">
+            <div class="m-hdr violet"><span>🔎 Cek Kehadiran &amp; Poin Siswa (Tanpa Login)</span><span>24 Jam</span></div>
+            <div class="m-input" style="margin-bottom:.55rem">Cari NIS / Nama: Aulia Rahma — XI Farmasi 1</div>
+            <div class="m-grid-2">
+              <div class="m-card">
+                <div class="m-card-t">Status Hari Ini</div>
+                <div class="m-row"><span>Gerbang</span><b style="color:#047857">06:48 · Tepat Waktu</b></div>
+                <div class="m-row"><span>Sholat</span><b style="color:#1D4ED8">Dzuhur, Ashar</b></div>
+              </div>
+              <div class="m-card">
+                <div class="m-card-t">Kedisiplinan</div>
+                <div class="m-row"><span>Saldo Poin</span><b style="color:#047857">100 (Zona HIJAU)</b></div>
+                <div class="m-row"><span>Pelanggaran</span><b>0 · Prestasi: 1</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dk-card">
+          <h3>Cara Penggunaan</h3>
+          <ul>
+            <li><b>Orang Tua &amp; Siswa:</b> Cukup buka Beranda → klik <b>Cek Sekarang</b> → ketik NIS atau nama anak tanpa perlu login.</li>
+            <li><b>Petugas Sekolah:</b> Pilih salah satu dari 4 portal (Gerbang, Sholat, Disiplin, Admin) sesuai role akun.</li>
+            <li><b>Deteksi Sesi Otomatis:</b> Jika sudah login sebelumnya, tombol <i>Lanjutkan</i> otomatis muncul di sudut kanan atas.</li>
+            <li><b>Tersedia Mode Terang &amp; Gelap</b> serta tombol Panduan Role langsung di header.</li>
+          </ul>
+        </div>
       </div>
-      <div class="box ok"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.1rem">✓ Deteksi tepat/terlambat<br>✓ Trigger poin otomatis<br>✓ Sesi pagi & pulang<br>✓ Rekap harian</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.1rem">SUPER_ADMIN · GURU_PIKET</div>
+    </section>
+
+    <!-- SLIDE 6: TUTORIAL GERBANG -->
+    <section class="slide" data-title="Tutorial: Portal Gerbang">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 03 · Tutorial Visual Portal 02</div>
+          <h2 class="sl-title">Portal Gerbang — Cepat &amp; Offline-First</h2>
+        </div>
+        <div class="sl-num">06 / 14</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 12. PORTAL SHOLAT -->
-  <div class="slide" data-title="Portal Sholat">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal</div>
-      <h1>Portal <span class="hl">Sholat</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Presensi sholat 5 waktu + udzur + laporan.</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.1rem">1. Pilih waktu sholat<br>2. Scan kartu/nama<br>3. Sistem catat waktu<br>4. Beep = sukses</div>
+      <div class="sl-body c2">
+        <div class="browser-frame">
+          <div class="browser-bar"><div class="browser-url">bkcsiplin/gerbang.html</div><div class="browser-tag">Guru Piket · Admin</div></div>
+          <div class="browser-body">
+            <div class="m-hdr navy"><span>🚪 Presensi Gerbang</span><span>⬇️ Tarik · ⬆️ Sinkron (14)</span></div>
+            <div class="m-card" style="margin-bottom:.5rem">
+              <div class="m-card-t">Scan Kartu RFID atau Pencarian Nama</div>
+              <div class="m-input" style="margin-top:.35rem">Tap kartu RFID siswa / guru di sini…</div>
+            </div>
+            <div class="m-card" style="background:#FFFBEB;border-color:#FCD34D">
+              <div class="m-card-t" style="color:#92400E">Deteksi Terlambat Otomatis</div>
+              <div class="m-card-s" style="color:#92400E">Budi Santoso (X TKJ 2) · 07:16 WIB · TERLAMBAT [-5 poin otomatis saat sinkron]</div>
+            </div>
+          </div>
+        </div>
+        <div class="dk-card">
+          <h3>4 Langkah Wajib Guru Piket</h3>
+          <ul>
+            <li><b>1. Tarik Data Pagi (06:20):</b> Klik <b>⬇️ Tarik Data</b> agar data siswa/guru &amp; RFID tersimpan lokal.</li>
+            <li><b>2. Scan Tap (&lt;2 detik):</b> Tempel kartu RFID siswa atau guru — bekerja lancar walau internet tersendat.</li>
+            <li><b>3. Auto-Potong Terlambat:</b> Siswa melewati batas jam + toleransi otomatis bertanda terlambat.</li>
+            <li><b>4. Sinkron Manual:</b> Klik <b>⬆️ Sinkron</b> setelah sesi pagi &amp; pulang — ringkasan terlambat otomatis masuk ke Telegram.</li>
+          </ul>
+        </div>
       </div>
-      <div class="box ok"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.1rem">✓ 4 mode laporan<br>✓ Export Excel<br>✓ Print/PDF<br>✓ Manajemen udzur</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.1rem">ADMIN · BK · KEPSEK · PIKET · WALI KELAS</div>
+    </section>
+
+    <!-- SLIDE 7: TUTORIAL SHOLAT -->
+    <section class="slide" data-title="Tutorial: Portal E-Sholat">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 03 · Tutorial Visual Portal 03</div>
+          <h2 class="sl-title">Portal E-Sholat &amp; Udzur Syar'i</h2>
+        </div>
+        <div class="sl-num">07 / 14</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 13. PORTAL DISIPLIN -->
-  <div class="slide" data-title="Portal Disiplin">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal</div>
-      <h1>Portal <span class="hl">Disiplin</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Catat poin pelanggaran & prestasi, zona, SP.</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-palette"></i> Zona Karakter</h3><div class="txt" style="font-size:1.05rem"><span class="ok">●</span> HIJAU (≥76)<br><span class="warn">●</span> KUNING (51-75)<br><span style="color:#FB923C">●</span> ORANYE (26-50)<br><span class="danger">●</span> MERAH (1-25)<br><span style="color:#94A3B8">●</span> KRITIS (≤0)</div>
+      <div class="sl-body c2">
+        <div class="browser-frame">
+          <div class="browser-bar"><div class="browser-url">bkcsiplin/sholat.html</div><div class="browser-tag">Piket · Wali · BK · Admin</div></div>
+          <div class="browser-body">
+            <div class="m-hdr emerald"><span>🕌 E-Sholat · 5 Waktu Berjamaah</span><span>Dzuhur Aktif</span></div>
+            <div class="m-tabs">
+              <span class="m-tab active">Scan Sholat</span>
+              <span class="m-tab">Udzur Syar'i</span>
+              <span class="m-tab">Laporan 4 Mode</span>
+            </div>
+            <div class="m-card">
+              <div class="m-row"><span>Presensi Dzuhur Hari Ini</span><b style="color:#047857">318 Siswa</b></div>
+              <div class="m-row"><span>Udzur Syar'i (Rentang Tgl)</span><b style="color:#B45309">24 Siswi</b></div>
+              <div class="m-row"><span>Deteksi Hadir Pagi Belum Sholat</span><b style="color:#BE123C">12 Siswa</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="dk-card">
+          <h3>Fitur Utama E-Sholat</h3>
+          <ul>
+            <li><b>5 Waktu Lengkap:</b> Subuh, Dzuhur, Ashar, Maghrib, dan Isya — anti-dobel di waktu yang sama.</li>
+            <li><b>Manajemen Udzur Syar'i:</b> Cukup input tanggal mulai–selesai 1x; siswi otomatis dikecualikan dari daftar bolos sholat.</li>
+            <li><b>Laporan 4 Mode:</b> Harian, Per Kelas, Per Siswa, dan Bolos Sholat — siap cetak PDF &amp; ekspor Excel.</li>
+            <li><b>Terhubung ke Bot Telegram:</b> Ketik <code>/sholat</code> untuk melihat rekap &amp; daftar siswa hadir pagi yang belum sholat.</li>
+          </ul>
+        </div>
       </div>
-      <div class="box ok"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.1rem">✓ Saldo poin otomatis<br>✓ Riwayat lengkap<br>✓ Surat Peringatan<br>✓ Cek bolos sholat</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.1rem">ADMIN · BK · WAKA · KEPSEK</div>
+    </section>
+
+    <!-- SLIDE 8: TUTORIAL DISIPLIN -->
+    <section class="slide" data-title="Tutorial: Portal Kedisiplinan">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 03 · Tutorial Visual Portal 04</div>
+          <h2 class="sl-title">Portal Disiplin, 5 Zona Karakter &amp; Cetak SP</h2>
+        </div>
+        <div class="sl-num">08 / 14</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 14. PORTAL ADMIN -->
-  <div class="slide" data-title="Portal Admin">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal</div>
-      <h1>Portal <span class="hl">Admin</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Pusat kendali: dashboard, master data, poin, raport, laporan.</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-list"></i> 13 Modul</h3><div class="txt" style="font-size:1rem;line-height:1.6">Dashboard · Siswa · Kelas · Guru · Tatib · RFID · Naik Kelas · Keterangan · Laporan · Raport · Pengaturan · Kartu</div>
+      <div class="sl-body c2">
+        <div class="browser-frame">
+          <div class="browser-bar"><div class="browser-url">bkcsiplin/disiplin.html</div><div class="browser-tag">BK · Waka · Kepsek · Wali · OSIS</div></div>
+          <div class="browser-body">
+            <div class="m-hdr maroon"><span>⚖️ Kedisiplinan · Multi-Pasal &amp; SP</span><span>Saldo Awal 100</span></div>
+            <div class="m-card" style="margin-bottom:.5rem">
+              <div class="m-card-t">Skala 5 Zona Poin Karakter</div>
+              <div class="m-row"><span style="color:#047857;font-weight:700">🟢 HIJAU (≥76)</span><span>Sangat Baik</span></div>
+              <div class="m-row"><span style="color:#B45309;font-weight:700">🟡 KUNING (51–75)</span><span>Pembinaan / SP 1</span></div>
+              <div class="m-row"><span style="color:#C2410C;font-weight:700">🟠 ORANYE (26–50)</span><span>Perhatian / SP 2</span></div>
+              <div class="m-row"><span style="color:#BE123C;font-weight:700">🔴 MERAH (1–25)</span><span>Risiko Tinggi / SP 3</span></div>
+              <div class="m-row"><span style="color:#0F172A;font-weight:700">⚫ KRITIS (≤0)</span><span>Konferensi Kasus</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="dk-card">
+          <h3>Keunggulan Modul Disiplin</h3>
+          <ul>
+            <li><b>Multi-Pasal Sekaligus:</b> Catat beberapa pasal pelanggaran/prestasi dalam 1 kejadian dengan 1 kronologi.</li>
+            <li><b>Peringatan Turun Zona Otomatis:</b> Bila saldo siswa masuk zona Kuning–Kritis, Bot Telegram langsung memberi alarm ke Grup 1.</li>
+            <li><b>Surat Peringatan Instan:</b> Cetak atau unduh file Word (<code>.doc</code>) untuk SP1, SP2, dan SP3 lengkap dengan kop &amp; riwayat poin.</li>
+            <li><b>Cek Poin Siswa Mandiri:</b> Tombol cek cepat untuk siswa tanpa perlu masuk akun guru.</li>
+          </ul>
+        </div>
       </div>
-      <div class="box ok"><h3><i class="fas fa-star"></i> Fitur</h3><div class="txt" style="font-size:1.1rem">✓ Dashboard real-time<br>✓ Import Excel massal<br>✓ Cetak raport & kartu<br>✓ Hak akses per role</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Akses</h3><div class="txt" style="font-size:1.1rem">ADMIN · KEPSEK · BK · WAKA · WALI (terbatas)</div>
+    </section>
+
+    <!-- SLIDE 9: ALUR OSIS & VALIDASI -->
+    <section class="slide" data-title="Alur OSIS & Validasi BK">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 04 · Inovasi Pengawasan</div>
+          <h2 class="sl-title">Alur Laporan OSIS &amp; Validasi Cepat BK/Wakasis</h2>
+        </div>
+        <div class="sl-num">09 / 14</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 15. PORTAL PUBLIK -->
-  <div class="slide" data-title="Portal Publik">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Portal</div>
-      <h1>Portal Cek <span class="hl">Publik</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="box ok"><h3><i class="fas fa-bullseye"></i> Fungsi</h3><div class="txt" style="font-size:1.15rem">Akses mandiri untuk siswa & orang tua tanpa login.</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-gears"></i> Cara Kerja</h3><div class="txt" style="font-size:1.1rem">1. Buka menu Cek Publik di index<br>2. Ketik NIS / nama<br>3. Lihat data langsung</div>
+      <div class="sl-body c4">
+        <div class="dk-card">
+          <h3>1. Input OSIS</h3>
+          <p>Pengurus OSIS login akun <code>PETUGAS_OSIS</code>, pilih siswa, pasal pelanggaran, dan tulis kronologi kejadian di lapangan.</p>
+        </div>
+        <div class="dk-card warn">
+          <h3>2. Status MENUNGGU</h3>
+          <p>Laporan masuk antrean tertunda. Poin siswa <b>belum terpotong</b> dan saldo rahasia siswa tetap terlindungi dari akun OSIS.</p>
+        </div>
+        <div class="dk-card">
+          <h3>3. Notif Grup 1</h3>
+          <p>Bot Telegram langsung mengirim kartu laporan ke Grup Pimpinan &amp; BK lengkap dengan tombol <b>✅ Setujui</b> dan <b>❌ Tolak</b> per pasal.</p>
+        </div>
+        <div class="dk-card ok">
+          <h3>4. Sah dalam 1 Klik</h3>
+          <p>BK/Wakasis memilah langsung dari Telegram (atau tab Validasi OSIS di Web). Anti klik ganda dan tercatat otomatis di log audit.</p>
+        </div>
       </div>
-      <div class="box ok"><h3><i class="fas fa-star"></i> Yang Bisa Dilihat</h3><div class="txt" style="font-size:1.1rem">✓ Kehadiran gerbang<br>✓ Riwayat sholat<br>✓ Riwayat poin & zona<br>✓ Keterangan absen</div>
-        <h3 style="margin-top:1.2rem"><i class="fas fa-users"></i> Untuk</h3><div class="txt" style="font-size:1.1rem">Siswa · Orang Tua · Masyarakat</div>
+    </section>
+
+    <!-- SLIDE 10: PORTAL ADMIN -->
+    <section class="slide" data-title="Tutorial: Portal Admin">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 03 · Tutorial Visual Portal 05</div>
+          <h2 class="sl-title">Portal Admin — 13 Modul Manajemen Terpadu</h2>
+        </div>
+        <div class="sl-num">10 / 14</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 16. WALI KELAS -->
-  <div class="slide" data-title="Wali Kelas">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 4 · Role Spesial</div>
-      <h1>Wali Kelas — <span class="hl">Kelas Sendiri</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="box ok"><h3><i class="fas fa-check"></i> Yang Bisa</h3><div class="txt" style="font-size:1.15rem">✓ Dashboard kelas sendiri<br>✓ Input keterangan absen<br>✓ Lihat laporan kelas<br>✓ Cetak raport<br>✓ Scan sholat & udzur</div></div>
-      <div class="box danger"><h3><i class="fas fa-xmark"></i> Yang Tidak Bisa</h3><div class="txt" style="font-size:1.15rem">✗ Lihat kelas lain<br>✗ Ubah data siswa<br>✗ Hapus poin<br>✗ Kelola master data<br>✗ Lihat laporan semua kelas</div></div>
-    </div>
-  </div>
-
-  <!-- 17. MODUL KEHADIRAN -->
-  <div class="slide" data-title="Modul Kehadiran">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 5 · Modul</div>
-      <h1>Modul 1-3: <span class="hl">Kehadiran</span></h1>
-    </div>
-    <div class="slide-body cols-3">
-      <div class="box"><h3><i class="fas fa-door-open"></i> Gerbang</h3><div class="txt" style="font-size:1.05rem">✓ Scan masuk/pulang<br>✓ Deteksi tepat/terlambat<br>✓ Trigger poin otomatis<br>✓ Rekap harian</div></div>
-      <div class="box"><h3><i class="fas fa-mosque"></i> Sholat</h3><div class="txt" style="font-size:1.05rem">✓ 5 waktu sholat<br>✓ Scan per waktu<br>✓ Manajemen udzur<br>✓ Laporan 4 mode</div></div>
-      <div class="box"><h3><i class="fas fa-chalkboard-teacher"></i> Guru</h3><div class="txt" style="font-size:1.05rem">✓ Scan masuk/pulang<br>✓ Hitung jam kerja<br>✓ Rekap per guru<br>✓ Deteksi terlambat</div></div>
-    </div>
-  </div>
-
-  <!-- 18. MODUL DISIPLIN -->
-  <div class="slide" data-title="Modul Disiplin">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 5 · Modul</div>
-      <h1>Modul 4-5: <span class="hl">Disiplin & Poin</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-book"></i> Tata Tertib</h3><div class="txt" style="font-size:1.15rem">✓ Master pelanggaran (-)<br>✓ Master prestasi (+)<br>✓ Setiap item punya poin<br>✓ Aktif/nonaktif per item</div></div>
-      <div class="box"><h3><i class="fas fa-star"></i> Poin & Zona</h3><div class="txt" style="font-size:1.15rem">✓ Poin awal: 100<br>✓ Pelanggaran: (-)<br>✓ Prestasi: (+)<br>✓ Otomatis tersaldo</div></div>
-    </div>
-  </div>
-
-  <!-- 19. MODUL ADMIN -->
-  <div class="slide" data-title="Modul Admin">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 5 · Modul</div>
-      <h1>Modul 6-8: <span class="hl">Administrasi</span></h1>
-    </div>
-    <div class="slide-body cols-3">
-      <div class="box"><h3><i class="fas fa-database"></i> Master Data</h3><div class="txt" style="font-size:1rem">✓ Siswa (+Import)<br>✓ Kelas + Wali Kelas<br>✓ Guru + Role<br>✓ Tata Tertib<br>✓ RFID</div></div>
-      <div class="box"><h3><i class="fas fa-notes-medical"></i> Keterangan</h3><div class="txt" style="font-size:1rem">✓ Izin / Sakit / Alpa<br>✓ Per tanggal<br>✓ Per siswa<br>✓ Riwayat lengkap</div></div>
-      <div class="box"><h3><i class="fas fa-chart-line"></i> Laporan</h3><div class="txt" style="font-size:1rem">✓ Laporan Siswa<br>✓ Laporan Guru<br>✓ Laporan Sholat<br>✓ Raport Digital<br>✓ Export + Print</div></div>
-    </div>
-  </div>
-
-  <!-- 20. LAPORAN SIAPA -->
-  <div class="slide" data-title="Laporan Siapa">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 5 · Modul</div>
-      <h1>Laporan <span class="hl">untuk Siapa</span>?</h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="box"><h3><i class="fas fa-user-tie"></i> Wali Kelas</h3><div class="txt" style="font-size:1.15rem">Kelas sendiri — kehadiran, poin, raport</div></div>
-      <div class="box"><h3><i class="fas fa-user-shield"></i> Guru BK</h3><div class="txt" style="font-size:1.15rem">Seluruh sekolah — disiplin, konseling, SP</div></div>
-      <div class="box"><h3><i class="fas fa-crown"></i> Kepala Sekolah</h3><div class="txt" style="font-size:1.15rem">Seluruh sekolah — dashboard + laporan</div></div>
-      <div class="box"><h3><i class="fas fa-people-roof"></i> Orang Tua</h3><div class="txt" style="font-size:1.15rem">Anak sendiri — kehadiran, poin, raport</div></div>
-    </div>
-  </div>
-
-  <!-- 21. MODUL PENDUKUNG -->
-  <div class="slide" data-title="Modul Pendukung">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 5 · Modul</div>
-      <h1>Modul 9-13: <span class="hl">Pendukung</span></h1>
-    </div>
-    <div class="slide-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
-        <div class="box"><h3><i class="fas fa-arrow-up"></i> Naik Kelas</h3><div class="txt" style="font-size:1rem">Proses massal · Ganti kelas · Lulus XII</div></div>
-        <div class="box"><h3><i class="fas fa-wifi"></i> RFID</h3><div class="txt" style="font-size:1rem">Daftar kartu siswa & guru · Auto-detect</div></div>
-        <div class="box"><h3><i class="fas fa-id-card"></i> Cetak Kartu</h3><div class="txt" style="font-size:1rem">CR80 · QR code · Foto · A4</div></div>
-        <div class="box"><h3><i class="fas fa-file-alt"></i> Raport</h3><div class="txt" style="font-size:1rem">Per semester/bulan · Print A4</div></div>
-        <div class="box"><h3><i class="fas fa-cog"></i> Pengaturan</h3><div class="txt" style="font-size:1rem">Jam · Identitas · Poin · Zona</div></div>
+      <div class="sl-body c3">
+        <div class="dk-card">
+          <h3>Dashboard &amp; Laporan</h3>
+          <ul>
+            <li>Statistik kehadiran siswa &amp; guru hari ini secara real-time.</li>
+            <li>Laporan Siswa, Guru, Sholat, dan Kedisiplinan siap cetak &amp; Excel.</li>
+            <li><b>Wali Kelas</b> otomatis hanya melihat kelas binaannya sendiri.</li>
+          </ul>
+        </div>
+        <div class="dk-card">
+          <h3>Master Data &amp; Kartu</h3>
+          <ul>
+            <li>Master Siswa (+ Import Excel), Kelas + Wali Kelas, Guru + PIN/Password fleksibel.</li>
+            <li>Registrasi Kartu RFID &amp; Cetak Kartu Pelajar CR80 ber-QR di kertas A4.</li>
+            <li>Proses Naik Kelas &amp; Kelulusan massal tiap tahun ajaran.</li>
+          </ul>
+        </div>
+        <div class="dk-card ok">
+          <h3>Raport &amp; Pengaturan</h3>
+          <ul>
+            <li>Input Keterangan Absen (Izin, Sakit, Alpa) harian per siswa.</li>
+            <li>Cetak <b>Raport Kehadiran &amp; Karakter A4</b> per periode.</li>
+            <li>Pengaturan jam, auto-potong telat, batas zona &amp; <b>kontrol Bot Telegram</b>.</li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 22. ALUR SISWA -->
-  <div class="slide" data-title="Alur Siswa">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 6 · Alur</div>
-      <h1>Satu Hari <span class="hl">Siswa</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="timeline">
-        <div class="tl-item"><div class="time">06:30</div><div class="desc">Scan kartu di gerbang → <b>TEPAT/TERLAMBAT</b></div></div>
-        <div class="tl-item"><div class="time">07:00</div><div class="desc">Masuk kelas, belajar</div></div>
-        <div class="tl-item"><div class="time">11:30</div><div class="desc">Sholat Dzuhur — scan QR</div></div>
-        <div class="tl-item"><div class="time">14:30</div><div class="desc">Sholat Ashar — scan QR</div></div>
-        <div class="tl-item"><div class="time">15:00</div><div class="desc">Pulang — scan kartu</div></div>
+    <!-- SLIDE 11: BOT TELEGRAM 2 ARAH -->
+    <section class="slide" data-title="Bot Telegram 2 Arah">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 04 · Monitoring Pimpinan &amp; BK</div>
+          <h2 class="sl-title">Bot Telegram 2 Arah &amp; Panel 1 Klik (/menu)</h2>
+        </div>
+        <div class="sl-num">11 / 14</div>
       </div>
-      <div class="box ok"><h3><i class="fas fa-people-roof"></i> Orang Tua Cek Kapan Saja</h3><div class="txt" style="font-size:1.1rem">1. Buka menu Cek Publik<br>2. Ketik NIS anak<br>3. Lihat kehadiran hari ini</div>
-        <div style="margin-top:.9rem;padding:.7rem;background:rgba(16,185,129,.15);border-radius:8px;font-size:1.05rem;color:#fff"><i class="fas fa-clock"></i> <b>Real-time</b> — tidak perlu tunggu laporan</div>
+      <div class="sl-body c2">
+        <div class="tg-frame">
+          <div class="tg-top"><span>✈️ Monitoring BKCSiplin (Grup 1)</span><span>@bkcsiplin_bot</span></div>
+          <div class="tg-pinbar"><i class="fas fa-thumbtack"></i> Disematkan: 🏠 PANEL KONTROL BKCSIPLIN (/menu)</div>
+          <div style="padding:.75rem">
+            <div class="tg-bubble">
+              <div class="tg-sender">BKCSiplin Bot</div>
+              🏠 <b>PANEL KONTROL BKCSIPLIN</b> — Klik tombol untuk memuat data langsung (🕒 Update real-time):
+              <div class="tg-kb">
+                <div class="tg-kbtn">📋 Rekap Hari Ini</div>
+                <div class="tg-kbtn">🏫 Rekap Per Kelas</div>
+                <div class="tg-kbtn">⏰ Siswa Terlambat</div>
+                <div class="tg-kbtn">⚠️ Belum Ada Kabar</div>
+                <div class="tg-kbtn">🕌 Rekap Sholat</div>
+                <div class="tg-kbtn">👩‍🏫 Kehadiran Guru</div>
+                <div class="tg-kbtn">🔔 Validasi OSIS</div>
+                <div class="tg-kbtn">🚨 Zona Peringatan</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dk-card ok">
+          <h3>12 Perintah &amp; 3 Jadwal Otomatis</h3>
+          <ul>
+            <li><b>Panel 1 Klik:</b> Ketik <code>/menu</code> lalu sematkan (Pin) di grup — pindah antar rekap dalam 1 pesan saja.</li>
+            <li><b>Cek Cepat:</b> <code>/rekap</code>, <code>/kelas</code>, <code>/sholat</code> (termasuk deteksi belum sholat), <code>/telat</code>, <code>/belum</code>, <code>/cek Nama</code>.</li>
+            <li><b>Khusus Grup 1:</b> <code>/guru</code>, <code>/pending</code> (validasi OSIS), dan <code>/zona</code> (Kritis/Merah/Oranye/Kuning).</li>
+            <li><b>Kirim Otomatis:</b> Pagi <b>08:00</b>, Sore <b>16:00</b>, dan <b>Rekap Mingguan Jumat 16:00 WIB</b> (Top 3 kelas disiplin &amp; tren pekan).</li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 23. ALUR PIKET -->
-  <div class="slide" data-title="Alur Piket">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 6 · Alur</div>
-      <h1>Rutinitas <span class="hl">Guru Piket</span></h1>
-    </div>
-    <div class="slide-body cols-2">
-      <div class="timeline">
-        <div class="tl-item"><div class="time">06:30</div><div class="desc">Persiapan — buka kamera/RFID</div></div>
-        <div class="tl-item"><div class="time">06:45-07:15</div><div class="desc">Scan siswa masuk gerbang</div></div>
-        <div class="tl-item"><div class="time">11:30</div><div class="desc">Scan sholat Dzuhur</div></div>
-        <div class="tl-item"><div class="time">14:30</div><div class="desc">Scan sholat Ashar</div></div>
-        <div class="tl-item"><div class="time">15:00-15:30</div><div class="desc">Scan siswa pulang</div></div>
+    <!-- SLIDE 12: ALUR HARIAN -->
+    <section class="slide" data-title="Alur Operasional Harian">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 05 · Implementasi</div>
+          <h2 class="sl-title">Rutinitas Harian Terkoordinasi (06:20 – 16:00 WIB)</h2>
+        </div>
+        <div class="sl-num">12 / 14</div>
       </div>
-      <div class="box ok" style="text-align:center;justify-content:center"><h3 style="justify-content:center"><i class="fas fa-bolt"></i> Kecepatan</h3><div class="big" style="color:var(--success-l);font-size:3.5rem">&lt;2s</div><div class="lbl">per siswa</div></div>
-    </div>
-  </div>
-
-  <!-- 24. CAPAIAN -->
-  <div class="slide" data-title="Capaian">
-    <div class="slide-header">
-      <div class="eyebrow">Bagian 7 · Penutup</div>
-      <h1>Apa yang Sudah <span class="hl">Dicapai</span>?</h1>
-    </div>
-    <div class="slide-body full">
-      <div class="stat-grid-big">
-        <div class="stat-big"><div class="val">5</div><div class="lbl">Portal Web</div></div>
-        <div class="stat-big"><div class="val">6</div><div class="lbl">Role Pengguna</div></div>
-        <div class="stat-big"><div class="val">13</div><div class="lbl">Modul</div></div>
-        <div class="stat-big"><div class="val">&lt;2s</div><div class="lbl">Per Scan</div></div>
-        <div class="stat-big"><div class="val">Rp 0</div><div class="lbl">Biaya Server</div></div>
+      <div class="sl-body c4">
+        <div class="dk-card">
+          <h3>06:20 – 07:30</h3>
+          <p><b>Gerbang Pagi:</b> Piket klik <i>Tarik Data</i> → scan RFID siswa/guru → klik <i>Sinkron</i> → notif terlambat masuk Telegram.</p>
+        </div>
+        <div class="dk-card">
+          <h3>08:00 WIB</h3>
+          <p><b>Rekap Pagi Otomatis:</b> Bot kirim laporan ke Pimpinan. Wali Kelas melengkapi keterangan Izin/Sakit/Alpa.</p>
+        </div>
+        <div class="dk-card">
+          <h3>08:00 – 15:00</h3>
+          <p><b>Sholat &amp; Disiplin:</b> Scan E-Sholat Dzuhur/Ashar, catat Udzur Syar'i, laporan OSIS divalidasi cepat oleh BK/Wakasis.</p>
+        </div>
+        <div class="dk-card ok">
+          <h3>15:15 – 16:00</h3>
+          <p><b>Pulang &amp; Penutup:</b> Scan gerbang pulang → Sinkron (0 antrean) → Bot kirim <b>Rekap Sore</b> (dan <b>Mingguan</b> tiap Jumat).</p>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- SLIDE 13: RESET DATA UJI COBA -->
+    <section class="slide" data-title="Checklist Go-Live & Reset Data">
+      <div class="sl-head">
+        <div>
+          <div class="sl-kicker">Bagian 05 · Persiapan Operasional Resmi</div>
+          <h2 class="sl-title">Checklist Pembersihan Data Percobaan (Go-Live)</h2>
+        </div>
+        <div class="sl-num">13 / 14</div>
+      </div>
+      <div class="sl-body c2-eq">
+        <div class="dk-card rose">
+          <h3>Boleh Dikosongkan (Mulai Baris 2 ke Bawah)</h3>
+          <ul>
+            <li><code>PRESENSI_GERBANG</code> &amp; <code>REKAP_SISWA</code></li>
+            <li><code>PRESENSI_GURU</code> &amp; <code>REKAP_GURU</code></li>
+            <li><code>PRESENSI_SHOLAT</code> &amp; <code>UDZUR_SYARI</code></li>
+            <li><code>POIN_BK</code>, <code>KETERANGAN_ABSEN</code> &amp; <code>LOG_AUDIT</code></li>
+            <li><b>Aturan Emas:</b> Baris 1 (judul kolom) <b>tidak boleh dihapus</b>.</li>
+          </ul>
+        </div>
+        <div class="dk-card ok">
+          <h3>Wajib Dipertahankan (Jangan Dihapus)</h3>
+          <ul>
+            <li><code>MASTER_SISWA</code> (data siswa &amp; kartu RFID resmi)</li>
+            <li><code>MASTER_GURU</code> (akun petugas, PIN/Password &amp; role)</li>
+            <li><code>MASTER_KELAS</code> (kelas &amp; Wali Kelas)</li>
+            <li><code>MASTER_TATA_TERTIB</code> (daftar pasal &amp; bobot poin)</li>
+            <li><code>PENGATURAN</code> (jam sekolah, zona, token &amp; Chat ID Telegram)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: PENUTUP -->
+    <section class="slide is-cover" data-title="Capaian & Penutup">
+      <div class="sl-body c4" style="width:100%;max-width:920px;margin-bottom:1.75rem">
+        <div class="dk-card" style="text-align:center"><div class="dk-stat">6</div><div class="dk-stat-lbl">Portal Web</div></div>
+        <div class="dk-card" style="text-align:center"><div class="dk-stat">7</div><div class="dk-stat-lbl">Role Pengguna</div></div>
+        <div class="dk-card" style="text-align:center"><div class="dk-stat">12</div><div class="dk-stat-lbl">Perintah Bot TG</div></div>
+        <div class="dk-card ok" style="text-align:center"><div class="dk-stat" style="color:#6EE7B7">Rp 0</div><div class="dk-stat-lbl">Biaya Server</div></div>
+      </div>
+      <h1 style="font-size:clamp(2.2rem,4vw,3.3rem)">Terima Kasih</h1>
+      <p class="cv-sub">Dengan BKCSiplin, kita tidak hanya mencatat kehadiran — kita membangun <b>karakter</b>, menumbuhkan <b>disiplin</b>, dan memudahkan <b>kolaborasi seluruh warga sekolah</b>.</p>
+      <div class="cv-meta">SMK Bhakti Kencana Ciawi · smkbkciawi.github.io/bkcsiplin</div>
+    </section>
+
   </div>
 
-  <!-- 25. TERIMA KASIH -->
-  <div class="slide end center" data-title="Terima Kasih">
-    <h1>Terima Kasih</h1>
-    <p>Bapak/Ibu Kepala Sekolah, para Guru, dan Staf</p>
-    <p style="color:#fff;font-weight:800;font-size:1.5rem">SMK Bhakti Kencana Ciawi</p>
-    <div class="sub"><i class="fas fa-globe"></i> smkbkciawi.github.io/bkcsiplin</div>
-    <div class="quote">
-      <i class="fas fa-quote-left" style="color:var(--brand-3);margin-right:.4rem"></i>
-      Dengan sistem ini, kita tidak hanya mencatat kehadiran — kita membangun <b>karakter</b>, menumbuhkan <b>disiplin</b>, dan memuliakan <b>proses pendidikan</b>.
+  <!-- DECK BOTTOM BAR -->
+  <div class="deck-footer">
+    <div class="deck-progress-wrap">
+      <div class="deck-progress"><div class="deck-progress-fill" id="deck-progress-fill"></div></div>
+      <div class="deck-counter" id="deck-counter">1 / 14</div>
     </div>
-    <div class="sub" style="margin-top:1.5rem;font-style:italic">Wassalamu'alaikum warahmatullahi wabarakatuh</div>
+    <div class="deck-btns">
+      <button type="button" class="dk-btn" id="btn-ov" onclick="toggleOverview()"><i class="fas fa-th-large"></i> Semua Slide</button>
+      <button type="button" class="dk-btn" id="btn-fs" onclick="toggleFullscreen()"><i class="fas fa-expand"></i> Layar Penuh</button>
+      <button type="button" class="dk-btn" id="btn-prev" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
+      <button type="button" class="dk-btn primary" id="btn-next" onclick="nextSlide()">Berikutnya <i class="fas fa-arrow-right"></i></button>
+    </div>
   </div>
-
 </div>
 
-<!-- NAVBAR BOTTOM -->
-<div class="navbar">
-  <div class="hint"><kbd>←</kbd> <kbd>→</kbd> Navigasi &nbsp;·&nbsp; <kbd>F</kbd> Fullscreen &nbsp;·&nbsp; <kbd>O</kbd> Overview</div>
-  <div class="navbtns">
-    <button class="ghost" id="btn-prev" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
-    <button id="btn-next" onclick="nextSlide()">Berikutnya <i class="fas fa-arrow-right"></i></button>
+<!-- OVERVIEW MODAL -->
+<div class="ov-modal" id="ov-modal">
+  <div class="ov-top">
+    <h2>Daftar Semua Slide Presentasi</h2>
+    <button type="button" class="dk-btn" onclick="toggleOverview()"><i class="fas fa-times"></i> Tutup</button>
   </div>
+  <div class="ov-grid" id="ov-grid"></div>
 </div>
 
-<!-- OVERVIEW -->
-<div class="overview" id="overview">
-  <h2><i class="fas fa-th"></i> Semua Slide — Klik untuk Lompat</h2>
-  <div class="overview-grid" id="ov-grid"></div>
+<!-- TOAST NOTIFICATION -->
+<div class="toast-bar" id="toast-bar" role="status" aria-live="polite">
+  <i class="fas fa-circle-info" id="toast-ico"></i>
+  <span id="toast-msg">Memproses…</span>
 </div>
 
 <script>
-  const slides = document.querySelectorAll('.slide');
-  const totalSlides = slides.length;
-  let current = 0;
+(function () {
+  const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const nowWib = new Date(Date.now() + 7 * 3600000);
+  const tglStr = `${HARI[nowWib.getUTCDay()]}, ${nowWib.getUTCDate()} ${BULAN[nowWib.getUTCMonth()]} ${nowWib.getUTCFullYear()}`;
+  const elTglPed = document.getElementById('tgl-pedoman');
+  const elTglSl = document.getElementById('tgl-slide');
+  if (elTglPed) elTglPed.textContent = tglStr;
+  if (elTglSl) elTglSl.textContent = tglStr;
 
-  function init() {
-    const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-    const d = new Date(Date.now() + 7 * 3600000);
-    document.getElementById('tanggal-cover').textContent = `${hari[d.getUTCDay()]}, ${d.getUTCDate()} ${bulan[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-
-    const grid = document.getElementById('ov-grid');
-    slides.forEach((s, i) => {
-      const card = document.createElement('div');
-      card.className = 'ov-card' + (i === 0 ? ' active' : '');
-      card.dataset.idx = i;
-      card.innerHTML = `<div class="num">Slide ${i+1}</div><div class="ttl">${s.dataset.title || 'Slide ' + (i+1)}</div>`;
-      card.onclick = () => { goToSlide(i); closeOverview(); };
-      grid.appendChild(card);
-    });
-
-    updateUI();
+  // Toast helper
+  let toastTimer = null;
+  function showToast(msg, iconClass) {
+    const bar = document.getElementById('toast-bar');
+    const txt = document.getElementById('toast-msg');
+    const ico = document.getElementById('toast-ico');
+    if (!bar || !txt) return;
+    txt.textContent = msg;
+    if (ico) ico.className = iconClass || 'fas fa-circle-info';
+    bar.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => bar.classList.remove('show'), 4000);
   }
 
-  function goToSlide(idx) {
-    if (idx < 0 || idx >= totalSlides) return;
-    slides[current].classList.remove('active');
-    current = idx;
-    slides[current].classList.add('active');
-    updateUI();
-  }
-  function nextSlide() { goToSlide(current + 1); }
-  function prevSlide() { goToSlide(current - 1); }
+  // Mode Switcher (Buku Pedoman <-> Mode Presentasi)
+  let activeMode = 'manual';
+  const btnManual = document.getElementById('nav-mode-manual');
+  const btnSlide = document.getElementById('nav-mode-slide');
 
-  function updateUI() {
-    document.getElementById('slide-counter').textContent = `${current + 1} / ${totalSlides}`;
-    document.getElementById('progress-bar').style.width = `${((current + 1) / totalSlides) * 100}%`;
-    document.getElementById('btn-prev').disabled = current === 0;
-    document.getElementById('btn-next').disabled = current === totalSlides - 1;
-    document.querySelectorAll('.ov-card').forEach((c, i) => {
-      c.classList.toggle('active', i === current);
-    });
-  }
-
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    } else {
-      document.exitFullscreen().catch(() => {});
+  function switchMode(mode) {
+    activeMode = mode === 'slide' ? 'slide' : 'manual';
+    document.body.classList.toggle('mode-slide', activeMode === 'slide');
+    if (btnManual) btnManual.classList.toggle('is-active', activeMode === 'manual');
+    if (btnSlide) btnSlide.classList.toggle('is-active', activeMode === 'slide');
+    if (activeMode === 'manual') {
+      closeOverview();
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
   }
+  window.switchMode = switchMode;
 
-  function toggleOverview() {
-    const ov = document.getElementById('overview');
-    if (ov.classList.contains('show')) { closeOverview(); }
-    else {
-      ov.classList.add('show');
-      document.querySelectorAll('.ov-card').forEach((c, i) => {
-        c.classList.toggle('active', i === current);
+  if (btnManual) btnManual.addEventListener('click', () => switchMode('manual'));
+  if (btnSlide) btnSlide.addEventListener('click', () => switchMode('slide'));
+  const btnOpenSlide = document.getElementById('btn-open-slide');
+  if (btnOpenSlide) btnOpenSlide.addEventListener('click', () => switchMode('slide'));
+
+  // Jump links from top bar automatically switch to manual view
+  ['nav-jump-tg', 'nav-jump-clean'].forEach(id => {
+    const a = document.getElementById(id);
+    if (a) {
+      a.addEventListener('click', () => {
+        if (activeMode !== 'manual') switchMode('manual');
       });
-      ov.querySelector('.ov-card.active')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }
-  function closeOverview() { document.getElementById('overview').classList.remove('show'); }
-
-  document.addEventListener('keydown', (e) => {
-    const ov = document.getElementById('overview');
-    if (ov.classList.contains('show') && e.key === 'Escape') { closeOverview(); return; }
-    switch(e.key) {
-      case 'ArrowRight': case ' ': case 'PageDown': e.preventDefault(); nextSlide(); break;
-      case 'ArrowLeft': case 'PageUp': e.preventDefault(); prevSlide(); break;
-      case 'Home': e.preventDefault(); goToSlide(0); break;
-      case 'End': e.preventDefault(); goToSlide(totalSlides - 1); break;
-      case 'f': case 'F': toggleFullscreen(); break;
-      case 'o': case 'O': toggleOverview(); break;
-      case 'Escape': if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); break;
     }
   });
 
-  let touchStartX = 0;
-  document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
-  document.addEventListener('touchend', (e) => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 80) {
-      if (dx < 0) nextSlide(); else prevSlide();
-    }
-  }, { passive: true });
+  // URL hash ?mode=slide support
+  try {
+    const qs = new URLSearchParams(window.location.search);
+    if (qs.get('mode') === 'slide') switchMode('slide');
+  } catch (_) {}
 
-  init();
+  // =========================================================
+  // SLIDE DECK NAVIGATION
+  // =========================================================
+  const slides = Array.from(document.querySelectorAll('#deck-stage .slide'));
+  let curIdx = 0;
+
+  function buildOverview() {
+    const grid = document.getElementById('ov-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    slides.forEach((s, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ov-item' + (i === curIdx ? ' active' : '');
+      const n = document.createElement('div');
+      n.className = 'ov-item-n';
+      n.textContent = 'Slide ' + String(i + 1).padStart(2, '0');
+      const t = document.createElement('div');
+      t.className = 'ov-item-t';
+      t.textContent = s.dataset.title || ('Slide ' + (i + 1));
+      btn.appendChild(n);
+      btn.appendChild(t);
+      btn.addEventListener('click', () => { goToSlide(i); closeOverview(); });
+      grid.appendChild(btn);
+    });
+  }
+
+  function updateDeckUI() {
+    const pct = slides.length ? ((curIdx + 1) / slides.length) * 100 : 100;
+    const fill = document.getElementById('deck-progress-fill');
+    const cnt = document.getElementById('deck-counter');
+    const prev = document.getElementById('btn-prev');
+    const next = document.getElementById('btn-next');
+    if (fill) fill.style.width = pct + '%';
+    if (cnt) cnt.textContent = (curIdx + 1) + ' / ' + slides.length;
+    if (prev) prev.disabled = curIdx === 0;
+    if (next) next.disabled = curIdx === slides.length - 1;
+    document.querySelectorAll('#ov-grid .ov-item').forEach((item, i) => {
+      item.classList.toggle('active', i === curIdx);
+    });
+  }
+
+  function goToSlide(idx) {
+    if (idx < 0 || idx >= slides.length) return;
+    slides[curIdx].classList.remove('active');
+    curIdx = idx;
+    slides[curIdx].classList.add('active');
+    slides[curIdx].scrollTop = 0;
+    updateDeckUI();
+  }
+  function nextSlide() { goToSlide(curIdx + 1); }
+  function prevSlide() { goToSlide(curIdx - 1); }
+  window.nextSlide = nextSlide;
+  window.prevSlide = prevSlide;
+
+  function toggleOverview() {
+    const ov = document.getElementById('ov-modal');
+    if (ov) ov.classList.toggle('show');
+  }
+  function closeOverview() {
+    const ov = document.getElementById('ov-modal');
+    if (ov) ov.classList.remove('show');
+  }
+  window.toggleOverview = toggleOverview;
+
+  function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    } catch (_) {}
+  }
+  window.toggleFullscreen = toggleFullscreen;
+
+  document.addEventListener('keydown', (e) => {
+    if (activeMode !== 'slide') return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+      e.preventDefault(); nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault(); prevSlide();
+    } else if (e.key === 'Escape') {
+      closeOverview();
+    } else if (e.key.toLowerCase() === 'o') {
+      toggleOverview();
+    } else if (e.key.toLowerCase() === 'f') {
+      toggleFullscreen();
+    }
+  });
+
+  // Touch swipe for slide deck
+  let touchStartX = 0;
+  const stage = document.getElementById('deck-stage');
+  if (stage) {
+    stage.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+    stage.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (dx < -50) nextSlide();
+      else if (dx > 50) prevSlide();
+    }, { passive: true });
+  }
+
+  buildOverview();
+  updateDeckUI();
+
+  // =========================================================
+  // DOWNLOAD PDF & CETAK A4
+  // =========================================================
+  const btnPrint = document.getElementById('btn-print-pdf');
+  if (btnPrint) {
+    btnPrint.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
+  const btnDownloadPdf = document.getElementById('btn-download-pdf');
+  if (btnDownloadPdf) {
+    btnDownloadPdf.addEventListener('click', async () => {
+      const prevMode = activeMode;
+      const origHtml = btnDownloadPdf.innerHTML;
+      btnDownloadPdf.disabled = true;
+      btnDownloadPdf.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Menyiapkan PDF…</span>';
+
+      try {
+        if (prevMode === 'slide') switchMode('manual');
+        const target = document.getElementById('pedoman-pdf-root');
+        if (!target) throw new Error('Konten pedoman tidak ditemukan.');
+
+        if (typeof window.html2pdf !== 'function') {
+          showToast('Membuka dialog Cetak / Simpan sebagai PDF…', 'fas fa-print');
+          window.print();
+          return;
+        }
+
+        document.body.classList.add('pdf-capturing');
+        showToast('Sedang menyusun file PDF Buku Pedoman (mohon tunggu sebentar)…', 'fas fa-file-pdf');
+
+        await new Promise(r => setTimeout(r, 150));
+
+        const opt = {
+          margin: [10, 10, 10, 10],
+          filename: 'Buku-Pedoman-BKCSiplin-SMK-BKC.pdf',
+          image: { type: 'jpeg', quality: 0.96 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: '#FFFFFF',
+            scrollY: 0
+          },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'], avoid: ['.fig-block', '.info-panel', '.note-box', '.table-wrap', '.flow-row'] }
+        };
+
+        await window.html2pdf().set(opt).from(target).save();
+        showToast('PDF Buku Pedoman berhasil diunduh!', 'fas fa-check-circle');
+      } catch (err) {
+        showToast('Beralih ke mode Cetak PDF browser (pilih "Simpan sebagai PDF").', 'fas fa-print');
+        window.print();
+      } finally {
+        document.body.classList.remove('pdf-capturing');
+        btnDownloadPdf.disabled = false;
+        btnDownloadPdf.innerHTML = origHtml;
+        if (prevMode === 'slide') switchMode('slide');
+      }
+    });
+  }
+})();
 </script>
 </body>
 </html>

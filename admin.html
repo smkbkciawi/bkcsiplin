@@ -1240,10 +1240,18 @@
                       <input class="form-check-input" type="checkbox" id="set-tg-rekap-sore" checked>
                       <label class="form-check-label small" for="set-tg-rekap-sore"><b>Rekap Penutup Sore (16:00 WIB)</b> — Kehadiran, Sholat &amp; Poin</label>
                     </div>
-                    <div class="form-check mb-0">
+                    <div class="form-check mb-1">
                       <input class="form-check-input" type="checkbox" id="set-tg-perintah" checked>
-                      <label class="form-check-label small" for="set-tg-perintah"><b>Perintah 2 Arah di Grup</b> (<code>/rekap</code>, <code>/telat</code>, <code>/cek</code>, <code>/guru</code>, <code>/pending</code>)</label>
+                      <label class="form-check-label small" for="set-tg-perintah"><b>Perintah 2 Arah di Grup</b> (<code>/rekap</code>, <code>/kelas</code>, <code>/telat</code>, <code>/cek</code>, <code>/guru</code>, <code>/pending</code>, <code>/id</code>)</label>
                     </div>
+                    <div class="form-check mb-0">
+                      <input class="form-check-input" type="checkbox" id="set-tg-validasi" checked>
+                      <label class="form-check-label small" for="set-tg-validasi"><b>Tombol Pilah &amp; Sahkan Laporan OSIS di Grup 1</b> (<code>✅ Setujui</code> / <code>❌ Tolak</code>)</label>
+                    </div>
+                  </div>
+                  <div class="field mb-3">
+                    <label for="set-tg-validator-ids">User ID Telegram Khusus Validator BK/Wakasis <span class="text-muted font-weight-normal">(Opsional)</span></label>
+                    <input type="text" id="set-tg-validator-ids" placeholder="Kosongkan = semua anggota Grup 1 boleh klik · atau pisah koma (ketik /id di Telegram)">
                   </div>
 
                   <label class="d-block font-weight-bold mb-2" style="font-size:.82rem;color:#334155">Aktivasi Webhook 2 Arah &amp; Jadwal Otomatis:</label>
@@ -1317,7 +1325,7 @@
     </div>
     <div class="alert-box err" id="login-alert" style="display:none;color:#B91C1C;text-align:center;font-size:.85rem;font-weight:700;margin-bottom:.5rem"></div>
     <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="Contoh: G002" autocomplete="username"></div>
-    <div class="field"><label>PIN</label><div class="pin-wrap"><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric" autocomplete="current-password"><button type="button" class="toggle-pin" id="btn-toggle-pin" title="Lihat / Sembunyikan PIN"><i class="fas fa-eye"></i></button></div></div>
+    <div class="field"><label>PIN / Password</label><div class="pin-wrap"><input type="password" id="login-pin" placeholder="Masukkan PIN / Password" inputmode="text" autocomplete="current-password"><button type="button" class="toggle-pin" id="btn-toggle-pin" title="Lihat / Sembunyikan Password"><i class="fas fa-eye"></i></button></div></div>
     <label class="remember-row"><input type="checkbox" id="login-remember"> Ingat saya di perangkat ini</label>
     <button class="btn-primary-full" id="btn-login">Masuk</button>
     <button type="button" class="btn-secondary-full" id="btn-panduan-login"><i class="fas fa-book-open mr-1"></i> Baca Panduan &amp; Hak Akses Role</button>
@@ -1375,7 +1383,7 @@
     <input type="hidden" id="guru-id-lama" value="">
     <div class="form-row">
       <div class="field"><label>ID Guru</label><input type="text" id="guru-id" placeholder="G005"></div>
-      <div class="field"><label>PIN</label><input type="text" id="guru-pin" placeholder="123456"></div>
+      <div class="field"><label>PIN / Password</label><input type="text" id="guru-pin" placeholder="Bisa huruf &amp; angka (misal: bkc2026)"></div>
     </div>
     <div class="field"><label>Nama Lengkap</label><input type="text" id="guru-nama" placeholder="Nama, S.Pd."></div>
     <div class="field">
@@ -4787,6 +4795,8 @@ async function loadPengaturan() {
     if ($('set-tg-rekap-pagi')) $('set-tg-rekap-pagi').checked = String(s.tg_rekap_pagi || 'YA').toUpperCase() === 'YA';
     if ($('set-tg-rekap-sore')) $('set-tg-rekap-sore').checked = String(s.tg_rekap_sore || 'YA').toUpperCase() === 'YA';
     if ($('set-tg-perintah')) $('set-tg-perintah').checked = String(s.tg_perintah_aktif || 'YA').toUpperCase() === 'YA';
+    if ($('set-tg-validasi')) $('set-tg-validasi').checked = String(s.tg_validasi_aktif || 'YA').toUpperCase() === 'YA';
+    if ($('set-tg-validator-ids')) $('set-tg-validator-ids').value = s.tg_validator_ids || '';
     updateTgUiState_();
   } catch (e) {}
 }
@@ -4830,7 +4840,9 @@ $('btn-simpan-pengaturan').addEventListener('click', async () => {
     tg_notif_telat: ($('set-tg-notif-telat') && $('set-tg-notif-telat').checked) ? 'YA' : 'TIDAK',
     tg_rekap_pagi: ($('set-tg-rekap-pagi') && $('set-tg-rekap-pagi').checked) ? 'YA' : 'TIDAK',
     tg_rekap_sore: ($('set-tg-rekap-sore') && $('set-tg-rekap-sore').checked) ? 'YA' : 'TIDAK',
-    tg_perintah_aktif: ($('set-tg-perintah') && $('set-tg-perintah').checked) ? 'YA' : 'TIDAK'
+    tg_perintah_aktif: ($('set-tg-perintah') && $('set-tg-perintah').checked) ? 'YA' : 'TIDAK',
+    tg_validasi_aktif: ($('set-tg-validasi') && $('set-tg-validasi').checked) ? 'YA' : 'TIDAK',
+    tg_validator_ids: $('set-tg-validator-ids') ? $('set-tg-validator-ids').value.trim() : ''
   };
   const btn = $('btn-simpan-pengaturan');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan…';

@@ -94,6 +94,13 @@
   .btn-primary-full:hover{transform:translateY(-1px);color:#fff}
   .btn-primary-full:disabled{opacity:.6;cursor:not-allowed;transform:none}
   .btn-secondary-full{width:100%;padding:.75rem;margin-top:.4rem;background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;border-radius:8px;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
+  .role-note{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E3A8A;border-radius:10px;padding:.6rem .75rem;font-size:.75rem;font-weight:600;line-height:1.5;margin-bottom:.85rem;text-align:left}
+  .guide-list{display:flex;flex-direction:column;gap:.7rem;margin:.75rem 0 1rem}
+  .guide-step{background:#F8FAFF;border:1px solid #E5EEFF;border-radius:12px;padding:.85rem 1rem}
+  .guide-step h4{font-size:.88rem;color:#1E3A8A;font-weight:800;margin-bottom:.3rem}
+  .guide-step li,.guide-step p{font-size:.8rem;color:#334155;line-height:1.5;margin-bottom:.15rem}
+  .guide-step ul{padding-left:1.15rem;margin:0}
+  .guide-pill{display:inline-block;padding:.08rem .42rem;border-radius:6px;font-size:.7rem;font-weight:800;background:#DBEAFE;color:#1D4ED8}
 
   .scan-area{background:linear-gradient(180deg,#0A1533,#102252);border-radius:12px;padding:1.2rem;text-align:center;color:#DBEAFE;margin-bottom:1rem}
   .scan-area .label{font-size:.65rem;letter-spacing:.25em;color:#93C5FD;font-weight:800}
@@ -260,6 +267,7 @@
       <li class="nav-item d-flex align-items-center ml-2" id="bkc-admin-nav"></li>
     </ul>
     <ul class="navbar-nav ml-auto align-items-center">
+      <li class="nav-item mr-2"><button type="button" class="btn btn-sm btn-outline-primary font-weight-bold" id="btn-panduan" title="Panduan &amp; Hak Akses Role"><i class="fas fa-book-open mr-1"></i><span class="d-none d-sm-inline">Panduan</span></button></li>
       <li class="nav-item mr-2"><span class="user-pill" id="user-pill" style="display:none"><i class="fas fa-user-circle"></i> <span id="user-name">—</span></span></li>
       <li class="nav-item"><span class="user-pill" id="sesi-pill" style="display:none"><i class="fas fa-clock"></i> <span id="sesi-timer">10:00</span></span></li>
       <li class="nav-item ml-2"><button class="btn btn-sm btn-outline-danger" id="btn-logout" style="display:none"><i class="fas fa-sign-out-alt"></i></button></li>
@@ -615,6 +623,7 @@
                 <option value="WAKA_KESISWAAN">WAKA_KESISWAAN</option>
                 <option value="KEPSEK">KEPSEK</option>
                 <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+                <option value="PETUGAS_OSIS">PETUGAS_OSIS</option>
               </select>
               <button class="btn btn-sm btn-primary" id="btn-tambah-guru"><i class="fas fa-plus mr-1"></i>Tambah</button>
               <button class="btn btn-sm btn-success" id="btn-import-guru"><i class="fas fa-file-excel mr-1"></i>Import</button>
@@ -635,6 +644,46 @@
 
       <!-- TATA TERTIB -->
       <div id="page-tatib" style="display:none">
+        <div class="card mb-3" style="border-left:4px solid #D97706">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
+            <div>
+              <h3 class="card-title mb-0"><i class="fas fa-clock text-warning mr-2"></i>Pemotongan Poin Terlambat Otomatis (Gerbang)</h3>
+              <small class="text-muted d-block">Poin siswa otomatis berkurang saat tap masuk gerbang melewati batas jam masuk + toleransi.</small>
+            </div>
+            <span class="badge badge-secondary" id="telat-status-badge">Memuat…</span>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-end" style="gap:.65rem 0">
+              <div class="col-md-3">
+                <label class="small font-weight-bold text-muted mb-1">Status Pemotongan Otomatis</label>
+                <select id="telat-auto-aktif" class="form-control form-control-sm">
+                  <option value="YA">AKTIF (Potong Otomatis)</option>
+                  <option value="TIDAK">NONAKTIF (Hanya Catat Telat)</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="small font-weight-bold text-muted mb-1">Pasal Acuan di Tata Tertib</label>
+                <select id="telat-pasal-select" class="form-control form-control-sm">
+                  <option value="TT-TELAT">TT-TELAT — Terlambat masuk gerbang sekolah</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="small font-weight-bold text-muted mb-1">Poin Dipotong</label>
+                <div class="input-group input-group-sm">
+                  <div class="input-group-prepend"><span class="input-group-text font-weight-bold text-danger">-</span></div>
+                  <input type="number" id="telat-poin" class="form-control form-control-sm font-weight-bold" min="0" max="100" value="5">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <button type="button" class="btn btn-sm btn-warning font-weight-bold btn-block" id="btn-simpan-telat"><i class="fas fa-save mr-1"></i>Simpan Aturan Terlambat</button>
+              </div>
+            </div>
+            <div class="mt-2 small text-muted" style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:.55rem .75rem;color:#92400E !important">
+              <i class="fas fa-shield-alt mr-1"></i><b>Pengecualian &amp; Solusi Dispensasi:</b> Siswa tidak akan dipotong poin jika: (1) sudah ada Keterangan <b>Izin/Sakit</b> hari itu, (2) di Gerbang dinyalakan <b>Mode Hujan Deras / Dispensasi</b> atau <b>Izin-Tugas 1x Tap</b>, atau (3) dibatalkan susulan via tombol <b>Dispensasi</b> di halaman <b>Kedisiplinan &rarr; Rekap Siswa</b>. Mengubah angka poin di sini otomatis memperbarui pasal terkait di tabel Master Tata Tertib di bawah.
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
             <h3 class="card-title mb-0"><i class="fas fa-book text-primary mr-2"></i>Master Tata Tertib</h3>
@@ -1154,13 +1203,21 @@
 <div class="overlay-modal show" id="modal-login">
   <div class="overlay-box">
     <div class="overlay-logo">BK</div>
-    <h2>Login Admin</h2>
-    <p class="sub">Super Admin, Kepala Sekolah, Guru BK, atau Wali Kelas.</p>
+    <h2>Login Portal Admin</h2>
+    <p class="sub" style="margin-bottom:.65rem">Masuk menggunakan ID Guru / Nama dan PIN.</p>
+    <div class="role-note">
+      <b>Pembagian Role Login:</b><br>
+      &bull; <b>SUPER_ADMIN</b>: Akses penuh semua menu.<br>
+      &bull; <b>GURU_BK / WAKA_KESISWAAN</b>: Dashboard, Tatib, Absen, Laporan, Raport.<br>
+      &bull; <b>KEPSEK</b>: Dashboard Eksekutif, Keterangan Absen, Laporan, Raport.<br>
+      &bull; <b>WALI_KELAS</b>: Khusus siswa kelas binaan (Dashboard, Absen, Laporan, Raport).
+    </div>
     <div class="alert-box err" id="login-alert" style="display:none;color:#B91C1C;text-align:center;font-size:.85rem;font-weight:700;margin-bottom:.5rem"></div>
     <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="Contoh: G002" autocomplete="username"></div>
     <div class="field"><label>PIN</label><div class="pin-wrap"><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric" autocomplete="current-password"><button type="button" class="toggle-pin" id="btn-toggle-pin" title="Lihat / Sembunyikan PIN"><i class="fas fa-eye"></i></button></div></div>
     <label class="remember-row"><input type="checkbox" id="login-remember"> Ingat saya di perangkat ini</label>
     <button class="btn-primary-full" id="btn-login">Masuk</button>
+    <button type="button" class="btn-secondary-full" id="btn-panduan-login"><i class="fas fa-book-open mr-1"></i> Baca Panduan &amp; Hak Akses Role</button>
   </div>
 </div>
 
@@ -1226,6 +1283,7 @@
         <label class="check-role"><input type="checkbox" value="SUPER_ADMIN"> SUPER_ADMIN</label>
         <label class="check-role"><input type="checkbox" value="KEPSEK"> KEPSEK</label>
         <label class="check-role"><input type="checkbox" value="WALI_KELAS"> WALI_KELAS</label>
+        <label class="check-role"><input type="checkbox" value="PETUGAS_OSIS"> PETUGAS_OSIS (Khusus Lapor Disiplin)</label>
       </div>
     </div>
     <div class="field"><label>Status</label><select id="guru-status"><option value="AKTIF">AKTIF</option><option value="NONAKTIF">NONAKTIF</option></select></div>
@@ -1341,6 +1399,56 @@
   </div>
 </div>
 
+<!-- MODAL PANDUAN ADMIN -->
+<div class="overlay-modal" id="modal-panduan" style="z-index:2500">
+  <div class="overlay-box wide">
+    <h2><i class="fas fa-book-open mr-1"></i> Panduan Portal Admin &amp; Role Akses</h2>
+    <p class="sub">Ringkasan hak akses per role dan alur pengelolaan data sekolah:</p>
+    <div class="guide-list">
+      <div class="guide-step">
+        <h4>🔑 Matriks Role Login Portal Admin</h4>
+        <ul>
+          <li><b>SUPER_ADMIN:</b> Seluruh menu (Master Siswa/Kelas/Guru, RFID, Naik Kelas, Pengaturan Sekolah, Cetak Kartu, Tatib, Absen, Laporan, Raport).</li>
+          <li><b>GURU_BK &amp; WAKA_KESISWAAN:</b> Dashboard Eksekutif, Manajemen Tata Tertib &amp; Saldo Awal, Keterangan Absen, Laporan Siswa &amp; Guru, Raport.</li>
+          <li><b>KEPSEK:</b> Dashboard Eksekutif, Keterangan Absen, Laporan Siswa &amp; Guru, dan Raport Karakter.</li>
+          <li><b>WALI_KELAS:</b> Dashboard Wali Kelas, input Izin/Sakit/Alpa, Laporan Kehadiran Siswa, serta Cetak Raport khusus kelas binaannya.</li>
+          <li><b>PETUGAS_OSIS:</b> Tidak dapat masuk ke Admin; hanya bisa mencatat laporan pelanggaran di halaman Kedisiplinan yang wajib divalidasi Guru BK / Waka Kesiswaan.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>1️⃣ Master Data, RFID, &amp; Kenaikan Kelas</h4>
+        <ul>
+          <li>Kelola Siswa, Kelas, &amp; Guru di sidebar kiri (mendukung import file Excel/CSV dan pendaftaran kartu <span class="guide-pill">RFID</span> dengan proteksi UID ganda).</li>
+          <li>Gunakan menu <b>Naik Kelas / Lulus</b> saat pergantian tahun ajaran agar riwayat absen &amp; poin lama tetap aman.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>2️⃣ Keterangan Absen (Izin / Sakit / Alpa)</h4>
+        <ul>
+          <li>Gunakan menu <b>Keterangan Absen</b> untuk mencatat Izin/Sakit/Alpa siswa yang belum melakukan tap hadir di gerbang.</li>
+          <li>Siswa yang sudah tap hadir di gerbang tidak akan tertimpa alpa otomatis.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>3️⃣ Laporan Gerbang Siswa/Guru &amp; Status "Tidak Tap Pulang"</h4>
+        <ul>
+          <li>Laporan otomatis menandai presensi hari kemarin ke bawah yang hanya tap masuk sebagai <b>Tidak Tap Pulang</b> tanpa mengganggu hari berikutnya.</li>
+          <li>Untuk Guru berlaku aturan jam masuk/pulang dan jeda minimal tap pulang yang sama dengan siswa.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>4️⃣ Pengaturan Sekolah, Potong Poin Terlambat, Kartu, &amp; Raport</h4>
+        <ul>
+          <li>Atur batas jam masuk, toleransi keterlambatan, jam pulang, jadwal sholat, dan ambang zona poin di menu <b>Pengaturan</b>.</li>
+          <li>Atur aktif/tidaknya dan besaran <b>Pemotongan Poin Terlambat Otomatis</b> langsung di panel khusus paling atas menu <b>Tata Tertib</b> (terhubung ke pasal Master Tata Tertib).</li>
+          <li>Cetak kartu QR massal per kelas maupun Raport Karakter siswa satuan atau 1 kelas sekaligus (Save as PDF).</li>
+        </ul>
+      </div>
+    </div>
+    <button type="button" class="btn-primary-full" id="btn-tutup-panduan">Saya Mengerti</button>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
@@ -1403,14 +1511,12 @@ function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 }
 function todayISO() {
-  const d = new Date();
-  const wib = new Date(d.getTime() + d.getTimezoneOffset() * 60000 + 7 * 3600000);
-  return wib.toISOString().slice(0, 10);
+  return new Date(Date.now() + (7 * 3600000)).toISOString().slice(0, 10);
 }
 function bersihkanJam_(val, fallback) {
   if (!val) return fallback;
   if (val instanceof Date && !isNaN(val.getTime())) {
-    const wib = new Date(val.getTime() + val.getTimezoneOffset() * 60000 + 7 * 3600000);
+    const wib = new Date(val.getTime() + (7 * 3600000));
     return String(wib.getUTCHours()).padStart(2, '0') + ':' + String(wib.getUTCMinutes()).padStart(2, '0');
   }
   const str = String(val).trim();
@@ -1460,6 +1566,10 @@ function isSuperAdmin_(roleStr) {
 function canAccessTatib_(roleStr) {
   const arr = String(roleStr || '').toUpperCase().split(',').map(r => r.trim());
   return ['SUPER_ADMIN','GURU_BK','WAKA_KESISWAAN'].some(r => arr.includes(r));
+}
+function isAktifStatus_(st) {
+  const s = String(st == null ? '' : st).trim().toUpperCase();
+  return s === '' || s === 'AKTIF';
 }
 
 function askConfirm(title, msg, okText = 'Ya, Lanjutkan', btnCls = 'btn-danger') {
@@ -1513,16 +1623,54 @@ function printHtmlViaIframe_(title, stylesCss, bodyHtml) {
 }
 
 function apiCall(action, payload = {}, isPost = false, useToken = true) {
+  if (isPost) {
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = setTimeout(() => { if (controller) controller.abort(); }, 25000);
+    return fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, token: useToken ? state.token : '', payload }),
+      signal: controller ? controller.signal : undefined
+    })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .finally(() => clearTimeout(timer));
+  }
   return new Promise((resolve, reject) => {
-    const cbName = 'jsonp_' + Math.round(100000 * Math.random());
+    const cbName = 'jsonp_' + Math.round(100000 * Math.random()) + '_' + Date.now();
     const script = document.createElement('script');
-    let url = `${API_URL}?callback=${cbName}&action=${action}`;
-    if (useToken && state.token) url += `&token=${state.token}`;
-    if (isPost) { url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`; }
-    else { for (let k in payload) { if (payload[k] !== undefined) url += `&${k}=${encodeURIComponent(payload[k])}`; } }
-    window[cbName] = function(res) { document.body.removeChild(script); delete window[cbName]; resolve(res); };
+    let settled = false;
+    const cleanup = () => {
+      clearTimeout(timer);
+      if (script.parentNode) { try { script.parentNode.removeChild(script); } catch (e) {} }
+      try { delete window[cbName]; } catch (e) {}
+    };
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error('Koneksi timeout ke server'));
+    }, 25000);
+
+    let url = `${API_URL}?callback=${cbName}&action=${encodeURIComponent(action)}`;
+    if (useToken && state.token) url += `&token=${encodeURIComponent(state.token)}`;
+    for (let k in payload) {
+      if (payload[k] !== undefined && payload[k] !== null) {
+        url += `&${encodeURIComponent(k)}=${encodeURIComponent(payload[k])}`;
+      }
+    }
+    window[cbName] = function(res) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(res);
+    };
     script.src = url;
-    script.onerror = () => reject(new Error('Gagal koneksi ke server'));
+    script.onerror = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error('Gagal koneksi ke server'));
+    };
     document.body.appendChild(script);
   });
 }
@@ -1633,6 +1781,13 @@ if ($('btn-toggle-pin')) {
     $('btn-toggle-pin').innerHTML = show ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
   });
 }
+function bukaPanduanAdmin() { $('modal-panduan').classList.add('show'); }
+function tutupPanduanAdmin() { $('modal-panduan').classList.remove('show'); }
+if ($('btn-panduan')) $('btn-panduan').addEventListener('click', bukaPanduanAdmin);
+if ($('btn-panduan-login')) $('btn-panduan-login').addEventListener('click', bukaPanduanAdmin);
+if ($('btn-tutup-panduan')) $('btn-tutup-panduan').addEventListener('click', tutupPanduanAdmin);
+if ($('modal-panduan')) $('modal-panduan').addEventListener('click', (e) => { if (e.target === $('modal-panduan')) tutupPanduanAdmin(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('modal-panduan') && $('modal-panduan').classList.contains('show')) tutupPanduanAdmin(); });
 $('btn-logout').addEventListener('click', async () => {
   if (await askConfirm('Keluar dari Sistem', 'Apakah Anda yakin ingin logout dari Portal Admin?', 'Ya, Logout', 'btn-danger')) {
     doLogout('Manual');
@@ -2172,7 +2327,7 @@ function renderChartWaliKelas(k) {
   if (state.charts.wk) state.charts.wk.destroy();
   state.charts.wk = new Chart($('wk-chart-ketepatan'), {
     type: 'pie',
-    data: { labels: ['Tepat Waktu','Terlambat','Belum Hadir'], datasets: [{ data: [k.tepat_waktu||0, k.terlambat||0, k.tidak_hadir||0], backgroundColor: ['#10B981','#F59E0B','#EF4444'] }] },
+    data: { labels: ['Tepat Waktu','Terlambat','Izin/Sakit/Alpa','Belum Hadir'], datasets: [{ data: [k.tepat_waktu||0, k.terlambat||0, k.izin_sakit_alpa||0, k.tidak_hadir||0], backgroundColor: ['#10B981','#F59E0B','#3B82F6','#EF4444'] }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
   });
 }
@@ -2214,7 +2369,7 @@ function renderSiswaTable() {
   if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Tidak ada data sesuai filter.</td></tr>'; return; }
   tbody.innerHTML = filtered.map(s => {
     const hasCard = !!(s.uid_rfid && String(s.uid_rfid).trim());
-    return `<tr><td class="font-weight-bold">${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td><td>${escapeHtml(s.jk || '-')}</td><td>${String(s.status).toUpperCase() === 'AKTIF' ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">' + escapeHtml(s.status) + '</span>'}</td><td>${hasCard ? '<span class="badge-ok"><i class="fas fa-check-circle mr-1"></i>' + escapeHtml(s.uid_rfid) + '</span>' : '<span class="badge-no"><i class="fas fa-times-circle mr-1"></i>Belum ada</span>'}</td><td><button class="btn-scan ${hasCard ? 'has-card' : ''}" data-act="scan" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-wifi mr-1"></i>${hasCard ? 'Ganti' : 'Scan'}</button><button class="btn-ghost ml-1" data-act="edit" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-edit"></i></button><button class="btn-ghost ml-1" data-act="raport" data-nis="${escapeHtml(s.nis)}" title="Cetak Raport"><i class="fas fa-file-alt"></i></button><button class="btn-danger-soft ml-1" data-act="hapus" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-trash"></i></button></td></tr>`;
+    return `<tr><td class="font-weight-bold">${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td><td>${escapeHtml(s.jk || '-')}</td><td>${isAktifStatus_(s.status) ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">' + escapeHtml(s.status) + '</span>'}</td><td>${hasCard ? '<span class="badge-ok"><i class="fas fa-check-circle mr-1"></i>' + escapeHtml(s.uid_rfid) + '</span>' : '<span class="badge-no"><i class="fas fa-times-circle mr-1"></i>Belum ada</span>'}</td><td><button class="btn-scan ${hasCard ? 'has-card' : ''}" data-act="scan" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-wifi mr-1"></i>${hasCard ? 'Ganti' : 'Scan'}</button><button class="btn-ghost ml-1" data-act="edit" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-edit"></i></button><button class="btn-ghost ml-1" data-act="raport" data-nis="${escapeHtml(s.nis)}" title="Cetak Raport"><i class="fas fa-file-alt"></i></button><button class="btn-danger-soft ml-1" data-act="hapus" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-trash"></i></button></td></tr>`;
   }).join('');
   tbody.querySelectorAll('[data-act]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2340,7 +2495,7 @@ function renderGuruTable() {
   tbody.innerHTML = filtered.map(g => {
     const rolesBadge = String(g.role || '').split(',').map(r => `<span class="badge-role" style="margin-right:.25rem;margin-bottom:.15rem">${escapeHtml(r.trim())}</span>`).join('');
     const hasCard = !!(g.uid_rfid && String(g.uid_rfid).trim());
-    return `<tr><td class="font-weight-bold">${escapeHtml(g.id_guru)}</td><td>${escapeHtml(g.nama)}</td><td>${rolesBadge}</td><td>${String(g.status).toUpperCase() === 'AKTIF' ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">NONAKTIF</span>'}</td><td>${hasCard ? '<span class="badge-ok"><i class="fas fa-check-circle mr-1"></i>' + escapeHtml(g.uid_rfid) + '</span>' : '<span class="badge-no"><i class="fas fa-times-circle mr-1"></i>Belum ada</span>'}</td><td>${escapeHtml(g.no_hp || '-')}</td><td><button class="btn-ghost" data-guru="${escapeHtml(g.id_guru)}"><i class="fas fa-edit"></i></button></td></tr>`;
+    return `<tr><td class="font-weight-bold">${escapeHtml(g.id_guru)}</td><td>${escapeHtml(g.nama)}</td><td>${rolesBadge}</td><td>${isAktifStatus_(g.status) ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">' + escapeHtml(g.status || 'NONAKTIF') + '</span>'}</td><td>${hasCard ? '<span class="badge-ok"><i class="fas fa-check-circle mr-1"></i>' + escapeHtml(g.uid_rfid) + '</span>' : '<span class="badge-no"><i class="fas fa-times-circle mr-1"></i>Belum ada</span>'}</td><td>${escapeHtml(g.no_hp || '-')}</td><td><button class="btn-ghost" data-guru="${escapeHtml(g.id_guru)}"><i class="fas fa-edit"></i></button></td></tr>`;
   }).join('');
   tbody.querySelectorAll('[data-guru]').forEach(btn => btn.addEventListener('click', () => openEditGuru(state.guruList.find(x => x.id_guru === btn.dataset.guru))));
 }
@@ -2384,11 +2539,90 @@ $('btn-simpan-guru').addEventListener('click', simpanGuru);
 $('btn-batal-guru').addEventListener('click', () => $('modal-guru').classList.remove('show'));
 
 // ============ TATA TERTIB ============
+let settingTerlambatCache = {};
+function renderPanelTerlambat() {
+  const selAktif = $('telat-auto-aktif');
+  const selPasal = $('telat-pasal-select');
+  const inpPoin = $('telat-poin');
+  const badge = $('telat-status-badge');
+  if (!selAktif || !selPasal || !inpPoin) return;
+
+  const isAktif = String(settingTerlambatCache.auto_potong_terlambat || 'TIDAK').toUpperCase() === 'YA';
+  selAktif.value = isAktif ? 'YA' : 'TIDAK';
+
+  const pelanggaran = (state.tatibList || []).filter(t => String(t.jenis || '').toUpperCase() === 'PELANGGARAN');
+  let opts = '';
+  const hasDefault = pelanggaran.some(t => String(t.kode || '').toUpperCase() === 'TT-TELAT');
+  pelanggaran.forEach(t => {
+    const k = String(t.kode || '').trim().toUpperCase();
+    const st = String(t.aktif || 'YA').toUpperCase() === 'YA' ? '' : ' [Nonaktif]';
+    opts += `<option value="${escapeHtml(k)}">${escapeHtml(k)} — ${escapeHtml(t.deskripsi)} (-${Math.abs(Number(t.poin) || 0)})${st}</option>`;
+  });
+  if (!hasDefault) {
+    opts = `<option value="TT-TELAT">TT-TELAT — Terlambat masuk gerbang sekolah (Buat otomatis)</option>` + opts;
+  }
+  selPasal.innerHTML = opts;
+
+  let kodeDipilih = String(settingTerlambatCache.pasal_terlambat_kode || '').trim().toUpperCase();
+  if (!kodeDipilih) {
+    const kTelat = pelanggaran.find(t => String(t.kode || '').toUpperCase() === 'TT-TELAT') ||
+                   pelanggaran.find(t => String(t.kategori || '').toUpperCase() === 'KETERLAMBATAN') ||
+                   pelanggaran.find(t => String(t.deskripsi || '').toLowerCase().includes('terlambat'));
+    kodeDipilih = kTelat ? String(kTelat.kode).trim().toUpperCase() : 'TT-TELAT';
+  }
+  if (Array.from(selPasal.options).some(o => o.value === kodeDipilih)) {
+    selPasal.value = kodeDipilih;
+  }
+  const matchRule = pelanggaran.find(t => String(t.kode || '').trim().toUpperCase() === selPasal.value);
+  inpPoin.value = matchRule ? Math.abs(Number(matchRule.poin) || 0) : 5;
+
+  if (badge) {
+    if (isAktif) {
+      badge.className = 'badge badge-warning';
+      badge.textContent = `AKTIF (${selPasal.value}: -${inpPoin.value} poin)`;
+    } else {
+      badge.className = 'badge badge-secondary';
+      badge.textContent = 'NONAKTIF';
+    }
+  }
+}
+
+if ($('telat-pasal-select')) {
+  $('telat-pasal-select').addEventListener('change', () => {
+    const kode = $('telat-pasal-select').value;
+    const rule = (state.tatibList || []).find(t => String(t.kode || '').trim().toUpperCase() === kode);
+    if (rule && $('telat-poin')) $('telat-poin').value = Math.abs(Number(rule.poin) || 0);
+  });
+}
+
+if ($('btn-simpan-telat')) {
+  $('btn-simpan-telat').addEventListener('click', async () => {
+    const aktif = $('telat-auto-aktif').value;
+    const kode = $('telat-pasal-select').value || 'TT-TELAT';
+    const poin = Math.abs(parseInt($('telat-poin').value, 10) || 0);
+    if (aktif === 'YA' && poin <= 0) {
+      toast('Jumlah poin potongan harus lebih dari 0 jika fitur diaktifkan.', true);
+      return;
+    }
+    const btn = $('btn-simpan-telat');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan…';
+    try {
+      const res = await apiCall('simpanPengaturanTerlambat', { aktif, kode, poin }, true);
+      if (!res.ok) { toast(res.message, true); return; }
+      toast(res.message);
+      await loadTatib();
+    } catch (e) { toast(e.message || 'Gagal menyimpan', true); }
+    finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save mr-1"></i>Simpan Aturan Terlambat'; }
+  });
+}
+
 async function loadTatib() {
   try {
-    const res = await apiCall('getTataTertib');
+    const [res, resSet] = await Promise.all([apiCall('getTataTertib'), apiCall('getPengaturan')]);
     if (!res.ok) { toast(res.message, true); return; }
     state.tatibList = res.data || [];
+    if (resSet && resSet.ok && resSet.data) settingTerlambatCache = resSet.data;
+    renderPanelTerlambat();
     renderTatibTable();
     initSaldoAwalAdmin();
   } catch (err) { toast('Gagal memuat tata tertib', true); }
@@ -2458,7 +2692,7 @@ async function initSaldoAwalAdmin() {
       saldoRekapCache = rRes.data.siswa;
     } else {
       const mRes = await apiCall('getMasterSiswa');
-      saldoRekapCache = mRes.ok ? mRes.data.filter(s => String(s.status).toUpperCase() === 'AKTIF').map(s => ({ nis: String(s.nis), nama: s.nama, kelas: s.kelas, saldo: 100 })) : [];
+      saldoRekapCache = mRes.ok ? mRes.data.filter(s => isAktifStatus_(s.status)).map(s => ({ nis: String(s.nis), nama: s.nama, kelas: s.kelas, saldo: 100 })) : [];
     }
     if (sel.value) renderSaldoKelasAdmin();
   } catch (e) {}
@@ -2842,14 +3076,18 @@ function cariKetSiswa(q) {
 
 async function loadKeteranganHariIni() {
   const tgl = $('ket-tanggal').value || todayISO();
+  const tbody = $('tbody-ket');
+  if (!isAdminRole_(state.role) && !state.ketKelasAmpu.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Anda belum ditugaskan sebagai wali kelas mana pun.</td></tr>';
+    return;
+  }
   try {
     const params = { tanggal: tgl };
     if (!isAdminRole_(state.role) && state.ketKelasAmpu.length === 1) params.kelas = state.ketKelasAmpu[0];
     const res = await apiCall('getKeteranganAbsen', params);
-    const tbody = $('tbody-ket');
     if (!res.ok) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Gagal memuat.</td></tr>'; return; }
     let data = res.data || [];
-    if (!isAdminRole_(state.role) && state.ketKelasAmpu.length > 1) {
+    if (!isAdminRole_(state.role) && state.ketKelasAmpu.length > 0) {
       data = data.filter(r => state.ketKelasAmpu.includes(String(r.kelas)));
     }
     if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Belum ada keterangan untuk tanggal ini.</td></tr>'; return; }
@@ -2873,13 +3111,15 @@ async function hapusKeterangan(id) {
 
 $('btn-simpan-ket').addEventListener('click', async () => {
   if (!state.ketSiswaTerpilih) { toast('Pilih siswa dulu', true); return; }
+  const tgl = $('ket-tanggal').value;
+  if (!tgl) { toast('Pilih tanggal absen dulu', true); return; }
   const status = $('ket-status').value;
   if (!status) { toast('Pilih status', true); return; }
   const btn = $('btn-simpan-ket'); btn.disabled = true;
   try {
     const res = await apiCall('simpanKeteranganAbsen', {
       nis: state.ketSiswaTerpilih.nis,
-      tanggal: $('ket-tanggal').value,
+      tanggal: tgl,
       status: status,
       keterangan: $('ket-catatan').value.trim()
     }, true);
@@ -2965,6 +3205,7 @@ async function loadLaporan() {
   const dari = $('lap-dari').value;
   const sampai = $('lap-sampai').value;
   if (!dari || !sampai) { toast('Isi tanggal', true); return; }
+  if (dari > sampai) { toast('Tanggal "Dari" tidak boleh melebihi "Sampai".', true); return; }
 
   $('lap-tbody').innerHTML = '<tr><td colspan="13" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat laporan siswa…</td></tr>';
 
@@ -2990,7 +3231,7 @@ async function loadLaporan() {
     } else {
       const resSiswa = await apiCall('getMasterSiswa');
       if (!resSiswa.ok) { toast(resSiswa.message, true); return; }
-      listSiswa = (resSiswa.data || []).filter(s => String(s.status).toUpperCase() === 'AKTIF');
+      listSiswa = (resSiswa.data || []).filter(s => isAktifStatus_(s.status));
     }
 
     const kelasDipilih = $('lap-kelas').value;
@@ -3054,13 +3295,40 @@ async function loadLaporan() {
       }
     });
 
+    if (resRekap.ok && Array.isArray(resRekap.data)) {
+      resRekap.data.forEach(r => {
+        const nis = String(r.nis || '').trim();
+        const tgl = String(r.tanggal || '').trim();
+        const jm = (r.jam_masuk && r.jam_masuk !== '-') ? bersihkanJam_(r.jam_masuk, '') : '';
+        if (tgl && jm) tanggalAktifSet.add(tgl);
+        if (!rekap[nis] || !tgl || !jm || rekap[nis]._hadirDates.has(tgl)) return;
+        const st = String(r.status_masuk || '').toUpperCase();
+        rekap[nis]._hadirDates.add(tgl);
+        rekap[nis].hadir++;
+        if (st === 'TERLAMBAT') rekap[nis].telat++;
+        else rekap[nis].tepat++;
+      });
+    }
+
+    const ketPerTglNis = {};
     dataKet.forEach(r => {
       const nis = String(r.nis || '').trim();
-      if (!rekap[nis]) return;
+      const tgl = String(r.tanggal || '').trim();
       const st = String(r.status || '').toUpperCase();
-      if (st === 'IZIN') rekap[nis].izin++;
-      if (st === 'SAKIT') rekap[nis].sakit++;
-      if (st === 'ALPA') rekap[nis].alpa++;
+      if (!rekap[nis] || !['IZIN', 'SAKIT', 'ALPA'].includes(st)) return;
+      if (!tgl) {
+        if (st === 'IZIN') rekap[nis].izin++;
+        else if (st === 'SAKIT') rekap[nis].sakit++;
+        else if (st === 'ALPA') rekap[nis].alpa++;
+        return;
+      }
+      if (rekap[nis]._hadirDates.has(tgl)) return;
+      ketPerTglNis[tgl + '_' + nis] = { nis, st };
+    });
+    Object.values(ketPerTglNis).forEach(item => {
+      if (item.st === 'IZIN') rekap[item.nis].izin++;
+      else if (item.st === 'SAKIT') rekap[item.nis].sakit++;
+      else if (item.st === 'ALPA') rekap[item.nis].alpa++;
     });
 
     dataSholat.forEach(r => {
@@ -3140,9 +3408,29 @@ async function loadLaporan() {
         pairMap[key].status_pulang = st || 'PULANG';
       }
     });
+    dataKet.forEach(r => {
+      const nis = String(r.nis || '').trim();
+      const tgl = String(r.tanggal || '').trim();
+      const st = String(r.status || '').toUpperCase();
+      if (!allowedMap[nis] || !tgl || !['IZIN', 'SAKIT', 'ALPA'].includes(st)) return;
+      const key = tgl + '_' + nis;
+      if (!pairMap[key]) {
+        pairMap[key] = {
+          tanggal: tgl,
+          nis: nis,
+          nama: r.nama || allowedMap[nis].nama || '-',
+          kelas: r.kelas || allowedMap[nis].kelas || '-',
+          jam_masuk: '-',
+          status_masuk: st,
+          jam_pulang: '-',
+          status_pulang: '-',
+          keterangan_absen: String(r.keterangan || '').trim()
+        };
+      }
+    });
     const harian = Object.values(pairMap);
 
-    harian.sort((a, b) => (b.tanggal + a.kelas + a.nama).localeCompare(a.tanggal + b.kelas + b.nama));
+    harian.sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal)) || String(a.kelas).localeCompare(String(b.kelas)) || String(a.nama).localeCompare(String(b.nama)));
     state.laporanHarianData = harian;
 
     renderLaporan();
@@ -3170,7 +3458,11 @@ function getFilteredLaporanHarian_() {
   return state.laporanHarianData.filter(r => {
     if (q && !String(r.nama).toLowerCase().includes(q) && !String(r.nis).toLowerCase().includes(q)) return false;
     if (kondisi === 'telat' && r.status_masuk !== 'TERLAMBAT') return false;
-    if (kondisi === 'belum_pulang' && (r.jam_pulang && r.jam_pulang !== '-')) return false;
+    if (kondisi === 'belum_pulang') {
+      if (['IZIN', 'SAKIT', 'ALPA'].includes(r.status_masuk)) return false;
+      if (!r.jam_masuk || r.jam_masuk === '-') return false;
+      if (r.jam_pulang && r.jam_pulang !== '-') return false;
+    }
     if (kondisi === 'pulang_cepat' && r.status_pulang !== 'PULANG_CEPAT' && r.status_pulang !== 'PULANG_AWAL') return false;
     return true;
   });
@@ -3210,16 +3502,23 @@ function renderLaporan() {
     if (!harian.length) {
       $('lap-tbody').innerHTML = `<tr><td colspan="${headers.length}" class="text-center text-muted py-4">Tidak ada log masuk/pulang pada filter ini.</td></tr>`;
     } else {
+      const todayStr = todayISO();
       $('lap-tbody').innerHTML = harian.map(r => {
-        const badgeMasuk = r.status_masuk === 'TERLAMBAT'
-          ? '<span class="badge badge-warning">TERLAMBAT</span>'
-          : (r.status_masuk === '-' ? '<span class="text-muted">-</span>' : `<span class="badge badge-success">${escapeHtml(r.status_masuk)}</span>`);
+        const isKetAbsen = ['IZIN', 'SAKIT', 'ALPA'].includes(r.status_masuk);
+        const badgeMasuk = isKetAbsen
+          ? `<span class="status-chip ${r.status_masuk.toLowerCase()}">${escapeHtml(r.status_masuk)}</span>${r.keterangan_absen ? `<div class="text-muted" style="font-size:.7rem;margin-top:2px">${escapeHtml(r.keterangan_absen)}</div>` : ''}`
+          : (r.status_masuk === 'TERLAMBAT'
+            ? '<span class="badge badge-warning">TERLAMBAT</span>'
+            : (r.status_masuk === '-' ? '<span class="text-muted">-</span>' : `<span class="badge badge-success">${escapeHtml(r.status_masuk)}</span>`));
         const isPulangCepat = r.status_pulang === 'PULANG_CEPAT' || r.status_pulang === 'PULANG_AWAL';
-        const badgePulang = (!r.jam_pulang || r.jam_pulang === '-')
-          ? '<span class="badge badge-secondary">Belum Tap</span>'
-          : (isPulangCepat
-            ? '<span class="badge badge-warning">PULANG AWAL</span>'
-            : `<span class="badge badge-info">${escapeHtml(r.status_pulang || 'PULANG')}</span>`);
+        const isPastDay = r.tanggal && r.tanggal < todayStr;
+        const badgePulang = isKetAbsen
+          ? '<span class="text-muted">-</span>'
+          : ((!r.jam_pulang || r.jam_pulang === '-')
+            ? (isPastDay ? '<span class="badge badge-warning">Tidak Tap Pulang</span>' : '<span class="badge badge-secondary">Belum Tap</span>')
+            : (isPulangCepat
+              ? '<span class="badge badge-warning">PULANG AWAL</span>'
+              : `<span class="badge badge-info">${escapeHtml(r.status_pulang || 'PULANG')}</span>`));
         return `<tr>
           <td>${escapeHtml(formatTanggal(r.tanggal))}</td>
           <td class="font-weight-bold">${escapeHtml(r.nis)}</td>
@@ -3301,8 +3600,16 @@ function exportLaporanSiswa() {
   if (state.lapSiswaTab === 'harian') {
     const data = getFilteredLaporanHarian_();
     if (!data.length) { toast('Tidak ada data', true); return; }
+    const todayStr = todayISO();
     const headers = ['Tanggal', 'NIS', 'Nama', 'Kelas', 'Jam Masuk', 'Status Masuk', 'Jam Pulang', 'Status Pulang'];
-    const rows = data.map(r => [formatTanggal(r.tanggal), r.nis, r.nama, r.kelas, r.jam_masuk, r.status_masuk, r.jam_pulang, r.status_pulang]);
+    const rows = data.map(r => {
+      const isKetAbsen = ['IZIN', 'SAKIT', 'ALPA'].includes(r.status_masuk);
+      const stMasuk = isKetAbsen && r.keterangan_absen ? `${r.status_masuk} (${r.keterangan_absen})` : r.status_masuk;
+      const stPulang = isKetAbsen
+        ? '-'
+        : ((!r.jam_pulang || r.jam_pulang === '-') ? (r.tanggal < todayStr ? 'TIDAK_TAP_PULANG' : 'BELUM_TAP') : r.status_pulang);
+      return [formatTanggal(r.tanggal), r.nis, r.nama, r.kelas, r.jam_masuk, stMasuk, r.jam_pulang, stPulang];
+    });
     const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]); const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Log_Harian_Siswa');
     XLSX.writeFile(wb, `Log_Harian_Siswa_${dari}_sd_${sampai}.xlsx`);
@@ -3349,8 +3656,12 @@ function printLaporanSiswa() {
         ? [['No', 'Tanggal', 'NIS', 'Nama Siswa', 'Kelas', 'Jam Masuk', 'Status Masuk', 'Jam Pulang', 'Status Pulang']]
         : [['No', 'NIS', 'Nama Siswa', 'Kelas', 'Tepat', 'Telat', 'Izin', 'Sakit', 'Alpa', 'Sholat', 'Poin', 'Zona', '% Hadir']];
 
+      const todayStr = todayISO();
       const body = isHarian
-        ? data.map((r, idx) => [idx + 1, formatTanggal(r.tanggal), r.nis, r.nama, r.kelas, r.jam_masuk, r.status_masuk, r.jam_pulang, r.status_pulang])
+        ? data.map((r, idx) => {
+            const stPulang = (!r.jam_pulang || r.jam_pulang === '-') ? (r.tanggal < todayStr ? 'Tidak Tap Pulang' : 'Belum Tap') : r.status_pulang;
+            return [idx + 1, formatTanggal(r.tanggal), r.nis, r.nama, r.kelas, r.jam_masuk, r.status_masuk, r.jam_pulang, stPulang];
+          })
         : data.map((r, idx) => [idx + 1, r.nis, r.nama, r.kelas, r.tepat, r.telat, r.izin, r.sakit, r.alpa, r.sholat, r.poin, r.zona, r.persenStr]);
 
       doc.autoTable({
@@ -3473,6 +3784,7 @@ async function loadLaporanGuru() {
   const dari = $('lap-guru-dari').value;
   const sampai = $('lap-guru-sampai').value;
   if (!dari || !sampai) { toast('Isi tanggal', true); return; }
+  if (dari > sampai) { toast('Tanggal "Dari" tidak boleh melebihi "Sampai".', true); return; }
 
   $('lap-guru-tbody').innerHTML = '<tr><td colspan="10" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat evaluasi guru…</td></tr>';
 
@@ -3497,7 +3809,7 @@ async function loadLaporanGuru() {
     state.lapGuruJamPulang = jamPulangAturan;
 
     const guruMaster = (resGuru.ok && Array.isArray(resGuru.data))
-      ? resGuru.data.filter(g => String(g.status || 'AKTIF').toUpperCase() === 'AKTIF')
+      ? resGuru.data.filter(g => isAktifStatus_(g.status))
       : [];
     const guruInfoMap = {};
     guruMaster.forEach(g => {
@@ -3534,7 +3846,8 @@ async function loadLaporanGuru() {
       }
 
       let durasiMenit = 0;
-      if (mIn !== null && mOut !== null && mOut >= mIn) {
+      const hasValidPair = mIn !== null && mOut !== null && mOut >= mIn;
+      if (hasValidPair) {
         durasiMenit = mOut - mIn;
       } else if (r.total_jam && r.total_jam !== '-') {
         durasiMenit = parseDurasiTeksMenit_(r.total_jam);
@@ -3558,14 +3871,14 @@ async function loadLaporanGuru() {
         ketepatan,
         telat_menit: telatMenit,
         jam_pulang: jp,
-        total_jam: (r.total_jam && r.total_jam !== '-') ? r.total_jam : (durasiMenit > 0 ? formatDurasiMenit_(durasiMenit) : '-'),
+        total_jam: hasValidPair ? formatDurasiMenit_(durasiMenit) : ((r.total_jam && r.total_jam !== '-') ? r.total_jam : (durasiMenit > 0 ? formatDurasiMenit_(durasiMenit) : '-')),
         durasi_menit: durasiMenit,
         status_pulang: statusPulang,
         status_sheet: String(r.status || 'HADIR').toUpperCase()
       };
     });
 
-    harian.sort((a, b) => (b.tanggal + a.nama_guru).localeCompare(a.tanggal + b.nama_guru));
+    harian.sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal)) || String(a.nama_guru).localeCompare(String(b.nama_guru)));
     state.laporanGuruData = harian;
 
     const hariAktif = tanggalAktifSet.size;
@@ -3729,12 +4042,14 @@ function renderLaporanGuru() {
       $('lap-guru-footer-info').textContent = '0 catatan harian guru.';
       return;
     }
+    const todayStr = todayISO();
     $('lap-guru-tbody').innerHTML = data.map(r => {
       const badgeTepat = r.ketepatan === 'TERLAMBAT'
         ? `<span class="badge badge-warning">Telat +${r.telat_menit} mnt</span>`
         : (r.ketepatan === 'TEPAT_WAKTU' ? '<span class="badge badge-success">Tepat Waktu</span>' : '-');
+      const isPastDay = r.tanggal && r.tanggal < todayStr;
       const badgePulang = r.status_pulang === 'BELUM_TAP'
-        ? '<span class="badge badge-secondary">Belum Tap Pulang</span>'
+        ? (isPastDay ? '<span class="badge badge-warning">Tidak Tap Pulang</span>' : '<span class="badge badge-secondary">Belum Tap Pulang</span>')
         : (r.status_pulang === 'PULANG_CEPAT'
           ? '<span class="badge badge-warning">Pulang Cepat</span>'
           : '<span class="badge badge-info">Lengkap</span>');
@@ -3825,8 +4140,12 @@ function exportLaporanGuru() {
   if (state.lapGuruTab === 'harian') {
     const data = getFilteredGuruHarian_();
     if (!data.length) { toast('Tidak ada data', true); return; }
+    const todayStr = todayISO();
     const headers = ['Tanggal', 'ID Guru', 'Nama Guru', 'Jam Masuk', 'Ketepatan', 'Telat (Menit)', 'Jam Pulang', 'Total Jam', 'Status Pulang'];
-    const rows = data.map(r => [formatTanggal(r.tanggal), r.id_guru, r.nama_guru, r.jam_masuk, r.ketepatan, r.telat_menit, r.jam_pulang, r.total_jam, r.status_pulang]);
+    const rows = data.map(r => {
+      const stP = r.status_pulang === 'BELUM_TAP' ? (r.tanggal < todayStr ? 'TIDAK_TAP_PULANG' : 'BELUM_TAP') : r.status_pulang;
+      return [formatTanggal(r.tanggal), r.id_guru, r.nama_guru, r.jam_masuk, r.ketepatan, r.telat_menit, r.jam_pulang, r.total_jam, stP];
+    });
     const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
     XLSX.utils.book_append_sheet(wb, ws, 'Log_Harian_Guru');
     XLSX.writeFile(wb, `Log_Harian_Guru_${dari}_sd_${sampai}.xlsx`);
@@ -3886,12 +4205,13 @@ function printLaporanGuru() {
 
       let headers, body, colStyles;
       if (tab === 'harian') {
+        const todayStr = todayISO();
         headers = [['No', 'Tanggal', 'ID Guru', 'Nama Guru', 'Masuk', 'Ketepatan', 'Pulang', 'Total Jam', 'Status Pulang']];
         body = data.map((r, idx) => [
           idx + 1, formatTanggal(r.tanggal), r.id_guru, r.nama_guru, r.jam_masuk,
           r.ketepatan === 'TERLAMBAT' ? `Telat +${r.telat_menit}m` : (r.ketepatan === 'TEPAT_WAKTU' ? 'Tepat' : '-'),
           r.jam_pulang, r.total_jam,
-          r.status_pulang === 'BELUM_TAP' ? 'Belum Tap' : (r.status_pulang === 'PULANG_CEPAT' ? 'Pulang Cepat' : 'Lengkap')
+          r.status_pulang === 'BELUM_TAP' ? (r.tanggal < todayStr ? 'Tidak Tap Pulang' : 'Belum Tap') : (r.status_pulang === 'PULANG_CEPAT' ? 'Pulang Cepat' : 'Lengkap')
         ]);
         colStyles = { 0: { halign: 'center', cellWidth: 9 }, 4: { halign: 'center' }, 6: { halign: 'center' } };
       } else if (isBelum) {
@@ -4280,10 +4600,9 @@ $('btn-export-tatib').addEventListener('click', () => {
 
 // ============ RAPORT SISWA ============
 function renderTahunAjaran() {
-  const now = new Date();
-  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
-  const tahunIni = wib.getFullYear();
-  const bulanIni = wib.getMonth() + 1;
+  const wib = new Date(Date.now() + (7 * 3600000));
+  const tahunIni = wib.getUTCFullYear();
+  const bulanIni = wib.getUTCMonth() + 1;
   const taAktif = bulanIni >= 7 ? tahunIni : tahunIni - 1;
   const daftarTA = [taAktif - 1, taAktif, taAktif + 1];
   const sel = $('raport-ta');
@@ -4330,7 +4649,7 @@ async function cariRaportSiswa(q) {
       list = res.ok ? (res.data || []) : [];
     } else {
       const res = await apiCall('getMasterSiswa');
-      list = res.ok ? (res.data || []).filter(s => String(s.status).toUpperCase() === 'AKTIF') : [];
+      list = res.ok ? (res.data || []).filter(s => isAktifStatus_(s.status)) : [];
     }
     const hasil = list.filter(s => String(s.nis).toLowerCase().includes(q) || String(s.nama).toLowerCase().includes(q)).slice(0, 15);
     if (!hasil.length) { box.innerHTML = '<div class="text-muted" style="padding:.5rem;font-size:.85rem">Tidak ada siswa cocok.</div>'; box.style.display = 'block'; return; }

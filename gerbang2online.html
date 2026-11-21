@@ -36,6 +36,8 @@
   .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success)}
   .btn-icon{width:38px;height:38px;border-radius:10px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#FCA5A5;cursor:pointer;display:grid;place-items:center;font-size:1rem;transition:.15s}
   .btn-icon:hover{background:rgba(239,68,68,.25)}
+  .btn-guide{padding:.44rem .82rem;border-radius:10px;background:rgba(59,130,246,.16);border:1px solid rgba(96,165,250,.4);color:#DBEAFE;cursor:pointer;font-family:inherit;font-weight:700;font-size:.78rem;transition:.15s;white-space:nowrap}
+  .btn-guide:hover{background:rgba(59,130,246,.28)}
 
   main{min-height:calc(100vh - 70px);padding:1.2rem 1.4rem 1.4rem; display:grid;grid-template-columns:1.15fr 1fr;gap:1.2rem;}
   .left{display:flex;flex-direction:column;gap:1rem;min-height:0;overflow:visible}
@@ -92,6 +94,15 @@
   .reader-hint .pulse{width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 1.4s infinite}
   @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,.5)}50%{opacity:.6;box-shadow:0 0 0 8px rgba(16,185,129,0)}}
 
+  .disp-card{background:linear-gradient(180deg,var(--card),var(--navy-800));border:1px solid var(--border);border-radius:22px;padding:.9rem 1.05rem;display:flex;flex-direction:column;gap:.5rem}
+  .disp-actions{display:flex;flex-wrap:wrap;gap:.5rem}
+  .btn-disp{flex:1;min-width:165px;justify-content:center;padding:.55rem .75rem;border-radius:12px;font-weight:700;font-size:.78rem;font-family:inherit;border:1px solid rgba(148,163,184,.32);background:rgba(15,35,80,.7);color:#E2E8F0;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:.15s}
+  .btn-disp:hover{filter:brightness(1.12)}
+  .btn-disp.active-hujan{background:rgba(245,158,11,.24);border-color:#F59E0B;color:#FDE68A;box-shadow:0 0 18px rgba(245,158,11,.2)}
+  .btn-disp.active-izin{background:rgba(16,185,129,.24);border-color:#10B981;color:#A7F3D0;box-shadow:0 0 18px rgba(16,185,129,.2)}
+  .disp-banner{font-size:.75rem;font-weight:700;padding:.45rem .65rem;border-radius:9px;background:rgba(245,158,11,.18);border:1px solid rgba(245,158,11,.42);color:#FDE68A;display:none}
+  .disp-banner.show{display:block}
+
   .riwayat-box{background:linear-gradient(180deg,var(--card),var(--navy-800));border:1px solid var(--border);border-radius:22px;padding:1rem;max-height:200px;overflow-y:auto}
   .riwayat-box h3{font-size:.72rem;letter-spacing:.25em;color:var(--muted);font-weight:800;margin-bottom:.8rem}
   .riwayat-item{display:flex;justify-content:space-between;align-items:center;padding:.5rem .8rem;border-radius:8px;background:rgba(15,35,80,.5);margin-bottom:.4rem;font-size:.85rem}
@@ -126,6 +137,13 @@
   #idle-modal .modal{max-width:380px;text-align:center}
   #idle-modal .countdown{font-family:'JetBrains Mono',monospace;font-size:4rem;font-weight:700;color:#FCA5A5;margin:.6rem 0 1rem;letter-spacing:-.03em}
   #idle-modal .modal .btn-secondary{width:100%;padding:.85rem;margin-top:.5rem;background:rgba(148,163,184,.12);color:#CBD5E1;border:1px solid rgba(148,163,184,.3);border-radius:12px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer}
+  .modal.modal-wide{max-width:640px;max-height:88vh;overflow-y:auto}
+  .guide-list{display:flex;flex-direction:column;gap:.7rem;margin:1rem 0}
+  .guide-step{background:rgba(0,0,0,.28);border:1px solid rgba(96,165,250,.22);border-radius:12px;padding:.85rem 1rem}
+  .guide-step h4{font-size:.86rem;color:#93C5FD;margin-bottom:.3rem}
+  .guide-step li,.guide-step p{font-size:.8rem;color:#CBD5E1;line-height:1.5}
+  .guide-step ul{padding-left:1.1rem;margin-top:.25rem;display:flex;flex-direction:column;gap:.2rem}
+  .guide-pill{display:inline-block;padding:.1rem .45rem;border-radius:6px;font-size:.7rem;font-weight:800;background:rgba(59,130,246,.22);color:#93C5FD}
 
   #toast-wrap{position:fixed;top:88px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:.5rem;pointer-events:none}
   .toast{padding:.7rem 1.1rem;border-radius:12px;font-size:.85rem;font-weight:700;background:rgba(16,185,129,.95);color:#022C22;box-shadow:0 12px 40px rgba(16,185,129,.35);animation:toastIn .25s ease}
@@ -165,6 +183,7 @@
   <div class="header-right">
     <div class="pill"><span class="dot"></span><span id="petugas-label">Belum login</span></div>
     <div class="pill" id="sesi-pill" style="display:none">Sesi: <span id="sesi-timer">10:00</span></div>
+    <button type="button" class="btn-guide" id="btn-panduan" title="Panduan &amp; Role Login">📖 Panduan</button>
     <button class="btn-icon" id="btn-logout" title="Logout">⏻</button>
   </div>
 </header>
@@ -207,6 +226,14 @@
       <div class="reader-hint"><span class="pulse"></span>Reader siap</div>
     </div>
 
+    <div class="disp-card">
+      <div class="disp-actions">
+        <button type="button" class="btn-disp" id="btn-disp-hujan" title="Aktifkan saat hujan deras / darurat agar siswa terlambat tidak dipotong poin">☔ Hujan Deras / Dispensasi Hari Ini</button>
+        <button type="button" class="btn-disp" id="btn-disp-izin" title="Aktifkan untuk membebaskan potongan poin pada 1 tap siswa berikutnya (izin / sakit / surat tugas)">📝 Izin / Tugas (1x Tap)</button>
+      </div>
+      <div class="disp-banner" id="disp-banner"></div>
+    </div>
+
     <div class="riwayat-box">
       <h3>RIWAYAT SCAN TERAKHIR</h3>
       <div id="riwayat-list"><div class="empty-hint" style="padding:.5rem">Belum ada scan hari ini.</div></div>
@@ -220,12 +247,13 @@
   <div class="modal">
     <div class="modal-logo">BK</div>
     <h2>Login Petugas Gerbang</h2>
-    <p class="sub">Masukkan ID Guru &amp; PIN untuk membuka kios presensi.</p>
+    <p class="sub">Role diizinkan: <b>GURU_PIKET</b> atau <b>SUPER_ADMIN</b>.<br>Mode ini mengirim tap langsung online ke server.</p>
     <div class="alert err" id="login-alert"></div>
     <div class="field"><label for="login-user">ID GURU / NAMA</label><input type="text" id="login-user" placeholder="Contoh: G001" autocomplete="username" /></div>
     <div class="field"><label for="login-pin">PIN</label><div class="pin-wrap"><input type="password" id="login-pin" placeholder="••••••" autocomplete="current-password" inputmode="numeric" /><button type="button" class="toggle-pin" id="btn-toggle-pin" title="Lihat / Sembunyikan PIN">👁️</button></div></div>
     <label class="remember-row"><input type="checkbox" id="login-remember"> Ingat saya di perangkat ini</label>
     <button class="btn-primary" id="btn-login">Masuk &amp; Buka Kios</button>
+    <button type="button" id="btn-panduan-login" style="width:100%;padding:.72rem;margin-top:.5rem;background:rgba(148,163,184,.12);color:#CBD5E1;border:1px solid rgba(148,163,184,.28);border-radius:12px;font-family:inherit;font-weight:700;font-size:.82rem;cursor:pointer">📖 Baca Panduan &amp; Role Login</button>
   </div>
 </div>
 
@@ -236,6 +264,51 @@
     <div class="countdown" id="idle-countdown">30</div>
     <button class="btn-primary" id="btn-stay">Saya Masih Di Sini</button>
     <button class="btn-secondary" id="btn-logout-now" style="margin-top:.5rem;width:100%">Logout Sekarang</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <h2>Konfirmasi Logout</h2>
+    <p class="sub" style="margin-bottom:1.1rem">Keluar dari akun petugas kios gerbang?</p>
+    <div style="display:flex;gap:.6rem">
+      <button type="button" class="btn-primary" id="btn-confirm-cancel" style="margin-top:0;background:rgba(148,163,184,.18);color:#CBD5E1;box-shadow:none">Batal</button>
+      <button type="button" class="btn-primary" id="btn-confirm-ok" style="margin-top:0;background:linear-gradient(135deg,#EF4444,#B91C1C)">Ya, Logout</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-panduan" style="z-index:260">
+  <div class="modal modal-wide">
+    <h2>📖 Panduan Gerbang Online (Direct Server)</h2>
+    <p class="sub" style="margin-bottom:.75rem">Setiap tap kartu langsung tercatat real-time ke server tanpa antrean lokal (wajib internet stabil).</p>
+    <div class="guide-list">
+      <div class="guide-step">
+        <h4>🔑 Role Login Diizinkan</h4>
+        <ul>
+          <li><b>GURU_PIKET</b> atau <b>SUPER_ADMIN</b>: Masuk menggunakan ID Guru / Nama dan PIN. Centang <i>Ingat saya</i> agar ID terisi otomatis di perangkat ini.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>1️⃣ Tap Kartu RFID &amp; Pencarian Manual</h4>
+        <ul>
+          <li><b>Tap RFID:</b> Pastikan indikator <span class="guide-pill">Reader siap</span> aktif lalu tempel kartu ke reader USB/OTG.</li>
+          <li><b>Lupa Kartu:</b> Ketik minimal 2 huruf Nama/NIS/ID Guru pada kolom pencarian manual lalu klik orangnya.</li>
+          <li><b>Anti-Dobel Tap:</b> Sistem menahan tap berulang untuk orang yang sama selama <b>3,5 detik</b>.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>2️⃣ Aturan Jam Masuk, Potong Poin, &amp; Mode Dispensasi (Hujan / Izin / Tugas)</h4>
+        <ul>
+          <li>Tap pertama pagi dicatat sebagai Masuk (tepat waktu / terlambat sesuai pengaturan Admin). Jika fitur potong poin terlambat aktif, poin siswa otomatis terpotong saat terlambat.</li>
+          <li><b>☔ Hujan Deras / Dispensasi Hari Ini:</b> Aktifkan saat cuaca ekstrem/banjir agar tap masuk siswa tidak dihitung terlambat dan bebas potongan poin (otomatis mati besok 00:00 WIB).</li>
+          <li><b>📝 Izin / Tugas (1x Tap):</b> Klik sebelum tap 1 siswa yang terlambat karena sakit, izin orang tua, atau penugasan sekolah. Otomatis mati lagi setelah 1 tap selesai.</li>
+          <li>Tap ke-2 sebelum <b>2 jam</b> dari jam masuk otomatis ditolak. Setelah 2 jam dicatat sebagai Pulang / Pulang Awal.</li>
+          <li><b>Reset 00:00 WIB:</b> Riwayat tampilan layar otomatis direset setiap ganti hari agar absen hari baru bersih.</li>
+        </ul>
+      </div>
+    </div>
+    <button type="button" class="btn-primary" id="btn-tutup-panduan">Saya Mengerti</button>
   </div>
 </div>
 
@@ -254,8 +327,10 @@ const state = {
   role: sessionStorage.getItem('bkc_role') || localStorage.getItem('bkc_role') || '',
   idleTimer: null, idleWarnTimer: null, idleDeadline: 0, heartbeatTimer: null,
   searchTimer: null, searchAbort: null,
-  scannedHariIni: {},
-  riwayat: []
+  recentTapCooldown: {},
+  lastWibDate: '',
+  riwayat: [],
+  dispensasiSekali: false
 };
 
 const $ = (id) => document.getElementById(id);
@@ -305,15 +380,13 @@ function toast(msg, isErr) {
 
 function apiCall(action, payload = {}, isPost = false) {
   return new Promise((resolve, reject) => {
-    // Siapkan data dalam format form-urlencoded
     const formData = new URLSearchParams();
     formData.append('action', action);
     if (state && state.token) formData.append('token', state.token);
     formData.append('payload', JSON.stringify(payload));
 
-    // Timeout manual 15 detik (agar tidak menunggu selamanya)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 18000);
 
     fetch(API_URL, {
       method: 'POST',
@@ -323,34 +396,37 @@ function apiCall(action, payload = {}, isPost = false) {
     })
     .then(response => {
       clearTimeout(timeoutId);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
       return response.json();
     })
-    .then(res => {
-      resolve(res); 
-    })
+    .then(res => resolve(res))
     .catch(error => {
       clearTimeout(timeoutId);
-      console.warn("Koneksi lambat/CORS. Tapi data kemungkinan besar sudah masuk ke Spreadsheet:", error);
-      
-      // TRIK ANTI-ERROR: 
-      // Kita pura-pura sukses agar layar web tidak menampilkan "Gagal koneksi"
-      resolve({ 
-        ok: true, 
-        message: 'Data terkirim (Koneksi lambat).',
-        data: {} 
-      });
+      reject(new Error(error && error.name === 'AbortError' ? 'Koneksi timeout, silakan coba lagi.' : 'Gagal terhubung ke server.'));
     });
   });
 }
 
 const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+function getWibNow() {
+  return new Date(Date.now() + (7 * 3600000));
+}
 function tickClock() {
-  const now = new Date();
-  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
-  const hh = String(wib.getHours()).padStart(2, '0'), mm = String(wib.getMinutes()).padStart(2, '0'), ss = String(wib.getSeconds()).padStart(2, '0');
+  const wib = getWibNow();
+  const wibDateStr = wib.toISOString().slice(0, 10);
+  if (state.lastWibDate && state.lastWibDate !== wibDateStr) {
+    state.recentTapCooldown = {};
+    state.riwayat = [];
+    state.dispensasiSekali = false;
+    const list = $('riwayat-list');
+    if (list) list.innerHTML = '<div class="empty-hint" style="padding:.5rem">Belum ada scan hari ini.</div>';
+    if (typeof updateDispensasiUI === 'function') updateDispensasiUI();
+  }
+  state.lastWibDate = wibDateStr;
+  const hh = String(wib.getUTCHours()).padStart(2, '0'), mm = String(wib.getUTCMinutes()).padStart(2, '0'), ss = String(wib.getUTCSeconds()).padStart(2, '0');
   $('clock-hm').textContent = `${hh}:${mm}`; $('clock-s').textContent = `:${ss}`;
-  $('clock-date').textContent = `${HARI[wib.getDay()]}, ${wib.getDate()} ${BULAN[wib.getMonth()]} ${wib.getFullYear()}`;
+  $('clock-date').textContent = `${HARI[wib.getUTCDay()]}, ${wib.getUTCDate()} ${BULAN[wib.getUTCMonth()]} ${wib.getUTCFullYear()}`;
 }
 setInterval(tickClock, 1000); tickClock();
 
@@ -464,7 +540,9 @@ async function doLogout(reason) {
   else { $('login-user').focus(); }
   tampilStatus('', 'Menunggu kartu…', 'Silakan login untuk membuka kios.', '');
 }
-$('btn-logout').addEventListener('click', () => { if (confirm('Logout dari kios?')) doLogout('Logout manual'); });
+$('btn-logout').addEventListener('click', () => { $('confirm-modal').classList.add('show'); });
+$('btn-confirm-cancel').addEventListener('click', () => { $('confirm-modal').classList.remove('show'); fokusRFID(); });
+$('btn-confirm-ok').addEventListener('click', () => { $('confirm-modal').classList.remove('show'); doLogout('Logout manual'); });
 $('btn-logout-now').addEventListener('click', () => doLogout('Logout dari peringatan idle'));
 
 function resetIdle() {
@@ -508,64 +586,139 @@ $('rfid-input').addEventListener('keydown', (e) => {
     e.preventDefault();
     const val = e.target.value.trim(); e.target.value = '';
     if (val) {
-      if (state.scannedHariIni[val]) {
+      const nowMs = Date.now();
+      if (state.recentTapCooldown[val] && (nowMs - state.recentTapCooldown[val]) < 3500) {
         bunyiScanner('gagal');
-        tampilStatus('warn', 'Sudah Tercatat', `Kode ${val} sudah absen hari ini.`, 'DUPLIKAT');
+        tampilStatus('warn', 'Tunggu Sebentar', `Kode ${val} baru saja ditap. Tunggu beberapa detik untuk memproses ulang.`, 'JEDA');
         return;
       }
-      state.scannedHariIni[val] = true;
+      state.recentTapCooldown[val] = nowMs;
       prosesPresensi(val, 'RFID');
     }
   }
 });
 
+function todayWibStr() {
+  const w = getWibNow();
+  return w.toISOString().slice(0, 10);
+}
+function isDispensasiHujanAktif() {
+  return localStorage.getItem('bkc_dispensasi_hujan_tgl') === todayWibStr();
+}
+function updateDispensasiUI() {
+  const hujan = isDispensasiHujanAktif();
+  const sekali = !!state.dispensasiSekali;
+  if ($('btn-disp-hujan')) $('btn-disp-hujan').classList.toggle('active-hujan', hujan);
+  if ($('btn-disp-izin')) $('btn-disp-izin').classList.toggle('active-izin', sekali);
+  const banner = $('disp-banner');
+  if (banner) {
+    if (sekali) {
+      banner.textContent = '📝 Dispensasi 1x Tap SIAP: Tap berikutnya dibebaskan dari potongan poin terlambat (Izin/Sakit/Penugasan).';
+      banner.classList.add('show');
+    } else if (hujan) {
+      banner.textContent = '☔ Mode Hujan Deras / Dispensasi Hari Ini AKTIF: Tap masuk tidak memotong poin terlambat.';
+      banner.classList.add('show');
+    } else {
+      banner.classList.remove('show');
+    }
+  }
+}
+if ($('btn-disp-hujan')) {
+  $('btn-disp-hujan').addEventListener('click', () => {
+    if (isDispensasiHujanAktif()) {
+      localStorage.removeItem('bkc_dispensasi_hujan_tgl');
+      toast('Mode Hujan Deras dimatikan.');
+    } else {
+      localStorage.setItem('bkc_dispensasi_hujan_tgl', todayWibStr());
+      toast('☔ Mode Hujan Deras AKTIF hari ini (bebas potong poin terlambat).');
+    }
+    updateDispensasiUI();
+    fokusRFID();
+  });
+}
+if ($('btn-disp-izin')) {
+  $('btn-disp-izin').addEventListener('click', () => {
+    state.dispensasiSekali = !state.dispensasiSekali;
+    toast(state.dispensasiSekali ? '📝 Dispensasi 1x Tap aktif — silakan tap siswa yang membawa izin/surat tugas.' : 'Dispensasi 1x Tap dibatalkan.');
+    updateDispensasiUI();
+    fokusRFID();
+  });
+}
+
 async function prosesPresensi(kode, sumber) {
   if (!state.token) return;
+  let dispMode = '';
+  let dispAlasan = '';
+  if (state.dispensasiSekali) {
+    dispMode = 'IZIN_TUGAS';
+    dispAlasan = 'Izin / Sakit / Penugasan Sekolah';
+  } else if (isDispensasiHujanAktif()) {
+    dispMode = 'HUJAN';
+    dispAlasan = 'Hujan Deras / Dispensasi Sekolah';
+  }
   tampilStatus('', 'Memproses…', `Kode ${kode}`, 'MEMUAT'); resetIdle();
   try {
-    const res = await apiCall('presensiGerbang', { nis: kode, sumber: sumber, tipe: 'SISWA' }, true);
-    if (!res.ok) { 
-      tampilStatus('err', 'Gagal', res.message || 'Presensi gagal', 'DITOLAK'); 
-      toast(res.message || 'Gagal', true); 
+    const reqPayload = { nis: kode, sumber: sumber, tipe: 'SISWA' };
+    if (dispMode) {
+      reqPayload.dispensasi = dispMode;
+      reqPayload.alasan_dispensasi = dispAlasan;
+    }
+    const res = await apiCall('presensiGerbang', reqPayload, true);
+    if (!res || !res.ok) {
+      delete state.recentTapCooldown[kode];
+      tampilStatus('err', 'Gagal', (res && res.message) ? res.message : 'Presensi gagal', 'DITOLAK');
+      toast((res && res.message) ? res.message : 'Gagal', true);
       bunyiScanner('gagal');
-      return; 
+      return;
     }
-    const d = res.data;
-    
-    // --- PERBAIKAN TAMPILAN TEPAT WAKTU / TERLAMBAT ---
-    let teksTampil = (d.status || '').replace('_', ' ');
+    const d = res.data || {};
+    if (dispMode === 'IZIN_TUGAS' && d.sesi === 'PAGI') {
+      state.dispensasiSekali = false;
+      updateDispensasiUI();
+    }
+    const statusRaw = String(d.status_detail || d.status || '').toUpperCase();
+    let teksTampil = statusRaw.replace(/_/g, ' ') || 'TERCATAT';
     if (d.sesi === 'PAGI') {
-      if (d.status_detail === 'TERLAMBAT') teksTampil = 'TERLAMBAT';
-      else if (d.status_detail === 'TEPAT_WAKTU') teksTampil = 'TEPAT WAKTU';
+      if (statusRaw === 'TERLAMBAT') {
+        teksTampil = Number(d.potong_poin) < 0 ? `TERLAMBAT (${d.potong_poin} POIN)` : 'TERLAMBAT';
+      } else if (d.dispensasi) {
+        teksTampil = 'DISPENSASI (BEBAS POIN)';
+      } else if (statusRaw === 'TEPAT_WAKTU') {
+        teksTampil = 'TEPAT WAKTU';
+      }
+    } else if (d.sesi === 'PULANG') {
+      if (statusRaw === 'PULANG_AWAL' || statusRaw === 'PULANG_CEPAT') teksTampil = 'PULANG AWAL';
+      else teksTampil = 'PULANG';
     }
-    
-    const kelasCss = (teksTampil === 'TERLAMBAT') ? 'warn' : 'ok';
-    tampilStatus(kelasCss, d.nama, `${d.kelas} · ${d.jam} WIB`, teksTampil);
-    toast(`${d.nama} — ${teksTampil}`); 
-    
-    // --- LOGIKA SUARA BERDASARKAN STATUS ---
-    if (teksTampil === 'TERLAMBAT') {
+
+    const isWarn = (teksTampil.startsWith('TERLAMBAT') || teksTampil === 'PULANG AWAL');
+    const kelasCss = isWarn ? 'warn' : 'ok';
+    tampilStatus(kelasCss, d.nama || kode, `${d.kelas || '-'} · ${d.jam || '--:--'} WIB`, teksTampil);
+    toast(`${d.nama || kode} — ${teksTampil}`);
+
+    if (isWarn) {
       bunyiScanner('terlambat');
     } else {
       bunyiScanner('tepat');
     }
-    
-    tambahRiwayat(d.nama, teksTampil);
-  } catch (err) { 
-    tampilStatus('err', 'Koneksi gagal', 'Periksa jaringan Anda', 'ERROR'); 
-    toast('Tidak dapat menghubungi server', true); 
+
+    tambahRiwayat(d.nama || kode, teksTampil);
+  } catch (err) {
+    delete state.recentTapCooldown[kode];
+    tampilStatus('err', 'Koneksi gagal', 'Periksa jaringan Anda', 'ERROR');
+    toast('Tidak dapat menghubungi server', true);
     bunyiScanner('gagal');
   }
   finally { fokusRFID(); }
 }
 
 function tambahRiwayat(nama, status) {
-  const now = new Date();
-  const jam = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const wib = getWibNow();
+  const jam = `${String(wib.getUTCHours()).padStart(2,'0')}:${String(wib.getUTCMinutes()).padStart(2,'0')}`;
   state.riwayat.unshift({ nama, status, jam });
   if (state.riwayat.length > 5) state.riwayat.pop();
   const list = $('riwayat-list');
-  list.innerHTML = state.riwayat.map(r => `<div class="riwayat-item"><span class="nama">${r.nama}</span><span class="waktu">${r.jam} - ${r.status}</span></div>`).join('');
+  list.innerHTML = state.riwayat.map(r => `<div class="riwayat-item"><span class="nama">${escapeHtml(r.nama)}</span><span class="waktu">${escapeHtml(r.jam)} - ${escapeHtml(r.status)}</span></div>`).join('');
 }
 
 const searchInput = $('search-input'); const resultsEl = $('results'); const clearBtn = $('search-clear');
@@ -578,23 +731,25 @@ searchInput.addEventListener('input', () => {
   state.searchTimer = setTimeout(async () => {
     try {
       const res = await apiCall('searchOrang', { q });
-      if (!res.ok) { resultsEl.innerHTML = `<div class="empty-hint">${res.message || 'Gagal mencari.'}</div>`; return; }
+      if (!res.ok) { resultsEl.innerHTML = `<div class="empty-hint">${escapeHtml(res.message || 'Gagal mencari.')}</div>`; return; }
       if (!res.data.length) { resultsEl.innerHTML = '<div class="empty-hint">Tidak ada siswa/guru cocok.</div>'; return; }
       resultsEl.innerHTML = '';
       res.data.forEach(s => {
         const btn = document.createElement('button'); btn.className = 'result-item';
         const avatarClass = s.tipe === 'GURU' ? 'guru' : 'siswa';
         const labelTipe = s.tipe === 'GURU' ? '👨‍🏫 Guru' : '🎓 Siswa';
-        btn.innerHTML = `<div class="avatar ${avatarClass}">${(s.nama || '?').slice(0,2).toUpperCase()}</div><div class="info"><b>${escapeHtml(s.nama)}</b><span>${labelTipe} &middot; ${escapeHtml(s.kelas)}</span></div><div class="nis">${escapeHtml(String(s.id))}</div>`;
+        btn.innerHTML = `<div class="avatar ${avatarClass}">${escapeHtml((s.nama || '?').slice(0,2).toUpperCase())}</div><div class="info"><b>${escapeHtml(s.nama)}</b><span>${labelTipe} &middot; ${escapeHtml(s.kelas)}</span></div><div class="nis">${escapeHtml(String(s.id))}</div>`;
         btn.addEventListener('click', () => {
           searchInput.value = ''; clearBtn.classList.remove('show'); resultsEl.innerHTML = '<div class="empty-hint">Hasil pencarian muncul di sini.</div>';
-          if (state.scannedHariIni[s.id]) {
+          const idKey = String(s.id);
+          const nowMs = Date.now();
+          if (state.recentTapCooldown[idKey] && (nowMs - state.recentTapCooldown[idKey]) < 3500) {
             bunyiScanner('gagal');
-            tampilStatus('warn', 'Sudah Tercatat', `Kode ${s.id} sudah absen hari ini.`, 'DUPLIKAT');
+            tampilStatus('warn', 'Tunggu Sebentar', `${s.nama} baru saja diproses. Tunggu beberapa detik.`, 'JEDA');
             return;
           }
-          state.scannedHariIni[s.id] = true;
-          prosesPresensi(String(s.id), 'MANUAL');
+          state.recentTapCooldown[idKey] = nowMs;
+          prosesPresensi(idKey, 'MANUAL');
         });
         resultsEl.appendChild(btn);
       });
@@ -607,7 +762,8 @@ searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') { searc
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
 (function init() {
-  if (API_URL.indexOf('ISI_URL') === 0) alert('API_URL belum diisi.');
+  if (API_URL.indexOf('ISI_URL') === 0) toast('API_URL belum diisi.', true);
+  if (typeof updateDispensasiUI === 'function') updateDispensasiUI();
   const rem = localStorage.getItem('bkc_rem_gerbang');
   if (rem) {
     $('login-user').value = rem;
@@ -629,6 +785,16 @@ function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;'
     $('login-modal').classList.add('show'); setTimeout(() => $(rem ? 'login-pin' : 'login-user').focus(), 300);
   }
 })();
+function bukaPanduan() { $('modal-panduan').classList.add('show'); }
+function tutupPanduan() {
+  $('modal-panduan').classList.remove('show');
+  if (state.token && !$('login-modal').classList.contains('show')) fokusRFID();
+}
+$('btn-panduan').addEventListener('click', bukaPanduan);
+if ($('btn-panduan-login')) $('btn-panduan-login').addEventListener('click', bukaPanduan);
+$('btn-tutup-panduan').addEventListener('click', tutupPanduan);
+$('modal-panduan').addEventListener('click', (e) => { if (e.target === $('modal-panduan')) tutupPanduan(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('modal-panduan').classList.contains('show')) tutupPanduan(); });
 </script>
 </body>
 </html>

@@ -121,6 +121,14 @@
   .btn-full{width:100%;padding:.9rem;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;margin-top:.45rem}
   .btn-primary-full{background:var(--emerald);color:#fff}
   .btn-secondary-full{background:#F1F5F9;color:#475569;margin-top:.5rem}
+  .role-note{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:10px;padding:.6rem .8rem;font-size:.78rem;font-weight:600;line-height:1.45;text-align:center;margin-bottom:.85rem}
+  .modal.modal-wide{max-width:650px}
+  .guide-list{display:flex;flex-direction:column;gap:.7rem;margin:.85rem 0 1rem}
+  .guide-step{background:#F0FDF4;border:1px solid #A7F3D0;border-radius:12px;padding:.85rem 1rem}
+  .guide-step h4{font-size:.86rem;color:var(--emerald-d);margin-bottom:.3rem;font-weight:800}
+  .guide-step li,.guide-step p{font-size:.8rem;color:#064E3B;line-height:1.5}
+  .guide-step ul{padding-left:1.15rem;margin-top:.25rem;display:flex;flex-direction:column;gap:.2rem}
+  .guide-pill{display:inline-block;padding:.1rem .45rem;border-radius:6px;font-size:.7rem;font-weight:800;background:#D1FAE5;color:#047857}
 
   .table-wrap{overflow-x:auto;margin-top:.85rem;border:1px solid var(--border);border-radius:12px;background:#fff;-webkit-overflow-scrolling:touch}
   table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:600px}
@@ -225,6 +233,7 @@
   <nav id="bkc-inline-nav"></nav>
   <div class="header-right">
     <span class="user-pill" id="user-label">Belum login</span>
+    <button type="button" class="btn-logout" id="btn-panduan" title="Panduan &amp; Role Login"><i class="fas fa-book-open"></i> Panduan</button>
     <button class="btn-logout" id="btn-logout" style="display:none">Logout</button>
   </div>
 </header>
@@ -413,12 +422,14 @@
 
 <div class="modal-overlay show" id="modal-login">
   <div class="modal">
-    <h2><i class="fas fa-mosque"></i> Login Petugas</h2>
+    <h2><i class="fas fa-mosque"></i> Login Petugas E-Sholat</h2>
+    <div class="role-note">Role login: <b>GURU_PIKET, WALI_KELAS, GURU_BK, WAKA_KESISWAAN, KEPSEK, SUPER_ADMIN</b>.<br>Tab <b>Laporan</b> tersedia untuk Wali Kelas (kelas binaan), BK, Waka, Kepsek, &amp; Super Admin.</div>
     <div id="login-alert" style="color:#EF4444;font-size:.85rem;font-weight:700;text-align:center;margin-bottom:.8rem;display:none"></div>
     <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="G001 atau Nama Guru" autocomplete="username"></div>
     <div class="field"><label>PIN</label><div class="pin-wrap"><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric" autocomplete="current-password"><button type="button" class="toggle-pin" id="btn-toggle-pin" title="Lihat / Sembunyikan PIN"><i class="fas fa-eye"></i></button></div></div>
     <label class="remember-row"><input type="checkbox" id="login-remember"> Ingat saya di perangkat ini</label>
     <button type="button" class="btn-full btn-primary-full" id="btn-login">Masuk</button>
+    <button type="button" class="btn-full btn-secondary-full" id="btn-panduan-login"><i class="fas fa-book-open"></i> Panduan &amp; Pembagian Role</button>
   </div>
 </div>
 
@@ -430,6 +441,54 @@
     </p>
     <button type="button" class="btn-full btn-primary-full" id="btn-udzur-beres" style="background:var(--emerald)">Ya, Akhiri Udzur & Catat Hadir</button>
     <button type="button" class="btn-full btn-secondary-full" id="btn-udzur-belum">Belum, Masih Udzur</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-confirm-sholat">
+  <div class="modal" style="max-width:380px">
+    <h2 id="sholat-konf-title"><i class="fas fa-question-circle"></i> Konfirmasi</h2>
+    <p id="sholat-konf-msg" style="text-align:center;margin-bottom:.75rem;font-size:.9rem;line-height:1.5;color:var(--text)">Apakah Anda yakin?</p>
+    <p id="sholat-idle-countdown" style="display:none;text-align:center;font-size:.82rem;font-weight:800;color:#DC2626;margin-bottom:.75rem"></p>
+    <button type="button" class="btn-full btn-primary-full" id="btn-sholat-konf-ok">Ya, Lanjutkan</button>
+    <button type="button" class="btn-full btn-secondary-full" id="btn-sholat-konf-cancel">Batal</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-panduan" style="z-index:260">
+  <div class="modal modal-wide">
+    <h2><i class="fas fa-book-open"></i> Panduan Presensi E-Sholat</h2>
+    <div class="guide-list">
+      <div class="guide-step">
+        <h4>🔑 Role Login &amp; Hak Akses Tab</h4>
+        <ul>
+          <li><b>GURU_PIKET:</b> Fokus operasional <span class="guide-pill">Scan</span> presensi sholat &amp; pencatatan <span class="guide-pill">Udzur</span> siswi.</li>
+          <li><b>WALI_KELAS:</b> Dapat Scan, Udzur, serta melihat &amp; export <span class="guide-pill">Laporan</span> khusus kelas binaannya.</li>
+          <li><b>GURU_BK, WAKA_KESISWAAN, KEPSEK, SUPER_ADMIN:</b> Akses penuh semua tab termasuk laporan seluruh kelas.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>1️⃣ Jadwal Sholat Otomatis &amp; Reset Harian</h4>
+        <ul>
+          <li>Aplikasi otomatis memilih waktu sholat sesuai jadwal (Subuh, Dhuha, Dzuhur, Ashar, Maghrib) — atau klik kartu jadwal untuk memilih manual.</li>
+          <li>Daftar riwayat &amp; counter harian otomatis bersih setiap pergantian hari <b>00:00 WIB</b>.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>2️⃣ Cara Scan QR, Tap RFID, &amp; Cari Manual</h4>
+        <ul>
+          <li>Gunakan kamera HP untuk <b>Scan QR</b> kartu siswa, atau klik input <span class="guide-pill">Tap RFID</span> untuk reader USB/OTG.</li>
+          <li>Jika siswa tidak membawa kartu, ketik minimal 2 huruf nama/NIS di kotak <b>Cari Manual</b> lalu ketuk namanya.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>3️⃣ Manajemen Udzur Syar'i (Haid / Sakit)</h4>
+        <ul>
+          <li>Catat siswi yang sedang Udzur di tab <b>Udzur</b> (durasi maksimal 4 hari otomatis terjaga agar siswi tidak terkena validasi bolos sholat).</li>
+          <li>Jika siswi yang masih masa Udzur ternyata sudah suci &amp; ikut sholat lalu di-scan, muncul konfirmasi <b>Akhiri Udzur &amp; Catat Hadir</b>.</li>
+        </ul>
+      </div>
+    </div>
+    <button type="button" class="btn-full btn-primary-full" id="btn-tutup-panduan">Saya Mengerti</button>
   </div>
 </div>
 
@@ -450,8 +509,9 @@ const state = {
   waktuDipilihManual: false,
   jadwal: { SUBUH:'04:30', DZUHUR:'12:00', ASHAR:'15:15', MAGHRIB:'18:00', ISYA:'19:15' },
   stream: null, scanInterval: null, currentFacing: 'environment', torchOn: false,
-  idleWarnTimer: null, heartbeatTimer: null, searchTimer: null, udzurSearchTimer: null, statusTimer: null,
-  konfirmasiNis: null, konfirmasiWaktu: null, konfirmasiSumber: 'QR', konfirmasiRow: null,
+  idleWarnTimer: null, idleCountdownTimer: null, heartbeatTimer: null, searchTimer: null, udzurSearchTimer: null, statusTimer: null,
+  konfirmasiNis: null, konfirmasiWaktu: null, konfirmasiSumber: 'QR', konfirmasiRow: null, konfirmasiIdUdzur: null,
+  lastWibDate: '',
   scannedNis: {}, recentScans: {}, scanning: false,
   riwayat: [],
   udzurList: [],
@@ -471,8 +531,7 @@ function escapeHtml(str) {
 }
 
 function getWibNow() {
-  const now = new Date();
-  return new Date(now.getTime() + now.getTimezoneOffset()*60000 + 7*3600000);
+  return new Date(Date.now() + 7*3600000);
 }
 
 // ============ AUDIO & VIBRATE ============
@@ -499,6 +558,53 @@ function toast(msg, isErr) {
   setTimeout(()=>el.remove(),3300);
 }
 
+function askConfirmSholat(title, msg, okText = 'Ya, Lanjutkan', isDanger = false, autoSec = 0) {
+  return new Promise((resolve) => {
+    const modal = $('modal-confirm-sholat');
+    if (!modal) { resolve(true); return; }
+    clearInterval(state.idleCountdownTimer);
+    $('sholat-konf-title').innerHTML = `<i class="fas ${isDanger ? 'fa-exclamation-triangle' : 'fa-question-circle'}"></i> ${escapeHtml(title || 'Konfirmasi')}`;
+    $('sholat-konf-title').style.color = isDanger ? '#DC2626' : 'var(--emerald)';
+    $('sholat-konf-msg').textContent = msg || 'Apakah Anda yakin?';
+    const btnOk = $('btn-sholat-konf-ok');
+    const btnCancel = $('btn-sholat-konf-cancel');
+    const cdEl = $('sholat-idle-countdown');
+    btnOk.textContent = okText;
+    btnOk.style.background = isDanger ? '#DC2626' : 'var(--emerald)';
+    btnCancel.textContent = autoSec > 0 ? 'Tetap Login' : 'Batal';
+
+    const finish = (val) => {
+      clearInterval(state.idleCountdownTimer);
+      state.idleCountdownTimer = null;
+      cdEl.style.display = 'none';
+      modal.classList.remove('show');
+      btnOk.onclick = null;
+      btnCancel.onclick = null;
+      resolve(val);
+    };
+
+    if (autoSec > 0) {
+      let sisa = autoSec;
+      cdEl.textContent = `Logout otomatis dalam ${sisa} detik…`;
+      cdEl.style.display = 'block';
+      state.idleCountdownTimer = setInterval(() => {
+        sisa--;
+        if (sisa <= 0) {
+          finish(true);
+        } else {
+          cdEl.textContent = `Logout otomatis dalam ${sisa} detik…`;
+        }
+      }, 1000);
+    } else {
+      cdEl.style.display = 'none';
+    }
+
+    btnOk.onclick = () => finish(true);
+    btnCancel.onclick = () => finish(false);
+    modal.classList.add('show');
+  });
+}
+
 // --- FUNGSI API CALL ---
 function apiCall(action, payload = {}, isPost = false) {
   return new Promise((resolve, reject) => {
@@ -507,7 +613,9 @@ function apiCall(action, payload = {}, isPost = false) {
       sessionStorage.getItem('bkc_sholat_token') ||
       localStorage.getItem('bkc_sholat_token') || '';
 
-    if (isMobile) {
+    if (isPost || isMobile) {
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const timer = setTimeout(() => { if (controller) controller.abort(); }, 25000);
       let formBody = `action=${encodeURIComponent(action)}`;
       if (currentToken) formBody += `&token=${encodeURIComponent(currentToken)}`;
       formBody += `&payload=${encodeURIComponent(JSON.stringify(payload))}`;
@@ -515,35 +623,46 @@ function apiCall(action, payload = {}, isPost = false) {
       fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formBody
+        body: formBody,
+        signal: controller ? controller.signal : undefined
       })
-      .then(r => r.json())
-      .then(res => resolve(res))
-      .catch(() => reject(new Error('Gagal koneksi')));
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(res => { clearTimeout(timer); resolve(res); })
+      .catch(() => { clearTimeout(timer); reject(new Error('Gagal koneksi')); });
     } else {
       const cbName = 'jsonp_' + Math.round(100000 * Math.random()) + '_' + Date.now();
       const script = document.createElement('script');
+      let settled = false;
+      const cleanup = () => {
+        clearTimeout(timer);
+        if (script.parentNode) { try { script.parentNode.removeChild(script); } catch (e) {} }
+        try { delete window[cbName]; } catch (e) {}
+      };
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        reject(new Error('Koneksi timeout'));
+      }, 25000);
+
       let url = `${API_URL}?callback=${cbName}&action=${encodeURIComponent(action)}`;
       if (currentToken) url += `&token=${encodeURIComponent(currentToken)}`;
-
-      if (isPost) {
-        url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`;
-      } else {
-        for (let k in payload) {
-          if (payload[k] !== undefined && payload[k] !== null) {
-            url += `&${k}=${encodeURIComponent(payload[k])}`;
-          }
+      for (let k in payload) {
+        if (payload[k] !== undefined && payload[k] !== null) {
+          url += `&${encodeURIComponent(k)}=${encodeURIComponent(payload[k])}`;
         }
       }
       window[cbName] = function(res) {
-        try { document.body.removeChild(script); } catch (e) {}
-        delete window[cbName];
+        if (settled) return;
+        settled = true;
+        cleanup();
         resolve(res);
       };
       script.src = url;
       script.onerror = () => {
-        try { document.body.removeChild(script); } catch (e) {}
-        delete window[cbName];
+        if (settled) return;
+        settled = true;
+        cleanup();
         reject(new Error('Gagal koneksi'));
       };
       document.body.appendChild(script);
@@ -578,8 +697,8 @@ function ambilJam(timestamp) {
   }
   return '';
 }
-function todayISO() { return getWibNow().toISOString().slice(0,10); }
-function awalBulanISO() { return getWibNow().toISOString().slice(0,8) + '01'; }
+function todayISO() { return new Date(Date.now() + 7*3600000).toISOString().slice(0,10); }
+function awalBulanISO() { return todayISO().slice(0,8) + '01'; }
 function toMenit(hhmm) {
   const m = String(hhmm || '').match(/(\d{1,2}):(\d{2})/);
   return m ? (parseInt(m[1], 10) * 60 + parseInt(m[2], 10)) : null;
@@ -588,10 +707,27 @@ function toMenit(hhmm) {
 // ============ CLOCK & AUTO PILIH WAKTU ============
 function tickClock() {
   const wib = getWibNow();
-  $('clock-time').textContent = `${String(wib.getHours()).padStart(2,'0')}:${String(wib.getMinutes()).padStart(2,'0')}:${String(wib.getSeconds()).padStart(2,'0')}`;
+  const curDate = wib.toISOString().slice(0, 10);
+  if (state.lastWibDate && state.lastWibDate !== curDate) {
+    state.lastWibDate = curDate;
+    state.scannedNis = {};
+    state.recentScans = {};
+    state.riwayat = [];
+    state.lapLastFetch = null;
+    state.waktuDipilihManual = false;
+    renderRiwayat();
+    autoPilihWaktuSholat();
+    if (state.token) {
+      loadHariIniData();
+      loadUdzurAktif();
+    }
+  } else if (!state.lastWibDate) {
+    state.lastWibDate = curDate;
+  }
+  $('clock-time').textContent = `${String(wib.getUTCHours()).padStart(2,'0')}:${String(wib.getUTCMinutes()).padStart(2,'0')}:${String(wib.getUTCSeconds()).padStart(2,'0')}`;
   const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
   const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  $('clock-date').textContent = `${hari[wib.getDay()]}, ${wib.getDate()} ${bulan[wib.getMonth()]} ${wib.getFullYear()}`;
+  $('clock-date').textContent = `${hari[wib.getUTCDay()]}, ${wib.getUTCDate()} ${bulan[wib.getUTCMonth()]} ${wib.getUTCFullYear()}`;
 }
 setInterval(tickClock, 1000); tickClock();
 setInterval(()=>{ state.scannedNis = {}; state.recentScans = {}; }, 5*60*1000);
@@ -611,7 +747,7 @@ function setWaktuSholatAktif(waktu, manual = false) {
 function autoPilihWaktuSholat() {
   if (state.waktuDipilihManual) return;
   const wib = getWibNow();
-  const menit = wib.getHours() * 60 + wib.getMinutes();
+  const menit = wib.getUTCHours() * 60 + wib.getUTCMinutes();
   const s = toMenit(state.jadwal.SUBUH) ?? 270;
   const d = toMenit(state.jadwal.DZUHUR) ?? 720;
   const a = toMenit(state.jadwal.ASHAR) ?? 915;
@@ -724,6 +860,9 @@ if ($('btn-toggle-pin')) {
 }
 
 function doLogout(silent = false) {
+  clearInterval(state.idleCountdownTimer);
+  state.idleCountdownTimer = null;
+  if ($('modal-confirm-sholat')) $('modal-confirm-sholat').classList.remove('show');
   sessionStorage.removeItem('bkc_sholat_token');
   sessionStorage.removeItem('bkc_sholat_nama');
   sessionStorage.removeItem('bkc_sholat_role');
@@ -743,20 +882,29 @@ function doLogout(silent = false) {
   if (rem) { $('login-user').value = rem; if ($('login-remember')) $('login-remember').checked = true; if (!silent) $('login-pin').focus(); }
   else { if (!silent) $('login-user').focus(); }
 }
-$('btn-logout').addEventListener('click', ()=>{ if(confirm('Keluar dari akun E-Sholat?')) doLogout(); });
+$('btn-logout').addEventListener('click', async ()=>{
+  if (await askConfirmSholat('Keluar E-Sholat', 'Keluar dari akun E-Sholat saat ini?', 'Ya, Logout', true)) doLogout();
+});
 
 // ============ IDLE & HEARTBEAT ============
 function resetIdle() {
   if (!state.token) return;
   clearTimeout(state.idleWarnTimer);
-  state.idleWarnTimer = setTimeout(()=>{
+  state.idleWarnTimer = setTimeout(async ()=>{
     if (!state.token) return;
-    const keluar = confirm('Sesi akan berakhir karena tidak ada aktivitas. Klik OK untuk logout atau Batal untuk tetap login.');
+    const keluar = await askConfirmSholat(
+      'Sesi Tidak Aktif',
+      'Sesi akan berakhir karena tidak ada aktivitas. Klik Logout Sekarang atau Tetap Login.',
+      'Logout Sekarang',
+      true,
+      Math.round(IDLE_WARN_MS / 1000)
+    );
+    if (!state.token) return;
     if (keluar) doLogout(); else resetIdle();
   }, IDLE_TOTAL_MS - IDLE_WARN_MS);
 }
 function mulaiIdleWatcher(){ resetIdle(); ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(ev=>document.addEventListener(ev, resetIdle, {passive:true})); }
-function hentikanIdleWatcher(){ clearTimeout(state.idleWarnTimer); }
+function hentikanIdleWatcher(){ clearTimeout(state.idleWarnTimer); clearInterval(state.idleCountdownTimer); state.idleCountdownTimer = null; }
 function mulaiHeartbeat(){
   hentikanHeartbeat();
   state.heartbeatTimer = setInterval(()=>{
@@ -796,7 +944,7 @@ async function loadJadwal() {
   // 2. Perbarui dengan Kemenag RI (Tasikmalaya ID 1206) jika koneksi eksternal lancar
   try {
     const wib = getWibNow();
-    const y = wib.getFullYear(), m = String(wib.getMonth()+1).padStart(2,'0'), d = String(wib.getDate()).padStart(2,'0');
+    const y = wib.getUTCFullYear(), m = String(wib.getUTCMonth()+1).padStart(2,'0'), d = String(wib.getUTCDate()).padStart(2,'0');
     const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1206/${y}/${m}/${d}`);
     const json = await res.json();
     if (json.status && json.data && json.data.jadwal) {
@@ -1009,10 +1157,10 @@ function showStatusBox(cls, html, durationMs = 3500) {
   }
 }
 
-async function prosesPresensi(kode, sumber) {
+async function prosesPresensi(kode, sumber, bypassDebounce = false) {
   if (!state.token) { toast('Silakan login terlebih dahulu.', true); return; }
   const now = Date.now();
-  if (state.recentScans[kode] && (now - state.recentScans[kode]) < 2500) return;
+  if (!bypassDebounce && state.recentScans[kode] && (now - state.recentScans[kode]) < 2500) return;
   state.recentScans[kode] = now;
 
   clearTimeout(state.statusTimer);
@@ -1037,13 +1185,16 @@ async function prosesPresensi(kode, sumber) {
       state.konfirmasiWaktu = state.waktuSholat;
       state.konfirmasiSumber = sumber || 'QR';
       state.konfirmasiRow = d._row_udzur || null;
+      state.konfirmasiIdUdzur = d.id_udzur || null;
       const alasanText = d.alasan ? ` (<b>${escapeHtml(d.alasan)}</b>)` : '';
       const sampaiText = d.tgl_selesai ? ` s.d. ${escapeHtml(formatTanggal(d.tgl_selesai))}` : '';
       $('konfirmasi-teks').innerHTML = `<b>${escapeHtml(d.nama)}</b> tercatat dalam masa Udzur${alasanText}${sampaiText}. Apakah udzurnya sudah selesai dan siap sholat?`;
       $('modal-konfirmasi-udzur').classList.add('show');
       showStatusBox('udzur', `<i class="fas fa-hand-holding-heart"></i> ${escapeHtml(d.nama)} — Dalam masa udzur`, 4500);
     } else {
-      const jamScan = d.jam || `${String(getWibNow().getHours()).padStart(2,'0')}:${String(getWibNow().getMinutes()).padStart(2,'0')}`;
+      const wibJam = getWibNow();
+      const jamScan = d.jam || `${String(wibJam.getUTCHours()).padStart(2,'0')}:${String(wibJam.getUTCMinutes()).padStart(2,'0')}`;
+      state.lapLastFetch = null;
       showStatusBox('ok', `<i class="fas fa-check-circle"></i> ${escapeHtml(d.nama)} — Hadir ${escapeHtml(d.waktu)} (${escapeHtml(jamScan)})`, 3500);
       toast(`${d.nama} Hadir ${d.waktu}`);
       bunyiBeep();
@@ -1110,15 +1261,23 @@ $('btn-udzur-beres').addEventListener('click', async ()=>{
   $('modal-konfirmasi-udzur').classList.remove('show');
   try {
     let row = state.konfirmasiRow;
-    if (!row) {
+    let idUdzur = state.konfirmasiIdUdzur;
+    if (!idUdzur && !row) {
       const udzurList = await apiCall('getUdzurAktif');
-      if (udzurList.ok) {
+      if (udzurList.ok && Array.isArray(udzurList.data)) {
         const u = udzurList.data.find(x=>String(x.nis)===String(state.konfirmasiNis));
-        if (u) row = u._row;
+        if (u) { row = u._row; idUdzur = u.id_udzur || null; }
       }
     }
-    if (row) await apiCall('hapusUdzur', { row }, true);
-    await prosesPresensi(state.konfirmasiNis, state.konfirmasiSumber || 'QR');
+    if (idUdzur || row) {
+      const delRes = await apiCall('hapusUdzur', { id_udzur: idUdzur, row }, true);
+      if (!delRes.ok) {
+        toast(delRes.message || 'Gagal mengakhiri udzur.', true);
+        return;
+      }
+    }
+    state.lapLastFetch = null;
+    await prosesPresensi(state.konfirmasiNis, state.konfirmasiSumber || 'QR', true);
     loadUdzurAktif();
   } catch(e){ toast('Gagal menghapus udzur.', true); }
 });
@@ -1242,20 +1401,24 @@ function renderUdzurTabel() {
       <td>${escapeHtml(formatTanggal(u.tgl_mulai))}</td>
       <td>${escapeHtml(formatTanggal(u.tgl_selesai))}</td>
       <td>${escapeHtml(u.alasan)}</td>
-      <td class="center"><button type="button" class="btn btn-sm btn-danger btn-hapus-udzur" data-row="${Number(u._row)}"><i class="fas fa-trash"></i></button></td>
+      <td class="center"><button type="button" class="btn btn-sm btn-danger btn-hapus-udzur" data-id="${escapeHtml(u.id_udzur || '')}" data-row="${Number(u._row)}"><i class="fas fa-trash"></i></button></td>
     </tr>
   `).join('');
   tbody.querySelectorAll('.btn-hapus-udzur').forEach(btn => {
-    btn.addEventListener('click', () => hapusUdzur(Number(btn.dataset.row)));
+    btn.addEventListener('click', () => hapusUdzur(btn.dataset.id || '', Number(btn.dataset.row)));
   });
 }
 $('udzur-filter').addEventListener('input', renderUdzurTabel);
 
-async function hapusUdzur(row) {
-  if (!confirm('Hapus catatan udzur ini?')) return;
+async function hapusUdzur(idUdzur, row) {
+  if (!(await askConfirmSholat('Hapus Catatan Udzur', 'Yakin ingin menghapus catatan udzur ini?', 'Ya, Hapus', true))) return;
   try {
-    const res = await apiCall('hapusUdzur', { row }, true);
-    if (res.ok) { toast(res.message); loadUdzurAktif(); }
+    const res = await apiCall('hapusUdzur', { id_udzur: idUdzur, row }, true);
+    if (res.ok) {
+      state.lapLastFetch = null;
+      toast(res.message);
+      loadUdzurAktif();
+    }
     else toast(res.message, true);
   } catch(e){ toast('Gagal hapus', true); }
 }
@@ -1276,12 +1439,6 @@ async function loadLaporan() {
 
   state.lapFilter = { dari, sampai, kelas, waktu, mode };
   state.lapMode = mode;
-
-  const cacheKey = `${dari}|${sampai}|${kelas}`;
-  if (state.lapLastFetch === cacheKey && state.lapDataRaw.length) {
-    applyLaporanRender();
-    return;
-  }
 
   $('lap-loading').style.display = 'block';
   $('lap-content').style.display = 'none';
@@ -1565,6 +1722,13 @@ if (remSholat) {
     await onLoggedIn();
   }
 })();
+function bukaPanduanSholat() { $('modal-panduan').classList.add('show'); }
+function tutupPanduanSholat() { $('modal-panduan').classList.remove('show'); }
+$('btn-panduan').addEventListener('click', bukaPanduanSholat);
+if ($('btn-panduan-login')) $('btn-panduan-login').addEventListener('click', bukaPanduanSholat);
+$('btn-tutup-panduan').addEventListener('click', tutupPanduanSholat);
+$('modal-panduan').addEventListener('click', (e) => { if (e.target === $('modal-panduan')) tutupPanduanSholat(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('modal-panduan').classList.contains('show')) tutupPanduanSholat(); });
 </script>
 </body>
 </html>

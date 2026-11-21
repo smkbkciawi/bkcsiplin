@@ -15,29 +15,30 @@
     { href: 'index.html', label: 'Beranda', icon: ICONS.home, always: true },
     { href: 'gerbang.html', label: 'Gerbang', icon: ICONS.gerbang, roles: ['GURU_PIKET', 'SUPER_ADMIN'], match: ['gerbang.html', 'gerbang2online.html'] },
     { href: 'sholat.html', label: 'Sholat', icon: ICONS.sholat, roles: ['GURU_PIKET', 'GURU_BK', 'WAKA_KESISWAAN', 'WALI_KELAS', 'KEPSEK', 'SUPER_ADMIN'], match: ['sholat.html'] },
-    { href: 'disiplin.html', label: 'Disiplin', icon: ICONS.disiplin, roles: ['GURU_BK', 'WAKA_KESISWAAN', 'WALI_KELAS', 'SUPER_ADMIN', 'KEPSEK'], match: ['disiplin.html'] },
+    { href: 'disiplin.html', label: 'Disiplin', icon: ICONS.disiplin, roles: ['GURU_BK', 'WAKA_KESISWAAN', 'WALI_KELAS', 'SUPER_ADMIN', 'KEPSEK', 'PETUGAS_OSIS'], match: ['disiplin.html'] },
     { href: 'admin.html', label: 'Admin', icon: ICONS.admin, roles: ['SUPER_ADMIN', 'KEPSEK', 'GURU_BK', 'WAKA_KESISWAAN', 'WALI_KELAS'], match: ['admin.html'] }
   ];
 
   function getActiveAuth() {
     const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    const getSess = (tk, rk) => {
+      const t = sessionStorage.getItem(tk) || localStorage.getItem(tk);
+      const r = sessionStorage.getItem(rk) || localStorage.getItem(rk) || '';
+      return t ? { token: t, role: r } : null;
+    };
     // Prioritaskan sesi milik halaman yang sedang dibuka
     if (page === 'admin.html') {
-      const t = sessionStorage.getItem('bkc_admin_token');
-      const r = sessionStorage.getItem('bkc_admin_role');
-      if (t) return { token: t, role: r || '' };
+      const s = getSess('bkc_admin_token', 'bkc_admin_role');
+      if (s) return s;
     } else if (page === 'disiplin.html') {
-      const t = sessionStorage.getItem('bkc_disiplin_token');
-      const r = sessionStorage.getItem('bkc_disiplin_role');
-      if (t) return { token: t, role: r || '' };
+      const s = getSess('bkc_disiplin_token', 'bkc_disiplin_role');
+      if (s) return s;
     } else if (page === 'sholat.html') {
-      const t = sessionStorage.getItem('bkc_sholat_token');
-      const r = sessionStorage.getItem('bkc_sholat_role');
-      if (t) return { token: t, role: r || '' };
+      const s = getSess('bkc_sholat_token', 'bkc_sholat_role');
+      if (s) return s;
     } else if (page === 'gerbang.html' || page === 'gerbang2online.html') {
-      const t = sessionStorage.getItem('bkc_token');
-      const r = sessionStorage.getItem('bkc_role');
-      if (t) return { token: t, role: r || '' };
+      const s = getSess('bkc_token', 'bkc_role');
+      if (s) return s;
     }
 
     // Fallback ke sesi modul mana pun yang tersedia
@@ -48,8 +49,8 @@
       ['bkc_token', 'bkc_role']
     ];
     for (const [tk, rk] of pairs) {
-      const t = sessionStorage.getItem(tk);
-      if (t) return { token: t, role: sessionStorage.getItem(rk) || '' };
+      const s = getSess(tk, rk);
+      if (s) return s;
     }
     return { token: '', role: '' };
   }

@@ -134,6 +134,14 @@
   .modal{width:100%;max-width:500px;background:#fff;border-radius:20px;padding:1.5rem;max-height:90vh;overflow-y:auto;position:relative}
   .modal h2{font-size:1.1rem;color:var(--maroon);margin-bottom:1.1rem;text-align:center;font-weight:800}
   .modal-close{position:absolute;top:1rem;right:1rem;background:#FDF2F4;border:none;width:32px;height:32px;border-radius:8px;font-size:1.1rem;cursor:pointer;color:var(--maroon);display:grid;place-items:center}
+  .role-note{background:#FFF1F2;border:1px solid #FECDD3;color:#881337;border-radius:10px;padding:.6rem .85rem;font-size:.78rem;font-weight:600;line-height:1.45;text-align:center;margin:-.4rem 0 .85rem}
+  .modal.modal-wide{max-width:650px}
+  .guide-list{display:flex;flex-direction:column;gap:.7rem;margin:.75rem 0 1rem}
+  .guide-step{background:#FFF8FA;border:1px solid var(--border);border-radius:12px;padding:.85rem 1rem}
+  .guide-step h4{font-size:.86rem;color:var(--maroon);margin-bottom:.3rem;font-weight:800}
+  .guide-step li,.guide-step p{font-size:.8rem;color:#374151;line-height:1.5}
+  .guide-step ul{padding-left:1.15rem;margin-top:.25rem;display:flex;flex-direction:column;gap:.2rem}
+  .guide-pill{display:inline-block;padding:.1rem .45rem;border-radius:6px;font-size:.7rem;font-weight:800;background:#FCE7F3;color:#881337}
 
   .scanner-box{background:#000;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:4/3;margin-bottom:1rem;display:flex;align-items:center;justify-content:center}
   .scanner-box video{width:100%;height:100%;object-fit:cover}
@@ -176,8 +184,9 @@
   <nav id="bkc-inline-nav"></nav>
   <div class="header-right">
     <span class="user-pill" id="user-label">Belum login</span>
+    <button class="btn-icon" id="btn-panduan" type="button" onclick="bukaPanduanDisiplin()" title="Panduan &amp; Role Login" style="padding:.5rem .78rem;font-size:.8rem;display:inline-flex;align-items:center;gap:.35rem"><i class="fas fa-book-open"></i><span>Panduan</span></button>
     <button class="btn-icon" onclick="bukaDrawer()" type="button" title="Menu Kedisiplinan"><i class="fas fa-bars"></i></button>
-    <button class="btn-icon" id="btn-logout" style="display:none" onclick="doLogout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+    <button class="btn-icon" id="btn-logout" style="display:none" onclick="confirmLogout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
   </div>
 </header>
 
@@ -189,14 +198,23 @@
   </div>
   <nav class="drawer-menu">
     <a onclick="bukaHalaman('home')"><i class="fas fa-search"></i> Halaman Utama</a>
-    <a onclick="bukaHalaman('rekap')"><i class="fas fa-user-graduate"></i> Rekap Siswa</a>
+    <a onclick="bukaHalaman('rekap')" id="menu-rekap"><i class="fas fa-user-graduate"></i> Rekap Siswa</a>
+    <a onclick="bukaHalaman('validasi-osis')" id="menu-validasi-osis" style="display:none"><i class="fas fa-clipboard-check"></i> Validasi Laporan OSIS <span id="badge-validasi-osis" style="margin-left:auto;background:#EF4444;color:#fff;font-size:.7rem;font-weight:800;padding:.15rem .5rem;border-radius:99px;display:none">0</span></a>
     <a onclick="bukaHalaman('validasi')" id="menu-validasi"><i class="fas fa-mosque"></i> Validasi Bolos Sholat</a>
-    <a onclick="bukaHalaman('udzur')"><i class="fas fa-hand-holding-heart"></i> Manajemen Udzur</a>
+    <a onclick="bukaHalaman('udzur')" id="menu-udzur"><i class="fas fa-hand-holding-heart"></i> Manajemen Udzur</a>
     <a onclick="bukaHalaman('saldo')" id="menu-saldo"><i class="fas fa-sliders-h"></i> Saldo Awal (Buku Manual)</a>
+    <a onclick="tutupDrawer();bukaPanduanDisiplin()"><i class="fas fa-book-open"></i> Panduan &amp; Role Login</a>
   </nav>
 </div>
 
 <main id="page-home">
+  <div id="banner-validasi-osis" class="info-banner hidden" style="cursor:pointer;justify-content:space-between;background:#FEF3C7;border-color:#FCD34D;color:#92400E" onclick="bukaHalaman('validasi-osis')">
+    <span><i class="fas fa-bell"></i> <b id="banner-validasi-osis-text">Ada 0 laporan pelanggaran dari OSIS menunggu validasi.</b></span>
+    <span class="btn-mini" style="background:#92400E;color:#fff;border-color:#92400E">Tinjau Sekarang <i class="fas fa-arrow-right"></i></span>
+  </div>
+  <div id="banner-osis-mode" class="info-banner hidden" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF">
+    <i class="fas fa-user-shield"></i> <span><b>Mode Petugas OSIS:</b> Anda dapat mencari siswa dan mengirim laporan pelanggaran. Laporan baru masuk ke antrean <b>Validasi Guru BK / Waka Kesiswaan</b> dan belum mengurangi poin siswa sebelum disetujui.</span>
+  </div>
   <div class="clean-search">
     <h2>Cari Siswa / Tap Kartu / Scan QR</h2>
     <div class="search-box">
@@ -221,10 +239,14 @@
       <button class="modal-close" type="button" onclick="tutupProfil()" style="position:static"><i class="fas fa-times"></i></button>
     </div>
 
-    <div class="poin-display">
+    <div class="poin-display" id="profil-poin-box">
       <div style="font-size:.7rem;letter-spacing:.2em;color:var(--muted);font-weight:800;margin-bottom:.4rem">SALDO POIN SAAT INI</div>
       <div class="angka" id="profil-poin">100</div>
       <div class="zona-badge" id="profil-zona">Sangat Baik</div>
+    </div>
+
+    <div id="profil-osis-notice" class="info-banner hidden" style="margin-bottom:1rem;background:#FEF3C7;border-color:#FCD34D;color:#92400E">
+      <i class="fas fa-shield-alt"></i> <span><b>Laporan OSIS:</b> Catatan pelanggaran akan diperiksa oleh Guru BK / Waka Kesiswaan terlebih dahulu sebelum memotong poin siswa.</span>
     </div>
 
     <div class="mini-riwayat" id="profil-riwayat-mini">
@@ -236,7 +258,7 @@
     </div>
 
     <div class="field">
-      <label>Tambah Pelanggaran / Prestasi</label>
+      <label id="label-pasal-input">Tambah Pelanggaran / Prestasi</label>
       <select id="select-pasal"><option value="">— Pilih Pasal —</option></select>
     </div>
     <button class="btn-action primary" type="button" onclick="tambahKeranjang()" style="width:100%;margin-bottom:.5rem;border-radius:12px"><i class="fas fa-plus"></i> Tambah ke Daftar</button>
@@ -255,25 +277,25 @@
     </div>
     <button class="btn-primary-full" id="btn-simpan-poin" type="button" onclick="simpanPoin()"><i class="fas fa-save"></i> Simpan Pencatatan</button>
 
-    <hr style="margin:1.2rem 0;border:none;border-top:1px solid var(--border)">
-    <button class="btn-action outline" type="button" onclick="bukaKoreksi()" style="width:100%"><i class="fas fa-edit"></i> Koreksi Manual / Poin Prestasi</button>
+    <hr id="hr-koreksi" style="margin:1.2rem 0;border:none;border-top:1px solid var(--border)">
+    <button id="btn-koreksi-open" class="btn-action outline" type="button" onclick="bukaKoreksi()" style="width:100%"><i class="fas fa-edit"></i> Koreksi Manual / Poin Prestasi</button>
   </div>
 
   <!-- RIWAYAT PENCATATAN HARI INI (DARI SERVER) -->
   <div class="table-wrap" style="margin-top:1.5rem" id="riwayat-cepat-wrap">
     <div style="padding:.9rem 1rem;background:#FDF2F4;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap">
-      <span style="font-size:.74rem;font-weight:800;letter-spacing:.12em;color:var(--maroon);text-transform:uppercase"><i class="fas fa-history"></i> Pencatatan Poin Hari Ini</span>
+      <span id="riwayat-cepat-title" style="font-size:.74rem;font-weight:800;letter-spacing:.12em;color:var(--maroon);text-transform:uppercase"><i class="fas fa-history"></i> Pencatatan Poin Hari Ini</span>
       <button type="button" class="btn-mini" onclick="loadRekapCache(true)"><i class="fas fa-sync-alt"></i> Segarkan</button>
     </div>
     <table>
-      <thead><tr><th>Waktu</th><th>Siswa</th><th>Pasal / Ket</th><th>Poin</th><th>Petugas</th></tr></thead>
+      <thead><tr><th>Waktu</th><th>Siswa</th><th>Pasal / Ket</th><th>Poin</th><th id="th-riwayat-petugas">Petugas</th></tr></thead>
       <tbody id="tbody-riwayat-cepat">
         <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1rem">Belum ada pencatatan poin hari ini.</td></tr>
       </tbody>
     </table>
   </div>
 
-  <div class="legenda">
+  <div class="legenda" id="legenda-box">
     <h3>Status & Ambang Zona Kedisiplinan</h3>
     <div class="legenda-chips" id="legenda-chips">
       <span class="chip chip-hijau">Sangat Baik (76-100)</span>
@@ -320,6 +342,59 @@
         <thead><tr><th>NIS</th><th>Nama</th><th>Kelas</th><th>Saldo</th><th>Status / Zona</th><th>Aksi</th></tr></thead>
         <tbody id="tbody-rekap">
           <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1rem">Memuat data siswa…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<main id="page-validasi-osis" class="hidden">
+  <div style="margin-bottom:1rem"><button class="btn-action outline" type="button" onclick="bukaHalaman('home')"><i class="fas fa-arrow-left"></i> Kembali</button></div>
+  <div class="clean-search" style="text-align:left">
+    <h2><i class="fas fa-clipboard-check"></i> Validasi Laporan Pelanggaran OSIS</h2>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">Laporan dari <b>PETUGAS_OSIS</b> berstatus <b>MENUNGGU</b> dan <b>belum mengurangi poin siswa</b> sampai disetujui oleh Guru BK, Waka Kesiswaan, Kepsek, atau Super Admin.</p>
+
+    <div class="guide-step" style="margin-bottom:1rem;background:#FFFBEB;border-color:#FDE68A">
+      <h4 style="color:#92400E"><i class="fas fa-book-reader"></i> Pedoman Validasi Guru BK &amp; Waka Kesiswaan</h4>
+      <ul>
+        <li><b>1. Verifikasi Kronologi &amp; Bukti:</b> Pastikan keterangan kejadian jelas (waktu, lokasi, pelanggaran). Jika deskripsi terlalu singkat atau meragukan, konfirmasi ke petugas OSIS pelapor sebelum menyetujui.</li>
+        <li><b>2. Cek Kesesuaian Pasal &amp; Duplikasi:</b> Cocokkan pelanggaran dengan pasal Tata Tertib dan pastikan siswa belum dicatat untuk kasus yang sama pada hari ini (misal: keterlambatan gerbang).</li>
+        <li><b>3. Perhatikan Dampak Saldo &amp; Zona:</b> Tinjau kolom <b>Dampak Saldo</b> (`Saldo ➔ Estimasi`). Jika setelah disetujui siswa turun ke zona SP1/SP2/SP3, siapkan tindak lanjut pembinaan.</li>
+        <li><b>4. Setujui atau Tolak:</b> Klik <b>Setujui</b> agar poin resmi terpotong dan tampil di Rekap/Cek Poin Siswa. Klik <b>Tolak</b> jika keliru/dobel dan isi alasan singkat sebagai catatan audit.</li>
+      </ul>
+    </div>
+
+    <div class="info-banner hidden" id="validasi-osis-meta"></div>
+
+    <div style="display:flex;gap:.5rem;margin-bottom:.85rem;flex-wrap:wrap;align-items:center">
+      <div class="search-box" style="flex:1;min-width:210px;max-width:none;margin:0">
+        <span class="icon">🔍</span>
+        <input type="text" id="search-validasi-osis" placeholder="Filter nama siswa, kelas, pasal, atau pelapor OSIS…" autocomplete="off">
+      </div>
+      <button type="button" class="btn-action outline" onclick="loadValidasiOsis()" style="border-radius:12px;padding:.8rem 1rem" title="Segarkan antrean"><i class="fas fa-sync-alt"></i></button>
+    </div>
+
+    <div id="validasi-osis-controls" class="hidden" style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap;align-items:center">
+      <button type="button" class="btn-mini" onclick="setAllOsisValidasi(true)"><i class="fas fa-check-double"></i> Pilih Semua</button>
+      <button type="button" class="btn-mini" onclick="setAllOsisValidasi(false)"><i class="fas fa-times"></i> Batal Pilih</button>
+      <button type="button" class="btn-mini" id="btn-osis-batch-setuju" onclick="konfirmasiSetujuBatchOsis()" style="background:#059669;border-color:#059669;color:#fff;margin-left:auto"><i class="fas fa-check"></i> Setujui Terpilih (<span id="osis-sel-count-ok">0</span>)</button>
+      <button type="button" class="btn-mini" id="btn-osis-batch-tolak" onclick="bukaModalTolakOsisSelected()" style="background:#DC2626;border-color:#DC2626;color:#fff"><i class="fas fa-ban"></i> Tolak Terpilih (<span id="osis-sel-count-no">0</span>)</button>
+    </div>
+
+    <div class="table-wrap" style="margin-top:0">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:36px"></th>
+            <th>Waktu &amp; Pelapor</th>
+            <th>Siswa</th>
+            <th>Pasal &amp; Kronologi</th>
+            <th>Dampak Saldo</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-validasi-osis">
+          <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1.2rem">Memuat antrean laporan OSIS…</td></tr>
         </tbody>
       </table>
     </div>
@@ -429,8 +504,8 @@
     <h3 style="font-size:.85rem;font-weight:800;color:var(--maroon);margin-bottom:.5rem">Riwayat Pelanggaran &amp; Prestasi</h3>
     <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:12px" id="detail-riwayat-wrap">
       <table style="width:100%;border-collapse:collapse;font-size:.84rem">
-        <thead><tr style="background:#FDF2F4"><th style="padding:.5rem;text-align:left">Tanggal</th><th style="padding:.5rem;text-align:left">Pasal</th><th style="padding:.5rem;text-align:left">Deskripsi</th><th style="padding:.5rem;text-align:center">Poin</th></tr></thead>
-        <tbody id="detail-tbody-riwayat"><tr><td colspan="4" style="text-align:center;padding:1rem;color:var(--muted)">Memuat…</td></tr></tbody>
+        <thead><tr style="background:#FDF2F4"><th style="padding:.5rem;text-align:left">Tanggal</th><th style="padding:.5rem;text-align:left">Pasal</th><th style="padding:.5rem;text-align:left">Deskripsi</th><th style="padding:.5rem;text-align:center">Poin</th><th style="padding:.5rem;text-align:center">Aksi</th></tr></thead>
+        <tbody id="detail-tbody-riwayat"><tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted)">Memuat…</td></tr></tbody>
       </table>
     </div>
 
@@ -486,6 +561,7 @@
 <div class="modal-overlay show" id="modal-login">
   <div class="modal">
     <h2><i class="fas fa-balance-scale"></i> Login Petugas / Wali Kelas</h2>
+    <div class="role-note">Role login: <b>GURU_BK, WAKA_KESISWAAN, KEPSEK, SUPER_ADMIN</b> (akses penuh + validasi), <b>WALI_KELAS</b> (kelas binaan), &amp; <b>PETUGAS_OSIS</b> (khusus lapor pelanggaran, wajib validasi BK/Wakasis).<br>Siswa / Orang Tua gunakan <b>Cek Poin Saya</b> tanpa perlu login.</div>
     <div id="login-alert" style="color:#EF4444;font-size:.85rem;font-weight:700;text-align:center;margin-bottom:.8rem;display:none"></div>
     <div class="field"><label>ID Guru / Nama</label><input type="text" id="login-user" placeholder="G003" autocomplete="username"></div>
     <div class="field"><label>PIN</label><div class="pin-wrap"><input type="password" id="login-pin" placeholder="••••••" inputmode="numeric" autocomplete="current-password"><button type="button" class="toggle-pin" id="btn-toggle-pin" title="Lihat / Sembunyikan PIN"><i class="fas fa-eye"></i></button></div></div>
@@ -493,6 +569,47 @@
 
     <button class="btn-login-baru" id="btn-login" type="button" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Masuk</button>
     <button class="btn-cek-poin-baru" type="button" onclick="bukaCekPoin()"><i class="fas fa-search"></i> Cek Poin Saya (Siswa)</button>
+    <button class="btn-secondary-full" type="button" onclick="bukaPanduanDisiplin()" style="margin-top:.55rem;padding:.72rem;font-size:.84rem"><i class="fas fa-book-open"></i> Panduan &amp; Pembagian Role</button>
+  </div>
+</div>
+
+<!-- MODAL TOLAK LAPORAN OSIS -->
+<div class="modal-overlay" id="modal-tolak-osis">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" type="button" onclick="tutupModal('modal-tolak-osis')">×</button>
+    <h2 style="color:var(--danger)"><i class="fas fa-ban"></i> Tolak Laporan OSIS</h2>
+    <p id="tolak-osis-summary" style="font-size:.86rem;color:var(--text);text-align:center;margin-bottom:.9rem;line-height:1.5">Laporan yang ditolak tidak akan mengurangi poin siswa.</p>
+    <div class="field">
+      <label>Alasan Penolakan (Disarankan)</label>
+      <textarea id="tolak-osis-alasan" rows="3" placeholder="Contoh: Salah pilih pasal / kasus sudah dicatat petugas lain / kronologi kurang jelas"></textarea>
+    </div>
+    <div style="display:flex;gap:.55rem">
+      <button type="button" class="btn-secondary-full" style="margin-top:0" onclick="tutupModal('modal-tolak-osis')">Batal</button>
+      <button type="button" class="btn-primary-full" id="btn-konf-tolak-osis" style="margin-top:0;background:var(--danger)" onclick="konfirmasiTolakOsis()">Tolak Laporan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BATALKAN / DISPENSASI POIN -->
+<div class="modal-overlay" id="modal-batal-poin" style="z-index:2600">
+  <div class="modal" style="max-width:450px">
+    <button class="modal-close" type="button" onclick="tutupModal('modal-batal-poin')">×</button>
+    <h2 style="color:#B45309"><i class="fas fa-undo-alt"></i> Dispensasi / Batalkan Poin</h2>
+    <p id="batal-poin-summary" style="font-size:.85rem;color:var(--text);text-align:center;margin-bottom:.85rem;line-height:1.5">Poin siswa akan dipulihkan otomatis setelah dibatalkan.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:.85rem">
+      <button type="button" class="btn-action outline" style="font-size:.75rem;padding:.35rem .65rem" onclick="$('batal-poin-alasan').value='Izin Orang Tua'">Izin Orang Tua</button>
+      <button type="button" class="btn-action outline" style="font-size:.75rem;padding:.35rem .65rem" onclick="$('batal-poin-alasan').value='Sakit / Surat Dokter'">Sakit / Surat Dokter</button>
+      <button type="button" class="btn-action outline" style="font-size:.75rem;padding:.35rem .65rem" onclick="$('batal-poin-alasan').value='Hujan Deras / Cuaca Ekstrem'">Hujan Deras</button>
+      <button type="button" class="btn-action outline" style="font-size:.75rem;padding:.35rem .65rem" onclick="$('batal-poin-alasan').value='Penugasan Sekolah'">Penugasan Sekolah</button>
+    </div>
+    <div class="field">
+      <label>Alasan Dispensasi / Pembatalan</label>
+      <input type="text" id="batal-poin-alasan" placeholder="Contoh: Izin orang tua / Surat tugas OSIS / Hujan deras">
+    </div>
+    <div style="display:flex;gap:.55rem">
+      <button type="button" class="btn-secondary-full" style="margin-top:0" onclick="tutupModal('modal-batal-poin')">Batal</button>
+      <button type="button" class="btn-primary-full" id="btn-konf-batal-poin" style="margin-top:0;background:#D97706" onclick="konfirmasiBatalPoinDispensasi()">Ya, Beri Dispensasi</button>
+    </div>
   </div>
 </div>
 
@@ -528,6 +645,17 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-confirm-disiplin">
+  <div class="modal" style="max-width:400px">
+    <h2 id="dis-konf-title"><i class="fas fa-question-circle"></i> Konfirmasi</h2>
+    <p id="dis-konf-msg" style="text-align:center;font-size:.9rem;line-height:1.5;color:var(--text);margin-bottom:1.1rem">Apakah Anda yakin?</p>
+    <div style="display:flex;gap:.55rem">
+      <button type="button" class="btn-secondary-full" id="btn-dis-konf-batal" style="margin-top:0">Batal</button>
+      <button type="button" class="btn-primary-full" id="btn-dis-konf-ok" style="margin-top:0">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
 <input id="rfid-input-hidden" type="text" autocomplete="off" inputmode="none" aria-hidden="true">
 <div class="toast-wrap" id="toast-wrap"></div>
 <div id="print-area"></div>
@@ -553,19 +681,28 @@ const state = {
   rekapCache: [],
   kelasAmpu: [],
   isAdminRole: true,
+  isOsisRole: false,
+  pendingOsisCount: 0,
+  osisPendingList: [],
+  rejectOsisIds: [],
+  cancelPoinTarget: null,
   setting: { poin_awal: 100, zona_kuning_min: 51, zona_oranye_min: 26, zona_merah_min: 1 }
 };
 const $ = (id) => document.getElementById(id);
 
 function todayWibStr() {
-  const now = new Date();
-  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
-  return `${wib.getFullYear()}-${String(wib.getMonth() + 1).padStart(2, '0')}-${String(wib.getDate()).padStart(2, '0')}`;
+  return new Date(Date.now() + (7 * 3600000)).toISOString().slice(0, 10);
 }
 
 function checkIsAdminRole(roleStr) {
   const arr = String(roleStr || '').toUpperCase().split(',').map(r => r.trim());
   return ['SUPER_ADMIN', 'KEPSEK', 'GURU_BK', 'WAKA_KESISWAAN'].some(r => arr.includes(r));
+}
+
+function checkIsOsisRole(roleStr) {
+  const arr = String(roleStr || '').toUpperCase().split(',').map(r => r.trim());
+  if (!arr.includes('PETUGAS_OSIS')) return false;
+  return !['SUPER_ADMIN', 'KEPSEK', 'GURU_BK', 'WAKA_KESISWAAN', 'WALI_KELAS'].some(r => arr.includes(r));
 }
 
 function hitungZonaClient(saldo) {
@@ -647,13 +784,40 @@ function toast(msg, isErr) {
   setTimeout(() => el.remove(), 3200);
 }
 
+function askConfirmDisiplin(title, msg, okText = 'Ya, Lanjutkan', isDanger = true) {
+  return new Promise((resolve) => {
+    const modal = $('modal-confirm-disiplin');
+    if (!modal) { resolve(true); return; }
+    $('dis-konf-title').innerHTML = `<i class="fas ${isDanger ? 'fa-exclamation-triangle' : 'fa-question-circle'}"></i> ${escapeHtml(title || 'Konfirmasi')}`;
+    $('dis-konf-title').style.color = isDanger ? 'var(--danger)' : 'var(--maroon)';
+    $('dis-konf-msg').textContent = msg || 'Apakah Anda yakin?';
+    const btnOk = $('btn-dis-konf-ok');
+    const btnBatal = $('btn-dis-konf-batal');
+    btnOk.textContent = okText;
+    btnOk.style.background = isDanger ? 'var(--danger)' : 'var(--maroon)';
+    const finish = (val) => {
+      modal.classList.remove('show');
+      btnOk.onclick = null;
+      btnBatal.onclick = null;
+      resolve(val);
+    };
+    btnOk.onclick = () => finish(true);
+    btnBatal.onclick = () => finish(false);
+    modal.classList.add('show');
+  });
+}
+
 // --- FUNGSI API CALL ---
 function apiCall(action, payload = {}, isPost = false) {
   return new Promise((resolve, reject) => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const currentToken = state.token || sessionStorage.getItem('bkc_disiplin_token') || '';
+    const currentToken = state.token ||
+      sessionStorage.getItem('bkc_disiplin_token') ||
+      localStorage.getItem('bkc_disiplin_token') || '';
 
-    if (isMobile) {
+    if (isPost || isMobile) {
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const timer = setTimeout(() => { if (controller) controller.abort(); }, 25000);
       let formBody = `action=${encodeURIComponent(action)}`;
       if (currentToken) formBody += `&token=${encodeURIComponent(currentToken)}`;
       formBody += `&payload=${encodeURIComponent(JSON.stringify(payload))}`;
@@ -661,38 +825,48 @@ function apiCall(action, payload = {}, isPost = false) {
       fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formBody
+        body: formBody,
+        signal: controller ? controller.signal : undefined
       })
-      .then(r => r.json())
-      .then(res => resolve(res))
-      .catch(() => reject(new Error('Gagal koneksi')));
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(res => { clearTimeout(timer); resolve(res); })
+      .catch(() => { clearTimeout(timer); reject(new Error('Gagal koneksi')); });
     } else {
       const cbName = 'jsonp_' + Math.round(100000 * Math.random()) + '_' + Date.now();
       const script = document.createElement('script');
+      let settled = false;
+      const cleanup = () => {
+        clearTimeout(timer);
+        if (script.parentNode) { try { script.parentNode.removeChild(script); } catch (e) {} }
+        try { delete window[cbName]; } catch (e) {}
+      };
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        reject(new Error('Koneksi timeout'));
+      }, 25000);
 
       let url = `${API_URL}?callback=${cbName}&action=${encodeURIComponent(action)}`;
       if (currentToken) url += `&token=${encodeURIComponent(currentToken)}`;
-
-      if (isPost) {
-        url += `&payload=${encodeURIComponent(JSON.stringify(payload))}`;
-      } else {
-        for (const k in payload) {
-          if (payload[k] !== undefined && payload[k] !== null) {
-            url += `&${encodeURIComponent(k)}=${encodeURIComponent(payload[k])}`;
-          }
+      for (const k in payload) {
+        if (payload[k] !== undefined && payload[k] !== null) {
+          url += `&${encodeURIComponent(k)}=${encodeURIComponent(payload[k])}`;
         }
       }
 
       window[cbName] = function(res) {
-        try { document.body.removeChild(script); } catch (e) {}
-        delete window[cbName];
+        if (settled) return;
+        settled = true;
+        cleanup();
         resolve(res);
       };
 
       script.src = url;
       script.onerror = () => {
-        try { document.body.removeChild(script); } catch (e) {}
-        delete window[cbName];
+        if (settled) return;
+        settled = true;
+        cleanup();
         reject(new Error('Gagal koneksi'));
       };
       document.body.appendChild(script);
@@ -719,15 +893,42 @@ function bunyiTetot() { bunyi(300, 0.4, 'sawtooth'); }
 
 function applyUserSessionUI() {
   state.isAdminRole = checkIsAdminRole(state.role);
+  state.isOsisRole = checkIsOsisRole(state.role);
   const roleUpper = String(state.role || '').toUpperCase();
-  const labelRole = !state.isAdminRole && roleUpper.includes('WALI_KELAS') ? ' (Wali Kelas)' : '';
+  const labelRole = state.isOsisRole
+    ? ' (Petugas OSIS)'
+    : (!state.isAdminRole && roleUpper.includes('WALI_KELAS') ? ' (Wali Kelas)' : '');
   $('user-label').textContent = state.nama + labelRole;
   $('btn-logout').style.display = 'inline-grid';
-  if ($('menu-validasi')) {
-    $('menu-validasi').style.display = state.isAdminRole ? 'flex' : 'none';
+
+  if ($('menu-rekap')) $('menu-rekap').style.display = state.isOsisRole ? 'none' : 'flex';
+  if ($('menu-udzur')) $('menu-udzur').style.display = state.isOsisRole ? 'none' : 'flex';
+  if ($('menu-validasi-osis')) $('menu-validasi-osis').style.display = state.isAdminRole ? 'flex' : 'none';
+  if ($('menu-validasi')) $('menu-validasi').style.display = state.isAdminRole ? 'flex' : 'none';
+  if ($('menu-saldo')) $('menu-saldo').style.display = state.isAdminRole ? 'flex' : 'none';
+
+  if ($('banner-osis-mode')) $('banner-osis-mode').classList.toggle('hidden', !state.isOsisRole);
+  if ($('banner-validasi-osis')) {
+    $('banner-validasi-osis').classList.toggle('hidden', !(state.isAdminRole && state.pendingOsisCount > 0));
   }
-  if ($('menu-saldo')) {
-    $('menu-saldo').style.display = state.isAdminRole ? 'flex' : 'none';
+  if ($('legenda-box')) $('legenda-box').classList.toggle('hidden', state.isOsisRole);
+  if ($('hr-koreksi')) $('hr-koreksi').style.display = state.isOsisRole ? 'none' : 'block';
+  if ($('btn-koreksi-open')) $('btn-koreksi-open').style.display = state.isOsisRole ? 'none' : 'inline-flex';
+  if ($('label-pasal-input')) {
+    $('label-pasal-input').textContent = state.isOsisRole ? 'Tambah Pelanggaran (Wajib Validasi BK)' : 'Tambah Pelanggaran / Prestasi';
+  }
+  if ($('btn-simpan-poin')) {
+    $('btn-simpan-poin').innerHTML = state.isOsisRole
+      ? '<i class="fas fa-paper-plane"></i> Kirim ke Validasi BK/Wakasis'
+      : '<i class="fas fa-save"></i> Simpan Pencatatan';
+  }
+  if ($('riwayat-cepat-title')) {
+    $('riwayat-cepat-title').innerHTML = state.isOsisRole
+      ? '<i class="fas fa-history"></i> Laporan OSIS Saya Hari Ini'
+      : '<i class="fas fa-history"></i> Pencatatan Poin Hari Ini';
+  }
+  if ($('th-riwayat-petugas')) {
+    $('th-riwayat-petugas').textContent = state.isOsisRole ? 'Status Validasi' : 'Petugas';
   }
   if (window.bkcRefreshNav) window.bkcRefreshNav();
 }
@@ -794,7 +995,17 @@ function clearAuthTokens() {
   sessionStorage.removeItem('bkc_disiplin_token'); sessionStorage.removeItem('bkc_disiplin_nama'); sessionStorage.removeItem('bkc_disiplin_role');
   localStorage.removeItem('bkc_disiplin_token'); localStorage.removeItem('bkc_disiplin_nama'); localStorage.removeItem('bkc_disiplin_role');
   state.token = ''; state.nama = ''; state.role = '';
+  state.isAdminRole = false; state.isOsisRole = false;
+  state.pendingOsisCount = 0; state.osisPendingList = [];
   state.rekapCache = []; state.kelasAmpu = [];
+  if ($('banner-validasi-osis')) $('banner-validasi-osis').classList.add('hidden');
+  if ($('banner-osis-mode')) $('banner-osis-mode').classList.add('hidden');
+}
+
+async function confirmLogout() {
+  if (await askConfirmDisiplin('Keluar Akun', 'Yakin ingin keluar dari modul Kedisiplinan?', 'Ya, Logout', true)) {
+    doLogout();
+  }
 }
 
 function doLogout(expiredMsg) {
@@ -826,14 +1037,23 @@ function bukaDrawer() { $('drawer').classList.add('open'); $('drawer-overlay').c
 function tutupDrawer() { $('drawer').classList.remove('open'); $('drawer-overlay').classList.remove('show'); }
 
 function bukaHalaman(page) {
-  if ((page === 'validasi' || page === 'saldo') && !state.isAdminRole) {
+  if (state.isOsisRole && page !== 'home') {
+    toast('Akun Petugas OSIS hanya dapat mengakses halaman input pelanggaran.', true);
+    tutupDrawer();
+    return;
+  }
+  if ((page === 'validasi' || page === 'validasi-osis' || page === 'saldo') && !state.isAdminRole) {
     toast('Menu ini khusus Guru BK / Waka Kesiswaan / Kepsek / Admin.', true);
     tutupDrawer();
     return;
   }
-  ['home','rekap','validasi','udzur','saldo'].forEach(p => $('page-' + p).classList.add('hidden'));
+  ['home','rekap','validasi-osis','validasi','udzur','saldo'].forEach(p => {
+    const el = $('page-' + p);
+    if (el) el.classList.add('hidden');
+  });
   $('page-' + page).classList.remove('hidden');
   tutupDrawer();
+  if (page === 'validasi-osis') loadValidasiOsis();
   if (page === 'validasi') loadValidasiBolos();
   if (page === 'udzur') loadUdzurList();
   if (page === 'rekap') {
@@ -960,7 +1180,7 @@ async function simpanSaldoDisiplin() {
     }
   }
   if (!items.length) { toast('Tidak ada perubahan saldo pada kelas ini.'); return; }
-  if (!confirm(`Simpan penyesuaian saldo untuk ${items.length} siswa di kelas ${$('saldo-kelas-disiplin').value}?`)) return;
+  if (!(await askConfirmDisiplin('Simpan Saldo Awal', `Simpan penyesuaian saldo untuk ${items.length} siswa di kelas ${$('saldo-kelas-disiplin').value}?`, 'Ya, Simpan', false))) return;
   const btn = $('btn-simpan-saldo-disiplin');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan…';
   try {
@@ -990,7 +1210,7 @@ async function loadRekapCache(showToast) {
           const awal = Number(state.setting.poin_awal) || 100;
           const z = hitungZonaClient(awal);
           state.rekapCache = ms.data
-            .filter(s => String(s.status).toUpperCase() === 'AKTIF')
+            .filter(s => { const st = String(s.status || '').trim().toUpperCase(); return st === '' || st === 'AKTIF'; })
             .map(s => ({
               nis: String(s.nis), nama: String(s.nama), kelas: String(s.kelas),
               saldo: awal, pelanggaran: 0, prestasi: 0,
@@ -1015,9 +1235,13 @@ async function loadRekapCache(showToast) {
       renderLegendaZona();
     }
     if (typeof d.is_admin === 'boolean') state.isAdminRole = d.is_admin;
+    if (typeof d.is_osis === 'boolean') state.isOsisRole = d.is_osis;
+    state.pendingOsisCount = Number(d.pending_osis_count) || 0;
+    updateValidasiOsisBadge();
+    applyUserSessionUI();
 
     renderRiwayatHariIni(d.riwayat_hari_ini || []);
-    if (!state.isAdminRole && $('rekap-wali-banner')) {
+    if (!state.isAdminRole && !state.isOsisRole && $('rekap-wali-banner')) {
       const b = $('rekap-wali-banner');
       if (state.kelasAmpu.length) {
         b.innerHTML = `<i class="fas fa-chalkboard-teacher"></i> Menampilkan rekap kelas ampu Anda: <b>${escapeHtml(state.kelasAmpu.join(', '))}</b>`;
@@ -1036,15 +1260,45 @@ async function loadRekapCache(showToast) {
   }
 }
 
+function updateValidasiOsisBadge() {
+  const n = state.isAdminRole ? (Number(state.pendingOsisCount) || 0) : 0;
+  const badge = $('badge-validasi-osis');
+  if (badge) {
+    badge.textContent = n;
+    badge.style.display = n > 0 ? 'inline-block' : 'none';
+  }
+  const banner = $('banner-validasi-osis');
+  const text = $('banner-validasi-osis-text');
+  if (banner && text) {
+    text.textContent = `Ada ${n} laporan pelanggaran dari Petugas OSIS menunggu validasi BK/Wakasis.`;
+    banner.classList.toggle('hidden', !(state.isAdminRole && n > 0));
+  }
+}
+
 function renderRiwayatHariIni(list) {
   const tbody = $('tbody-riwayat-cepat');
   if (!list || !list.length) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1rem">Belum ada pencatatan poin hari ini.</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1rem">${state.isOsisRole ? 'Anda belum mengirim laporan hari ini.' : 'Belum ada pencatatan poin hari ini.'}</td></tr>`;
     return;
   }
   tbody.innerHTML = list.map((r, idx) => {
     const pts = Number(r.poin) || 0;
     const cls = pts < 0 ? 'var(--danger)' : 'var(--success)';
+    if (state.isOsisRole) {
+      const st = String(r.divalidasi || 'MENUNGGU').toUpperCase();
+      const stPill = st === 'DITOLAK'
+        ? '<span class="chip chip-merah" style="font-size:.68rem;padding:.2rem .55rem">Ditolak</span>'
+        : (st === 'MENUNGGU'
+          ? '<span class="chip chip-kuning" style="font-size:.68rem;padding:.2rem .55rem">Menunggu BK</span>'
+          : '<span class="chip chip-hijau" style="font-size:.68rem;padding:.2rem .55rem">Disetujui ✓</span>');
+      return `<tr>
+        <td style="white-space:nowrap">${escapeHtml(formatJamWib(r.timestamp))}</td>
+        <td><b>${escapeHtml(r.nama)}</b><br><span style="font-size:.73rem;color:var(--muted)">${escapeHtml(r.kelas)} · ${escapeHtml(r.nis)}</span></td>
+        <td><span style="font-weight:800;color:var(--maroon);font-size:.78rem">${escapeHtml(r.pasal)}</span><br><span style="font-size:.76rem;color:var(--muted)">${escapeHtml(r.deskripsi)}</span></td>
+        <td style="font-weight:800;color:${cls};white-space:nowrap">${pts > 0 ? '+' : ''}${pts}</td>
+        <td>${stPill}</td>
+      </tr>`;
+    }
     return `<tr class="clickable" data-idx="${idx}" title="Klik untuk lihat detail & cetak surat">
       <td style="white-space:nowrap">${escapeHtml(formatJamWib(r.timestamp))}</td>
       <td><b>${escapeHtml(r.nama)}</b><br><span style="font-size:.73rem;color:var(--muted)">${escapeHtml(r.kelas)} · ${escapeHtml(r.nis)}</span></td>
@@ -1053,12 +1307,14 @@ function renderRiwayatHariIni(list) {
       <td style="font-size:.78rem">${escapeHtml(r.petugas || '-')}</td>
     </tr>`;
   }).join('');
-  tbody.querySelectorAll('tr.clickable').forEach(tr => {
-    tr.addEventListener('click', () => {
-      const r = list[Number(tr.dataset.idx)];
-      if (r) bukaModalRekap(r.nis, r.nama, r.kelas);
+  if (!state.isOsisRole) {
+    tbody.querySelectorAll('tr.clickable').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const r = list[Number(tr.dataset.idx)];
+        if (r) bukaModalRekap(r.nis, r.nama, r.kelas);
+      });
     });
-  });
+  }
 }
 
 // PENCARIAN UTAMA (PETUGAS / WALI KELAS)
@@ -1100,9 +1356,20 @@ async function pilihSiswa(nis, nama, kelas) {
   $('profil-nama').textContent = nama;
   $('profil-kelas').textContent = kelas + ' · NIS ' + nis;
   $('profil-avatar').textContent = nama.substring(0, 2).toUpperCase();
-  $('profil-riwayat-list').innerHTML = '<span style="color:var(--muted)">Memuat riwayat…</span>';
   $('profil-card').style.display = 'block';
   $('result-box').innerHTML = '';
+
+  if (state.isOsisRole) {
+    if ($('profil-poin-box')) $('profil-poin-box').classList.add('hidden');
+    if ($('profil-riwayat-mini')) $('profil-riwayat-mini').classList.add('hidden');
+    if ($('profil-osis-notice')) $('profil-osis-notice').classList.remove('hidden');
+    return;
+  }
+
+  if ($('profil-poin-box')) $('profil-poin-box').classList.remove('hidden');
+  if ($('profil-riwayat-mini')) $('profil-riwayat-mini').classList.remove('hidden');
+  if ($('profil-osis-notice')) $('profil-osis-notice').classList.add('hidden');
+  $('profil-riwayat-list').innerHTML = '<span style="color:var(--muted)">Memuat riwayat…</span>';
 
   try {
     const res = await apiCall('getRiwayatPoin', { nis });
@@ -1203,7 +1470,9 @@ async function simpanPoin() {
   } catch (err) { toast(err.message || 'Gagal menyimpan', true); }
   finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-save"></i> Simpan Pencatatan';
+    btn.innerHTML = state.isOsisRole
+      ? '<i class="fas fa-paper-plane"></i> Kirim ke Validasi BK/Wakasis'
+      : '<i class="fas fa-save"></i> Simpan Pencatatan';
   }
 }
 
@@ -1286,9 +1555,13 @@ function scanQR() {
 
 // CETAK SURAT & MODAL DETAIL REKAP
 function bukaModalRekap(nis, nama, kelas) {
+  if (state.isOsisRole) {
+    toast('Detail poin & cetak surat hanya untuk Guru BK / Waka Kesiswaan / Wali Kelas.', true);
+    return;
+  }
   state.selectedSiswaRekap = { nis: String(nis), nama: String(nama), kelas: String(kelas), riwayat: null, poinAwal: Number(state.setting.poin_awal) || 100, saldo: null };
   $('detail-nama').textContent = nama + ' (' + kelas + ')';
-  $('detail-tbody-riwayat').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1rem;color:var(--muted)">Memuat…</td></tr>';
+  $('detail-tbody-riwayat').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted)">Memuat…</td></tr>';
   $('modal-detail-rekap').classList.add('show');
 
   apiCall('getRiwayatPoin', { nis }).then(res => {
@@ -1319,19 +1592,65 @@ function bukaModalRekap(nis, nama, kelas) {
 
     const tbody = $('detail-tbody-riwayat');
     if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1rem;color:var(--muted)">Belum ada riwayat.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--muted)">Belum ada riwayat.</td></tr>';
     } else {
-      tbody.innerHTML = data.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.5rem">${formatTanggal(r.tanggal, true)}</td><td style="padding:.5rem">${escapeHtml(r.pasal)}</td><td style="padding:.5rem">${escapeHtml(r.deskripsi)}</td><td style="padding:.5rem;text-align:center;font-weight:800;color:${Number(r.poin) < 0 ? 'var(--danger)' : 'var(--success)'}">${r.poin > 0 ? '+' : ''}${r.poin}</td></tr>`).join('');
+      tbody.innerHTML = data.map((r, idx) => {
+        const pts = Number(r.poin) || 0;
+        const canBatal = !state.isOsisRole && pts < 0 && r.id_poin && String(r.pasal || '').toUpperCase() !== 'SALDO_AWAL';
+        const btnBatal = canBatal
+          ? `<button type="button" class="btn-action outline" data-batal-idx="${idx}" style="font-size:.7rem;padding:.24rem .5rem;border-color:#F59E0B;color:#B45309" title="Batalkan potongan poin (Dispensasi Hujan / Izin / Tugas)"><i class="fas fa-undo-alt"></i> Dispensasi</button>`
+          : '<span style="color:var(--muted);font-size:.75rem">—</span>';
+        return `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.5rem">${r.timestamp ? formatTanggal(r.timestamp, true) : formatTanggal(r.tanggal, false)}</td><td style="padding:.5rem">${escapeHtml(r.pasal)}</td><td style="padding:.5rem">${escapeHtml(r.deskripsi)}</td><td style="padding:.5rem;text-align:center;font-weight:800;color:${pts < 0 ? 'var(--danger)' : 'var(--success)'}">${pts > 0 ? '+' : ''}${pts}</td><td style="padding:.5rem;text-align:center;white-space:nowrap">${btnBatal}</td></tr>`;
+      }).join('');
+      tbody.querySelectorAll('[data-batal-idx]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = data[Number(btn.dataset.batalIdx)];
+          if (item) bukaModalBatalPoin(item, nis, nama, kelas);
+        });
+      });
     }
   }).catch(() => {
-    $('detail-tbody-riwayat').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1rem;color:var(--danger)">Gagal memuat riwayat.</td></tr>';
+    $('detail-tbody-riwayat').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--danger)">Gagal memuat riwayat.</td></tr>';
   });
+}
+
+function bukaModalBatalPoin(item, nis, nama, kelas) {
+  state.cancelPoinTarget = { id_poin: item.id_poin, nis, nama, kelas, poin: Number(item.poin) || 0, pasal: item.pasal };
+  $('batal-poin-summary').innerHTML = `Batalkan potongan <b>${item.poin} poin</b> (${escapeHtml(item.pasal)}) untuk <b>${escapeHtml(nama)}</b>?<br><span style="font-size:.78rem;color:var(--muted)">Gunakan jika terlambat karena izin, sakit, hujan deras, atau penugasan sekolah.</span>`;
+  $('batal-poin-alasan').value = '';
+  $('modal-batal-poin').classList.add('show');
+}
+
+async function konfirmasiBatalPoinDispensasi() {
+  if (!state.cancelPoinTarget || !state.cancelPoinTarget.id_poin) return;
+  const alasan = ($('batal-poin-alasan').value || '').trim() || 'Dispensasi sekolah / izin';
+  const btn = $('btn-konf-batal-poin');
+  btn.disabled = true; btn.textContent = 'Memproses…';
+  try {
+    const res = await apiCall('batalkanPoinDispensasi', { id_poin: state.cancelPoinTarget.id_poin, alasan }, true);
+    if (!res.ok) { toast(res.message || 'Gagal membatalkan poin', true); return; }
+    toast(res.message);
+    tutupModal('modal-batal-poin');
+    const t = state.cancelPoinTarget;
+    state.cancelPoinTarget = null;
+    bukaModalRekap(t.nis, t.nama, t.kelas);
+    if (state.selectedSiswa && String(state.selectedSiswa.nis) === String(t.nis)) {
+      pilihSiswa(t.nis, t.nama, t.kelas);
+    }
+    loadRekapCache(false);
+  } catch (e) {
+    toast(e.message || 'Gagal memproses dispensasi', true);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Ya, Beri Dispensasi';
+  }
 }
 
 function buildSuratHtml(siswa, kategori, settingObj, riwayatData, poinAwal, saldo, customNoSurat) {
   const s = settingObj || {};
-  const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-  const noSurat = customNoSurat || ((s.no_surat_prefix || '421.5/SMK-BKC') + '/' + String(Math.floor(Math.random() * 900 + 100)) + '/' + new Date().getFullYear());
+  const wib = new Date(Date.now() + 7 * 3600000);
+  const bulanArr = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const tgl = `${wib.getUTCDate()} ${bulanArr[wib.getUTCMonth()]} ${wib.getUTCFullYear()}`;
+  const noSurat = customNoSurat || ((s.no_surat_prefix || '421.5/SMK-BKC') + '/' + String(Math.floor(Math.random() * 900 + 100)) + '/' + wib.getUTCFullYear());
 
   let judul = 'SURAT PERINGATAN';
   if (kategori === 'SP1') judul = 'SURAT PERINGATAN PERTAMA (SP 1)';
@@ -1510,6 +1829,190 @@ $('search-rekap').addEventListener('input', () => {
 $('filter-kelas-rekap').addEventListener('change', renderRekapTable);
 $('filter-zona-rekap').addEventListener('change', renderRekapTable);
 
+// VALIDASI LAPORAN OSIS (GURU BK / WAKA KESISWAAN)
+async function loadValidasiOsis() {
+  const tbody = $('tbody-validasi-osis');
+  const metaEl = $('validasi-osis-meta');
+  const ctrlEl = $('validasi-osis-controls');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.2rem;color:var(--muted)">Memuat antrean laporan OSIS…</td></tr>';
+  metaEl.classList.add('hidden');
+  ctrlEl.classList.add('hidden');
+  try {
+    const res = await apiCall('getLaporanOsisPending');
+    if (!res.ok) {
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--danger);padding:1rem">${escapeHtml(res.message)}</td></tr>`;
+      return;
+    }
+    state.osisPendingList = Array.isArray(res.data) ? res.data : [];
+    state.pendingOsisCount = state.osisPendingList.length;
+    updateValidasiOsisBadge();
+    renderValidasiOsis();
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--danger);padding:1rem">Gagal memuat antrean laporan OSIS.</td></tr>';
+  }
+}
+
+function renderValidasiOsis() {
+  const tbody = $('tbody-validasi-osis');
+  const metaEl = $('validasi-osis-meta');
+  const ctrlEl = $('validasi-osis-controls');
+  const q = ($('search-validasi-osis') ? $('search-validasi-osis').value : '').trim().toLowerCase();
+
+  let list = state.osisPendingList.slice();
+  if (q) {
+    list = list.filter(r =>
+      String(r.nama).toLowerCase().includes(q) ||
+      String(r.kelas).toLowerCase().includes(q) ||
+      String(r.nis).toLowerCase().includes(q) ||
+      String(r.pasal).toLowerCase().includes(q) ||
+      String(r.deskripsi).toLowerCase().includes(q) ||
+      String(r.petugas).toLowerCase().includes(q)
+    );
+  }
+
+  if (!state.osisPendingList.length) {
+    metaEl.classList.add('hidden');
+    ctrlEl.classList.add('hidden');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1.5rem">Tidak ada laporan OSIS yang menunggu validasi. ✓</td></tr>';
+    return;
+  }
+
+  metaEl.innerHTML = `<i class="fas fa-clipboard-list"></i> Total antrean menunggu validasi: <b>${state.osisPendingList.length}</b> laporan${q ? ` (ditampilkan ${list.length})` : ''}.`;
+  metaEl.classList.remove('hidden');
+
+  if (!list.length) {
+    ctrlEl.classList.add('hidden');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:1.2rem">Tidak ada laporan yang cocok dengan filter pencarian.</td></tr>';
+    return;
+  }
+
+  ctrlEl.classList.remove('hidden');
+  tbody.innerHTML = list.map(r => {
+    const estZ = hitungZonaClient(Number(r.estimasi_saldo));
+    const curZ = hitungZonaClient(Number(r.saldo_saat_ini));
+    const pts = Number(r.poin) || 0;
+    return `<tr>
+      <td><input type="checkbox" class="cb-osis-validasi" value="${escapeHtml(r.id_poin)}" style="width:16px;height:16px;accent-color:var(--maroon)"></td>
+      <td>
+        <div style="white-space:nowrap;font-weight:700">${escapeHtml(formatTanggal(r.tanggal))}</div>
+        <div style="font-size:.73rem;color:var(--muted)">${escapeHtml(formatJamWib(r.timestamp))}</div>
+        <span class="chip chip-kuning" style="font-size:.66rem;padding:.15rem .5rem;margin-top:.25rem">OSIS: ${escapeHtml(r.petugas || '-')}</span>
+      </td>
+      <td><b>${escapeHtml(r.nama)}</b><br><span style="font-size:.75rem;color:var(--muted)">${escapeHtml(r.kelas)} · ${escapeHtml(r.nis)}</span></td>
+      <td style="min-width:190px">
+        <span style="font-weight:800;color:var(--maroon);font-size:.78rem">${escapeHtml(r.pasal)} (${pts})</span>
+        <div style="font-size:.78rem;color:#374151;margin-top:.15rem;line-height:1.4">${escapeHtml(r.deskripsi || '-')}</div>
+      </td>
+      <td style="white-space:nowrap">
+        <span class="chip ${escapeHtml(curZ.css)}" style="font-size:.7rem;padding:.18rem .5rem">${r.saldo_saat_ini}</span>
+        <span style="color:var(--muted);font-weight:800"> ➔ </span>
+        <span class="chip ${escapeHtml(estZ.css)}" style="font-size:.7rem;padding:.18rem .5rem">${r.estimasi_saldo}</span>
+        <div style="font-size:.68rem;color:var(--muted);margin-top:.2rem">${escapeHtml(estZ.label)}</div>
+      </td>
+      <td style="white-space:nowrap">
+        <div style="display:flex;gap:.35rem;flex-wrap:wrap">
+          <button type="button" class="btn-mini btn-osis-setuju" data-id="${escapeHtml(r.id_poin)}" style="background:#059669;border-color:#059669;color:#fff"><i class="fas fa-check"></i> Setujui</button>
+          <button type="button" class="btn-mini btn-osis-tolak" data-id="${escapeHtml(r.id_poin)}" style="background:#FEE2E2;border-color:#FECACA;color:#B91C1C"><i class="fas fa-times"></i> Tolak</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.cb-osis-validasi').forEach(cb => cb.addEventListener('change', updateOsisSelectedUI));
+  tbody.querySelectorAll('.btn-osis-setuju').forEach(btn => {
+    btn.addEventListener('click', () => konfirmasiSetujuOsis([btn.dataset.id]));
+  });
+  tbody.querySelectorAll('.btn-osis-tolak').forEach(btn => {
+    btn.addEventListener('click', () => bukaModalTolakOsis([btn.dataset.id]));
+  });
+  updateOsisSelectedUI();
+}
+
+if ($('search-validasi-osis')) {
+  $('search-validasi-osis').addEventListener('input', renderValidasiOsis);
+}
+
+function setAllOsisValidasi(checked) {
+  document.querySelectorAll('.cb-osis-validasi').forEach(cb => { cb.checked = checked; });
+  updateOsisSelectedUI();
+}
+
+function getSelectedOsisIds() {
+  return Array.from(document.querySelectorAll('.cb-osis-validasi:checked')).map(cb => cb.value).filter(Boolean);
+}
+
+function updateOsisSelectedUI() {
+  const count = getSelectedOsisIds().length;
+  if ($('osis-sel-count-ok')) $('osis-sel-count-ok').textContent = count;
+  if ($('osis-sel-count-no')) $('osis-sel-count-no').textContent = count;
+  if ($('btn-osis-batch-setuju')) $('btn-osis-batch-setuju').disabled = count === 0;
+  if ($('btn-osis-batch-tolak')) $('btn-osis-batch-tolak').disabled = count === 0;
+}
+
+async function konfirmasiSetujuOsis(ids) {
+  if (!ids || !ids.length) return;
+  const msg = ids.length === 1
+    ? 'Setujui laporan pelanggaran OSIS ini dan potong poin siswa sekarang?'
+    : `Setujui ${ids.length} laporan pelanggaran OSIS terpilih dan potong poin siswa?`;
+  if (!(await askConfirmDisiplin('Setujui Laporan OSIS', msg, 'Ya, Setujui & Potong Poin', false))) return;
+  await prosesValidasiOsis(ids, 'SETUJU', '');
+}
+
+function konfirmasiSetujuBatchOsis() {
+  const ids = getSelectedOsisIds();
+  if (!ids.length) { toast('Pilih minimal 1 laporan terlebih dahulu', true); return; }
+  konfirmasiSetujuOsis(ids);
+}
+
+function bukaModalTolakOsisSelected() {
+  const ids = getSelectedOsisIds();
+  if (!ids.length) { toast('Pilih minimal 1 laporan terlebih dahulu', true); return; }
+  bukaModalTolakOsis(ids);
+}
+
+function bukaModalTolakOsis(ids) {
+  if (!ids || !ids.length) return;
+  state.rejectOsisIds = ids.slice();
+  $('tolak-osis-alasan').value = '';
+  $('tolak-osis-summary').textContent = ids.length === 1
+    ? 'Laporan ini akan ditandai DITOLAK dan tidak mengurangi poin siswa.'
+    : `${ids.length} laporan terpilih akan ditandai DITOLAK dan tidak mengurangi poin siswa.`;
+  $('modal-tolak-osis').classList.add('show');
+  setTimeout(() => $('tolak-osis-alasan').focus(), 60);
+}
+
+async function konfirmasiTolakOsis() {
+  const ids = (state.rejectOsisIds || []).slice();
+  if (!ids.length) { tutupModal('modal-tolak-osis'); return; }
+  const alasan = $('tolak-osis-alasan').value.trim();
+  const btn = $('btn-konf-tolak-osis');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses…';
+  try {
+    await prosesValidasiOsis(ids, 'TOLAK', alasan);
+    tutupModal('modal-tolak-osis');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Tolak Laporan';
+  }
+}
+
+async function prosesValidasiOsis(ids, keputusan, catatanBk) {
+  try {
+    const res = await apiCall('validasiLaporanOsis', {
+      ids: ids,
+      keputusan: keputusan,
+      catatan_bk: catatanBk || ''
+    }, true);
+    if (!res.ok) { toast(res.message || 'Gagal memproses validasi', true); return; }
+    toast(res.message);
+    if (keputusan === 'SETUJU') bunyiBeep();
+    await Promise.all([loadValidasiOsis(), loadRekapCache(false)]);
+  } catch (e) {
+    toast(e.message || 'Gagal koneksi ke server', true);
+  }
+}
+
 // VALIDASI BOLOS SHOLAT
 async function loadValidasiBolos() {
   const list = $('validasi-list');
@@ -1549,7 +2052,7 @@ function updateValidasiCount() {
 async function validasiBolos() {
   const checked = document.querySelectorAll('.cb-bolos:checked');
   if (!checked.length) return;
-  if (!confirm('Validasi ' + checked.length + ' siswa bolos sholat dan potong poin?')) return;
+  if (!(await askConfirmDisiplin('Validasi Bolos Sholat', 'Validasi ' + checked.length + ' siswa bolos sholat dan potong poin?', 'Ya, Validasi', true))) return;
   const nisList = Array.from(checked).map(cb => cb.value);
   const btn = $('btn-validasi-bolos');
   btn.disabled = true;
@@ -1635,14 +2138,18 @@ async function loadUdzurList() {
       <td>${escapeHtml(u.alasan || 'Udzur')}</td>
       <td>${formatTanggal(u.tgl_mulai)}</td>
       <td>${formatTanggal(u.tgl_selesai)}</td>
-      <td><button type="button" style="background:#FEE2E2;border:none;color:#B91C1C;padding:.4rem .6rem;border-radius:6px;cursor:pointer" onclick="hapusUdzur(${Number(u._row)})"><i class="fas fa-trash"></i></button></td>
+      <td><button type="button" class="btn-hapus-udzur" data-id="${escapeHtml(u.id_udzur || '')}" data-row="${Number(u._row)}" style="background:#FEE2E2;border:none;color:#B91C1C;padding:.4rem .6rem;border-radius:6px;cursor:pointer"><i class="fas fa-trash"></i></button></td>
     </tr>`).join('');
+    tbody.querySelectorAll('.btn-hapus-udzur').forEach(btn => {
+      btn.addEventListener('click', () => hapusUdzur(btn.dataset.id || '', Number(btn.dataset.row)));
+    });
   } catch (e) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--danger)">Koneksi gagal.</td></tr>'; }
 }
-async function hapusUdzur(row) {
-  if (!confirm('Hapus data udzur ini?')) return;
+async function hapusUdzur(idUdzur, row) {
+  if (!(await askConfirmDisiplin('Hapus Udzur', 'Hapus catatan udzur ini?', 'Ya, Hapus', true))) return;
   try {
-    const res = await apiCall('hapusUdzur', { row }, true);
+    const res = await apiCall('hapusUdzur', { id_udzur: idUdzur, row }, true);
+    if (!res.ok) { toast(res.message || 'Gagal menghapus udzur', true); return; }
     toast(res.message);
     loadUdzurList();
   } catch (e) { toast(e.message, true); }
@@ -1701,7 +2208,7 @@ async function cekPoinSiswa(nis, nama, kelas) {
     if (!riwayatTerakhir.length) {
       tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:1rem;color:var(--muted)">Belum ada riwayat.</td></tr>';
     } else {
-      tbody.innerHTML = riwayatTerakhir.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.5rem">${formatTanggal(r.tanggal, true)}</td><td style="padding:.5rem">${escapeHtml(r.deskripsi || r.pasal)}</td><td style="padding:.5rem;text-align:center;font-weight:800;color:${Number(r.poin) < 0 ? 'var(--danger)' : 'var(--success)'}">${r.poin > 0 ? '+' : ''}${r.poin}</td></tr>`).join('');
+      tbody.innerHTML = riwayatTerakhir.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.5rem">${r.timestamp ? formatTanggal(r.timestamp, true) : formatTanggal(r.tanggal, false)}</td><td style="padding:.5rem">${escapeHtml(r.deskripsi || r.pasal)}</td><td style="padding:.5rem;text-align:center;font-weight:800;color:${Number(r.poin) < 0 ? 'var(--danger)' : 'var(--success)'}">${r.poin > 0 ? '+' : ''}${r.poin}</td></tr>`).join('');
     }
 
     $('cek-poin-result').style.display = 'block';
@@ -1711,10 +2218,18 @@ async function cekPoinSiswa(nis, nama, kelas) {
 
 // KOREKSI MANUAL
 function bukaKoreksi() {
+  if (state.isOsisRole) {
+    toast('Petugas OSIS tidak diizinkan melakukan koreksi manual.', true);
+    return;
+  }
   if (!state.selectedSiswa) return;
   $('modal-koreksi').classList.add('show');
 }
 async function simpanKoreksi() {
+  if (state.isOsisRole) {
+    toast('Petugas OSIS tidak diizinkan melakukan koreksi manual.', true);
+    return;
+  }
   if (!state.selectedSiswa) return;
   const jenis = $('koreksi-jenis').value;
   const poin = parseInt($('koreksi-poin').value, 10);
@@ -1777,6 +2292,62 @@ async function simpanKoreksi() {
     initAfterAuth();
   }
 })();
+function bukaPanduanDisiplin() { $('modal-panduan').classList.add('show'); }
+function tutupPanduanDisiplin() { $('modal-panduan').classList.remove('show'); }
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && $('modal-panduan') && $('modal-panduan').classList.contains('show')) tutupPanduanDisiplin();
+});
 </script>
+
+<div class="modal-overlay" id="modal-panduan" style="z-index:2500" onclick="if(event.target===this)tutupPanduanDisiplin()">
+  <div class="modal modal-wide">
+    <button class="modal-close" type="button" onclick="tutupPanduanDisiplin()">×</button>
+    <h2><i class="fas fa-book-open"></i> Panduan Kedisiplinan Siswa</h2>
+    <div class="guide-list">
+      <div class="guide-step">
+        <h4>🔑 Hak Akses Role Login</h4>
+        <ul>
+          <li><b>GURU_BK, WAKA_KESISWAAN, KEPSEK, SUPER_ADMIN:</b> Akses penuh semua siswa, Catat Poin, <span class="guide-pill">Validasi Laporan OSIS</span>, <span class="guide-pill">Validasi Bolos Sholat</span>, <span class="guide-pill">Saldo Awal</span>, Udzur, Koreksi Poin, dan cetak Surat Peringatan (SP).</li>
+          <li><b>WALI_KELAS:</b> Dapat mencatat poin, melihat rekap, mengelola udzur, dan mencetak surat khusus kelas binaan sendiri.</li>
+          <li><b>PETUGAS_OSIS:</b> Akses khusus melapor pelanggaran tata tertib di halaman Kedisiplinan. Laporan baru berstatus <b>MENUNGGU</b> dan tidak mengurangi poin sebelum disetujui BK/Wakasis. Tertutup dari Rekap Nilai, Koreksi, Udzur, Surat SP, Admin, Gerbang, dan Sholat.</li>
+          <li><b>Siswa / Orang Tua (Tanpa Login):</b> Gunakan tombol <b>Cek Poin Saya (Siswa)</b> di layar login untuk memantau saldo poin via NIS/Nama/QR.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>1️⃣ Catat Poin Pelanggaran &amp; Prestasi</h4>
+        <ul>
+          <li>Cari siswa lewat kolom nama/NIS, <b>Scan QR</b>, atau <b>Tap RFID</b>.</li>
+          <li>Pilih pasal tata tertib (bisa tambahkan lebih dari satu pasal ke keranjang), isi deskripsi kronologi kejadian, lalu klik <b>Simpan Pencatatan</b> (atau <b>Kirim ke Validasi</b> untuk OSIS).</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>📋 Pedoman Validasi Laporan OSIS (Guru BK &amp; Waka Kesiswaan)</h4>
+        <ul>
+          <li><b>Cek Notifikasi Antrean:</b> Jika ada laporan baru dari OSIS, akan muncul banner peringatan &amp; angka badge merah di menu <b>Validasi Laporan OSIS</b>.</li>
+          <li><b>Langkah 1 — Cek Kronologi:</b> Pastikan deskripsi menyebutkan kejadian dengan jelas (bukan asal pilih pasal). Jika meragukan, konfirmasi dulu ke petugas OSIS pelapor.</li>
+          <li><b>Langkah 2 — Cek Pasal &amp; Duplikasi:</b> Pastikan kode pasal sesuai dan siswa belum dicatat dobel oleh petugas lain pada hari yang sama.</li>
+          <li><b>Langkah 3 — Tinjau Dampak Zona:</b> Periksa kolom <i>Dampak Saldo</i> (apakah siswa turun ke SP1/SP2/SP3) agar pembinaan bisa langsung disiapkan.</li>
+          <li><b>Langkah 4 — Putuskan:</b> Klik <b>Setujui</b> agar poin resmi terpotong, atau klik <b>Tolak</b> beserta alasannya bila laporan keliru/dobel.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>2️⃣ Rekap Siswa, Dispensasi Terlambat, &amp; Cetak Surat SP</h4>
+        <ul>
+          <li>Saldo awal setiap siswa adalah <b>100 poin</b> (Hijau). Pelanggaran mengurangi poin, Prestasi/Pembinaan menambah poin.</li>
+          <li><b>Dispensasi Poin Terlambat Susulan:</b> Jika siswa terlanjur terpotong poin otomatis saat tap gerbang padahal membawa surat izin/sakit/penugasan sekolah atau saat hujan deras, klik siswa di <b>Rekap Siswa</b> lalu klik tombol <b>Dispensasi</b> di samping catatan tersebut untuk memulihkan poin secara otomatis.</li>
+          <li>Anda juga dapat mencetak Surat Pemanggilan / SP langsung dalam format siap print dari detail siswa.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>3️⃣ Validasi Bolos Sholat, Udzur, &amp; Saldo Awal</h4>
+        <ul>
+          <li><b>Validasi Bolos Sholat:</b> Membandingkan siswa yang sudah tap masuk Gerbang pagi tetapi belum tap Sholat dan tidak berstatus Udzur.</li>
+          <li><b>Saldo Awal (Buku Manual):</b> Untuk migrasi poin lama sebelum sistem digital diterapkan.</li>
+        </ul>
+      </div>
+    </div>
+    <button class="btn-primary-full" type="button" onclick="tutupPanduanDisiplin()">Saya Mengerti</button>
+  </div>
+</div>
 </body>
 </html>

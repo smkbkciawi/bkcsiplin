@@ -659,8 +659,8 @@
   function init() {
     const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-    const d = new Date();
-    document.getElementById('tanggal-cover').textContent = `${hari[d.getDay()]}, ${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+    const d = new Date(Date.now() + 7 * 3600000);
+    document.getElementById('tanggal-cover').textContent = `${hari[d.getUTCDay()]}, ${d.getUTCDate()} ${bulan[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 
     const grid = document.getElementById('ov-grid');
     slides.forEach((s, i) => {
@@ -699,7 +699,7 @@
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
     } else {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(() => {});
     }
   }
 
@@ -726,7 +726,7 @@
       case 'End': e.preventDefault(); goToSlide(totalSlides - 1); break;
       case 'f': case 'F': toggleFullscreen(); break;
       case 'o': case 'O': toggleOverview(); break;
-      case 'Escape': if (document.fullscreenElement) document.exitFullscreen(); break;
+      case 'Escape': if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); break;
     }
   });
 

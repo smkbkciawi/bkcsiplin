@@ -23,6 +23,7 @@
   header .brand img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:10px;padding:4px}
   header .brand h1{font-size:1.1rem;font-weight:900;line-height:1.1}
   header .brand .sub{font-size:.75rem;opacity:.85;font-weight:600;margin-top:.15rem}
+  header .header-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
   header .back-btn{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;padding:.5rem 1rem;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;transition:.15s}
   header .back-btn:hover{background:rgba(255,255,255,.25)}
 
@@ -157,6 +158,20 @@
   footer{background:#fff;border-top:1px solid #DBEAFE;padding:1.35rem;text-align:center;font-size:.8rem;color:var(--muted);font-weight:600}
   footer b{color:var(--brand)}
 
+  /* PANDUAN MODAL */
+  .modal-overlay{position:fixed;inset:0;z-index:300;background:rgba(15,23,42,.68);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem}
+  .modal-overlay.show{display:flex}
+  .modal{width:100%;max-width:620px;background:#fff;border-radius:20px;padding:1.65rem;max-height:88vh;overflow-y:auto;box-shadow:0 24px 60px rgba(15,23,42,.35)}
+  .modal h2{font-size:1.15rem;font-weight:900;color:var(--brand);margin-bottom:.35rem;display:flex;align-items:center;gap:.5rem}
+  .modal .sub-title{font-size:.83rem;color:var(--muted);font-weight:600;margin-bottom:.9rem;line-height:1.45}
+  .guide-list{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1rem}
+  .guide-step{background:#F8FAFF;border:1px solid #DBEAFE;border-radius:12px;padding:.85rem 1rem}
+  .guide-step h4{font-size:.88rem;color:var(--brand);font-weight:800;margin-bottom:.3rem}
+  .guide-step ul{padding-left:1.15rem;margin:0}
+  .guide-step li{font-size:.8rem;color:#334155;line-height:1.5;margin-bottom:.15rem}
+  .guide-pill{display:inline-block;padding:.08rem .42rem;border-radius:6px;font-size:.7rem;font-weight:800;background:#DBEAFE;color:#1D4ED8}
+  .btn-close-modal{width:100%;padding:.85rem;border:none;border-radius:12px;background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff;font-family:inherit;font-weight:800;font-size:.92rem;cursor:pointer}
+
   @media(max-width:600px){
     header .brand h1{font-size:.95rem}
     header .brand .sub{font-size:.65rem}
@@ -185,7 +200,10 @@
       <div class="sub">SMK Bhakti Kencana Ciawi</div>
     </div>
   </div>
-  <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Kembali</a>
+  <div class="header-actions">
+    <button type="button" class="back-btn" id="btn-panduan"><i class="fas fa-book-open"></i> Panduan</button>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Kembali</a>
+  </div>
 </header>
 
 <main>
@@ -223,6 +241,42 @@
 </footer>
 
 <div class="toast-wrap" id="toast-wrap"></div>
+
+<div class="modal-overlay" id="modal-panduan">
+  <div class="modal">
+    <h2><i class="fas fa-book-open"></i> Panduan Cek Kehadiran &amp; Poin</h2>
+    <p class="sub-title">Portal ini dapat digunakan oleh <b>Siswa &amp; Orang Tua</b> tanpa login maupun akun petugas.</p>
+    <div class="guide-list">
+      <div class="guide-step">
+        <h4>🔓 Akses Tanpa Login (Publik)</h4>
+        <ul>
+          <li>Tidak membutuhkan ID Guru atau PIN — cukup masukkan <b>NIS</b> (contoh: <code>24001</code>) atau minimal 2 huruf <b>Nama Siswa</b>.</li>
+          <li>Jika ada nama siswa yang mirip, pilih siswa yang sesuai dari daftar hasil pencarian. Bisa juga diakses langsung dengan tautan <code>?nis=...</code>.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>1️⃣ Membaca Status Gerbang &amp; Hari Sebelumnya</h4>
+        <ul>
+          <li>Status <span class="guide-pill">TEPAT WAKTU</span>, <b>TERLAMBAT</b>, atau <b>PULANG AWAL</b> tercatat sesuai aturan jam sekolah.</li>
+          <li>Jika hari sebelumnya siswa hanya melakukan tap masuk dan lupa tap pulang, riwayat hari tersebut otomatis ditandai <b>Tidak Tap Pulang</b> tanpa terbawa ke absen hari ini.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>2️⃣ Presensi E-Sholat &amp; Udzur Syar'i</h4>
+        <ul>
+          <li>Menampilkan riwayat sholat berjamaah di sekolah dan status <b>UDZUR</b> bila siswi sedang dalam masa udzur tercatat.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>3️⃣ Saldo Poin Disiplin &amp; Zona Karakter</h4>
+        <ul>
+          <li>Menampilkan saldo poin terkini (mulai dari <b>100</b> poin), kategori Zona Karakter (Hijau s.d. Kritis), serta rincian catatan pelanggaran maupun prestasi.</li>
+        </ul>
+      </div>
+    </div>
+    <button type="button" class="btn-close-modal" id="btn-tutup-panduan">Saya Mengerti</button>
+  </div>
+</div>
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
@@ -293,9 +347,18 @@ function formatJK(jk) {
   return jk && jk !== '-' ? jk : '-';
 }
 
-function badgeStatusGerbang(st, tipe) {
+function todayWIB() {
+  return new Date(Date.now() + (7 * 3600000)).toISOString().slice(0, 10);
+}
+
+function badgeStatusGerbang(st, tipe, tgl) {
   const u = String(st || '-').toUpperCase();
-  if (!u || u === '-') return '<span class="badge muted">Belum Tap</span>';
+  if (!u || u === '-') {
+    if (tipe === 'pulang' && tgl && String(tgl).slice(0, 10) < todayWIB()) {
+      return '<span class="badge muted">Tidak Tap Pulang</span>';
+    }
+    return '<span class="badge muted">Belum Tap</span>';
+  }
   if (u === 'TEPAT_WAKTU') return '<span class="badge tepat">Tepat Waktu</span>';
   if (u === 'TERLAMBAT') return '<span class="badge terlambat">Terlambat</span>';
   if (u === 'PULANG_AWAL') return '<span class="badge pulang-awal">Pulang Awal</span>';
@@ -505,9 +568,9 @@ function renderSiswa(res, showBackToCandidates) {
         <td>${escapeHtml(formatTanggal(g.tanggal))}</td>
         <td>${escapeHtml(hariIndo(g.tanggal))}</td>
         <td class="num">${escapeHtml(g.jam_masuk || '-')}</td>
-        <td class="center">${badgeStatusGerbang(g.status_masuk, 'masuk')}</td>
+        <td class="center">${badgeStatusGerbang(g.status_masuk, 'masuk', g.tanggal)}</td>
         <td class="num">${escapeHtml(g.jam_pulang || '-')}</td>
-        <td class="center">${badgeStatusGerbang(g.status_pulang, 'pulang')}</td>
+        <td class="center">${badgeStatusGerbang(g.status_pulang, 'pulang', g.tanggal)}</td>
       </tr>`;
     });
     html += `</tbody></table></div>`;
@@ -680,6 +743,12 @@ $('search-input').addEventListener('input', () => {
     }
   } catch (_) {}
 })();
+function bukaPanduanCek() { $('modal-panduan').classList.add('show'); }
+function tutupPanduanCek() { $('modal-panduan').classList.remove('show'); }
+$('btn-panduan').addEventListener('click', bukaPanduanCek);
+$('btn-tutup-panduan').addEventListener('click', tutupPanduanCek);
+$('modal-panduan').addEventListener('click', (e) => { if (e.target === $('modal-panduan')) tutupPanduanCek(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('modal-panduan').classList.contains('show')) tutupPanduanCek(); });
 </script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>BKCSiplin — SMK Bhakti Kencana Ciawi</title>
+<meta name="description" content="Portal terpadu presensi gerbang, ibadah sholat, poin kedisiplinan, dan administrasi sekolah SMK Bhakti Kencana Ciawi." />
 
 <link rel="icon" type="image/png" href="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png">
 <link rel="apple-touch-icon" href="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png">
@@ -11,553 +12,907 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script>
+  (function () {
+    try {
+      const saved = localStorage.getItem('bkc_theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
 
 <style>
   :root {
     --bg: #F8FAFC;
-    --card: #FFFFFF;
+    --bg-accent-1: rgba(37, 99, 235, 0.07);
+    --bg-accent-2: rgba(14, 165, 233, 0.06);
+    --surface: #FFFFFF;
+    --surface-muted: #F1F5F9;
     --text: #0F172A;
-    --muted: #64748B;
-    --border: #E2E8F0;
-    --brand: #2563EB;
-    --brand-soft: #EFF6FF;
-    
-    /* Gradients */
-    --grad-navy: linear-gradient(135deg, #1E3A8A, #0A1533);
-    --grad-emerald: linear-gradient(135deg, #10B981, #047857);
-    --grad-maroon: linear-gradient(135deg, #E11D48, #881337);
-    --grad-blue: linear-gradient(135deg, #3B82F6, #1D4ED8);
-    --grad-purple: linear-gradient(135deg, #8B5CF6, #6D28D9);
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
-    --shadow-md: 0 4px 16px rgba(15,23,42,.06), 0 2px 8px rgba(15,23,42,.04);
-    --shadow-lg: 0 12px 32px rgba(15,23,42,.10), 0 4px 12px rgba(15,23,42,.05);
+    --text-soft: #334155;
+    --muted: #475569;
+    --border: rgba(15, 23, 42, 0.09);
+    --border-strong: rgba(15, 23, 42, 0.16);
+    --brand: #1D4ED8;
+    --brand-soft: rgba(29, 78, 216, 0.08);
+    --spot-global: rgba(37, 99, 235, 0.08);
+    --spot-card: rgba(37, 99, 235, 0.10);
+    --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
+    --shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.10), 0 4px 12px rgba(15, 23, 42, 0.05);
+    --header-bg: rgba(248, 250, 252, 0.82);
   }
-  
+
+  html.dark {
+    --bg: #080D1A;
+    --bg-accent-1: rgba(59, 130, 246, 0.12);
+    --bg-accent-2: rgba(16, 185, 129, 0.08);
+    --surface: #111827;
+    --surface-muted: #1E293B;
+    --text: #F8FAFC;
+    --text-soft: #CBD5E1;
+    --muted: #94A3B8;
+    --border: rgba(255, 255, 255, 0.09);
+    --border-strong: rgba(255, 255, 255, 0.18);
+    --brand: #60A5FA;
+    --brand-soft: rgba(96, 165, 250, 0.12);
+    --spot-global: rgba(59, 130, 246, 0.15);
+    --spot-card: rgba(96, 165, 250, 0.16);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.25);
+    --shadow-hover: 0 22px 46px rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.3);
+    --header-bg: rgba(8, 13, 26, 0.80);
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
+  html, body { min-height: 100%; }
+
   body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background:
-      radial-gradient(800px 500px at 0% -10%, rgba(59,130,246,.08), transparent 60%),
-      radial-gradient(700px 450px at 110% 110%, rgba(139,92,246,.08), transparent 60%),
-      var(--bg);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(900px 520px at 8% -8%, var(--bg-accent-1), transparent 62%),
+      radial-gradient(820px 520px at 94% 106%, var(--bg-accent-2), transparent 62%);
     color: var(--text);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
+    transition: background-color .2s ease, color .2s ease;
   }
 
-  /* HEADER */
+  /* CURSOR SPOTLIGHT BACKDROP (FINE POINTER ONLY) */
+  #cursor-spotlight {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    background: radial-gradient(
+      540px circle at var(--cx, 50%) var(--cy, 30%),
+      var(--spot-global),
+      transparent 70%
+    );
+    transition: opacity .25s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    body.has-pointer #cursor-spotlight { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #cursor-spotlight { display: none !important; }
+  }
+
+  /* TOP BAR */
   header {
-    padding: 1.4rem 2rem 1rem;
-    max-width: 1200px;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .header-inner {
+    max-width: 1180px;
     margin: 0 auto;
-    width: 100%;
+    padding: .9rem 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--border);
+    gap: 1.25rem;
   }
   .brand {
     display: flex;
     align-items: center;
-    gap: .9rem;
+    gap: .85rem;
+    text-decoration: none;
+    color: var(--text);
     min-width: 0;
   }
   .brand-logo {
-    width: 54px;
-    height: 54px;
-    border-radius: 14px;
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
     object-fit: contain;
-    background: #fff;
-    padding: 5px;
-    box-shadow: var(--shadow-md);
-    flex: 0 0 auto;
+    background: #FFFFFF;
+    padding: 4px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
   }
-  .brand-txt { display: flex; flex-direction: column; min-width: 0; }
-  .brand-txt b {
-    font-size: 1.2rem;
-    font-weight: 900;
-    color: var(--text);
-    letter-spacing: -.02em;
+  .brand-name {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
   }
-  .brand-txt span { font-size: .82rem; color: var(--muted); font-weight: 600; margin-top: .1rem; }
 
-  .clock {
-    text-align: right;
+  .header-right {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
+    gap: .9rem;
+    flex-shrink: 0;
+  }
+  .clock-inline {
+    text-align: right;
+    line-height: 1.15;
   }
   .clock-time {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(2rem, 4.4vw, 3.2rem);
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--brand), #8B5CF6);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    line-height: 1;
-    letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
   }
-  .clock-time .sec { font-size: .62em; opacity: .75; }
-  .clock-date { font-size: .82rem; color: var(--muted); font-weight: 600; margin-top: .4rem; }
-  .user-pill {
+  .clock-time .sec {
+    font-size: .78em;
+    color: var(--muted);
+  }
+  .clock-date {
+    font-size: .74rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: .15rem;
+    white-space: nowrap;
+  }
+
+  .theme-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform .16s cubic-bezier(0.16, 1, 0.3, 1), border-color .16s ease, background-color .16s ease;
+  }
+  .theme-btn:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+  .theme-btn:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+
+  /* MAIN CONTAINER */
+  main {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    max-width: 1180px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2.25rem 1.75rem 3rem;
+  }
+
+  /* HERO / GREETING */
+  .hero-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.85rem;
+  }
+  .hero-copy {
+    max-width: 680px;
+  }
+  .hero-kicker {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: .45rem;
+  }
+  .hero-title {
+    font-size: clamp(1.75rem, 3.2vw, 2.55rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    text-wrap: balance;
+  }
+  .hero-title .hl {
+    color: var(--brand);
+  }
+  .hero-sub {
+    margin-top: .55rem;
+    font-size: .96rem;
+    line-height: 1.55;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .session-bar {
+    display: none;
+    align-items: center;
+    gap: .85rem;
+    padding: .7rem 1rem;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
+  }
+  .session-bar.show { display: inline-flex; }
+  .session-info {
+    font-size: .84rem;
+    font-weight: 600;
+    color: var(--text-soft);
+  }
+  .session-info b { color: var(--text); font-weight: 700; }
+  .session-go {
     display: inline-flex;
     align-items: center;
-    gap: .5rem;
-    padding: .4rem .9rem;
-    background: rgba(16,185,129,.1);
-    border: 1px solid rgba(16,185,129,.3);
-    border-radius: 999px;
-    font-size: .82rem;
+    gap: .4rem;
+    padding: .48rem .88rem;
+    border-radius: 9px;
+    background: var(--brand);
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: .8rem;
     font-weight: 700;
-    color: #047857;
-    margin-top: .6rem;
+    white-space: nowrap;
+    transition: opacity .15s ease, transform .15s ease;
   }
-  .user-pill .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #10B981;
-    box-shadow: 0 0 0 3px rgba(16,185,129,.2);
-    animation: pulse 2s infinite;
+  html.dark .session-go {
+    background: #2563EB;
   }
-  @keyframes pulse {
-    0%,100% { box-shadow: 0 0 0 3px rgba(16,185,129,.2); }
-    50% { box-shadow: 0 0 0 5px rgba(16,185,129,.1); }
-  }
-  .user-pill a { color: #047857; text-decoration: underline; font-weight: 800; margin-left: .2rem; }
+  .session-go:hover { opacity: .92; transform: translateY(-1px); }
 
-  /* MAIN */
-  main {
-    flex: 1;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 2rem 2rem 3rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-  }
-  .wrap { width: 100%; }
-
-  .sapaan {
-    font-size: 1.4rem;
-    font-weight: 800;
+  /* BENTO CARDS BASE + SPOTLIGHT + 3D TILT */
+  .bento-card {
+    --mx: 50%;
+    --my: 50%;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    text-decoration: none;
     color: var(--text);
-    margin-bottom: 1.5rem;
-    letter-spacing: -.01em;
-    line-height: 1.3;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition:
+      transform .18s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow .18s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color .18s ease,
+      background-color .2s ease;
   }
-  .sapaan .hl {
-    background: linear-gradient(135deg, var(--brand), #8B5CF6);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .bento-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      340px circle at var(--mx) var(--my),
+      var(--card-spot, var(--spot-card)),
+      transparent 70%
+    );
+    transition: opacity .2s ease;
   }
-  .sapaan span {
-    color: var(--muted);
-    font-weight: 600;
-    font-size: .9rem;
-    display: block;
-    margin-top: .3rem;
-    letter-spacing: 0;
+  .bento-card:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-hover);
+  }
+  .bento-card:hover::before {
+    opacity: 1;
   }
 
-  /* BANNER CEK PUBLIK (ATAS) */
+  /* FEATURED CEK PUBLIK BANNER */
   .banner-cek {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 1.5rem;
-    background: linear-gradient(135deg, #F5F3FF 0%, #EFF6FF 100%);
-    border: 2px solid #C4B5FD;
-    border-radius: 20px;
-    padding: 1.5rem 2rem;
+    padding: 1.55rem 1.75rem;
     margin-bottom: 2rem;
-    text-decoration: none;
-    color: var(--text);
-    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-    box-shadow: 0 8px 24px rgba(139,92,246,.1);
-    position: relative;
-    overflow: hidden;
+    --card-spot: rgba(124, 58, 237, 0.14);
   }
-  .banner-cek:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 40px rgba(139,92,246,.2);
-    border-color: #A78BFA;
-  }
-  .banner-cek .icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    background: var(--grad-purple);
-    display: grid;
-    place-items: center;
-    color: #fff;
-    font-size: 1.6rem;
-    flex-shrink: 0;
-    box-shadow: 0 8px 20px rgba(139,92,246,.3);
-  }
-  .banner-cek .text {
-    flex: 1;
+  .banner-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
     min-width: 0;
-  }
-  .banner-cek .text h2 {
-    font-size: 1.3rem;
-    font-weight: 900;
-    color: #4C1D95;
-    margin-bottom: .3rem;
-    letter-spacing: -.01em;
-  }
-  .banner-cek .text p {
-    font-size: .95rem;
-    color: #6D28D9;
-    font-weight: 600;
-    line-height: 1.4;
-  }
-  .banner-cek .action {
-    background: #fff;
-    color: #6D28D9;
-    border: 1.5px solid #C4B5FD;
-    padding: .6rem 1.2rem;
-    border-radius: 10px;
-    font-size: .9rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    transition: .2s;
-    flex-shrink: 0;
-  }
-  .banner-cek:hover .action {
-    background: #6D28D9;
-    color: #fff;
-    border-color: #6D28D9;
-  }
-  .banner-cek .badge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: #8B5CF6;
-    color: #fff;
-    font-size: .65rem;
-    font-weight: 900;
-    padding: .25rem .6rem;
-    border-radius: 99px;
-    letter-spacing: .05em;
-  }
-
-  /* GRID 4 KOTAK UTAMA */
-  .section-title {
-    font-size: .8rem;
-    font-weight: 800;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .1em;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-  }
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.2rem;
-    width: 100%;
-  }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 1.6rem 1.4rem;
-    text-decoration: none;
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    gap: .8rem;
-    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-    box-shadow: var(--shadow-sm);
     position: relative;
-    overflow: hidden;
+    z-index: 1;
   }
-  .card::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 4px;
-    background: var(--accent-bar);
-  }
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: transparent;
-  }
-  .card-num {
-    position: absolute;
-    top: .9rem;
-    right: 1rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: .72rem;
-    font-weight: 700;
-    color: var(--muted);
-    opacity: .55;
-    letter-spacing: .05em;
-  }
-  .card-icon {
-    width: 52px;
-    height: 52px;
+  .banner-icon {
+    width: 56px;
+    height: 56px;
     border-radius: 14px;
+    background: linear-gradient(135deg, #6D28D9, #4F46E5);
+    color: #FFFFFF;
     display: grid;
     place-items: center;
-    font-size: 1.4rem;
-    color: #fff;
-    background: var(--accent-bg);
-    flex: 0 0 auto;
-    box-shadow: 0 6px 16px rgba(0,0,0,.12);
+    font-size: 1.35rem;
+    flex-shrink: 0;
   }
-  .card-title {
-    font-size: 1.15rem;
+  .banner-meta {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #6D28D9;
+    margin-bottom: .25rem;
+  }
+  html.dark .banner-meta { color: #C4B5FD; }
+  .banner-title {
+    font-size: 1.22rem;
     font-weight: 800;
+    letter-spacing: -0.015em;
     color: var(--text);
-    letter-spacing: -.01em;
-    line-height: 1.2;
+    line-height: 1.25;
   }
-  .card-sub {
-    font-size: .85rem;
+  .banner-desc {
+    margin-top: .25rem;
+    font-size: .9rem;
     color: var(--muted);
     font-weight: 500;
     line-height: 1.45;
   }
-  .card-arrow {
-    margin-top: auto;
-    padding-top: .6rem;
+  .banner-cta {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .7rem 1.2rem;
+    border-radius: 11px;
+    background: #4F46E5;
+    color: #FFFFFF;
+    font-size: .88rem;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: transform .16s cubic-bezier(0.16, 1, 0.3, 1), background-color .16s ease;
+  }
+  .banner-cek:hover .banner-cta {
+    background: #4338CA;
+  }
+  .banner-cek:hover .banner-cta i {
+    transform: translateX(3px);
+  }
+  .banner-cta i {
+    transition: transform .16s ease;
+  }
+
+  /* SECTION DIVIDER */
+  .section-head {
     display: flex;
     align-items: center;
-    gap: .4rem;
-    font-size: .78rem;
-    font-weight: 800;
-    color: var(--accent-txt);
-    text-transform: uppercase;
-    letter-spacing: .06em;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: .6rem;
+    border-bottom: 1px solid var(--border);
   }
-  .card-arrow i { font-size: .8rem; transition: transform .18s ease; }
-  .card:hover .card-arrow i { transform: translateX(4px); }
+  .section-title {
+    font-size: .88rem;
+    font-weight: 700;
+    color: var(--text-soft);
+    letter-spacing: -0.01em;
+  }
+  .section-note {
+    font-size: .78rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
 
-  /* WARNA KARTU */
-  .card.navy { --accent-bar: var(--grad-navy); --accent-bg: var(--grad-navy); --accent-txt: #1E3A8A; }
-  .card.emerald { --accent-bar: var(--grad-emerald); --accent-bg: var(--grad-emerald); --accent-txt: #047857; }
-  .card.maroon { --accent-bar: var(--grad-maroon); --accent-bg: var(--grad-maroon); --accent-txt: #BE123C; }
-  .card.blue { --accent-bar: var(--grad-blue); --accent-bg: var(--grad-blue); --accent-txt: #1D4ED8; }
+  /* PORTAL BENTO GRID (4 UTAMA) */
+  .portal-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.15rem;
+  }
+  .portal-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.45rem;
+    gap: .85rem;
+    min-height: 226px;
+  }
+  .portal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+  }
+  .portal-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    font-size: 1.25rem;
+    color: #FFFFFF;
+    background: var(--p-grad);
+  }
+  .portal-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: .76rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .portal-body {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+  .portal-title {
+    font-size: 1.14rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    margin-bottom: .32rem;
+  }
+  .portal-desc {
+    font-size: .86rem;
+    line-height: 1.5;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .portal-foot {
+    position: relative;
+    z-index: 1;
+    padding-top: .75rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+  }
+  .portal-role {
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+  .portal-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--p-accent);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .portal-arrow i {
+    font-size: .75rem;
+    transition: transform .16s ease;
+  }
+  .portal-card:hover .portal-arrow i {
+    transform: translateX(3px);
+  }
+
+  .portal-card.navy {
+    --p-grad: linear-gradient(135deg, #1E3A8A, #0F172A);
+    --p-accent: #1E40AF;
+    --card-spot: rgba(37, 99, 235, 0.14);
+  }
+  html.dark .portal-card.navy {
+    --p-grad: linear-gradient(135deg, #2563EB, #1E3A8A);
+    --p-accent: #93C5FD;
+  }
+
+  .portal-card.emerald {
+    --p-grad: linear-gradient(135deg, #059669, #047857);
+    --p-accent: #047857;
+    --card-spot: rgba(16, 185, 129, 0.14);
+  }
+  html.dark .portal-card.emerald {
+    --p-accent: #6EE7B7;
+  }
+
+  .portal-card.maroon {
+    --p-grad: linear-gradient(135deg, #E11D48, #9F1239);
+    --p-accent: #BE123C;
+    --card-spot: rgba(225, 29, 72, 0.14);
+  }
+  html.dark .portal-card.maroon {
+    --p-accent: #FDA4AF;
+  }
+
+  .portal-card.blue {
+    --p-grad: linear-gradient(135deg, #2563EB, #1D4ED8);
+    --p-accent: #1D4ED8;
+    --card-spot: rgba(59, 130, 246, 0.14);
+  }
+  html.dark .portal-card.blue {
+    --p-accent: #93C5FD;
+  }
 
   /* FOOTER */
   footer {
-    padding: 1.2rem 2rem;
+    position: relative;
+    z-index: 1;
     border-top: 1px solid var(--border);
-    background: rgba(255,255,255,.6);
-    backdrop-filter: blur(8px);
-    font-size: .8rem;
-    color: var(--muted);
-    font-weight: 600;
+    background: var(--header-bg);
+    backdrop-filter: blur(10px);
   }
   .footer-inner {
-    max-width: 1200px;
+    max-width: 1180px;
     margin: 0 auto;
+    padding: 1.05rem 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
     flex-wrap: wrap;
+    font-size: .8rem;
+    color: var(--muted);
+    font-weight: 500;
   }
-  .footer-left { display: flex; flex-direction: column; gap: .15rem; }
-  .footer-left b { color: var(--text); font-weight: 800; font-size: .85rem; }
-  .footer-right { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
+  .footer-left b {
+    color: var(--text);
+    font-weight: 700;
+  }
   .server-status {
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
-    font-size: .74rem;
-    font-weight: 700;
-    padding: .3rem .7rem;
-    background: rgba(148,163,184,.1);
-    border-radius: 99px;
-  }
-  .server-status .dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #94A3B8;
-  }
-  .server-status.ok { color: #047857; background: rgba(16,185,129,.1); }
-  .server-status.ok .dot { background: #10B981; box-shadow: 0 0 8px #10B981; animation: pulse 2s infinite; }
-  .server-status.err { color: #B91C1C; background: rgba(239,68,68,.1); }
-  .server-status.err .dot { background: #EF4444; }
-  .footer-ver {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: .72rem;
+    gap: .4rem;
+    font-size: .78rem;
+    font-weight: 600;
     color: var(--muted);
-    opacity: .8;
+  }
+  .server-status.ok { color: #047857; }
+  html.dark .server-status.ok { color: #6EE7B7; }
+  .server-status.err { color: #B91C1C; }
+  html.dark .server-status.err { color: #FCA5A5; }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .portal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 720px) {
+    .header-inner { padding: .8rem 1.15rem; }
+    main { padding: 1.5rem 1.15rem 2.25rem; }
+    .banner-cek { flex-direction: column; align-items: stretch; padding: 1.25rem; gap: 1rem; }
+    .banner-left { align-items: flex-start; }
+    .banner-cta { justify-content: center; }
+    .section-head { flex-direction: column; align-items: flex-start; gap: .2rem; }
+    .footer-inner { padding: 1rem 1.15rem; }
+  }
+  @media (max-width: 520px) {
+    .clock-date { display: none; }
+    .portal-grid { grid-template-columns: 1fr; gap: .85rem; }
+    .portal-card { min-height: auto; padding: 1.2rem; }
+    .session-bar.show { width: 100%; justify-content: space-between; }
   }
 
-  /* RESPONSIF */
-  @media (max-width: 1024px) {
-    .grid { grid-template-columns: repeat(2, 1fr); }
+  /* MODAL PANDUAN (LIGHT & DARK SAFE) */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
   }
-  @media (max-width: 768px) {
-    header { padding: 1rem 1.2rem .8rem; }
-    main { padding: 1.5rem 1.2rem 2rem; }
-    .grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-    .brand-logo { width: 46px; height: 46px; }
-    .brand-txt b { font-size: 1.05rem; }
-    .clock-time { font-size: clamp(1.8rem, 6vw, 2.4rem); }
-    .sapaan { font-size: 1.2rem; margin-bottom: 1.2rem; }
-    
-    .banner-cek { flex-direction: column; text-align: center; padding: 1.5rem; gap: 1rem; }
-    .banner-cek .action { width: 100%; justify-content: center; }
-    .banner-cek .text h2 { font-size: 1.15rem; }
-    .banner-cek .text p { font-size: .85rem; }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    width: 100%;
+    max-width: 640px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.65rem;
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.35);
   }
-  @media (max-width: 480px) {
-    header { flex-direction: column; align-items: flex-start; }
-    .clock { text-align: left; align-items: flex-start; }
-    .grid { grid-template-columns: 1fr; gap: .8rem; }
-    .card { padding: 1.3rem 1.2rem; flex-direction: row; align-items: center; }
-    .card::before { inset: 0 auto 0 0; width: 4px; height: 100%; }
-    .card-icon { width: 46px; height: 46px; font-size: 1.15rem; margin-right: .5rem; }
-    .card-title { font-size: 1.05rem; }
-    .card-sub { display: none; } /* Sembunyikan deskripsi di HP agar ringkas */
-    .card-arrow { margin-top: 0; padding-top: 0; margin-left: auto; }
-    .card-num { display: none; }
-    
-    .footer-inner { flex-direction: column; align-items: flex-start; }
-    .banner-cek .icon { width: 50px; height: 50px; font-size: 1.3rem; }
+  .modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .35rem;
   }
+  .modal-box h2 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .modal-sub {
+    font-size: .85rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .guide-list {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-bottom: 1.1rem;
+  }
+  .guide-step {
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: .9rem 1rem;
+  }
+  .guide-step h4 {
+    font-size: .88rem;
+    font-weight: 800;
+    color: var(--brand);
+    margin-bottom: .3rem;
+  }
+  .guide-step ul {
+    padding-left: 1.15rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .22rem;
+  }
+  .guide-step li {
+    font-size: .81rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+  }
+  .guide-close {
+    width: 100%;
+    padding: .85rem;
+    border: none;
+    border-radius: 12px;
+    background: var(--brand);
+    color: #FFFFFF;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: .92rem;
+    cursor: pointer;
+  }
+  html.dark .guide-close { background: #2563EB; }
 </style>
 </head>
 <body>
 
-  <header>
-    <div class="brand">
-      <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo SMK BKC" class="brand-logo">
-      <div class="brand-txt">
-        <b>BKCSiplin</b>
-        <span>SMK Bhakti Kencana Ciawi</span>
+<div id="cursor-spotlight" aria-hidden="true"></div>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <img src="https://i.ibb.co.com/qYCXWRYX/Logo-SMK-BKC.png" alt="Logo SMK Bhakti Kencana Ciawi" class="brand-logo" referrerpolicy="no-referrer">
+      <span class="brand-name">BKCSiplin</span>
+    </a>
+
+    <div class="header-right">
+      <div class="clock-inline" aria-label="Waktu Indonesia Barat">
+        <div class="clock-time" id="clock-time">--:--<span class="sec" id="clock-sec">:--</span></div>
+        <div class="clock-date" id="clock-date">Memuat tanggal…</div>
+      </div>
+      <button type="button" class="theme-btn" id="btn-panduan" title="Panduan Portal &amp; Role Login" aria-label="Buka panduan portal dan role login">
+        <i class="fas fa-book-open"></i>
+      </button>
+      <button type="button" class="theme-btn" id="btn-theme" title="Ganti mode terang / gelap" aria-label="Ganti mode terang atau gelap">
+        <i class="fas fa-moon" id="theme-icon"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero-row">
+    <div class="hero-copy">
+      <div class="hero-kicker">SMK Bhakti Kencana Ciawi · Yayasan Adhi Guna Kencana</div>
+      <h1 class="hero-title"><span id="sapaan-waktu">Selamat datang</span>, <span class="hl">Bapak/Ibu</span></h1>
+      <p class="hero-sub">Pilih layanan presensi, ibadah, pembinaan kedisiplinan, atau administrasi sekolah di bawah ini.</p>
+    </div>
+
+    <div class="session-bar" id="session-bar">
+      <div class="session-info">Sesi aktif: <b id="session-nama">—</b></div>
+      <a href="#" class="session-go" id="session-lanjut">Lanjutkan <i class="fas fa-arrow-right"></i></a>
+    </div>
+  </section>
+
+  <!-- CEK PUBLIK -->
+  <a href="cek.html" class="bento-card banner-cek" data-tilt="subtle">
+    <div class="banner-left">
+      <div class="banner-icon"><i class="fas fa-magnifying-glass-chart"></i></div>
+      <div>
+        <div class="banner-meta">Tanpa Login · Orang Tua &amp; Siswa</div>
+        <div class="banner-title">Cek Kehadiran &amp; Poin Siswa</div>
+        <p class="banner-desc">Pantau status tap gerbang masuk/pulang, catatan sholat, dan saldo poin kedisiplinan secara langsung.</p>
       </div>
     </div>
-    <div class="clock">
-      <div class="clock-time" id="clock-time">--:--<span class="sec" id="clock-sec">:--</span></div>
-      <div class="clock-date" id="clock-date">Memuat tanggal…</div>
-      <div class="user-pill" id="user-pill" style="display:none">
-        <span class="dot"></span>
-        <span id="user-text">Halo</span>
-        <a href="#" id="user-lanjut">Lanjutkan →</a>
+    <div class="banner-cta">Cek Sekarang <i class="fas fa-arrow-right"></i></div>
+  </a>
+
+  <!-- 4 PORTAL UTAMA -->
+  <div class="section-head">
+    <h2 class="section-title">Portal Petugas &amp; Manajemen</h2>
+    <span class="section-note">Gunakan ID Guru &amp; PIN sesuai kewenangan role</span>
+  </div>
+
+  <div class="portal-grid">
+    <a href="gerbang.html" class="bento-card portal-card navy" data-tilt="card">
+      <div class="portal-top">
+        <div class="portal-icon"><i class="fas fa-door-open"></i></div>
+        <span class="portal-num">01</span>
+      </div>
+      <div class="portal-body">
+        <h3 class="portal-title">Gerbang</h3>
+        <p class="portal-desc">Presensi masuk dan pulang siswa maupun guru via RFID atau pencarian manual.</p>
+      </div>
+      <div class="portal-foot">
+        <span class="portal-role">Guru Piket · Super Admin</span>
+        <span class="portal-arrow">Buka <i class="fas fa-arrow-right"></i></span>
+      </div>
+    </a>
+
+    <a href="sholat.html" class="bento-card portal-card emerald" data-tilt="card">
+      <div class="portal-top">
+        <div class="portal-icon"><i class="fas fa-mosque"></i></div>
+        <span class="portal-num">02</span>
+      </div>
+      <div class="portal-body">
+        <h3 class="portal-title">Sholat</h3>
+        <p class="portal-desc">Presensi sholat berjamaah, pengelolaan udzur syar'i, dan rekap ibadah harian.</p>
+      </div>
+      <div class="portal-foot">
+        <span class="portal-role">Piket · BK · Waka · Kepsek · Wali Kelas</span>
+        <span class="portal-arrow">Buka <i class="fas fa-arrow-right"></i></span>
+      </div>
+    </a>
+
+    <a href="disiplin.html" class="bento-card portal-card maroon" data-tilt="card">
+      <div class="portal-top">
+        <div class="portal-icon"><i class="fas fa-balance-scale"></i></div>
+        <span class="portal-num">03</span>
+      </div>
+      <div class="portal-body">
+        <h3 class="portal-title">Disiplin</h3>
+        <p class="portal-desc">Pencatatan pelanggaran dan prestasi, zona poin karakter, dan cetak surat peringatan.</p>
+      </div>
+      <div class="portal-foot">
+        <span class="portal-role">BK · Waka · Kepsek · Wali · OSIS</span>
+        <span class="portal-arrow">Buka <i class="fas fa-arrow-right"></i></span>
+      </div>
+    </a>
+
+    <a href="admin.html" class="bento-card portal-card blue" data-tilt="card">
+      <div class="portal-top">
+        <div class="portal-icon"><i class="fas fa-chart-line"></i></div>
+        <span class="portal-num">04</span>
+      </div>
+      <div class="portal-body">
+        <h3 class="portal-title">Admin</h3>
+        <p class="portal-desc">Dashboard eksekutif, master data sekolah, raport, keterangan absen, dan laporan.</p>
+      </div>
+      <div class="portal-foot">
+        <span class="portal-role">Super Admin · Kepsek · BK · Waka · Wali Kelas</span>
+        <span class="portal-arrow">Buka <i class="fas fa-arrow-right"></i></span>
+      </div>
+    </a>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <b>BKCSiplin</b> &copy; 2026 SMK Bhakti Kencana Ciawi · Yayasan Adhi Guna Kencana
+    </div>
+    <div class="server-status" id="server-status">
+      <i class="fas fa-circle-notch fa-spin" id="server-icon"></i>
+      <span id="server-text">Memeriksa server…</span>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modal-panduan">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2><i class="fas fa-book-open"></i> Panduan Portal &amp; Pembagian Role</h2>
+    </div>
+    <p class="modal-sub">Setiap modul menggunakan kewenangan role akun masing-masing. Berikut daftar akses setiap portal:</p>
+    <div class="guide-list">
+      <div class="guide-step">
+        <h4>Cek Kehadiran &amp; Poin Siswa (Tanpa Login)</h4>
+        <ul>
+          <li>Terbuka untuk <b>Orang Tua &amp; Siswa</b> tanpa perlu ID Guru atau PIN. Cukup cari NIS atau nama siswa.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>01 · Portal Gerbang</h4>
+        <ul>
+          <li><b>Role Login:</b> <code>GURU_PIKET</code> atau <code>SUPER_ADMIN</code> (Satpam / Piket Gerbang).</li>
+          <li>Sistem bekerja <i>offline-first</i> dengan <b>Tarik Data Pagi</b>, reset bersih 00:00 WIB, dan <b>Sinkron Manual</b>.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>02 · Portal Sholat (E-Sholat)</h4>
+        <ul>
+          <li><b>Role Login:</b> <code>GURU_PIKET</code>, <code>WALI_KELAS</code>, <code>GURU_BK</code>, <code>WAKA_KESISWAAN</code>, <code>KEPSEK</code>, <code>SUPER_ADMIN</code>.</li>
+          <li>Tab <b>Laporan</b> tersedia untuk Wali Kelas (kelas binaan), BK, Waka, Kepsek, dan Super Admin.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>03 · Portal Disiplin</h4>
+        <ul>
+          <li><b>Role Login:</b> <code>GURU_BK</code>, <code>WAKA_KESISWAAN</code>, <code>KEPSEK</code>, <code>SUPER_ADMIN</code> (penuh), <code>WALI_KELAS</code> (kelas binaan), serta <code>PETUGAS_OSIS</code> (hanya lapor pelanggaran, wajib divalidasi BK/Wakasis).</li>
+          <li>Siswa dapat mengecek poin langsung lewat tombol <b>Cek Poin Saya</b> tanpa login petugas.</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <h4>04 · Portal Admin</h4>
+        <ul>
+          <li><b>Role Login:</b> <code>SUPER_ADMIN</code> (penuh), <code>GURU_BK / WAKA_KESISWAAN</code> (Tatib, Absen, Laporan, Raport), <code>KEPSEK</code> (Dashboard, Absen, Laporan, Raport), dan <code>WALI_KELAS</code> (khusus kelas binaan).</li>
+        </ul>
       </div>
     </div>
-  </header>
-
-  <main>
-    <div class="wrap">
-      <div class="sapaan">
-        <span id="sapaan-waktu">Selamat datang</span>, <span class="hl">Bapak/Ibu</span>
-        <span>Silakan pilih menu di bawah ini:</span>
-      </div>
-
-      <!-- BANNER CEK PUBLIK -->
-      <a href="cek.html" class="banner-cek">
-        <span class="badge">FITUR BARU</span>
-        <div class="icon"><i class="fas fa-magnifying-glass-chart"></i></div>
-        <div class="text">
-          <h2>Cek Publik (Orang Tua & Siswa)</h2>
-          <p>Pantau kehadiran gerbang, presensi sholat, poin disiplin, dan raport secara real-time tanpa perlu login.</p>
-        </div>
-        <div class="action">
-          Cek Sekarang <i class="fas fa-arrow-right"></i>
-        </div>
-      </a>
-
-      <!-- 4 PORTAL UTAMA -->
-      <div class="section-title">Portal Petugas & Manajemen</div>
-      <div class="grid">
-        <a href="gerbang.html" class="card navy">
-          <span class="card-num">01</span>
-          <div class="card-icon"><i class="fas fa-door-open"></i></div>
-          <div class="card-title">Gerbang</div>
-          <div class="card-sub">Presensi masuk & pulang via RFID atau QR.</div>
-          <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
-        </a>
-
-        <a href="sholat.html" class="card emerald">
-          <span class="card-num">02</span>
-          <div class="card-icon"><i class="fas fa-mosque"></i></div>
-          <div class="card-title">Sholat</div>
-          <div class="card-sub">Presensi ibadah berjamaah dengan udzur syar'i.</div>
-          <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
-        </a>
-
-        <a href="disiplin.html" class="card maroon">
-          <span class="card-num">03</span>
-          <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
-          <div class="card-title">Disiplin</div>
-          <div class="card-sub">Poin tata tertib, zona karakter, dan surat SP.</div>
-          <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
-        </a>
-
-        <a href="admin.html" class="card blue">
-          <span class="card-num">04</span>
-          <div class="card-icon"><i class="fas fa-chart-line"></i></div>
-          <div class="card-title">Admin</div>
-          <div class="card-sub">Portal eksekutif & dashboard sekolah.</div>
-          <div class="card-arrow">Buka <i class="fas fa-arrow-right"></i></div>
-        </a>
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-left">
-        <b>BKCSiplin</b>
-        <span>© 2026 Yayasan Adhi Guna Kencana · SMK Bhakti Kencana Ciawi</span>
-      </div>
-      <div class="footer-right">
-        <span class="server-status" id="server-status">
-          <span class="dot"></span>
-          <span id="server-text">Memeriksa server…</span>
-        </span>
-        <span class="footer-ver">v1.3</span>
-      </div>
-    </div>
-  </footer>
+    <button type="button" class="guide-close" id="btn-tutup-panduan">Saya Mengerti</button>
+  </div>
+</div>
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
-
 const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-function tickClock() {
-  const now = new Date();
-  const wib = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (7 * 3600000));
-  const hh = String(wib.getHours()).padStart(2, '0');
-  const mm = String(wib.getMinutes()).padStart(2, '0');
-  const ss = String(wib.getSeconds()).padStart(2, '0');
-  document.getElementById('clock-time').innerHTML = hh + ':' + mm + '<span class="sec" id="clock-sec">:' + ss + '</span>';
-  document.getElementById('clock-date').textContent =
-    HARI[wib.getDay()] + ', ' + wib.getDate() + ' ' + BULAN[wib.getMonth()] + ' ' + wib.getFullYear();
+// ============ THEME SWITCH ============
+function syncThemeIcon() {
+  const isDark = document.documentElement.classList.contains('dark');
+  const icon = document.getElementById('theme-icon');
+  if (icon) {
+    icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  }
+}
+syncThemeIcon();
 
-  const jam = wib.getHours();
+document.getElementById('btn-theme').addEventListener('click', () => {
+  const isDark = document.documentElement.classList.toggle('dark');
+  try { localStorage.setItem('bkc_theme', isDark ? 'dark' : 'light'); } catch (e) {}
+  syncThemeIcon();
+});
+
+// ============ JAM WIB (UTC+7 KONSISTEN) ============
+function tickClock() {
+  const wib = new Date(Date.now() + (7 * 3600000));
+  const hh = String(wib.getUTCHours()).padStart(2, '0');
+  const mm = String(wib.getUTCMinutes()).padStart(2, '0');
+  const ss = String(wib.getUTCSeconds()).padStart(2, '0');
+  document.getElementById('clock-time').innerHTML = `${hh}:${mm}<span class="sec" id="clock-sec">:${ss}</span>`;
+  document.getElementById('clock-date').textContent =
+    `${HARI[wib.getUTCDay()]}, ${wib.getUTCDate()} ${BULAN[wib.getUTCMonth()]} ${wib.getUTCFullYear()}`;
+
+  const jam = wib.getUTCHours();
   let sapaan = 'Selamat malam';
   if (jam >= 4 && jam < 10) sapaan = 'Selamat pagi';
   else if (jam >= 10 && jam < 14) sapaan = 'Selamat siang';
@@ -568,54 +923,130 @@ function tickClock() {
 setInterval(tickClock, 1000);
 tickClock();
 
+// ============ DETEKSI SESI AKTIF (SESSION + LOCAL STORAGE) ============
 function cekLogin() {
   const map = [
-    { token: 'bkc_token',          nama: 'bkc_petugas',        modul: 'gerbang',  url: 'gerbang.html' },
-    { token: 'bkc_sholat_token',   nama: 'bkc_sholat_nama',    modul: 'sholat',   url: 'sholat.html'  },
-    { token: 'bkc_disiplin_token', nama: 'bkc_disiplin_nama',  modul: 'disiplin', url: 'disiplin.html'},
-    { token: 'bkc_admin_token',    nama: 'bkc_admin_nama',     modul: 'admin',    url: 'admin.html'   }
+    { token: 'bkc_admin_token',    nama: 'bkc_admin_nama',    modul: 'Admin',    url: 'admin.html' },
+    { token: 'bkc_disiplin_token', nama: 'bkc_disiplin_nama', modul: 'Disiplin', url: 'disiplin.html' },
+    { token: 'bkc_sholat_token',   nama: 'bkc_sholat_nama',   modul: 'Sholat',   url: 'sholat.html' },
+    { token: 'bkc_token',          nama: 'bkc_petugas',       modul: 'Gerbang',  url: 'gerbang.html' }
   ];
   for (const m of map) {
-    const token = sessionStorage.getItem(m.token);
-    const nama = sessionStorage.getItem(m.nama);
-    if (token && nama) return { nama: nama, modul: m.modul, url: m.url };
+    const token = sessionStorage.getItem(m.token) || localStorage.getItem(m.token);
+    const nama = sessionStorage.getItem(m.nama) || localStorage.getItem(m.nama);
+    if (token && nama) return { nama, modul: m.modul, url: m.url };
   }
   return null;
 }
 
-(function renderUserPill() {
+(function renderSessionBar() {
   const user = cekLogin();
   if (!user) return;
-  const pill = document.getElementById('user-pill');
-  const text = document.getElementById('user-text');
-  const lanjut = document.getElementById('user-lanjut');
-  text.textContent = 'Halo, ' + user.nama;
-  lanjut.href = user.url;
-  lanjut.textContent = 'Lanjut ke ' + user.modul.charAt(0).toUpperCase() + user.modul.slice(1) + ' →';
-  pill.style.display = 'inline-flex';
+  document.getElementById('session-nama').textContent = user.nama;
+  const link = document.getElementById('session-lanjut');
+  link.href = user.url;
+  link.innerHTML = `Lanjut ke ${user.modul} <i class="fas fa-arrow-right"></i>`;
+  document.getElementById('session-bar').classList.add('show');
 })();
 
+// ============ STATUS SERVER DENGAN TIMEOUT ============
 (function cekServer() {
   const wrap = document.getElementById('server-status');
+  const icon = document.getElementById('server-icon');
   const text = document.getElementById('server-text');
-  
-  // GUNAKAN FETCH (POST) - Kebal blokir browser HP, super cepat
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timer = setTimeout(() => { if (controller) controller.abort(); }, 12000);
+
   fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'ping' })
+    body: JSON.stringify({ action: 'ping' }),
+    signal: controller ? controller.signal : undefined
   })
-  .then(res => res.json())
+  .then(res => { if (!res.ok) throw new Error('HTTP'); return res.json(); })
   .then(res => {
+    clearTimeout(timer);
     wrap.classList.remove('ok', 'err');
-    wrap.classList.add(res && res.ok ? 'ok' : 'err');
-    text.textContent = res && res.ok ? 'Server aktif' : 'Server tidak terhubung';
+    if (res && res.ok) {
+      wrap.classList.add('ok');
+      icon.className = 'fas fa-check-circle';
+      text.textContent = 'Server aktif';
+    } else {
+      wrap.classList.add('err');
+      icon.className = 'fas fa-exclamation-circle';
+      text.textContent = 'Server tidak merespons';
+    }
   })
-  .catch(err => {
+  .catch(() => {
+    clearTimeout(timer);
     wrap.classList.remove('ok', 'err');
     wrap.classList.add('err');
+    icon.className = 'fas fa-exclamation-circle';
     text.textContent = 'Server tidak terhubung';
   });
+})();
+
+// ============ CURSOR SPOTLIGHT + 3D TILT RINGAN ============
+(function initInteractiveMotion() {
+  const finePointer = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!finePointer || reducedMotion) return;
+
+  document.body.classList.add('has-pointer');
+  const rootStyle = document.documentElement.style;
+  let rafId = null;
+  let lastX = 0;
+  let lastY = 0;
+
+  window.addEventListener('pointermove', (e) => {
+    lastX = e.clientX;
+    lastY = e.clientY;
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      rootStyle.setProperty('--cx', lastX + 'px');
+      rootStyle.setProperty('--cy', lastY + 'px');
+      rafId = null;
+    });
+  }, { passive: true });
+
+  document.querySelectorAll('.bento-card').forEach((card) => {
+    const mode = card.dataset.tilt || 'card';
+    const maxDeg = mode === 'subtle' ? 1.4 : 3.2;
+
+    card.addEventListener('pointermove', (e) => {
+      const rect = card.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const px = (e.clientX - rect.left) / rect.width;
+      const py = (e.clientY - rect.top) / rect.height;
+      const clampedX = Math.max(0, Math.min(1, px));
+      const clampedY = Math.max(0, Math.min(1, py));
+
+      card.style.setProperty('--mx', (clampedX * 100).toFixed(1) + '%');
+      card.style.setProperty('--my', (clampedY * 100).toFixed(1) + '%');
+
+      const rotY = ((clampedX - 0.5) * 2 * maxDeg).toFixed(2);
+      const rotX = ((0.5 - clampedY) * 2 * maxDeg).toFixed(2);
+      card.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-3px)`;
+    });
+
+    card.addEventListener('pointerleave', () => {
+      card.style.transform = '';
+    });
+  });
+})();
+
+// ============ PANDUAN MODAL ============
+(function initPanduanModal() {
+  const modal = document.getElementById('modal-panduan');
+  const openBtn = document.getElementById('btn-panduan');
+  const closeBtn = document.getElementById('btn-tutup-panduan');
+  if (!modal) return;
+  const open = () => modal.classList.add('show');
+  const close = () => modal.classList.remove('show');
+  if (openBtn) openBtn.addEventListener('click', open);
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('show')) close(); });
 })();
 </script>
 </body>

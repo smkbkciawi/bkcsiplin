@@ -267,6 +267,7 @@
       <li class="nav-item d-flex align-items-center ml-2" id="bkc-admin-nav"></li>
     </ul>
     <ul class="navbar-nav ml-auto align-items-center">
+      <li class="nav-item mr-2"><button type="button" class="btn btn-sm btn-outline-success font-weight-bold" id="btn-auto-reload" style="display:none" title="Muat ulang data otomatis setiap 45 detik tanpa tekan F5"><i class="fas fa-sync-alt mr-1"></i><span id="auto-reload-label">Auto: ON</span></button></li>
       <li class="nav-item mr-2"><button type="button" class="btn btn-sm btn-outline-primary font-weight-bold" id="btn-panduan" title="Panduan &amp; Hak Akses Role"><i class="fas fa-book-open mr-1"></i><span class="d-none d-sm-inline">Panduan</span></button></li>
       <li class="nav-item mr-2"><span class="user-pill" id="user-pill" style="display:none"><i class="fas fa-user-circle"></i> <span id="user-name">—</span></span></li>
       <li class="nav-item"><span class="user-pill" id="sesi-pill" style="display:none"><i class="fas fa-clock"></i> <span id="sesi-timer">10:00</span></span></li>
@@ -322,6 +323,7 @@
             </div>
             <div class="dash-quick-actions" id="dash-quick-actions">
               <button class="btn btn-sm btn-primary" id="btn-dash-refresh"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
+              <button class="btn btn-sm btn-success" id="btn-dash-wa-rekap" title="Salin ringkasan harian untuk Grup WA Guru / Kesiswaan"><i class="fab fa-whatsapp mr-1"></i>Salin Rekap WA</button>
               <button class="btn btn-sm btn-outline-primary" onclick="loadPage('laporan-siswa')"><i class="fas fa-user-graduate mr-1"></i>Laporan Siswa</button>
               <button class="btn btn-sm btn-outline-primary" onclick="loadPage('laporan-guru')"><i class="fas fa-chalkboard-teacher mr-1"></i>Laporan Guru</button>
               <button class="btn btn-sm btn-outline-warning" onclick="loadPage('keterangan')"><i class="fas fa-notes-medical mr-1"></i>Keterangan</button>
@@ -517,7 +519,10 @@
         <div id="dashboard-walikelas-view" style="display:none">
           <div class="alert alert-info d-flex justify-content-between align-items-center flex-wrap" id="wk-kelas-info" style="display:none;gap:.5rem">
             <div><i class="fas fa-info-circle mr-1"></i> <span id="wk-kelas-text"></span></div>
-            <button class="btn btn-sm btn-light font-weight-bold" id="btn-wk-refresh"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
+            <div class="d-flex align-items-center" style="gap:.4rem">
+              <button class="btn btn-sm btn-success font-weight-bold" id="btn-wk-wa-rekap" title="Salin laporan harian kelas untuk ditempel ke Grup WA Orang Tua"><i class="fab fa-whatsapp mr-1"></i>Salin Rekap WA Kelas</button>
+              <button class="btn btn-sm btn-light font-weight-bold" id="btn-wk-refresh"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
+            </div>
           </div>
           <div class="row">
             <div class="col-lg-3 col-md-6"><div class="small-box bg-primary"><div class="inner"><h3 id="wk-total">—</h3><p>Total Siswa Kelas Saya</p></div><div class="icon"><i class="fas fa-users"></i></div></div></div>
@@ -1163,6 +1168,104 @@
             </div></div>
           </div>
         </div>
+
+        <!-- BOT TELEGRAM SEKOLAH (GRATIS — OPSIONAL) -->
+        <div class="card" id="card-pengaturan-telegram" style="border-top:3px solid #0EA5E9">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:.5rem">
+            <h3 class="card-title mb-0"><i class="fab fa-telegram-plane text-info mr-2"></i>Bot Telegram Sekolah <small class="text-muted font-weight-normal">(100% Gratis · Opsional)</small></h3>
+            <span id="tg-status-badge" class="badge badge-secondary" style="font-size:.78rem;padding:.35rem .65rem">NONAKTIF</span>
+          </div>
+          <div class="card-body">
+            <div class="field">
+              <label for="set-tg-aktif">Status Bot Telegram (Saklar Utama)</label>
+              <select id="set-tg-aktif" style="font-weight:600">
+                <option value="TIDAK">NONAKTIF — Tidak Dipakai (Sistem berjalan normal tanpa Bot Telegram)</option>
+                <option value="YA">AKTIF — Kirim Notifikasi Otomatis &amp; Layani Perintah 2 Arah di Grup</option>
+              </select>
+            </div>
+            <div id="tg-off-hint" class="alert alert-light border small mb-3" style="font-size:.78rem;color:#475569">
+              <i class="fas fa-info-circle text-info mr-1"></i>Bot Telegram sedang <b>NONAKTIF</b>. Anda bisa mematikan/menyalakan bot kapan saja tanpa menghapus Token &amp; Chat ID. Jangan lupa klik <b>Simpan Pengaturan</b> di bawah setelah mengubah status.
+            </div>
+
+            <div id="tg-config-body">
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="field">
+                    <label for="set-tg-token">Bot Token (dari @BotFather)</label>
+                    <div class="input-group">
+                      <input type="password" class="form-control" id="set-tg-token" placeholder="Contoh: 7123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+                      <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-secondary" id="btn-tg-toggle-token" title="Tampilkan / Sembunyikan Token"><i class="fas fa-eye"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="set-tg-chat-pimpinan">Chat ID Grup 1 — Pimpinan, BK &amp; Kesiswaan</label>
+                    <input type="text" id="set-tg-chat-pimpinan" placeholder="Contoh: -1001234567890">
+                  </div>
+                  <div class="field">
+                    <label for="set-tg-chat-wali">Chat ID Grup 2 — Wali Kelas <span class="text-muted font-weight-normal">(Opsional — kosongkan jika hanya pakai 1 grup)</span></label>
+                    <input type="text" id="set-tg-chat-wali" placeholder="Opsional, contoh: -1009876543210">
+                  </div>
+                  <div class="d-flex flex-wrap mb-2" style="gap:.45rem">
+                    <button type="button" class="btn btn-sm btn-outline-info font-weight-bold" id="btn-tg-deteksi"><i class="fas fa-search mr-1"></i>Deteksi Chat ID Grup</button>
+                    <button type="button" class="btn btn-sm btn-info font-weight-bold" id="btn-tg-tes"><i class="fas fa-paper-plane mr-1"></i>Tes Kirim Pesan</button>
+                  </div>
+                  <div id="tg-deteksi-hasil" class="mb-2" style="display:none"></div>
+                  <div class="small text-muted" style="font-size:.75rem;line-height:1.45">
+                    Tips Deteksi: Masukkan bot ke grup Telegram, kirim 1 pesan apa saja (misal <code>halo</code>) di grup, lalu klik <b>Deteksi Chat ID Grup</b>.
+                  </div>
+                </div>
+
+                <div class="col-lg-6 mt-3 mt-lg-0">
+                  <label class="d-block font-weight-bold mb-2" style="font-size:.82rem;color:#334155">Pilih Fitur Bot yang Aktif (Bisa Dicentang Sesuai Kebutuhan):</label>
+                  <div class="border rounded p-2 mb-3" style="background:#F8FAFC">
+                    <div class="form-check mb-1">
+                      <input class="form-check-input" type="checkbox" id="set-tg-notif-osis" checked>
+                      <label class="form-check-label small" for="set-tg-notif-osis"><b>Notif Real-Time Laporan OSIS Pending</b> (ke Grup Pimpinan/BK)</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      <input class="form-check-input" type="checkbox" id="set-tg-notif-zona" checked>
+                      <label class="form-check-label small" for="set-tg-notif-zona"><b>Peringatan Siswa Turun Zona Poin</b> (ke Grup Pimpinan/BK)</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      <input class="form-check-input" type="checkbox" id="set-tg-notif-telat" checked>
+                      <label class="form-check-label small" for="set-tg-notif-telat"><b>Ringkasan Siswa Terlambat</b> saat sinkron/tap gerbang (anti-spam)</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      <input class="form-check-input" type="checkbox" id="set-tg-rekap-pagi" checked>
+                      <label class="form-check-label small" for="set-tg-rekap-pagi"><b>Rekap Otomatis Pagi (08:00 WIB)</b> — Kehadiran Siswa &amp; Guru</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      <input class="form-check-input" type="checkbox" id="set-tg-rekap-sore" checked>
+                      <label class="form-check-label small" for="set-tg-rekap-sore"><b>Rekap Penutup Sore (16:00 WIB)</b> — Kehadiran, Sholat &amp; Poin</label>
+                    </div>
+                    <div class="form-check mb-0">
+                      <input class="form-check-input" type="checkbox" id="set-tg-perintah" checked>
+                      <label class="form-check-label small" for="set-tg-perintah"><b>Perintah 2 Arah di Grup</b> (<code>/rekap</code>, <code>/telat</code>, <code>/cek</code>, <code>/guru</code>, <code>/pending</code>)</label>
+                    </div>
+                  </div>
+
+                  <label class="d-block font-weight-bold mb-2" style="font-size:.82rem;color:#334155">Aktivasi Webhook 2 Arah &amp; Jadwal Otomatis:</label>
+                  <div class="d-flex flex-wrap mb-2" style="gap:.4rem">
+                    <button type="button" class="btn btn-sm btn-primary font-weight-bold" id="btn-tg-webhook-on"><i class="fas fa-link mr-1"></i>Aktifkan Perintah 2 Arah</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-tg-webhook-off"><i class="fas fa-unlink mr-1"></i>Matikan Webhook</button>
+                  </div>
+                  <div class="d-flex flex-wrap mb-2" style="gap:.4rem">
+                    <button type="button" class="btn btn-sm btn-success font-weight-bold" id="btn-tg-jadwal-on"><i class="fas fa-clock mr-1"></i>Pasang Jadwal 08:00 &amp; 16:00</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" id="btn-tg-jadwal-off"><i class="fas fa-stop-circle mr-1"></i>Hapus Jadwal</button>
+                  </div>
+                  <div class="d-flex flex-wrap" style="gap:.4rem">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="btn-tg-kirim-pagi"><i class="fas fa-sun mr-1"></i>Kirim Rekap Pagi Sekarang</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" id="btn-tg-kirim-sore"><i class="fas fa-cloud-sun mr-1"></i>Kirim Rekap Sore Sekarang</button>
+                  </div>
+                </div>
+              </div>
+              <div id="tg-action-info" class="alert alert-light border small mt-3 mb-0" style="display:none;font-size:.8rem"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="text-right mb-4">
           <button class="btn btn-primary btn-lg" id="btn-simpan-pengaturan"><i class="fas fa-save mr-1"></i>Simpan Pengaturan</button>
         </div>
@@ -1237,6 +1340,7 @@
       <div class="field"><label>Jenis Kelamin</label><select id="siswa-jk"><option value="">— Pilih —</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
       <div class="field"><label>Status</label><select id="siswa-status"><option value="AKTIF">AKTIF</option><option value="LULUS">LULUS</option><option value="KELUAR">KELUAR</option></select></div>
     </div>
+    <div class="field"><label>No. WA Orang Tua (Opsional — untuk Kirim WA 1-Klik)</label><input type="text" id="siswa-wa" placeholder="Contoh: 081234567890"></div>
     <div class="field"><label>Catatan (Opsional)</label><input type="text" id="siswa-catatan" placeholder="—"></div>
     <button class="btn-primary-full" id="btn-simpan-siswa">Simpan</button>
     <button class="btn-secondary-full" id="btn-batal-siswa">Batal</button>
@@ -1444,8 +1548,43 @@
           <li>Cetak kartu QR massal per kelas maupun Raport Karakter siswa satuan atau 1 kelas sekaligus (Save as PDF).</li>
         </ul>
       </div>
+      <div class="guide-step">
+        <h4>5️⃣ Kirim WA Orang Tua (Gratis) &amp; Auto-Reload Tanpa F5</h4>
+        <ul>
+          <li><b>Kirim WA 1-Klik:</b> Klik ikon <b class="text-success">WA</b> di samping nama siswa (Dashboard, Wali Kelas, atau Master Siswa) untuk langsung membuka WhatsApp ke orang tua dengan pesan siap kirim — gratis tanpa API berbayar.</li>
+          <li><b>Salin Rekap WA Grup:</b> Klik <b>Salin Rekap WA</b> di Dashboard Admin / Wali Kelas agar tidak capek kirim satu-satu; cukup tempel (paste) langsung ke Grup WA Kelas / Guru.</li>
+          <li><b>Auto-Reload Otomatis:</b> Tombol <b>Auto: ON</b> di pojok kanan atas otomatis menyegarkan data setiap 45 detik dan saat kembali ke tab ini, tanpa perlu menekan F5.</li>
+          <li><b>Bot Telegram Sekolah (Gratis &amp; Opsional):</b> Atur di menu <b>Pengaturan → Bot Telegram Sekolah</b>. Bisa diaktifkan/dinonaktifkan kapan saja dengan 1 saklar untuk mengirim rekap otomatis &amp; melayani perintah <code>/rekap</code>, <code>/telat</code>, <code>/cek</code>, <code>/guru</code>, <code>/pending</code> di grup Telegram.</li>
+        </ul>
+      </div>
     </div>
     <button type="button" class="btn-primary-full" id="btn-tutup-panduan">Saya Mengerti</button>
+  </div>
+</div>
+
+<!-- MODAL KIRIM WA ORANG TUA (1-KLIK GRATIS) -->
+<div class="overlay-modal" id="modal-wa-ortu">
+  <div class="overlay-box" style="max-width:480px">
+    <h2 style="margin-bottom:.35rem"><i class="fab fa-whatsapp text-success mr-2"></i>Kirim Pesan WA Orang Tua</h2>
+    <div id="wa-siswa-meta" class="small text-muted mb-3" style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:.55rem .75rem;color:#166534 !important"></div>
+    <input type="hidden" id="wa-nis">
+    <div class="field">
+      <label>Nomor WA Orang Tua (Otomatis format 62)</label>
+      <input type="text" id="wa-nomor" placeholder="Contoh: 081234567890 (kosongkan jika hanya salin pesan)">
+    </div>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" id="wa-simpan-nomor" checked>
+      <label class="form-check-label small text-muted" for="wa-simpan-nomor">Simpan nomor ini ke data siswa agar besok otomatis terisi</label>
+    </div>
+    <div class="field">
+      <label>Isi Pesan WhatsApp (Bisa diedit sebelum kirim)</label>
+      <textarea id="wa-pesan" rows="6" style="width:100%;padding:.6rem .75rem;border:1.5px solid #D1D5DB;border-radius:8px;font-size:.86rem;line-height:1.45"></textarea>
+    </div>
+    <div class="d-flex" style="gap:.5rem;margin-top:.5rem">
+      <a id="btn-wa-kirim" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-success font-weight-bold flex-fill text-center" style="padding:.62rem;border-radius:9px"><i class="fab fa-whatsapp mr-1"></i>Buka WhatsApp &amp; Kirim</a>
+      <button type="button" class="btn btn-outline-primary font-weight-bold" id="btn-wa-salin" style="padding:.62rem .9rem;border-radius:9px"><i class="fas fa-copy mr-1"></i>Salin</button>
+    </div>
+    <button type="button" class="btn-secondary-full mt-2" id="btn-batal-wa">Tutup</button>
   </div>
 </div>
 
@@ -1495,7 +1634,12 @@ const state = {
   charts: {},
   ketSiswaList: [], ketSiswaTerpilih: null, ketKelasAmpu: [],
   importMode: null, importRows: [], importFileName: '',
-  raportSiswa: null, raportData: null
+  raportSiswa: null, raportData: null,
+  currentPage: 'dashboard',
+  autoReloadEnabled: localStorage.getItem('bkc_admin_autoreload') !== 'OFF',
+  autoReloadTimer: null,
+  autoReloadBusy: false,
+  lastAutoRefreshAt: Date.now()
 };
 const $ = (id) => document.getElementById(id);
 
@@ -1863,8 +2007,224 @@ $('btn-stay').addEventListener('click', () => { resetIdle(); apiCall('heartbeat'
 function mulaiHeartbeat() {
   hentikanHeartbeat();
   state.heartbeatTimer = setInterval(() => { if (!state.token) return; apiCall('heartbeat').then(r => { if (!r.ok) doLogout('Sesi habis'); }).catch(()=>{}); }, HEARTBEAT_MS);
+  mulaiAutoReload_();
 }
-function hentikanHeartbeat() { clearInterval(state.heartbeatTimer); }
+function hentikanHeartbeat() { clearInterval(state.heartbeatTimer); hentikanAutoReload_(); }
+
+// ============ AUTO-RELOAD OTOMATIS (TANPA F5) ============
+const AUTO_RELOAD_MS = 45000;
+function updateAutoReloadBtn_() {
+  const btn = $('btn-auto-reload');
+  const lbl = $('auto-reload-label');
+  if (!btn || !lbl) return;
+  btn.style.display = state.token ? '' : 'none';
+  if (state.autoReloadEnabled) {
+    btn.className = 'btn btn-sm btn-outline-success font-weight-bold';
+    lbl.textContent = 'Auto: ON';
+  } else {
+    btn.className = 'btn btn-sm btn-outline-secondary font-weight-bold';
+    lbl.textContent = 'Auto: OFF';
+  }
+}
+function isSafeToAutoRefresh_() {
+  if (!state.token || !state.autoReloadEnabled || state.autoReloadBusy) return false;
+  if (document.hidden) return false;
+  if (document.querySelector('.overlay-modal.show')) return false;
+  const active = document.activeElement;
+  if (active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName)) return false;
+  return true;
+}
+async function autoRefreshCurrentPage_() {
+  if (!isSafeToAutoRefresh_()) return;
+  const p = state.currentPage || 'dashboard';
+  const eligible = ['dashboard', 'siswa', 'kelas', 'guru', 'tatib', 'rfid', 'keterangan'];
+  if (!eligible.includes(p)) return;
+  state.autoReloadBusy = true;
+  state.lastAutoRefreshAt = Date.now();
+  try {
+    if (p === 'dashboard') await loadDashboard();
+    else if (p === 'siswa') await loadSiswa();
+    else if (p === 'kelas') await loadKelas();
+    else if (p === 'guru') await loadGuru();
+    else if (p === 'tatib') await loadTatib();
+    else if (p === 'rfid') await loadRfid();
+    else if (p === 'keterangan') await loadKeteranganHariIni();
+  } catch (_) {}
+  finally { state.autoReloadBusy = false; }
+}
+function mulaiAutoReload_() {
+  hentikanAutoReload_();
+  updateAutoReloadBtn_();
+  state.autoReloadTimer = setInterval(() => { autoRefreshCurrentPage_(); }, AUTO_RELOAD_MS);
+}
+function hentikanAutoReload_() {
+  clearInterval(state.autoReloadTimer);
+  state.autoReloadTimer = null;
+  updateAutoReloadBtn_();
+}
+if ($('btn-auto-reload')) {
+  $('btn-auto-reload').addEventListener('click', () => {
+    state.autoReloadEnabled = !state.autoReloadEnabled;
+    localStorage.setItem('bkc_admin_autoreload', state.autoReloadEnabled ? 'ON' : 'OFF');
+    updateAutoReloadBtn_();
+    if (state.autoReloadEnabled) {
+      toast('Auto-Reload aktif (data diperbarui otomatis tanpa F5)');
+      autoRefreshCurrentPage_();
+    } else {
+      toast('Auto-Reload dimatikan sementara');
+    }
+  });
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && (Date.now() - state.lastAutoRefreshAt) > 15000) {
+    autoRefreshCurrentPage_();
+  }
+});
+
+// ============ WHATSAPP 1-KLIK ORANG TUA & REKAP GRUP ============
+function normalisasiNomorWa_(raw) {
+  let d = String(raw || '').replace(/[^\d]/g, '');
+  if (!d) return '';
+  if (d.startsWith('0')) d = '62' + d.slice(1);
+  else if (d.startsWith('8')) d = '62' + d;
+  return d;
+}
+function linkCekSiswa_() {
+  try { return new URL('cek.html', window.location.href).href; }
+  catch (_) { return window.location.origin + '/cek.html'; }
+}
+function salinTeksKeClipboard_(text, successMsg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => toast(successMsg || 'Pesan WA berhasil disalin!')).catch(() => fallbackCopyWa_(text, successMsg));
+  } else {
+    fallbackCopyWa_(text, successMsg);
+  }
+}
+function fallbackCopyWa_(text, successMsg) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); toast(successMsg || 'Pesan WA berhasil disalin!'); }
+  catch (_) { toast('Gagal menyalin pesan, silakan salin manual.', true); }
+  ta.remove();
+}
+function updateLinkTombolWa_() {
+  const no = normalisasiNomorWa_($('wa-nomor').value);
+  const pesan = $('wa-pesan').value || '';
+  const btn = $('btn-wa-kirim');
+  if (!btn) return;
+  if (no) {
+    btn.href = 'https://wa.me/' + no + '?text=' + encodeURIComponent(pesan);
+    btn.classList.remove('disabled');
+  } else {
+    btn.href = 'https://wa.me/?text=' + encodeURIComponent(pesan);
+    btn.classList.remove('disabled');
+  }
+}
+function bukaModalWaOrtu_(info) {
+  const nama = info.nama || '-';
+  const nis = String(info.nis || '').trim();
+  const kelas = info.kelas || '-';
+  const tglLabel = formatTanggal(todayISO());
+  const cekUrl = linkCekSiswa_();
+
+  let noHp = String(info.no_hp_ortu || '').trim();
+  if (!noHp && state.siswaList.length) {
+    const found = state.siswaList.find(s => String(s.nis).trim() === nis);
+    if (found) noHp = String(found.no_hp_ortu || found.no_wa || found.hp_ortu || '').trim();
+  }
+
+  let isi = '';
+  if (info.konteks === 'telat') {
+    isi = `Assalamu'alaikum Wr. Wb.\nYth. Bapak/Ibu Orang Tua/Wali dari *${nama}* (${kelas}),\n\nMenginformasikan bahwa pada hari ini (${tglLabel}), ananda tercatat *terlambat masuk gerbang* pukul *${info.jam || '-'} WIB*.\n\nMohon perhatian dan bimbingannya agar besok dapat hadir lebih awal. Pantau kehadiran & poin ananda secara mandiri melalui:\n${cekUrl}\n\nTerima kasih.\n_SMK Bhakti Kencana Ciawi_`;
+  } else if (info.konteks === 'belum_hadir') {
+    isi = `Assalamu'alaikum Wr. Wb.\nYth. Bapak/Ibu Orang Tua/Wali dari *${nama}* (${kelas}),\n\nMenginformasikan bahwa pada hari ini (${tglLabel}), ananda *belum tercatat hadir di sekolah* dan belum ada surat keterangan Izin/Sakit.\n\nMohon konfirmasi keberadaan ananda kepada Wali Kelas. Terima kasih.\n_SMK Bhakti Kencana Ciawi_`;
+  } else if (info.konteks === 'poin') {
+    isi = `Assalamu'alaikum Wr. Wb.\nYth. Bapak/Ibu Orang Tua/Wali dari *${nama}* (${kelas}),\n\nMenginformasikan perkembangan kedisiplinan ananda saat ini:\n• Sisa Poin: *${info.saldo != null ? info.saldo : '-'}*\n• Status Pembinaan: *Zona ${info.zona || '-'}*\n\nMohon kerja sama Bapak/Ibu dalam pembinaan ananda. Rincian catatan dapat dilihat melalui:\n${cekUrl}\n\nTerima kasih.\n_BK / Kesiswaan SMK Bhakti Kencana Ciawi_`;
+  } else if (info.konteks === 'ket') {
+    isi = `Assalamu'alaikum Wr. Wb.\nYth. Bapak/Ibu Orang Tua/Wali dari *${nama}* (${kelas}),\n\nMenginformasikan bahwa keterangan absen ananda hari ini (${tglLabel}) telah kami catat sebagai *${info.status || '-'}* (${info.keterangan || '-'}).\n\nSemoga sehat selalu dan terima kasih atas konfirmasinya.\n_SMK Bhakti Kencana Ciawi_`;
+  } else {
+    isi = `Assalamu'alaikum Wr. Wb.\nYth. Bapak/Ibu Orang Tua/Wali dari *${nama}* (${kelas}),\n\nBerikut tautan pemantauan kehadiran dan poin kedisiplinan ananda di SMK Bhakti Kencana Ciawi:\n${cekUrl}\n(Masukkan NIS: *${nis}*)\n\nTerima kasih.\n_SMK Bhakti Kencana Ciawi_`;
+  }
+
+  $('wa-nis').value = nis;
+  $('wa-nomor').value = noHp;
+  $('wa-pesan').value = isi;
+  $('wa-siswa-meta').innerHTML = `<b>${escapeHtml(nama)}</b> · ${escapeHtml(kelas)} (NIS: ${escapeHtml(nis)})${noHp ? ' · <span class="text-success font-weight-bold">Nomor tersimpan</span>' : ' · <span class="text-warning font-weight-bold">Nomor belum tersimpan</span>'}`;
+  updateLinkTombolWa_();
+  $('modal-wa-ortu').classList.add('show');
+}
+if ($('wa-nomor')) $('wa-nomor').addEventListener('input', updateLinkTombolWa_);
+if ($('wa-pesan')) $('wa-pesan').addEventListener('input', updateLinkTombolWa_);
+if ($('btn-batal-wa')) $('btn-batal-wa').addEventListener('click', () => $('modal-wa-ortu').classList.remove('show'));
+if ($('btn-wa-salin')) $('btn-wa-salin').addEventListener('click', () => salinTeksKeClipboard_($('wa-pesan').value, 'Pesan WA disalin — siap tempel!'));
+if ($('btn-wa-kirim')) {
+  $('btn-wa-kirim').addEventListener('click', async () => {
+    updateLinkTombolWa_();
+    const nis = $('wa-nis').value.trim();
+    const noRaw = $('wa-nomor').value.trim();
+    const simpan = $('wa-simpan-nomor') && $('wa-simpan-nomor').checked;
+    if (simpan && nis && noRaw) {
+      apiCall('simpanNoWaOrtu', { nis, no_hp_ortu: noRaw }, true).then(res => {
+        if (res && res.ok) {
+          const s = state.siswaList.find(x => String(x.nis).trim() === nis);
+          if (s) s.no_hp_ortu = noRaw;
+          toast('Nomor WA orang tua tersimpan otomatis.');
+        }
+      }).catch(() => {});
+    }
+  });
+}
+function salinRekapWaAdmin_() {
+  const d = state.dashAdminData;
+  if (!d) { toast('Tunggu data dashboard selesai dimuat.', true); return; }
+  const ib = d.info_box || {};
+  const ket = d.keterangan_hari_ini || {};
+  const telat = d.siswa_terlambat || [];
+  const prio = (d.siswa_zona_prioritas || []).slice(0, 8);
+  let txt = `📋 *REKAP KEHADIRAN HARIAN*\nSMK Bhakti Kencana Ciawi\n📅 ${formatTanggal(todayISO())}\n\n`;
+  txt += `✅ Hadir Gerbang: *${ib.hadir_gerbang || 0} / ${ib.total_siswa || 0}* (${ib.tepat_waktu || 0} tepat, ${ib.terlambat || 0} telat)\n`;
+  txt += `📝 Izin/Sakit/Alpa: *${ket.izin || 0}* Izin · *${ket.sakit || 0}* Sakit · *${ket.alpa || 0}* Alpa\n`;
+  txt += `⚠️ Belum Ada Kabar: *${(d.ketepatan && d.ketepatan.belum_hadir) || 0}* siswa\n`;
+  if (telat.length) {
+    txt += `\n⏰ *Siswa Terlambat Hari Ini (${telat.length}):*\n`;
+    telat.forEach((t, i) => { txt += `${i + 1}. ${t.nama} (${t.kelas}) — ${t.jam}\n`; });
+  }
+  if (prio.length) {
+    txt += `\n🚨 *Prioritas Pembinaan Poin:*\n`;
+    prio.forEach((p, i) => { txt += `${i + 1}. ${p.nama} (${p.kelas}) — Poin ${p.saldo} [${p.zona}]\n`; });
+  }
+  txt += `\n🔎 Pantau mandiri: ${linkCekSiswa_()}`;
+  salinTeksKeClipboard_(txt, 'Rekap WA harian disalin! Siap paste ke Grup WA.');
+}
+function salinRekapWaWaliKelas_() {
+  const d = state.dashWkData;
+  if (!d) { toast('Tunggu data kelas selesai dimuat.', true); return; }
+  const kelasLbl = (d.kelas_ampu || []).join(', ');
+  const telat = d.siswa_terlambat || [];
+  const belum = d.belum_hadir || [];
+  const ketList = d.keterangan_list || [];
+  let txt = `📋 *LAPORAN KEHADIRAN KELAS ${kelasLbl}*\nSMK Bhakti Kencana Ciawi\n📅 ${formatTanggal(todayISO())}\n\n`;
+  txt += `✅ Hadir Gerbang: *${d.hadir_gerbang || 0} / ${d.total_siswa || 0} siswa*\n`;
+  txt += `📝 Keterangan: *${d.izin || 0}* Izin · *${d.sakit || 0}* Sakit · *${d.alpa || 0}* Alpa\n`;
+  if (telat.length) {
+    txt += `\n⏰ *Terlambat (${telat.length}):*\n`;
+    telat.forEach((t, i) => { txt += `${i + 1}. ${t.nama} (${t.jam} WIB)\n`; });
+  }
+  if (ketList.length) {
+    txt += `\n📌 *Izin / Sakit / Alpa (${ketList.length}):*\n`;
+    ketList.forEach((k, i) => { txt += `${i + 1}. ${k.nama} — ${k.status}${k.keterangan && k.keterangan !== '-' ? ' (' + k.keterangan + ')' : ''}\n`; });
+  }
+  if (belum.length) {
+    txt += `\n⚠️ *Belum Hadir / Belum Ada Kabar (${belum.length}):*\n`;
+    belum.forEach((b, i) => { txt += `${i + 1}. ${b.nama}\n`; });
+  }
+  txt += `\nMohon kerja sama Bapak/Ibu Orang Tua. Cek detail kehadiran & poin ananda di:\n${linkCekSiswa_()}`;
+  salinTeksKeClipboard_(txt, 'Rekap WA Kelas disalin! Siap tempel ke Grup WA Orang Tua.');
+}
 
 // ============ MASTER KELAS (dropdown global) ============
 async function loadMasterKelas() {
@@ -1906,6 +2266,8 @@ document.querySelectorAll('.nav-sidebar .nav-link[data-page]').forEach(link => {
 });
 
 function loadPage(page) {
+  state.currentPage = page;
+  state.lastAutoRefreshAt = Date.now();
   if (window.innerWidth < 992 && document.body.classList.contains('sidebar-open')) {
     document.body.classList.remove('sidebar-open');
   }
@@ -1944,6 +2306,8 @@ function initDashboardEvents_() {
   state.dashInit = true;
   if ($('btn-dash-refresh')) $('btn-dash-refresh').addEventListener('click', loadDashboard);
   if ($('btn-wk-refresh')) $('btn-wk-refresh').addEventListener('click', loadDashboard);
+  if ($('btn-dash-wa-rekap')) $('btn-dash-wa-rekap').addEventListener('click', salinRekapWaAdmin_);
+  if ($('btn-wk-wa-rekap')) $('btn-wk-wa-rekap').addEventListener('click', salinRekapWaWaliKelas_);
   if ($('kpi-zona-merah-card')) {
     $('kpi-zona-merah-card').addEventListener('click', () => {
       const target = $('dash-prioritas-body');
@@ -2116,14 +2480,23 @@ function renderDashPrioritas_() {
     return;
   }
   wrap.innerHTML = `<table class="table table-sm table-hover mb-0">
-    <thead><tr><th>Siswa</th><th style="width:60px">Poin</th><th style="width:74px">Zona</th><th style="width:42px"></th></tr></thead>
+    <thead><tr><th>Siswa</th><th style="width:55px">Poin</th><th style="width:72px">Zona</th><th style="width:76px"></th></tr></thead>
     <tbody>${list.map(s => `<tr>
       <td><div class="font-weight-bold" style="font-size:.8rem;line-height:1.25">${escapeHtml(s.nama)}</div><div class="text-muted" style="font-size:.69rem">${escapeHtml(s.nis)} · ${escapeHtml(s.kelas)}</div></td>
       <td class="font-weight-bold text-center">${s.saldo}</td>
       <td><span class="zona-chip ${escapeHtml(s.zona_cls)}">${escapeHtml(s.zona)}</span></td>
-      <td><button class="btn-ghost" data-dash-raport="${escapeHtml(s.nis)}" title="Lihat Raport"><i class="fas fa-file-alt"></i></button></td>
+      <td class="text-nowrap">
+        <button class="btn-ghost text-success" data-dash-wa="${escapeHtml(s.nis)}" title="Kirim WA Orang Tua"><i class="fab fa-whatsapp"></i></button>
+        <button class="btn-ghost" data-dash-raport="${escapeHtml(s.nis)}" title="Lihat Raport"><i class="fas fa-file-alt"></i></button>
+      </td>
     </tr>`).join('')}</tbody>
   </table>`;
+  wrap.querySelectorAll('[data-dash-wa]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const s = list.find(x => String(x.nis) === String(btn.dataset.dashWa));
+      if (s) bukaModalWaOrtu_({ ...s, konteks: 'poin' });
+    });
+  });
   wrap.querySelectorAll('[data-dash-raport]').forEach(btn => {
     btn.addEventListener('click', () => {
       const s = list.find(x => String(x.nis) === String(btn.dataset.dashRaport));
@@ -2150,26 +2523,40 @@ function renderDashHarianTable_() {
       return;
     }
     wrap.innerHTML = `<table class="table table-sm table-hover mb-0">
-      <thead><tr><th>Siswa</th><th style="width:74px">Status</th><th>Catatan</th></tr></thead>
-      <tbody>${ketList.map(k => `<tr>
+      <thead><tr><th>Siswa</th><th style="width:72px">Status</th><th>Catatan</th><th style="width:38px"></th></tr></thead>
+      <tbody>${ketList.map((k, idx) => `<tr>
         <td><div class="font-weight-bold" style="font-size:.8rem;line-height:1.25">${escapeHtml(k.nama)}</div><div class="text-muted" style="font-size:.69rem">${escapeHtml(k.kelas)}</div></td>
         <td><span class="status-chip ${String(k.status).toLowerCase()}">${escapeHtml(k.status)}</span></td>
         <td style="font-size:.76rem">${escapeHtml(k.keterangan || '-')}</td>
+        <td><button class="btn-ghost text-success" data-ket-wa="${idx}" title="Kirim WA Orang Tua"><i class="fab fa-whatsapp"></i></button></td>
       </tr>`).join('')}</tbody>
     </table>`;
+    wrap.querySelectorAll('[data-ket-wa]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const k = ketList[Number(btn.dataset.ketWa)];
+        if (k) bukaModalWaOrtu_({ ...k, konteks: 'ket' });
+      });
+    });
   } else {
     if (!telatList.length) {
       wrap.innerHTML = '<div class="dash-empty text-success"><i class="fas fa-check-circle mr-1"></i>Belum ada siswa terlambat hari ini.</div>';
       return;
     }
     wrap.innerHTML = `<table class="table table-sm table-hover mb-0">
-      <thead><tr><th>Siswa</th><th>Kelas</th><th style="width:65px">Jam</th></tr></thead>
-      <tbody>${telatList.map(t => `<tr>
+      <thead><tr><th>Siswa</th><th>Kelas</th><th style="width:62px">Jam</th><th style="width:38px"></th></tr></thead>
+      <tbody>${telatList.map((t, idx) => `<tr>
         <td><div class="font-weight-bold" style="font-size:.8rem;line-height:1.25">${escapeHtml(t.nama)}</div><div class="text-muted" style="font-size:.69rem">${escapeHtml(t.nis)}</div></td>
         <td style="font-size:.76rem">${escapeHtml(t.kelas)}</td>
         <td><span class="badge badge-warning">${escapeHtml(t.jam)}</span></td>
+        <td><button class="btn-ghost text-success" data-telat-wa="${idx}" title="Kirim WA Orang Tua"><i class="fab fa-whatsapp"></i></button></td>
       </tr>`).join('')}</tbody>
     </table>`;
+    wrap.querySelectorAll('[data-telat-wa]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const t = telatList[Number(btn.dataset.telatWa)];
+        if (t) bukaModalWaOrtu_({ ...t, konteks: 'telat' });
+      });
+    });
   }
 }
 
@@ -2182,15 +2569,29 @@ function renderDashWkLists_(d) {
     if (!telat.length && !belum.length) {
       hWrap.innerHTML = '<div class="dash-empty text-success"><i class="fas fa-check-circle mr-1"></i>Semua siswa kelas Anda sudah hadir tepat waktu atau memiliki keterangan!</div>';
     } else {
-      let rows = telat.map(t => `<tr>
+      let rows = telat.map((t, idx) => `<tr>
         <td><b>${escapeHtml(t.nama)}</b><div class="text-muted" style="font-size:.7rem">${escapeHtml(t.nis)} · ${escapeHtml(t.kelas)}</div></td>
         <td><span class="badge badge-warning">Telat ${escapeHtml(t.jam)}</span></td>
+        <td><button class="btn-ghost text-success" data-wk-telat-wa="${idx}" title="Kirim WA Orang Tua"><i class="fab fa-whatsapp"></i></button></td>
       </tr>`).join('');
-      rows += belum.map(b => `<tr>
+      rows += belum.map((b, idx) => `<tr>
         <td><b>${escapeHtml(b.nama)}</b><div class="text-muted" style="font-size:.7rem">${escapeHtml(b.nis)} · ${escapeHtml(b.kelas)}</div></td>
         <td><span class="badge badge-danger">Belum Hadir</span></td>
+        <td><button class="btn-ghost text-success" data-wk-belum-wa="${idx}" title="Kirim WA Orang Tua"><i class="fab fa-whatsapp"></i></button></td>
       </tr>`).join('');
-      hWrap.innerHTML = `<table class="table table-sm table-hover mb-0"><thead><tr><th>Siswa</th><th style="width:110px">Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+      hWrap.innerHTML = `<table class="table table-sm table-hover mb-0"><thead><tr><th>Siswa</th><th style="width:105px">Status</th><th style="width:38px"></th></tr></thead><tbody>${rows}</tbody></table>`;
+      hWrap.querySelectorAll('[data-wk-telat-wa]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const t = telat[Number(btn.dataset.wkTelatWa)];
+          if (t) bukaModalWaOrtu_({ ...t, konteks: 'telat' });
+        });
+      });
+      hWrap.querySelectorAll('[data-wk-belum-wa]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const b = belum[Number(btn.dataset.wkBelumWa)];
+          if (b) bukaModalWaOrtu_({ ...b, konteks: 'belum_hadir' });
+        });
+      });
     }
   }
   if (pWrap) {
@@ -2199,14 +2600,23 @@ function renderDashWkLists_(d) {
       pWrap.innerHTML = '<div class="dash-empty text-success"><i class="fas fa-award mr-1"></i>Semua siswa di kelas Anda berada di Zona Hijau!</div>';
     } else {
       pWrap.innerHTML = `<table class="table table-sm table-hover mb-0">
-        <thead><tr><th>Siswa</th><th style="width:60px">Poin</th><th style="width:74px">Zona</th><th style="width:42px"></th></tr></thead>
+        <thead><tr><th>Siswa</th><th style="width:55px">Poin</th><th style="width:72px">Zona</th><th style="width:76px"></th></tr></thead>
         <tbody>${prio.map(s => `<tr>
           <td><b>${escapeHtml(s.nama)}</b><div class="text-muted" style="font-size:.7rem">${escapeHtml(s.nis)} · ${escapeHtml(s.kelas)}</div></td>
           <td class="font-weight-bold text-center">${s.saldo}</td>
           <td><span class="zona-chip ${escapeHtml(s.zona_cls)}">${escapeHtml(s.zona)}</span></td>
-          <td><button class="btn-ghost" data-wk-raport="${escapeHtml(s.nis)}" title="Lihat Raport"><i class="fas fa-file-alt"></i></button></td>
+          <td class="text-nowrap">
+            <button class="btn-ghost text-success" data-wk-wa="${escapeHtml(s.nis)}" title="Kirim WA Orang Tua"><i class="fab fa-whatsapp"></i></button>
+            <button class="btn-ghost" data-wk-raport="${escapeHtml(s.nis)}" title="Lihat Raport"><i class="fas fa-file-alt"></i></button>
+          </td>
         </tr>`).join('')}</tbody>
       </table>`;
+      pWrap.querySelectorAll('[data-wk-wa]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const s = prio.find(x => String(x.nis) === String(btn.dataset.wkWa));
+          if (s) bukaModalWaOrtu_({ ...s, konteks: 'poin' });
+        });
+      });
       pWrap.querySelectorAll('[data-wk-raport]').forEach(btn => {
         btn.addEventListener('click', () => {
           const s = prio.find(x => String(x.nis) === String(btn.dataset.wkRaport));
@@ -2369,13 +2779,15 @@ function renderSiswaTable() {
   if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Tidak ada data sesuai filter.</td></tr>'; return; }
   tbody.innerHTML = filtered.map(s => {
     const hasCard = !!(s.uid_rfid && String(s.uid_rfid).trim());
-    return `<tr><td class="font-weight-bold">${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td><td>${escapeHtml(s.jk || '-')}</td><td>${isAktifStatus_(s.status) ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">' + escapeHtml(s.status) + '</span>'}</td><td>${hasCard ? '<span class="badge-ok"><i class="fas fa-check-circle mr-1"></i>' + escapeHtml(s.uid_rfid) + '</span>' : '<span class="badge-no"><i class="fas fa-times-circle mr-1"></i>Belum ada</span>'}</td><td><button class="btn-scan ${hasCard ? 'has-card' : ''}" data-act="scan" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-wifi mr-1"></i>${hasCard ? 'Ganti' : 'Scan'}</button><button class="btn-ghost ml-1" data-act="edit" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-edit"></i></button><button class="btn-ghost ml-1" data-act="raport" data-nis="${escapeHtml(s.nis)}" title="Cetak Raport"><i class="fas fa-file-alt"></i></button><button class="btn-danger-soft ml-1" data-act="hapus" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-trash"></i></button></td></tr>`;
+    const hasWa = !!(s.no_hp_ortu || s.no_wa || s.hp_ortu);
+    return `<tr><td class="font-weight-bold">${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td><td>${escapeHtml(s.jk || '-')}</td><td>${isAktifStatus_(s.status) ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">' + escapeHtml(s.status) + '</span>'}</td><td>${hasCard ? '<span class="badge-ok"><i class="fas fa-check-circle mr-1"></i>' + escapeHtml(s.uid_rfid) + '</span>' : '<span class="badge-no"><i class="fas fa-times-circle mr-1"></i>Belum ada</span>'}</td><td class="text-nowrap"><button class="btn-scan ${hasCard ? 'has-card' : ''}" data-act="scan" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-wifi mr-1"></i>${hasCard ? 'Ganti' : 'Scan'}</button><button class="btn-ghost ml-1 ${hasWa ? 'text-success' : ''}" data-act="wa" data-nis="${escapeHtml(s.nis)}" title="${hasWa ? 'Kirim WA Orang Tua' : 'Kirim / Simpan WA Orang Tua'}"><i class="fab fa-whatsapp"></i></button><button class="btn-ghost ml-1" data-act="edit" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-edit"></i></button><button class="btn-ghost ml-1" data-act="raport" data-nis="${escapeHtml(s.nis)}" title="Cetak Raport"><i class="fas fa-file-alt"></i></button><button class="btn-danger-soft ml-1" data-act="hapus" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-trash"></i></button></td></tr>`;
   }).join('');
   tbody.querySelectorAll('[data-act]').forEach(btn => {
     btn.addEventListener('click', () => {
       const nis = btn.dataset.nis; const siswa = state.siswaList.find(x => String(x.nis) === String(nis));
       if (!siswa) return;
       if (btn.dataset.act === 'edit') openEditSiswa(siswa);
+      if (btn.dataset.act === 'wa') bukaModalWaOrtu_({ ...siswa, konteks: 'info' });
       if (btn.dataset.act === 'hapus') hapusSiswa(nis, siswa.nama);
       if (btn.dataset.act === 'raport') { loadPage('raport'); setTimeout(() => { pilihRaportSiswa(siswa); }, 200); }
       if (btn.dataset.act === 'scan') openRfidForSiswa(siswa);
@@ -2391,16 +2803,18 @@ if ($('btn-refresh-siswa')) $('btn-refresh-siswa').addEventListener('click', loa
 function openTambahSiswa() {
   $('siswa-mode').value = 'tambah'; $('siswa-nis-lama').value = ''; $('siswa-nis').value = ''; $('siswa-nis').disabled = false;
   $('siswa-nama').value = ''; $('siswa-kelas').value = ''; $('siswa-jk').value = ''; $('siswa-status').value = 'AKTIF'; $('siswa-catatan').value = '';
+  if ($('siswa-wa')) $('siswa-wa').value = '';
   $('modal-siswa-title').textContent = 'Tambah Siswa'; $('siswa-alert').style.display = 'none'; $('modal-siswa').classList.add('show');
 }
 function openEditSiswa(s) {
   $('siswa-mode').value = 'edit'; $('siswa-nis-lama').value = s.nis; $('siswa-nis').value = s.nis; $('siswa-nis').disabled = true;
   $('siswa-nama').value = s.nama || ''; $('siswa-kelas').value = s.kelas || ''; $('siswa-jk').value = s.jk || ''; $('siswa-status').value = s.status || 'AKTIF'; $('siswa-catatan').value = s.catatan || '';
+  if ($('siswa-wa')) $('siswa-wa').value = s.no_hp_ortu || s.no_wa || s.hp_ortu || '';
   $('modal-siswa-title').textContent = 'Edit Siswa — ' + s.nama; $('siswa-alert').style.display = 'none'; $('modal-siswa').classList.add('show');
 }
 async function simpanSiswa() {
   const mode = $('siswa-mode').value;
-  const payload = { nis: mode === 'edit' ? $('siswa-nis-lama').value : $('siswa-nis').value.trim(), nama: $('siswa-nama').value.trim(), kelas: $('siswa-kelas').value, jk: $('siswa-jk').value, status: $('siswa-status').value, catatan: $('siswa-catatan').value.trim() };
+  const payload = { nis: mode === 'edit' ? $('siswa-nis-lama').value : $('siswa-nis').value.trim(), nama: $('siswa-nama').value.trim(), kelas: $('siswa-kelas').value, jk: $('siswa-jk').value, status: $('siswa-status').value, catatan: $('siswa-catatan').value.trim(), no_hp_ortu: $('siswa-wa') ? $('siswa-wa').value.trim() : '' };
   if (!payload.nis || !payload.nama || !payload.kelas) { $('siswa-alert').textContent = 'NIS, Nama, Kelas wajib.'; $('siswa-alert').style.display = 'block'; return; }
   const action = mode === 'edit' ? 'editSiswa' : 'tambahSiswa'; const btn = $('btn-simpan-siswa'); btn.disabled = true; btn.textContent = 'Menyimpan…';
   try {
@@ -4303,6 +4717,38 @@ function updateZonaPreview_() {
   if ($(id)) $(id).addEventListener('input', updateZonaPreview_);
 });
 
+function updateTgUiState_() {
+  const aktif = ($('set-tg-aktif') && $('set-tg-aktif').value === 'YA');
+  const badge = $('tg-status-badge');
+  const hint = $('tg-off-hint');
+  const body = $('tg-config-body');
+  if (badge) {
+    badge.textContent = aktif ? 'AKTIF' : 'NONAKTIF';
+    badge.className = 'badge ' + (aktif ? 'badge-success' : 'badge-secondary');
+  }
+  if (hint) hint.style.display = aktif ? 'none' : 'block';
+  if (body) body.style.opacity = aktif ? '1' : '0.78';
+}
+if ($('set-tg-aktif')) $('set-tg-aktif').addEventListener('change', updateTgUiState_);
+
+function setTgActionInfo_(msg, isErr) {
+  const el = $('tg-action-info');
+  if (!el) return;
+  el.style.display = 'block';
+  el.className = 'alert small mt-3 mb-0 ' + (isErr ? 'alert-danger' : 'alert-success');
+  el.textContent = msg;
+}
+
+if ($('btn-tg-toggle-token')) {
+  $('btn-tg-toggle-token').addEventListener('click', () => {
+    const inp = $('set-tg-token');
+    if (!inp) return;
+    const isPwd = inp.type === 'password';
+    inp.type = isPwd ? 'text' : 'password';
+    $('btn-tg-toggle-token').innerHTML = isPwd ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+  });
+}
+
 async function loadPengaturan() {
   try {
     const res = await apiCall('getPengaturan');
@@ -4329,6 +4775,19 @@ async function loadPengaturan() {
     $('set-zona-oranye').value = s.zona_oranye_min || '26';
     $('set-zona-merah').value = s.zona_merah_min || '1';
     updateZonaPreview_();
+
+    // Pengaturan Bot Telegram (Opsional)
+    if ($('set-tg-aktif')) $('set-tg-aktif').value = String(s.tg_aktif || 'TIDAK').toUpperCase() === 'YA' ? 'YA' : 'TIDAK';
+    if ($('set-tg-token')) $('set-tg-token').value = s.tg_bot_token || '';
+    if ($('set-tg-chat-pimpinan')) $('set-tg-chat-pimpinan').value = s.tg_chat_pimpinan || '';
+    if ($('set-tg-chat-wali')) $('set-tg-chat-wali').value = s.tg_chat_walikelas || '';
+    if ($('set-tg-notif-osis')) $('set-tg-notif-osis').checked = String(s.tg_notif_osis || 'YA').toUpperCase() === 'YA';
+    if ($('set-tg-notif-zona')) $('set-tg-notif-zona').checked = String(s.tg_notif_zona || 'YA').toUpperCase() === 'YA';
+    if ($('set-tg-notif-telat')) $('set-tg-notif-telat').checked = String(s.tg_notif_telat || 'YA').toUpperCase() === 'YA';
+    if ($('set-tg-rekap-pagi')) $('set-tg-rekap-pagi').checked = String(s.tg_rekap_pagi || 'YA').toUpperCase() === 'YA';
+    if ($('set-tg-rekap-sore')) $('set-tg-rekap-sore').checked = String(s.tg_rekap_sore || 'YA').toUpperCase() === 'YA';
+    if ($('set-tg-perintah')) $('set-tg-perintah').checked = String(s.tg_perintah_aktif || 'YA').toUpperCase() === 'YA';
+    updateTgUiState_();
   } catch (e) {}
 }
 $('btn-simpan-pengaturan').addEventListener('click', async () => {
@@ -4345,6 +4804,13 @@ $('btn-simpan-pengaturan').addEventListener('click', async () => {
     toast('Batas zona harus berurutan: Kuning > Oranye > Merah.', true);
     return;
   }
+  const tgAktif = $('set-tg-aktif') ? $('set-tg-aktif').value : 'TIDAK';
+  const tgToken = $('set-tg-token') ? $('set-tg-token').value.trim() : '';
+  const tgChatPimpinan = $('set-tg-chat-pimpinan') ? $('set-tg-chat-pimpinan').value.trim() : '';
+  if (tgAktif === 'YA' && (!tgToken || !tgChatPimpinan)) {
+    toast('Jika Bot Telegram diaktifkan, Bot Token & Chat ID Grup Pimpinan wajib diisi.', true);
+    return;
+  }
   const payload = {
     jam_masuk: jm, jam_pulang: jp,
     toleransi_menit: $('set-toleransi').value,
@@ -4354,14 +4820,171 @@ $('btn-simpan-pengaturan').addEventListener('click', async () => {
     alamat_sekolah: $('set-alamat').value, kota_surat: $('set-kota').value, no_surat_prefix: $('set-prefix-surat').value,
     kepala_sekolah: $('set-kepsek').value, wakasek_kesiswaan: $('set-wakasek').value, guru_bk: $('set-gurubk').value,
     poin_awal: $('set-poin-awal').value, zona_kuning_min: $('set-zona-kuning').value,
-    zona_oranye_min: $('set-zona-oranye').value, zona_merah_min: $('set-zona-merah').value
+    zona_oranye_min: $('set-zona-oranye').value, zona_merah_min: $('set-zona-merah').value,
+    tg_aktif: tgAktif,
+    tg_bot_token: tgToken,
+    tg_chat_pimpinan: tgChatPimpinan,
+    tg_chat_walikelas: $('set-tg-chat-wali') ? $('set-tg-chat-wali').value.trim() : '',
+    tg_notif_osis: ($('set-tg-notif-osis') && $('set-tg-notif-osis').checked) ? 'YA' : 'TIDAK',
+    tg_notif_zona: ($('set-tg-notif-zona') && $('set-tg-notif-zona').checked) ? 'YA' : 'TIDAK',
+    tg_notif_telat: ($('set-tg-notif-telat') && $('set-tg-notif-telat').checked) ? 'YA' : 'TIDAK',
+    tg_rekap_pagi: ($('set-tg-rekap-pagi') && $('set-tg-rekap-pagi').checked) ? 'YA' : 'TIDAK',
+    tg_rekap_sore: ($('set-tg-rekap-sore') && $('set-tg-rekap-sore').checked) ? 'YA' : 'TIDAK',
+    tg_perintah_aktif: ($('set-tg-perintah') && $('set-tg-perintah').checked) ? 'YA' : 'TIDAK'
   };
   const btn = $('btn-simpan-pengaturan');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan…';
-  try { const res = await apiCall('simpanPengaturan', payload, true); if (!res.ok) { toast(res.message, true); return; } toast('Pengaturan disimpan'); }
+  try {
+    const res = await apiCall('simpanPengaturan', payload, true);
+    if (!res.ok) { toast(res.message, true); return; }
+    toast('Pengaturan disimpan' + (tgAktif === 'YA' ? ' (Bot Telegram AKTIF)' : ' (Bot Telegram NONAKTIF)'));
+    updateTgUiState_();
+  }
   catch (err) { toast(err.message, true); }
   finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save mr-1"></i>Simpan Pengaturan'; }
 });
+
+// --- AKSI CEPAT BOT TELEGRAM ---
+async function jalankanAksiTelegram_(btnId, loadingText, action, payload, onSuccess) {
+  const btn = $(btnId);
+  if (!btn) return;
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>' + loadingText;
+  try {
+    const res = await apiCall(action, payload, true);
+    if (!res.ok) {
+      toast(res.message || 'Gagal memproses permintaan Telegram.', true);
+      setTgActionInfo_(res.message || 'Gagal memproses permintaan Telegram.', true);
+      return;
+    }
+    toast(res.message || 'Berhasil');
+    setTgActionInfo_(res.message || 'Berhasil', false);
+    if (typeof onSuccess === 'function') onSuccess(res);
+  } catch (err) {
+    toast(err.message || 'Kesalahan jaringan', true);
+    setTgActionInfo_(err.message || 'Kesalahan jaringan', true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
+  }
+}
+
+if ($('btn-tg-deteksi')) {
+  $('btn-tg-deteksi').addEventListener('click', () => {
+    const botToken = $('set-tg-token').value.trim();
+    if (!botToken) { toast('Tempel Bot Token dari @BotFather terlebih dahulu.', true); return; }
+    jalankanAksiTelegram_('btn-tg-deteksi', 'Mendeteksi…', 'deteksiChatIdTelegram', { tg_bot_token: botToken }, (res) => {
+      const wrap = $('tg-deteksi-hasil');
+      if (!wrap) return;
+      const list = Array.isArray(res.data) ? res.data : [];
+      if (!list.length) { wrap.style.display = 'none'; return; }
+      wrap.innerHTML = '';
+      wrap.style.display = 'block';
+      const box = document.createElement('div');
+      box.className = 'border rounded p-2';
+      box.style.background = '#F0F9FF';
+      const title = document.createElement('div');
+      title.className = 'small font-weight-bold mb-2 text-info';
+      title.textContent = 'Grup / Chat Terdeteksi (klik untuk mengisi otomatis):';
+      box.appendChild(title);
+      list.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'd-flex justify-content-between align-items-center flex-wrap py-1 border-top';
+        row.style.gap = '.35rem';
+        const info = document.createElement('div');
+        info.className = 'small';
+        const b = document.createElement('b');
+        b.textContent = item.title || item.id;
+        const code = document.createElement('code');
+        code.className = 'ml-1';
+        code.textContent = item.id;
+        info.appendChild(b);
+        info.appendChild(document.createTextNode(' '));
+        info.appendChild(code);
+
+        const acts = document.createElement('div');
+        acts.className = 'd-flex';
+        acts.style.gap = '.3rem';
+        const btnP = document.createElement('button');
+        btnP.type = 'button';
+        btnP.className = 'btn btn-xs btn-primary';
+        btnP.textContent = 'Grup Pimpinan';
+        btnP.addEventListener('click', () => {
+          $('set-tg-chat-pimpinan').value = item.id;
+          toast('Chat ID Grup Pimpinan diisi: ' + (item.title || item.id));
+        });
+        const btnW = document.createElement('button');
+        btnW.type = 'button';
+        btnW.className = 'btn btn-xs btn-outline-info';
+        btnW.textContent = 'Grup Wali Kelas';
+        btnW.addEventListener('click', () => {
+          $('set-tg-chat-wali').value = item.id;
+          toast('Chat ID Grup Wali Kelas diisi: ' + (item.title || item.id));
+        });
+        acts.appendChild(btnP);
+        acts.appendChild(btnW);
+        row.appendChild(info);
+        row.appendChild(acts);
+        box.appendChild(row);
+      });
+      wrap.appendChild(box);
+    });
+  });
+}
+
+if ($('btn-tg-tes')) {
+  $('btn-tg-tes').addEventListener('click', () => {
+    jalankanAksiTelegram_('btn-tg-tes', 'Mengirim Tes…', 'tesTelegram', {
+      tg_bot_token: $('set-tg-token').value.trim(),
+      tg_chat_pimpinan: $('set-tg-chat-pimpinan').value.trim(),
+      tg_chat_walikelas: $('set-tg-chat-wali').value.trim()
+    });
+  });
+}
+
+if ($('btn-tg-webhook-on')) {
+  $('btn-tg-webhook-on').addEventListener('click', () => {
+    jalankanAksiTelegram_('btn-tg-webhook-on', 'Mengaktifkan…', 'setWebhookTelegram', {
+      tg_bot_token: $('set-tg-token').value.trim(),
+      webhook_url: API_URL,
+      aktif: true
+    });
+  });
+}
+
+if ($('btn-tg-webhook-off')) {
+  $('btn-tg-webhook-off').addEventListener('click', () => {
+    jalankanAksiTelegram_('btn-tg-webhook-off', 'Mematikan…', 'setWebhookTelegram', {
+      tg_bot_token: $('set-tg-token').value.trim(),
+      aktif: false
+    });
+  });
+}
+
+if ($('btn-tg-jadwal-on')) {
+  $('btn-tg-jadwal-on').addEventListener('click', () => {
+    jalankanAksiTelegram_('btn-tg-jadwal-on', 'Memasang…', 'aturJadwalTelegram', { aktif: true });
+  });
+}
+
+if ($('btn-tg-jadwal-off')) {
+  $('btn-tg-jadwal-off').addEventListener('click', () => {
+    jalankanAksiTelegram_('btn-tg-jadwal-off', 'Menghapus…', 'aturJadwalTelegram', { aktif: false });
+  });
+}
+
+if ($('btn-tg-kirim-pagi')) {
+  $('btn-tg-kirim-pagi').addEventListener('click', () => {
+    jalankanAksiTelegram_('btn-tg-kirim-pagi', 'Mengirim…', 'kirimRekapTelegramManual', { jenis: 'pagi' });
+  });
+}
+
+if ($('btn-tg-kirim-sore')) {
+  $('btn-tg-kirim-sore').addEventListener('click', () => {
+    jalankanAksiTelegram_('btn-tg-kirim-sore', 'Mengirim…', 'kirimRekapTelegramManual', { jenis: 'sore' });
+  });
+}
 
 // ============ CETAK KARTU ============
 async function initKartu() {}

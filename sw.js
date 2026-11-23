@@ -18,6 +18,7 @@ const CORE_ASSETS = [
   './api-config.js',
   './navbar.js',
   './pwa.js',
+  './scanner-dual.js',
   './icons/pwa-192x192.png',
   './icons/pwa-512x512.png',
   './icons/apple-touch-icon.png'

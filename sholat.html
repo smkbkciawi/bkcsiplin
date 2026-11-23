@@ -15,6 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js" defer></script>
+<script src="scanner-dual.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root{--emerald:#059669;--emerald-l:#10B981;--emerald-d:#047857;--bg:#ECFDF5;--text:#064E3B;--card:#fff;--border:#A7F3D0;--muted:#6B7280;--danger:#EF4444;--warn:#F59E0B}
@@ -305,7 +307,7 @@
           <div class="scanner-box" id="scanner-container">
             <div class="scanner-placeholder" id="scanner-placeholder">
               <i class="fas fa-camera"></i>
-              <p style="font-size:.88rem;font-weight:700">Ketuk "Mulai Kamera" untuk scan QR kartu siswa</p>
+              <p style="font-size:.88rem;font-weight:700">Ketuk "Mulai Kamera" untuk scan QR / Barcode kartu siswa</p>
             </div>
             <video id="video" style="display:none" playsinline muted></video>
             <div class="overlay" id="scan-overlay" style="display:none"></div>
@@ -500,9 +502,9 @@
         </ul>
       </div>
       <div class="guide-step">
-        <h4>2️⃣ Cara Scan QR, Tap RFID, &amp; Cari Manual</h4>
+        <h4>2️⃣ Cara Scan QR / Barcode, Tap RFID, &amp; Cari Manual</h4>
         <ul>
-          <li>Gunakan kamera HP untuk <b>Scan QR</b> kartu siswa, atau klik input <span class="guide-pill">Tap RFID</span> untuk reader USB/OTG.</li>
+          <li>Gunakan kamera HP untuk <b>Scan QR</b> maupun <b>Barcode (kode batang)</b> kartu siswa, atau klik input <span class="guide-pill">Tap RFID</span> untuk reader USB/OTG.</li>
           <li>Jika siswa tidak membawa kartu, ketik minimal 2 huruf nama/NIS di kotak <b>Cari Manual</b> lalu ketuk namanya.</li>
         </ul>
       </div>
@@ -536,7 +538,7 @@ const state = {
   waktuSholat: 'DZUHUR',
   waktuDipilihManual: false,
   jadwal: { SUBUH:'04:30', DZUHUR:'12:00', ASHAR:'15:15', MAGHRIB:'18:00', ISYA:'19:15' },
-  stream: null, scanInterval: null, currentFacing: 'environment', torchOn: false,
+  stream: null, scanInterval: null, scanLoop: null, camStarting: false, currentFacing: 'environment', torchOn: false,
   idleWarnTimer: null, idleCountdownTimer: null, heartbeatTimer: null, searchTimer: null, udzurSearchTimer: null, statusTimer: null,
   konfirmasiNis: null, konfirmasiWaktu: null, konfirmasiSumber: 'QR', konfirmasiRow: null, konfirmasiIdUdzur: null,
   lastWibDate: '',
@@ -1045,12 +1047,29 @@ document.querySelectorAll('.jadwal-item').forEach(item=>{
   });
 });
 
-// ============ KAMERA & TORCH ============
+// ============ KAMERA & TORCH (DUAL QR + BARCODE 1D) ============
 async function startKamera() {
+  if (state.camStarting) return;
+  state.camStarting = true;
   try {
-    state.stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: state.currentFacing, width: { ideal: 1280 }, height: { ideal: 720 } }
-    });
+    if (state.scanLoop) { state.scanLoop.stop(); state.scanLoop = null; }
+    if (state.scanInterval) { clearInterval(state.scanInterval); state.scanInterval = null; }
+    if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
+
+    if (window.BKCScanner && typeof window.BKCScanner.openCameraStream === 'function') {
+      state.stream = await window.BKCScanner.openCameraStream(state.currentFacing);
+    } else {
+      state.stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: state.currentFacing, width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+    }
+
+    // Jika pengguna menekan Stop saat kamera sedang dibuka
+    if (!state.camStarting) {
+      if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
+      return;
+    }
+
     const video = $('video');
     video.srcObject = state.stream;
     video.style.display = 'block';
@@ -1067,16 +1086,48 @@ async function startKamera() {
     $('btn-torch-cam').innerHTML = '<i class="fas fa-bolt"></i> Senter';
 
     await video.play();
-    state.scanInterval = setInterval(scanQR, 280);
-  } catch(e){ toast('Tidak bisa akses kamera: ' + e.message, true); }
+    if (!state.camStarting) {
+      stopKamera();
+      return;
+    }
+
+    if (window.BKCScanner && typeof window.BKCScanner.createLoop === 'function') {
+      state.scanLoop = window.BKCScanner.createLoop({
+        video,
+        minLength: 3,
+        isPaused: () => state.scanning,
+        onDetected: (info) => {
+          const nis = info && info.rawValue ? info.rawValue : '';
+          if (nis.length >= 3 && !state.scannedNis[nis]) {
+            state.scannedNis[nis] = true;
+            state.scanning = true;
+            prosesPresensi(nis, info.sumber || 'QR').finally(() => { state.scanning = false; });
+          }
+        }
+      });
+    } else {
+      state.scanInterval = setInterval(scanQR, 280);
+    }
+  } catch(e){
+    stopKamera();
+    toast('Tidak bisa akses kamera: ' + (e && e.message ? e.message : e), true);
+  } finally {
+    state.camStarting = false;
+  }
 }
 
 function stopKamera() {
-  if (state.scanInterval) clearInterval(state.scanInterval);
-  state.scanInterval = null;
+  state.camStarting = false;
+  if (state.scanLoop) { state.scanLoop.stop(); state.scanLoop = null; }
+  if (state.scanInterval) { clearInterval(state.scanInterval); state.scanInterval = null; }
   if (state.stream) { state.stream.getTracks().forEach(t=>t.stop()); state.stream=null; }
   state.torchOn = false;
-  $('video').style.display='none';
+  const video = $('video');
+  if (video) {
+    try { video.pause(); } catch(_) {}
+    video.srcObject = null;
+    video.style.display='none';
+  }
   $('scanner-placeholder').style.display='block';
   $('scan-overlay').style.display='none';
   $('btn-start-cam').style.display='inline-flex';
@@ -1086,7 +1137,7 @@ function stopKamera() {
 }
 
 function scanQR() {
-  if (state.scanning) return;
+  if (state.scanning || typeof jsQR !== 'function') return;
   const video = $('video');
   if (video.readyState !== video.HAVE_ENOUGH_DATA || !video.videoWidth) return;
   const canvas = document.createElement('canvas');

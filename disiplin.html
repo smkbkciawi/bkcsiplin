@@ -15,6 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js" defer></script>
+<script src="scanner-dual.js"></script>
 <style>
   :root{
     --maroon:#881337; --maroon-l:#BE123C; --maroon-d:#4C0519;
@@ -153,7 +155,15 @@
 
   .scanner-box{background:#000;border-radius:16px;overflow:hidden;position:relative;aspect-ratio:4/3;margin-bottom:1rem;display:flex;align-items:center;justify-content:center}
   .scanner-box video{width:100%;height:100%;object-fit:cover}
+  .scanner-box .overlay{position:absolute;inset:0;border:3px solid var(--maroon-l);border-radius:16px;box-shadow:inset 0 0 0 32px rgba(0,0,0,.38);pointer-events:none}
+  .scanner-box .overlay::after{content:'';position:absolute;top:50%;left:10%;right:10%;height:2px;background:#FB7185;box-shadow:0 0 8px #FB7185;animation:disScan 2s infinite}
+  @keyframes disScan{0%,100%{top:22%}50%{top:78%}}
   .scanner-placeholder{color:#fff;text-align:center;padding:2rem}
+  .cam-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+  .cam-actions button{flex:1;min-width:95px;padding:.72rem .8rem;border-radius:12px;font-family:inherit;font-weight:700;font-size:.84rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.4rem}
+  .btn-cam-outline{background:#FDF2F4;color:var(--maroon);border:1.5px solid var(--border)}
+  .btn-cam-warn{background:#FEF3C7;color:#92400E;border:1.5px solid #FDE68A}
+  .btn-cam-stop{background:#FEE2E2;color:#B91C1C;border:1.5px solid #FECACA}
 
   .toast-wrap{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:.5rem}
   .toast{padding:.8rem 1.2rem;border-radius:12px;font-size:.85rem;font-weight:700;background:var(--success);color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.15)}
@@ -235,13 +245,13 @@
     <i class="fas fa-user-shield"></i> <span><b>Mode Petugas OSIS:</b> Anda dapat mencari siswa dan mengirim laporan pelanggaran. Laporan baru masuk ke antrean <b>Validasi Guru BK / Waka Kesiswaan</b> dan belum mengurangi poin siswa sebelum disetujui.</span>
   </div>
   <div class="clean-search">
-    <h2>Cari Siswa / Tap Kartu / Scan QR</h2>
+    <h2>Cari Siswa / Tap Kartu / Scan QR &amp; Barcode</h2>
     <div class="search-box">
       <span class="icon">🔍</span>
       <input type="text" id="search-input" placeholder="Ketik nama atau NIS…" autocomplete="off">
     </div>
     <div class="action-btns">
-      <button class="btn-action primary" type="button" onclick="openScanner('guru')"><i class="fas fa-camera"></i> Scan QR</button>
+      <button class="btn-action primary" type="button" onclick="openScanner('guru')"><i class="fas fa-camera"></i> Scan QR / Barcode</button>
       <button class="btn-action outline" type="button" onclick="tapRfid('guru')"><i class="fas fa-wifi"></i> Tap RFID</button>
     </div>
     <div class="result-box" id="result-box"></div>
@@ -499,13 +509,18 @@
 <div class="modal-overlay" id="modal-scanner">
   <div class="modal" style="max-width:450px">
     <button class="modal-close" type="button" onclick="closeScanner()">×</button>
-    <h2>Scan QR Kartu Siswa</h2>
+    <h2>Scan QR / Barcode Kartu Siswa</h2>
     <div class="scanner-box" id="scanner-container">
-      <div class="scanner-placeholder" id="scanner-placeholder"><i class="fas fa-camera"></i><p style="margin-top:.5rem">Kamera belum aktif</p></div>
-      <video id="video" style="display:none" playsinline></video>
+      <div class="scanner-placeholder" id="scanner-placeholder"><i class="fas fa-camera"></i><p style="margin-top:.5rem;font-size:.86rem">Ketuk "Mulai Kamera" untuk scan QR / Barcode</p></div>
+      <video id="video" style="display:none" playsinline muted></video>
+      <div class="overlay" id="scan-overlay" style="display:none"></div>
     </div>
-    <button class="btn-primary-full" type="button" id="btn-start-cam" onclick="startKamera()">Mulai Kamera</button>
-    <button class="btn-secondary-full" type="button" id="btn-stop-cam" onclick="stopKamera()" style="display:none">Stop Kamera</button>
+    <button class="btn-primary-full" type="button" id="btn-start-cam" onclick="startKamera()"><i class="fas fa-camera"></i> Mulai Kamera</button>
+    <div class="cam-actions" id="cam-active-actions" style="display:none">
+      <button class="btn-cam-outline" type="button" id="btn-switch-cam" onclick="switchKamera()" title="Ganti Kamera"><i class="fas fa-sync"></i> Balik</button>
+      <button class="btn-cam-warn" type="button" id="btn-torch-cam" onclick="toggleTorchKamera()" style="display:none" title="Lampu Senter"><i class="fas fa-bolt"></i> Senter</button>
+      <button class="btn-cam-stop" type="button" id="btn-stop-cam" onclick="stopKamera()"><i class="fas fa-stop"></i> Stop</button>
+    </div>
   </div>
 </div>
 
@@ -669,7 +684,7 @@
       <input type="text" id="cek-input" placeholder="Ketik nama atau NIS…" autocomplete="off">
     </div>
     <div style="display:flex;gap:.5rem;margin-bottom:1rem">
-      <button class="btn-action outline" type="button" onclick="openScanner('cekpoin')" style="flex:1"><i class="fas fa-camera"></i> Scan QR</button>
+      <button class="btn-action outline" type="button" onclick="openScanner('cekpoin')" style="flex:1"><i class="fas fa-camera"></i> Scan QR / Barcode</button>
       <button class="btn-action outline" type="button" onclick="tapRfid('cekpoin')" style="flex:1"><i class="fas fa-wifi"></i> Tap RFID</button>
     </div>
     <div class="result-box" id="cek-result" style="max-height:200px"></div>
@@ -718,7 +733,7 @@ const state = {
   role: sessionStorage.getItem('bkc_disiplin_role') || localStorage.getItem('bkc_disiplin_role') || '',
   selectedSiswa: null,
   keranjang: [],
-  stream: null, scanInterval: null, currentFacing: 'environment',
+  stream: null, scanInterval: null, scanLoop: null, camStarting: false, torchOn: false, currentFacing: 'environment',
   scanMode: null,
   searchTimer: null,
   rekapSearchTimer: null,
@@ -1581,35 +1596,128 @@ async function cariSiswaByNis(kode) {
   } catch (e) { toast('Koneksi gagal', true); bunyiTetot(); }
 }
 
-async function startKamera() {
-  try {
-    state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.currentFacing } });
-    $('video').srcObject = state.stream; $('video').style.display = 'block'; $('scanner-placeholder').style.display = 'none';
-    $('btn-start-cam').style.display = 'none'; $('btn-stop-cam').style.display = 'block'; $('video').play();
-    state.scanInterval = setInterval(scanQR, 300);
-  } catch (e) { toast('Tidak bisa akses kamera: ' + e.message, true); }
-}
-function stopKamera() {
-  if (state.scanInterval) clearInterval(state.scanInterval);
-  if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
-  $('video').style.display = 'none'; $('scanner-placeholder').style.display = 'block';
-  $('btn-start-cam').style.display = 'block'; $('btn-stop-cam').style.display = 'none';
-}
 let lastScanAt = 0, lastScanData = '';
+function handleScannerResult(nis) {
+  const clean = String(nis || '').trim();
+  if (clean.length < 3) return;
+  if (Date.now() - lastScanAt < 2000 && lastScanData === clean) return;
+  lastScanAt = Date.now();
+  lastScanData = clean;
+  stopKamera();
+  closeScanner();
+  cariSiswaByNis(clean);
+}
+
+async function startKamera() {
+  if (state.camStarting) return;
+  state.camStarting = true;
+  try {
+    if (state.scanLoop) { state.scanLoop.stop(); state.scanLoop = null; }
+    if (state.scanInterval) { clearInterval(state.scanInterval); state.scanInterval = null; }
+    if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
+
+    if (window.BKCScanner && typeof window.BKCScanner.openCameraStream === 'function') {
+      state.stream = await window.BKCScanner.openCameraStream(state.currentFacing);
+    } else {
+      state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.currentFacing } });
+    }
+
+    if (!state.camStarting) {
+      if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
+      return;
+    }
+
+    const video = $('video');
+    video.srcObject = state.stream;
+    video.style.display = 'block';
+    $('scanner-placeholder').style.display = 'none';
+    if ($('scan-overlay')) $('scan-overlay').style.display = 'block';
+    $('btn-start-cam').style.display = 'none';
+    if ($('cam-active-actions')) $('cam-active-actions').style.display = 'flex';
+
+    state.torchOn = false;
+    const track = state.stream.getVideoTracks()[0];
+    const caps = (track && track.getCapabilities) ? track.getCapabilities() : {};
+    if ($('btn-torch-cam')) {
+      $('btn-torch-cam').style.display = caps.torch ? 'inline-flex' : 'none';
+      $('btn-torch-cam').innerHTML = '<i class="fas fa-bolt"></i> Senter';
+    }
+
+    await video.play();
+    if (!state.camStarting) {
+      stopKamera();
+      return;
+    }
+
+    if (window.BKCScanner && typeof window.BKCScanner.createLoop === 'function') {
+      state.scanLoop = window.BKCScanner.createLoop({
+        video,
+        minLength: 3,
+        isPaused: () => false,
+        onDetected: (info) => {
+          if (info && info.rawValue) handleScannerResult(info.rawValue);
+        }
+      });
+    } else {
+      state.scanInterval = setInterval(scanQR, 300);
+    }
+  } catch (e) {
+    stopKamera();
+    toast('Tidak bisa akses kamera: ' + (e && e.message ? e.message : e), true);
+  } finally {
+    state.camStarting = false;
+  }
+}
+
+function stopKamera() {
+  state.camStarting = false;
+  if (state.scanLoop) { state.scanLoop.stop(); state.scanLoop = null; }
+  if (state.scanInterval) { clearInterval(state.scanInterval); state.scanInterval = null; }
+  if (state.stream) { state.stream.getTracks().forEach(t => t.stop()); state.stream = null; }
+  state.torchOn = false;
+  const video = $('video');
+  if (video) {
+    try { video.pause(); } catch (_) {}
+    video.srcObject = null;
+    video.style.display = 'none';
+  }
+  $('scanner-placeholder').style.display = 'block';
+  if ($('scan-overlay')) $('scan-overlay').style.display = 'none';
+  $('btn-start-cam').style.display = 'block';
+  if ($('cam-active-actions')) $('cam-active-actions').style.display = 'none';
+  if ($('btn-torch-cam')) $('btn-torch-cam').style.display = 'none';
+}
+
+function switchKamera() {
+  state.currentFacing = state.currentFacing === 'environment' ? 'user' : 'environment';
+  stopKamera();
+  startKamera();
+}
+
+async function toggleTorchKamera() {
+  if (!state.stream) return;
+  const track = state.stream.getVideoTracks()[0];
+  if (!track) return;
+  try {
+    state.torchOn = !state.torchOn;
+    await track.applyConstraints({ advanced: [{ torch: state.torchOn }] });
+    if ($('btn-torch-cam')) {
+      $('btn-torch-cam').innerHTML = state.torchOn ? '<i class="fas fa-bolt"></i> Senter ON' : '<i class="fas fa-bolt"></i> Senter';
+    }
+  } catch (e) {
+    toast('Senter tidak didukung di kamera ini.', true);
+  }
+}
+
 function scanQR() {
-  const video = $('video'); if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+  if (typeof jsQR !== 'function') return;
+  const video = $('video');
+  if (video.readyState !== video.HAVE_ENOUGH_DATA || !video.videoWidth) return;
   const canvas = document.createElement('canvas'); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
   const ctx = canvas.getContext('2d'); ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const code = jsQR(imageData.data, imageData.width, imageData.height);
-  if (code) {
-    const nis = code.data.trim();
-    if (nis.length >= 4) {
-      if (Date.now() - lastScanAt < 2000 && lastScanData === nis) return;
-      lastScanAt = Date.now(); lastScanData = nis;
-      stopKamera(); closeScanner(); cariSiswaByNis(nis);
-    }
-  }
+  if (code) handleScannerResult(code.data);
 }
 
 // CETAK SURAT & MODAL DETAIL REKAP
@@ -2466,13 +2574,13 @@ if (window.BKC_SSO) BKC_SSO.bindLoginEsc('modal-login', ['modal-panduan', 'modal
           <li><b>GURU_BK, WAKA_KESISWAAN, KEPSEK, SUPER_ADMIN:</b> Akses penuh semua siswa, Catat Poin, <span class="guide-pill">Validasi Laporan OSIS</span>, <span class="guide-pill">Validasi Bolos Sholat</span>, <span class="guide-pill">Saldo Awal</span>, Udzur, Koreksi Poin, dan cetak Surat Peringatan (SP).</li>
           <li><b>WALI_KELAS:</b> Dapat mencatat poin, melihat rekap, mengelola udzur, dan mencetak surat khusus kelas binaan sendiri.</li>
           <li><b>PETUGAS_OSIS:</b> Akses khusus melapor pelanggaran tata tertib di halaman Kedisiplinan. Laporan baru berstatus <b>MENUNGGU</b> dan tidak mengurangi poin sebelum disetujui BK/Wakasis. Tertutup dari Rekap Nilai, Koreksi, Udzur, Surat SP, Admin, Gerbang, dan Sholat.</li>
-          <li><b>Siswa / Orang Tua (Tanpa Login):</b> Gunakan tombol <b>Cek Poin Saya (Siswa)</b> di layar login untuk memantau saldo poin via NIS/Nama/QR.</li>
+          <li><b>Siswa / Orang Tua (Tanpa Login):</b> Gunakan tombol <b>Cek Poin Saya (Siswa)</b> di layar login untuk memantau saldo poin via NIS/Nama/QR/Barcode.</li>
         </ul>
       </div>
       <div class="guide-step">
         <h4>1️⃣ Catat Poin Pelanggaran &amp; Prestasi</h4>
         <ul>
-          <li>Cari siswa lewat kolom nama/NIS, <b>Scan QR</b>, atau <b>Tap RFID</b>.</li>
+          <li>Cari siswa lewat kolom nama/NIS, <b>Scan QR / Barcode</b>, atau <b>Tap RFID</b>.</li>
           <li>Pilih pasal tata tertib (bisa tambahkan lebih dari satu pasal ke keranjang), isi deskripsi kronologi kejadian, lalu klik <b>Simpan Pencatatan</b> (atau <b>Kirim ke Validasi</b> untuk OSIS).</li>
         </ul>
       </div>

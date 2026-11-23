@@ -611,6 +611,7 @@
             </div>
           </div>
           <div class="card-body p-0">
+            <div id="siswa-anomali-banner" style="display:none;padding:.75rem 1rem;background:#FEF2F2;border-bottom:1px solid #FECACA;color:#991B1B;font-size:.84rem"></div>
             <div class="table-responsive">
               <table class="table table-hover mb-0">
                 <thead><tr><th style="width:80px">NIS</th><th>Nama</th><th>Kelas</th><th style="width:55px">JK</th><th>Status</th><th>Kartu RFID</th><th style="width:230px">Aksi</th></tr></thead>
@@ -978,6 +979,8 @@
               <h4 style="margin:0;font-weight:800;color:#1E3A8A">SMK BHAKTI KENCANA CIAWI — LAPORAN KEHADIRAN & KEDISIPLINAN SISWA</h4>
               <div style="font-size:.85rem;color:#475569" id="lap-siswa-print-periode"></div>
             </div>
+
+            <div id="lap-anomali-banner" class="no-print-laporan" style="display:none;padding:.7rem .95rem;border-radius:10px;background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;font-size:.84rem;margin-bottom:.85rem"></div>
 
             <div class="lap-summary-grid no-print-laporan" id="lap-summary-cards">
               <div class="lap-summary-box">
@@ -1759,6 +1762,52 @@ function canAccessTatib_(roleStr) {
 function isAktifStatus_(st) {
   const s = String(st == null ? '' : st).trim().toUpperCase();
   return s === '' || s === 'AKTIF';
+}
+function isValidSiswaRow_(s) {
+  return Boolean(s && (String(s.nis == null ? '' : s.nis).trim() || String(s.nama == null ? '' : s.nama).trim()));
+}
+function analisisAnomaliSiswa_(list) {
+  const rows = Array.isArray(list) ? list : [];
+  const validRows = [];
+  let emptyRowsCount = 0;
+  const emptyNisRows = [];
+  const byNis = new Map();
+
+  rows.forEach(s => {
+    if (!isValidSiswaRow_(s)) {
+      emptyRowsCount++;
+      return;
+    }
+    validRows.push(s);
+    const nis = String(s.nis == null ? '' : s.nis).trim();
+    if (!nis) {
+      emptyNisRows.push(s);
+      return;
+    }
+    if (!byNis.has(nis)) byNis.set(nis, []);
+    byNis.get(nis).push(s);
+  });
+
+  const dupGroups = [];
+  const dupNisSet = new Set();
+  let dupExtraCount = 0;
+  byNis.forEach((arr, nis) => {
+    if (arr.length > 1) {
+      dupGroups.push({ nis, rows: arr });
+      dupNisSet.add(nis);
+      dupExtraCount += (arr.length - 1);
+    }
+  });
+  return { validRows, emptyRowsCount, emptyNisRows, dupGroups, dupNisSet, dupExtraCount };
+}
+function normalisasiHeaderImport_(k) {
+  const s = String(k == null ? '' : k).trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  if (['nis', 'no_induk', 'nomor_induk', 'nisn', 'nis_siswa'].includes(s)) return 'nis';
+  if (['id_guru', 'id', 'nip', 'kode_guru'].includes(s)) return 'id_guru';
+  if (['nama', 'nama_siswa', 'nama_guru', 'nama_lengkap'].includes(s)) return 'nama';
+  if (['kelas', 'rombel', 'nama_kelas'].includes(s)) return 'kelas';
+  if (['status', 'status_siswa', 'status_guru'].includes(s)) return 'status';
+  return s;
 }
 
 function askConfirm(title, msg, okText = 'Ya, Lanjutkan', btnCls = 'btn-danger') {
@@ -2816,7 +2865,12 @@ function getFilteredSiswaList_() {
   const kelas = $('filter-kelas').value;
   const status = $('filter-status') ? $('filter-status').value : '';
   const rfidF = $('filter-rfid') ? $('filter-rfid').value : '';
-  return state.siswaList.filter(s => {
+  const anomali = analisisAnomaliSiswa_(state.siswaList);
+  return anomali.validRows.filter(s => {
+    const nis = String(s.nis == null ? '' : s.nis).trim();
+    if (state.siswaOnlyAnomali) {
+      if (nis && !anomali.dupNisSet.has(nis)) return false;
+    }
     if (kelas && String(s.kelas) !== kelas) return false;
     if (status && String(s.status || '').toUpperCase() !== status) return false;
     const hasCard = !!(s.uid_rfid && String(s.uid_rfid).trim());
@@ -2831,15 +2885,69 @@ function openRfidForSiswa(s) {
   state.rfidPreselect = { tipe: 'siswa', id: String(s.nis), item: s };
   loadPage('rfid');
 }
+function renderSiswaAnomaliBanner_(anomali) {
+  const el = $('siswa-anomali-banner');
+  if (!el) return;
+  const adaMasalah = anomali.dupGroups.length > 0 || anomali.emptyNisRows.length > 0 || anomali.emptyRowsCount > 0;
+  if (!adaMasalah) {
+    el.style.display = 'none';
+    el.innerHTML = '';
+    if (state.siswaOnlyAnomali) state.siswaOnlyAnomali = false;
+    return;
+  }
+  const parts = [];
+  if (anomali.dupGroups.length > 0) {
+    const detail = anomali.dupGroups.slice(0, 6).map(g => {
+      const names = g.rows.map(r => escapeHtml(r.nama || '(tanpa nama)') + (r.kelas ? ' [' + escapeHtml(r.kelas) + ']' : '')).join(' &amp; ');
+      return `<li><b>NIS ${escapeHtml(g.nis)}</b> (${g.rows.length} baris): ${names}</li>`;
+    }).join('');
+    parts.push(`<div><b>${anomali.dupGroups.length} NIS duplikat/kembar terdeteksi</b> (dapat menyebabkan total Laporan berbeda &amp; absen tertukar):<ul class="mb-1 pl-3 mt-1">${detail}</ul></div>`);
+  }
+  if (anomali.emptyNisRows.length > 0) {
+    const names = anomali.emptyNisRows.slice(0, 5).map(r => escapeHtml(r.nama || '(tanpa nama)')).join(', ');
+    parts.push(`<div><b>${anomali.emptyNisRows.length} siswa tanpa NIS:</b> ${names}${anomali.emptyNisRows.length > 5 ? ', …' : ''}</div>`);
+  }
+  if (anomali.emptyRowsCount > 0) {
+    parts.push(`<div><b>${anomali.emptyRowsCount} baris kosong</b> di tab <code>SISWA</code> Google Sheet (otomatis diabaikan di tabel ini, sebaiknya dihapus di Spreadsheet).</div>`);
+  }
+  const bisaFilter = anomali.dupGroups.length > 0 || anomali.emptyNisRows.length > 0;
+  el.innerHTML = `
+    <div class="d-flex justify-content-between align-items-start flex-wrap" style="gap:.5rem">
+      <div style="flex:1;min-width:240px">
+        <div class="font-weight-bold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> Peringatan Integritas Data Siswa</div>
+        ${parts.join('')}
+        <div class="small mt-1" style="color:#7F1D1D">Perbaiki NIS kembar/kosong langsung di Google Sheet tab <b>SISWA</b>, lalu tekan <b>Tarik Data</b> di Gerbang.</div>
+      </div>
+      ${bisaFilter ? `<button type="button" class="btn btn-sm ${state.siswaOnlyAnomali ? 'btn-secondary' : 'btn-danger'} font-weight-bold" id="btn-toggle-anomali-siswa">${state.siswaOnlyAnomali ? 'Tampilkan Semua Siswa' : 'Tampilkan Hanya Bermasalah'}</button>` : ''}
+    </div>
+  `;
+  el.style.display = 'block';
+  const btnTog = $('btn-toggle-anomali-siswa');
+  if (btnTog) {
+    btnTog.addEventListener('click', () => {
+      state.siswaOnlyAnomali = !state.siswaOnlyAnomali;
+      renderSiswaTable();
+    });
+  }
+}
 function renderSiswaTable() {
   const tbody = $('tbody-siswa');
+  const anomali = analisisAnomaliSiswa_(state.siswaList);
+  renderSiswaAnomaliBanner_(anomali);
   const filtered = getFilteredSiswaList_();
-  $('footer-siswa').textContent = `Menampilkan ${filtered.length} dari ${state.siswaList.length} siswa.`;
+  $('footer-siswa').textContent = `Menampilkan ${filtered.length} dari ${anomali.validRows.length} siswa.` + (anomali.emptyRowsCount ? ` (${anomali.emptyRowsCount} baris kosong di Sheet diabaikan)` : '');
   if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Tidak ada data sesuai filter.</td></tr>'; return; }
   tbody.innerHTML = filtered.map(s => {
+    const nisTrim = String(s.nis == null ? '' : s.nis).trim();
+    const isDup = Boolean(nisTrim && anomali.dupNisSet.has(nisTrim));
+    const isEmptyNis = !nisTrim;
+    const rowCls = (isDup || isEmptyNis) ? ' class="table-danger"' : '';
+    const nisBadge = isDup
+      ? '<div><span class="badge badge-danger" style="font-size:.66rem">DUPLIKAT NIS</span></div>'
+      : (isEmptyNis ? '<div><span class="badge badge-warning" style="font-size:.66rem">NIS KOSONG</span></div>' : '');
     const hasCard = !!(s.uid_rfid && String(s.uid_rfid).trim());
     const hasWa = !!(s.no_hp_ortu || s.no_wa || s.hp_ortu);
-    return `<tr><td class="font-weight-bold">${escapeHtml(s.nis)}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td><td>${escapeHtml(s.jk || '-')}</td><td>${isAktifStatus_(s.status) ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">' + escapeHtml(s.status) + '</span>'}</td><td>${hasCard ? '<span class="badge-ok"><i class="fas fa-check-circle mr-1"></i>' + escapeHtml(s.uid_rfid) + '</span>' : '<span class="badge-no"><i class="fas fa-times-circle mr-1"></i>Belum ada</span>'}</td><td class="text-nowrap"><button class="btn-scan ${hasCard ? 'has-card' : ''}" data-act="scan" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-wifi mr-1"></i>${hasCard ? 'Ganti' : 'Scan'}</button><button class="btn-ghost ml-1 ${hasWa ? 'text-success' : ''}" data-act="wa" data-nis="${escapeHtml(s.nis)}" title="${hasWa ? 'Kirim WA Orang Tua' : 'Kirim / Simpan WA Orang Tua'}"><i class="fab fa-whatsapp"></i></button><button class="btn-ghost ml-1" data-act="edit" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-edit"></i></button><button class="btn-ghost ml-1" data-act="raport" data-nis="${escapeHtml(s.nis)}" title="Cetak Raport"><i class="fas fa-file-alt"></i></button><button class="btn-danger-soft ml-1" data-act="hapus" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-trash"></i></button></td></tr>`;
+    return `<tr${rowCls}><td class="font-weight-bold">${escapeHtml(nisTrim || '-')}${nisBadge}</td><td>${escapeHtml(s.nama)}</td><td>${escapeHtml(s.kelas)}</td><td>${escapeHtml(s.jk || '-')}</td><td>${isAktifStatus_(s.status) ? '<span class="badge badge-success">AKTIF</span>' : '<span class="badge badge-secondary">' + escapeHtml(s.status) + '</span>'}</td><td>${hasCard ? '<span class="badge-ok"><i class="fas fa-check-circle mr-1"></i>' + escapeHtml(s.uid_rfid) + '</span>' : '<span class="badge-no"><i class="fas fa-times-circle mr-1"></i>Belum ada</span>'}</td><td class="text-nowrap"><button class="btn-scan ${hasCard ? 'has-card' : ''}" data-act="scan" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-wifi mr-1"></i>${hasCard ? 'Ganti' : 'Scan'}</button><button class="btn-ghost ml-1 ${hasWa ? 'text-success' : ''}" data-act="wa" data-nis="${escapeHtml(s.nis)}" title="${hasWa ? 'Kirim WA Orang Tua' : 'Kirim / Simpan WA Orang Tua'}"><i class="fab fa-whatsapp"></i></button><button class="btn-ghost ml-1" data-act="edit" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-edit"></i></button><button class="btn-ghost ml-1" data-act="raport" data-nis="${escapeHtml(s.nis)}" title="Cetak Raport"><i class="fas fa-file-alt"></i></button><button class="btn-danger-soft ml-1" data-act="hapus" data-nis="${escapeHtml(s.nis)}"><i class="fas fa-trash"></i></button></td></tr>`;
   }).join('');
   tbody.querySelectorAll('[data-act]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -3704,11 +3812,27 @@ async function loadLaporan() {
     } else {
       const resSiswa = await apiCall('getMasterSiswa');
       if (!resSiswa.ok) { toast(resSiswa.message, true); return; }
-      listSiswa = (resSiswa.data || []).filter(s => isAktifStatus_(s.status));
+      listSiswa = (resSiswa.data || []).filter(s => isValidSiswaRow_(s) && isAktifStatus_(s.status));
     }
 
     const kelasDipilih = $('lap-kelas').value;
     if (kelasDipilih) listSiswa = listSiswa.filter(s => String(s.kelas) === kelasDipilih);
+
+    const lapAnomali = analisisAnomaliSiswa_(listSiswa);
+    const lapBanner = $('lap-anomali-banner');
+    if (lapBanner) {
+      if (lapAnomali.dupGroups.length > 0 || lapAnomali.emptyNisRows.length > 0) {
+        const infoList = lapAnomali.dupGroups.slice(0, 5).map(g =>
+          `<b>NIS ${escapeHtml(g.nis)}</b> (${g.rows.map(x => escapeHtml(x.nama || '-')).join(' &amp; ')})`
+        );
+        if (lapAnomali.emptyNisRows.length > 0) infoList.push(`<b>${lapAnomali.emptyNisRows.length} siswa tanpa NIS</b>`);
+        lapBanner.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i><b>Perhatian:</b> Ditemukan NIS bentrok/kosong pada data master (${infoList.join('; ')}). Akibatnya total siswa unik di laporan (${lapAnomali.validRows.length - lapAnomali.dupExtraCount - Math.max(0, lapAnomali.emptyNisRows.length - 1)}) berbeda dengan jumlah baris master (${lapAnomali.validRows.length}). Cek menu <b>Master Siswa</b> untuk melihat detailnya.`;
+        lapBanner.style.display = 'block';
+      } else {
+        lapBanner.style.display = 'none';
+        lapBanner.innerHTML = '';
+      }
+    }
 
     const apiKelas = (!isAdmin && !kelasDipilih && listSiswa.length && new Set(listSiswa.map(s => s.kelas)).size === 1)
       ? listSiswa[0].kelas
@@ -5154,19 +5278,77 @@ $('btn-import-tatib').addEventListener('click', () => openImport('tatib'));
 $('import-file').addEventListener('change', (e) => {
   const file = e.target.files[0]; if (!file) return;
   state.importFileName = file.name;
+  $('import-alert').style.display = 'none';
+  $('import-alert').innerHTML = '';
+  $('import-result').style.display = 'none';
   const reader = new FileReader();
   reader.onload = (ev) => {
     try {
       const data = new Uint8Array(ev.target.result);
       const wb = XLSX.read(data, { type: 'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
-      state.importRows = json;
-      $('import-preview').innerHTML = `<b>${escapeHtml(file.name)}</b> — terbaca <b>${json.length}</b> baris. ${json.length > 0 ? 'Baris pertama: ' + escapeHtml(Object.keys(json[0]).slice(0,3).join(', ')) + '…' : ''}`;
-      $('btn-do-import').disabled = json.length === 0;
+      const rawJson = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      // Buang baris benar-benar kosong di Excel (misal sisa format di baris bawah)
+      const json = [];
+      let barisKosongDibuang = 0;
+      rawJson.forEach((row, idx) => {
+        const hasAny = Object.values(row).some(v => String(v == null ? '' : v).trim() !== '');
+        if (!hasAny) { barisKosongDibuang++; return; }
+        json.push({ row, excelBaris: idx + 2 });
+      });
+
+      const mode = state.importMode;
+      const dupMasalah = [];
+      const kosongMasalah = [];
+
+      if (mode === 'siswa' || mode === 'guru') {
+        const keyField = mode === 'siswa' ? 'nis' : 'id_guru';
+        const keyLabel = mode === 'siswa' ? 'NIS' : 'ID Guru';
+        const seenMap = new Map();
+        json.forEach(item => {
+          const mapped = {};
+          Object.keys(item.row).forEach(k => {
+            const norm = normalisasiHeaderImport_(k);
+            if (norm && mapped[norm] === undefined) mapped[norm] = item.row[k];
+          });
+          const keyVal = String(mapped[keyField] == null ? '' : mapped[keyField]).trim();
+          const namaVal = String(mapped.nama == null ? '' : mapped.nama).trim();
+          if (!keyVal) {
+            kosongMasalah.push(`Baris ${item.excelBaris} (${namaVal || 'tanpa nama'}): ${keyLabel} kosong`);
+            return;
+          }
+          if (seenMap.has(keyVal)) {
+            const prev = seenMap.get(keyVal);
+            dupMasalah.push(`${keyLabel} <b>${escapeHtml(keyVal)}</b> duplikat di Baris ${prev.baris} (${escapeHtml(prev.nama)}) &amp; Baris ${item.excelBaris} (${escapeHtml(namaVal || '-')})`);
+          } else {
+            seenMap.set(keyVal, { baris: item.excelBaris, nama: namaVal || '-' });
+          }
+        });
+      }
+
+      state.importRows = json.map(x => x.row);
+      const infoKosong = barisKosongDibuang > 0 ? ` <span class="text-muted">(${barisKosongDibuang} baris kosong otomatis dilewati)</span>` : '';
+      $('import-preview').innerHTML = `<b>${escapeHtml(file.name)}</b> — terbaca <b>${state.importRows.length}</b> baris terisi.${infoKosong} ${state.importRows.length > 0 ? '<br>Kolom: ' + escapeHtml(Object.keys(state.importRows[0]).slice(0,5).join(', ')) + (Object.keys(state.importRows[0]).length > 5 ? '…' : '') : ''}`;
+
+      if (dupMasalah.length > 0) {
+        const listHtml = dupMasalah.slice(0, 12).map(m => `<li>${m}</li>`).join('') + (dupMasalah.length > 12 ? `<li>… dan ${dupMasalah.length - 12} duplikat lainnya</li>` : '');
+        $('import-alert').innerHTML = `<div style="text-align:left"><b>Import ditahan! Ditemukan ${dupMasalah.length} duplikat di dalam file Excel ini:</b><ul style="margin:.35rem 0 .2rem;padding-left:1.2rem;max-height:140px;overflow-y:auto">${listHtml}</ul><small>Perbaiki dulu nomor yang kembar di file Excel lalu pilih ulang file.</small></div>`;
+        $('import-alert').style.display = 'block';
+        $('btn-do-import').disabled = true;
+        return;
+      }
+
+      if (kosongMasalah.length > 0) {
+        const listHtml = kosongMasalah.slice(0, 8).map(m => `<li>${escapeHtml(m)}</li>`).join('') + (kosongMasalah.length > 8 ? `<li>… dan ${kosongMasalah.length - 8} baris lainnya</li>` : '');
+        $('import-alert').innerHTML = `<div style="text-align:left;color:#92400E"><b>Peringatan:</b> Ada ${kosongMasalah.length} baris tanpa NIS/ID (akan otomatis dilewati saat import):<ul style="margin:.3rem 0 0;padding-left:1.2rem;max-height:110px;overflow-y:auto">${listHtml}</ul></div>`;
+        $('import-alert').style.display = 'block';
+      }
+
+      $('btn-do-import').disabled = state.importRows.length === 0;
     } catch (err) {
       $('import-alert').textContent = 'Gagal membaca file: ' + err.message;
       $('import-alert').style.display = 'block';
+      $('btn-do-import').disabled = true;
     }
   };
   reader.readAsArrayBuffer(file);

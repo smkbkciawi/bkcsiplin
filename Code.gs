@@ -810,10 +810,52 @@ function searchOrangPublik_(p) {
   } catch (e) { return { ok: false, message: e.message }; }
 }
 
+// --- HELPER JADWAL PULANG PER HARI & JEDA MINIMAL PULANG ---
+function getHariKeyDariTanggal_(tglStr) {
+  let clean = String(tglStr || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+    clean = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
+  }
+  const p = clean.split('-').map(Number);
+  const dow = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12, 0, 0)).getUTCDay();
+  const keys = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+  return keys[dow] || 'senin';
+}
+
+function getJamPulangHari_(setting, tglStr) {
+  const s = setting || {};
+  const hariKey = getHariKeyDariTanggal_(tglStr);
+  const khususRaw = s['jam_pulang_' + hariKey];
+  if (khususRaw !== undefined && khususRaw !== null && String(khususRaw).trim() !== '') {
+    const khusus = formatJamSheet(khususRaw, '');
+    if (/^\d{2}:\d{2}$/.test(khusus)) return khusus;
+  }
+  return formatJamSheet(s.jam_pulang, '15:00');
+}
+
+function getJedaPulangMenit_(setting, tipe) {
+  const s = setting || {};
+  const isGuru = String(tipe || '').toUpperCase() === 'GURU';
+  const raw = isGuru ? s.jeda_pulang_guru_menit : s.jeda_pulang_siswa_menit;
+  const fallback = isGuru ? 30 : 120;
+  const minVal = isGuru ? 1 : 15;
+  if (raw === undefined || raw === null || String(raw).trim() === '') return fallback;
+  const n = Math.round(Number(raw));
+  if (!isFinite(n) || isNaN(n)) return fallback;
+  return Math.max(minVal, Math.min(480, n));
+}
+
+function formatJedaLabel_(menit) {
+  const m = Math.max(1, Math.round(Number(menit) || 0));
+  if (m >= 60 && m % 60 === 0) return (m / 60) + ' jam';
+  if (m > 60) return Math.floor(m / 60) + ' jam ' + (m % 60) + ' menit';
+  return m + ' menit';
+}
+
 // --- HELPER STATUS KETEPATAN WAKTU SISWA ---
-function hitungStatusSiswa_(jamTap, sesiTap, setting) {
+function hitungStatusSiswa_(jamTap, sesiTap, setting, tglTap) {
   if (String(sesiTap).toUpperCase() === 'PULANG') {
-    const jp = formatJamSheet(setting.jam_pulang, '15:00');
+    const jp = getJamPulangHari_(setting || {}, tglTap);
     return jamTap < jp ? 'PULANG_AWAL' : 'PULANG';
   }
   const jm = formatJamSheet(setting.jam_masuk, '07:15');
@@ -839,7 +881,7 @@ function prosesRekapSiswa_(sh, siswa, tgl, jam, sesiTap, setting, statusOverride
   const cStPulang = headers.indexOf('status_pulang');
 
   const sesiUpper = String(sesiTap || 'PAGI').toUpperCase();
-  const statusVal = statusOverride || hitungStatusSiswa_(jam, sesiUpper, setting || {});
+  const statusVal = statusOverride || hitungStatusSiswa_(jam, sesiUpper, setting || {}, tgl);
 
   for (let i = 1; i < data.length; i++) {
     const tglRow = getTanggalBersih_(data[i][cTgl]);
@@ -889,9 +931,10 @@ function menitDariJam_(jamStr) {
   return (parts[0] * 60) + (parts[1] || 0);
 }
 
-function prosesRekapGuru_(sh, guru, tgl, jamTap) {
+function prosesRekapGuru_(sh, guru, tgl, jamTap, setting) {
   const headers = ensureHeaders_(sh, SHEET.REKAP_GURU).map(h => h.toLowerCase());
   const data = sh.getDataRange().getValues();
+  const minJeda = getJedaPulangMenit_(setting, 'GURU');
 
   const cId = headers.indexOf('id_guru');
   const cTgl = headers.indexOf('tanggal');
@@ -918,7 +961,7 @@ function prosesRekapGuru_(sh, guru, tgl, jamTap) {
         const mPulang = jpAda ? menitDariJam_(jpAda) : -1;
         if (mExist >= 0 && mNew >= 0) {
           if (mNew < mExist) {
-            if ((mExist - mNew) >= 120) {
+            if ((mExist - mNew) >= minJeda) {
               const finalPulang = (mPulang > mExist) ? jpAda : jm;
               const diff = Math.max(mExist, mPulang) - mNew;
               if (cMasuk !== -1) sh.getRange(r, cMasuk + 1).setNumberFormat('@').setValue(jamTap);
@@ -928,7 +971,7 @@ function prosesRekapGuru_(sh, guru, tgl, jamTap) {
               SpreadsheetApp.flush();
             } else {
               if (cMasuk !== -1) sh.getRange(r, cMasuk + 1).setNumberFormat('@').setValue(jamTap);
-              if (mPulang >= 0 && (mPulang - mNew) >= 120 && cTotal !== -1) {
+              if (mPulang >= 0 && (mPulang - mNew) >= minJeda && cTotal !== -1) {
                 const diff = mPulang - mNew;
                 sh.getRange(r, cTotal + 1).setNumberFormat('@').setValue(Math.floor(diff / 60) + ' Jam ' + (diff % 60) + ' Mnt');
               }
@@ -936,7 +979,7 @@ function prosesRekapGuru_(sh, guru, tgl, jamTap) {
             }
           } else {
             const diff = mNew - mExist;
-            if (diff >= 120 && (mPulang === -1 || mNew > mPulang)) {
+            if (diff >= minJeda && (mPulang === -1 || mNew > mPulang)) {
               if (cPulang !== -1) sh.getRange(r, cPulang + 1).setNumberFormat('@').setValue(jamTap);
               if (cTotal !== -1) sh.getRange(r, cTotal + 1).setNumberFormat('@').setValue(Math.floor(diff / 60) + ' Jam ' + (diff % 60) + ' Mnt');
               if (cStatus !== -1 && !data[i][cStatus]) sh.getRange(r, cStatus + 1).setValue('HADIR');
@@ -982,7 +1025,8 @@ function presensiGerbang_(token, p) {
     const jamNow = Utilities.formatDate(waktuAcuan, TZ, 'HH:mm');
 
     const setting = getPengaturan_(null).data || {};
-    const MINIMAL_JAM_KERJA = 2;
+    const minJedaGuru = getJedaPulangMenit_(setting, 'GURU');
+    const minJedaSiswa = getJedaPulangMenit_(setting, 'SISWA');
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const normKode = normalisasiUid_(kode);
 
@@ -1006,8 +1050,8 @@ function presensiGerbang_(token, p) {
           const [h1, m1] = jamTapPertama.split(':').map(Number);
           const [h2, m2] = jamNow.split(':').map(Number);
           const selisihMenit = ((h2 * 60) + m2) - ((h1 * 60) + m1);
-          if (selisihMenit < (MINIMAL_JAM_KERJA * 60)) {
-            return { ok: false, message: guru.nama + ' belum bisa pulang. Minimal ' + MINIMAL_JAM_KERJA + ' jam sejak masuk (' + jamTapPertama + ').' };
+          if (selisihMenit < minJedaGuru) {
+            return { ok: false, message: guru.nama + ' belum bisa pulang. Minimal ' + formatJedaLabel_(minJedaGuru) + ' sejak masuk (' + jamTapPertama + ').' };
           }
         }
       }
@@ -1018,7 +1062,7 @@ function presensiGerbang_(token, p) {
       }, ['tanggal', 'jam', 'id_guru']);
 
       const shRekapGuru = getOrCreateSheet_(ss, SHEET.REKAP_GURU);
-      prosesRekapGuru_(shRekapGuru, guru, hariIni, jamNow);
+      prosesRekapGuru_(shRekapGuru, guru, hariIni, jamNow, setting);
 
       const statusGuru = logGuru.length === 0 ? 'MASUK' : 'PULANG';
       return {
@@ -1054,8 +1098,8 @@ function presensiGerbang_(token, p) {
         const [h1, m1] = jamTapPertama.split(':').map(Number);
         const [h2, m2] = jamNow.split(':').map(Number);
         const selisihMenit = ((h2 * 60) + m2) - ((h1 * 60) + m1);
-        if (selisihMenit < (MINIMAL_JAM_KERJA * 60)) {
-          return { ok: false, message: siswa.nama + ' belum bisa pulang. Minimal ' + MINIMAL_JAM_KERJA + ' jam sejak masuk (' + jamTapPertama + ').' };
+        if (selisihMenit < minJedaSiswa) {
+          return { ok: false, message: siswa.nama + ' belum bisa pulang. Minimal ' + formatJedaLabel_(minJedaSiswa) + ' sejak masuk (' + jamTapPertama + ').' };
         }
       }
     }
@@ -1070,7 +1114,7 @@ function presensiGerbang_(token, p) {
       ['IZIN', 'SAKIT'].includes(String(k.status || '').trim().toUpperCase())
     );
     const isDisp = Boolean(dispensasi) || hasKetIzinSakit;
-    const rawStatusSiswa = hitungStatusSiswa_(jamNow, sesiSiswa, setting);
+    const rawStatusSiswa = hitungStatusSiswa_(jamNow, sesiSiswa, setting, hariIni);
     const statusSiswa = (sesiSiswa === 'PAGI' && rawStatusSiswa === 'TERLAMBAT' && isDisp) ? 'TEPAT_WAKTU' : rawStatusSiswa;
 
     appendRow_(SHEET.GERBANG, {
@@ -1508,12 +1552,13 @@ function getRiwayatSiswaPublik_(p) {
         const jp = formatJamSheet(r.jam_pulang, '');
         const stM = String(r.status_masuk || '').toUpperCase();
         const stP = String(r.status_pulang || '').toUpperCase();
+        const isStdPulang = !stP || stP === '-' || stP === 'PULANG' || stP === 'PULANG_AWAL' || stP === 'PULANG_CEPAT';
         gerbangMap[tgl] = {
           tanggal: tgl,
           jam_masuk: jm || '-',
-          status_masuk: jm ? (stM && stM !== '-' ? stM : hitungStatusSiswa_(jm, 'PAGI', setting)) : '-',
+          status_masuk: jm ? (stM && stM !== '-' ? stM : hitungStatusSiswa_(jm, 'PAGI', setting, tgl)) : '-',
           jam_pulang: jp || '-',
-          status_pulang: jp ? (stP && stP !== '-' ? stP : hitungStatusSiswa_(jp, 'PULANG', setting)) : '-'
+          status_pulang: jp ? (isStdPulang ? hitungStatusSiswa_(jp, 'PULANG', setting, tgl) : stP) : '-'
         };
       });
 
@@ -1531,13 +1576,14 @@ function getRiwayatSiswaPublik_(p) {
         const st = String(r.status || '').toUpperCase();
         if (sesi === 'PULANG') {
           if (jam) {
+            const isStdPulang = !st || st === '-' || st === 'PULANG' || st === 'PULANG_AWAL' || st === 'PULANG_CEPAT';
             gerbangMap[tgl].jam_pulang = jam;
-            gerbangMap[tgl].status_pulang = (st && st !== '-') ? st : hitungStatusSiswa_(jam, 'PULANG', setting);
+            gerbangMap[tgl].status_pulang = isStdPulang ? hitungStatusSiswa_(jam, 'PULANG', setting, tgl) : st;
           }
         } else {
           if (gerbangMap[tgl].jam_masuk === '-' && jam) {
             gerbangMap[tgl].jam_masuk = jam;
-            gerbangMap[tgl].status_masuk = (st && st !== '-') ? st : hitungStatusSiswa_(jam, 'PAGI', setting);
+            gerbangMap[tgl].status_masuk = (st && st !== '-') ? st : hitungStatusSiswa_(jam, 'PAGI', setting, tgl);
           }
         }
       });
@@ -3383,7 +3429,7 @@ function prosesRekapSiswaBatch_(sh, items, setting) {
     const tgl = item.tglTap;
     const jam = item.jamTap;
     const sesiUpper = String(item.sesiTap || 'PAGI').toUpperCase();
-    const statusVal = item.statusSiswa || hitungStatusSiswa_(jam, sesiUpper, setting || {});
+    const statusVal = item.statusSiswa || hitungStatusSiswa_(jam, sesiUpper, setting || {}, tgl);
     const key = tgl + '|' + String(siswa.nis).trim();
 
     if (rowMap[key]) {
@@ -3441,10 +3487,11 @@ function prosesRekapSiswaBatch_(sh, items, setting) {
   SpreadsheetApp.flush();
 }
 
-function prosesRekapGuruBatch_(sh, items) {
+function prosesRekapGuruBatch_(sh, items, setting) {
   if (!items || !items.length) return;
   const headers = ensureHeaders_(sh, SHEET.REKAP_GURU).map(h => h.toLowerCase());
   const data = sh.getDataRange().getValues();
+  const minJeda = getJedaPulangMenit_(setting, 'GURU');
 
   const cId = headers.indexOf('id_guru');
   const cTgl = headers.indexOf('tanggal');
@@ -3483,7 +3530,7 @@ function prosesRekapGuruBatch_(sh, items) {
         const mPulang = jpAda ? menitDariJam_(jpAda) : -1;
         if (mExist >= 0 && mNew >= 0) {
           if (mNew < mExist) {
-            if ((mExist - mNew) >= 120) {
+            if ((mExist - mNew) >= minJeda) {
               const finalPulang = (mPulang > mExist) ? jpAda : jm;
               const diff = Math.max(mExist, mPulang) - mNew;
               if (cMasuk !== -1) row[cMasuk] = jamTap;
@@ -3493,7 +3540,7 @@ function prosesRekapGuruBatch_(sh, items) {
               if (target.rowIdx !== -1) modifiedRows[target.rowIdx] = row;
             } else {
               if (cMasuk !== -1) row[cMasuk] = jamTap;
-              if (mPulang >= 0 && (mPulang - mNew) >= 120 && cTotal !== -1) {
+              if (mPulang >= 0 && (mPulang - mNew) >= minJeda && cTotal !== -1) {
                 const diff = mPulang - mNew;
                 row[cTotal] = Math.floor(diff / 60) + ' Jam ' + (diff % 60) + ' Mnt';
               }
@@ -3501,7 +3548,7 @@ function prosesRekapGuruBatch_(sh, items) {
             }
           } else {
             const diff = mNew - mExist;
-            if (diff >= 120 && (mPulang === -1 || mNew > mPulang)) {
+            if (diff >= minJeda && (mPulang === -1 || mNew > mPulang)) {
               if (cPulang !== -1) row[cPulang] = jamTap;
               if (cTotal !== -1) row[cTotal] = Math.floor(diff / 60) + ' Jam ' + (diff % 60) + ' Mnt';
               if (cStatus !== -1 && !row[cStatus]) row[cStatus] = 'HADIR';
@@ -3594,6 +3641,8 @@ function sinkronMassalGerbang_(token, p) {
     const shRekapGuru = getOrCreateSheet_(ss, SHEET.REKAP_GURU);
     const shRekapSiswa = getOrCreateSheet_(ss, SHEET.REKAP_SISWA);
     const setting = getPengaturan_(null).data || {};
+    const minJedaSiswa = getJedaPulangMenit_(setting, 'SISWA');
+    const minJedaGuru = getJedaPulangMenit_(setting, 'GURU');
 
     const masterSiswa = readAll_(SHEET.SISWA);
     const masterGuru = readAll_(SHEET.GURU);
@@ -3728,7 +3777,7 @@ function sinkronMassalGerbang_(token, p) {
 
         if (!rec.pagi && !rec.pulang) {
           const sesiFinal = (sesiHint === 'PULANG') ? 'PULANG' : 'PAGI';
-          const rawStatus = hitungStatusSiswa_(jamTap, sesiFinal, setting);
+          const rawStatus = hitungStatusSiswa_(jamTap, sesiFinal, setting, tglTap);
           const statusFinal = (sesiFinal === 'PAGI' && rawStatus === 'TERLAMBAT' && isDisp) ? 'TEPAT_WAKTU' : rawStatus;
           const obj = {
             id_log: makeId_('GRB'), timestamp: tstamp, tanggal: tglTap,
@@ -3746,9 +3795,9 @@ function sinkronMassalGerbang_(token, p) {
           const mPagi = menitDariJam_(rec.pagi.jam);
           const diff = (mNew >= 0 && mPagi >= 0) ? (mNew - mPagi) : 0;
 
-          if (diff >= 120) {
-            // Tap lebih akhir >= 2 jam: otomatis catat sebagai PULANG (meski dari laptop lain berlabel PAGI)
-            const statusPulang = hitungStatusSiswa_(jamTap, 'PULANG', setting);
+          if (diff >= minJedaSiswa) {
+            // Tap lebih akhir >= jeda minimal siswa: otomatis catat sebagai PULANG (meski dari laptop lain berlabel PAGI)
+            const statusPulang = hitungStatusSiswa_(jamTap, 'PULANG', setting, tglTap);
             const obj = {
               id_log: makeId_('GRB'), timestamp: tstamp, tanggal: tglTap,
               nis: nisStr, nama: siswa.nama, kelas: siswa.kelas,
@@ -3758,10 +3807,10 @@ function sinkronMassalGerbang_(token, p) {
             objekGerbang.push(obj);
             rec.pulang = { rowIdx: -1, objRef: obj, jam: jamTap, status: statusPulang };
             rekapSiswaQueue.push({ siswa: siswa, tglTap: tglTap, jamTap: jamTap, sesiTap: 'PULANG', statusSiswa: statusPulang });
-          } else if (diff <= -120) {
+          } else if (diff <= -minJedaSiswa) {
             // Kasus mati lampu: tap pulang dari Laptop B sempat tersinkron duluan sebagai PAGI, kini tap pagi asli dari PC A masuk!
             const oldJam = rec.pagi.jam;
-            const statusPulangOld = hitungStatusSiswa_(oldJam, 'PULANG', setting);
+            const statusPulangOld = hitungStatusSiswa_(oldJam, 'PULANG', setting, tglTap);
             if (rec.pagi.rowIdx > 0) {
               gerbangUpdates[rec.pagi.rowIdx] = Object.assign({}, gerbangUpdates[rec.pagi.rowIdx] || {}, { sesi: 'PULANG', status: statusPulangOld });
             } else if (rec.pagi.objRef) {
@@ -3770,7 +3819,7 @@ function sinkronMassalGerbang_(token, p) {
             }
             rec.pulang = { rowIdx: rec.pagi.rowIdx, objRef: rec.pagi.objRef, jam: oldJam, status: statusPulangOld };
 
-            const rawPagi = hitungStatusSiswa_(jamTap, 'PAGI', setting);
+            const rawPagi = hitungStatusSiswa_(jamTap, 'PAGI', setting, tglTap);
             const statusPagi = (rawPagi === 'TERLAMBAT' && isDisp) ? 'TEPAT_WAKTU' : rawPagi;
             const objPagi = {
               id_log: makeId_('GRB'), timestamp: tstamp, tanggal: tglTap,
@@ -3789,8 +3838,8 @@ function sinkronMassalGerbang_(token, p) {
             }
             diperbaiki++;
           } else if (diff < 0) {
-            // Sama-sama tap pagi (< 2 jam), tetapi data dari perangkat ini LEBIH AWAL — pakai jam paling awal agar adil!
-            const rawPagi = hitungStatusSiswa_(jamTap, 'PAGI', setting);
+            // Sama-sama tap pagi (< jeda minimal), tetapi data dari perangkat ini LEBIH AWAL — pakai jam paling awal agar adil!
+            const rawPagi = hitungStatusSiswa_(jamTap, 'PAGI', setting, tglTap);
             const statusPagi = (rawPagi === 'TERLAMBAT' && isDisp) ? 'TEPAT_WAKTU' : rawPagi;
             if (rec.pagi.rowIdx > 0) {
               gerbangUpdates[rec.pagi.rowIdx] = Object.assign({}, gerbangUpdates[rec.pagi.rowIdx] || {}, { timestamp: tstamp, status: statusPagi });
@@ -3811,8 +3860,8 @@ function sinkronMassalGerbang_(token, p) {
           }
         } else if (!rec.pagi && rec.pulang) {
           const mPulang = menitDariJam_(rec.pulang.jam);
-          if (mNew >= 0 && mPulang >= 0 && (mPulang - mNew) >= 120) {
-            const rawPagi = hitungStatusSiswa_(jamTap, 'PAGI', setting);
+          if (mNew >= 0 && mPulang >= 0 && (mPulang - mNew) >= minJedaSiswa) {
+            const rawPagi = hitungStatusSiswa_(jamTap, 'PAGI', setting, tglTap);
             const statusPagi = (rawPagi === 'TERLAMBAT' && isDisp) ? 'TEPAT_WAKTU' : rawPagi;
             const objPagi = {
               id_log: makeId_('GRB'), timestamp: tstamp, tanggal: tglTap,
@@ -3832,7 +3881,7 @@ function sinkronMassalGerbang_(token, p) {
           // PAGI & PULANG sudah ada: perbarui jam masuk jika tap susulan ternyata lebih awal dari jam masuk tercatat
           const mPagi = menitDariJam_(rec.pagi.jam);
           if (mNew >= 0 && mPagi >= 0 && mNew < mPagi) {
-            const rawPagi = hitungStatusSiswa_(jamTap, 'PAGI', setting);
+            const rawPagi = hitungStatusSiswa_(jamTap, 'PAGI', setting, tglTap);
             const statusPagi = (rawPagi === 'TERLAMBAT' && isDisp) ? 'TEPAT_WAKTU' : rawPagi;
             if (rec.pagi.rowIdx > 0) {
               gerbangUpdates[rec.pagi.rowIdx] = Object.assign({}, gerbangUpdates[rec.pagi.rowIdx] || {}, { timestamp: tstamp, status: statusPagi });
@@ -3887,7 +3936,7 @@ function sinkronMassalGerbang_(token, p) {
           const mNow = menitDariJam_(jamTap);
           if (mFirst >= 0 && mNow >= 0) {
             const diffAbs = Math.abs(mNow - mFirst);
-            if (diffAbs < 120) {
+            if (diffAbs < minJedaGuru) {
               if (mNow < mFirst) {
                 // Tap pagi lebih awal dari perangkat lain: perbarui agar jam masuk guru akurat
                 if (listG[0].rowIdx > 0) {
@@ -3898,7 +3947,7 @@ function sinkronMassalGerbang_(token, p) {
                 diperbaiki++;
               } else {
                 dilewati++;
-                if (dilewatiDetail.length < 10) dilewatiDetail.push(guru.nama + ' (tap ' + jamTap + ' kurang dari 2 jam dari ' + listG[0].jam + ')');
+                if (dilewatiDetail.length < 10) dilewatiDetail.push(guru.nama + ' (tap ' + jamTap + ' kurang dari ' + formatJedaLabel_(minJedaGuru) + ' dari ' + listG[0].jam + ')');
               }
               return;
             }
@@ -3972,7 +4021,7 @@ function sinkronMassalGerbang_(token, p) {
       appendRowsObjects_(SHEET.GURU_HADIR, objekGuru, ['tanggal', 'jam', 'id_guru']);
     }
     if (rekapGuruQueue.length > 0) {
-      prosesRekapGuruBatch_(shRekapGuru, rekapGuruQueue);
+      prosesRekapGuruBatch_(shRekapGuru, rekapGuruQueue, setting);
     }
 
     // Kirim rangkuman 1 pesan Telegram bila ada siswa terlambat hari ini & fitur aktif
@@ -4039,7 +4088,7 @@ function SinkronkanRekapHariIni() {
     const guru = masterGuru.find(g => String(g.id_guru).trim() === id);
     if (!guru) return;
     const jam = formatJamSheet(r.jam || r.timestamp, '');
-    if (jam) prosesRekapGuru_(shRekapGuru, guru, hariIni, jam);
+    if (jam) prosesRekapGuru_(shRekapGuru, guru, hariIni, jam, setting);
   });
 }
 

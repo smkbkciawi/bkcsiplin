@@ -1163,8 +1163,30 @@
           <div class="col-lg-6">
             <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-clock text-primary mr-2"></i>Waktu Absen</h3></div><div class="card-body">
               <div class="field"><label>Jam Masuk</label><input type="time" id="set-jam-masuk"></div>
-              <div class="field"><label>Jam Pulang</label><input type="time" id="set-jam-pulang"></div>
+              <div class="field"><label>Jam Pulang (Default)</label><input type="time" id="set-jam-pulang"></div>
               <div class="field"><label>Toleransi Keterlambatan (menit)</label><input type="number" id="set-toleransi" min="0" max="60"></div>
+
+              <div class="border rounded p-2 mb-3" style="background:#F8FAFC">
+                <label class="d-block font-weight-bold mb-1" style="font-size:.82rem;color:#1E3A8A"><i class="fas fa-calendar-week mr-1"></i>Jam Pulang Khusus per Hari (Opsional)</label>
+                <div class="small text-muted mb-2" style="font-size:.73rem;line-height:1.4">Kosongkan hari yang sama dengan Jam Pulang default di atas. Contoh: isi <b>Jumat 11:30</b> atau <b>Sabtu 13:00</b>.</div>
+                <div class="row">
+                  <div class="col-6 col-sm-4 mb-2"><label class="small font-weight-bold mb-1" for="set-jam-pulang-senin">Senin</label><input type="time" class="form-control form-control-sm" id="set-jam-pulang-senin"></div>
+                  <div class="col-6 col-sm-4 mb-2"><label class="small font-weight-bold mb-1" for="set-jam-pulang-selasa">Selasa</label><input type="time" class="form-control form-control-sm" id="set-jam-pulang-selasa"></div>
+                  <div class="col-6 col-sm-4 mb-2"><label class="small font-weight-bold mb-1" for="set-jam-pulang-rabu">Rabu</label><input type="time" class="form-control form-control-sm" id="set-jam-pulang-rabu"></div>
+                  <div class="col-6 col-sm-4 mb-1"><label class="small font-weight-bold mb-1" for="set-jam-pulang-kamis">Kamis</label><input type="time" class="form-control form-control-sm" id="set-jam-pulang-kamis"></div>
+                  <div class="col-6 col-sm-4 mb-1"><label class="small font-weight-bold mb-1" for="set-jam-pulang-jumat">Jumat</label><input type="time" class="form-control form-control-sm" id="set-jam-pulang-jumat"></div>
+                  <div class="col-6 col-sm-4 mb-1"><label class="small font-weight-bold mb-1" for="set-jam-pulang-sabtu">Sabtu</label><input type="time" class="form-control form-control-sm" id="set-jam-pulang-sabtu"></div>
+                </div>
+              </div>
+
+              <div class="border rounded p-2" style="background:#F8FAFC">
+                <label class="d-block font-weight-bold mb-1" style="font-size:.82rem;color:#1E3A8A"><i class="fas fa-hourglass-half mr-1"></i>Jeda Minimal Tap Pulang (Menit)</label>
+                <div class="row">
+                  <div class="col-6"><label class="small font-weight-bold mb-1" for="set-jeda-pulang-siswa">Siswa (menit)</label><input type="number" class="form-control form-control-sm" id="set-jeda-pulang-siswa" min="15" max="480" placeholder="120"></div>
+                  <div class="col-6"><label class="small font-weight-bold mb-1" for="set-jeda-pulang-guru">Guru (menit)</label><input type="number" class="form-control form-control-sm" id="set-jeda-pulang-guru" min="5" max="480" placeholder="30"></div>
+                </div>
+                <div class="small text-muted mt-1" style="font-size:.73rem;line-height:1.4">Mencegah tap ganda tak sengaja, sambil mengizinkan guru dengan jam mengajar singkat (&lt; 2 jam) tetap bisa tap pulang.</div>
+              </div>
             </div></div>
             <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-mosque text-success mr-2"></i>Jam Sholat</h3></div><div class="card-body">
               <div class="field"><label>Subuh</label><input type="time" id="set-subuh"></div>
@@ -3959,12 +3981,22 @@ async function loadLaporan() {
     const allowedMap = {};
     listSiswa.forEach(s => { allowedMap[String(s.nis || '').trim()] = s; });
 
+    const hitungStatusPulangHari_ = (tgl, jamPulang, stRaw) => {
+      const st = String(stRaw || '-').toUpperCase();
+      if (!jamPulang || jamPulang === '-') return st;
+      const isStd = !st || st === '-' || st === 'PULANG' || st === 'PULANG_AWAL' || st === 'PULANG_CEPAT';
+      if (!isStd) return st;
+      const jpAturan = getJamPulangHari_(setting, tgl);
+      return jamPulang < jpAturan ? 'PULANG_AWAL' : 'PULANG';
+    };
+
     const pairMap = {};
     if (resRekap.ok && Array.isArray(resRekap.data)) {
       resRekap.data.forEach(r => {
         const nis = String(r.nis || '').trim();
         const tgl = String(r.tanggal || '').trim();
         if (!allowedMap[nis] || !tgl) return;
+        const jpClean = (r.jam_pulang && r.jam_pulang !== '-') ? bersihkanJam_(r.jam_pulang, r.jam_pulang) : '-';
         pairMap[tgl + '_' + nis] = {
           tanggal: tgl,
           nis: nis,
@@ -3972,8 +4004,8 @@ async function loadLaporan() {
           kelas: r.kelas || allowedMap[nis].kelas || '-',
           jam_masuk: (r.jam_masuk && r.jam_masuk !== '-') ? bersihkanJam_(r.jam_masuk, r.jam_masuk) : '-',
           status_masuk: String(r.status_masuk || '-').toUpperCase(),
-          jam_pulang: (r.jam_pulang && r.jam_pulang !== '-') ? bersihkanJam_(r.jam_pulang, r.jam_pulang) : '-',
-          status_pulang: String(r.status_pulang || '-').toUpperCase()
+          jam_pulang: jpClean,
+          status_pulang: hitungStatusPulangHari_(tgl, jpClean, r.status_pulang)
         };
       });
     }
@@ -4002,7 +4034,7 @@ async function loadLaporan() {
         pairMap[key].status_masuk = st || 'HADIR';
       } else if (sesi === 'PULANG' && (!pairMap[key].jam_pulang || pairMap[key].jam_pulang === '-')) {
         pairMap[key].jam_pulang = jam;
-        pairMap[key].status_pulang = st || 'PULANG';
+        pairMap[key].status_pulang = hitungStatusPulangHari_(tgl, jam, st || 'PULANG');
       }
     });
     dataKet.forEach(r => {
@@ -4452,7 +4484,9 @@ async function loadLaporanGuru() {
 
       let statusPulang = 'BELUM_TAP';
       if (jp !== '-') {
-        if (mPulangAturan !== null && mOut !== null && mOut < mPulangAturan) {
+        const jpHariAturan = getJamPulangHari_(setting, tgl);
+        const mPulangHari = parseMenitJam_(jpHariAturan);
+        if (mPulangHari !== null && mOut !== null && mOut < mPulangHari) {
           statusPulang = 'PULANG_CEPAT';
         } else {
           statusPulang = 'LENGKAP';
@@ -4932,6 +4966,35 @@ if ($('btn-tg-toggle-token')) {
   });
 }
 
+function getHariKeyDariTanggal_(tglStr) {
+  let clean = String(tglStr || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(clean)) clean = todayISO();
+  const p = clean.split('-').map(Number);
+  const dow = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12, 0, 0)).getUTCDay();
+  const keys = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+  return keys[dow] || 'senin';
+}
+
+function getJamPulangHari_(setting, tglStr) {
+  const s = setting || {};
+  const hariKey = getHariKeyDariTanggal_(tglStr);
+  const rawKhusus = s['jam_pulang_' + hariKey];
+  if (rawKhusus !== undefined && rawKhusus !== null && String(rawKhusus).trim() !== '') {
+    const khusus = bersihkanJam_(rawKhusus, '');
+    if (/^\d{2}:\d{2}$/.test(khusus)) return khusus;
+  }
+  return bersihkanJam_(s.jam_pulang, '15:00');
+}
+
+const HARI_PULANG_KEYS_ = [
+  { key: 'senin', label: 'Senin', id: 'set-jam-pulang-senin' },
+  { key: 'selasa', label: 'Selasa', id: 'set-jam-pulang-selasa' },
+  { key: 'rabu', label: 'Rabu', id: 'set-jam-pulang-rabu' },
+  { key: 'kamis', label: 'Kamis', id: 'set-jam-pulang-kamis' },
+  { key: 'jumat', label: 'Jumat', id: 'set-jam-pulang-jumat' },
+  { key: 'sabtu', label: 'Sabtu', id: 'set-jam-pulang-sabtu' }
+];
+
 async function loadPengaturan() {
   try {
     const res = await apiCall('getPengaturan');
@@ -4940,6 +5003,14 @@ async function loadPengaturan() {
     $('set-jam-masuk').value = bersihkanJam_(s.jam_masuk, '07:00');
     $('set-jam-pulang').value = bersihkanJam_(s.jam_pulang, '15:00');
     $('set-toleransi').value = s.toleransi_menit || '0';
+    HARI_PULANG_KEYS_.forEach(h => {
+      const el = $(h.id);
+      if (!el) return;
+      const raw = s['jam_pulang_' + h.key];
+      el.value = (raw !== undefined && raw !== null && String(raw).trim() !== '') ? bersihkanJam_(raw, '') : '';
+    });
+    if ($('set-jeda-pulang-siswa')) $('set-jeda-pulang-siswa').value = (s.jeda_pulang_siswa_menit !== undefined && String(s.jeda_pulang_siswa_menit).trim() !== '') ? String(s.jeda_pulang_siswa_menit).trim() : '120';
+    if ($('set-jeda-pulang-guru')) $('set-jeda-pulang-guru').value = (s.jeda_pulang_guru_menit !== undefined && String(s.jeda_pulang_guru_menit).trim() !== '') ? String(s.jeda_pulang_guru_menit).trim() : '30';
     $('set-subuh').value = bersihkanJam_(s.jam_subuh, '04:30');
     $('set-dzuhur').value = bersihkanJam_(s.jam_dzuhur, '12:00');
     $('set-ashar').value = bersihkanJam_(s.jam_ashar, '15:15');
@@ -4983,6 +5054,25 @@ $('btn-simpan-pengaturan').addEventListener('click', async () => {
     toast('Jam pulang harus lebih besar dari jam masuk.', true);
     return;
   }
+  const jamPulangPerHari = {};
+  for (const h of HARI_PULANG_KEYS_) {
+    const val = $(h.id) ? $(h.id).value.trim() : '';
+    if (val && jm && val <= jm) {
+      toast(`Jam pulang hari ${h.label} harus lebih besar dari jam masuk.`, true);
+      return;
+    }
+    jamPulangPerHari['jam_pulang_' + h.key] = val;
+  }
+  const jedaSiswa = Math.round(Number($('set-jeda-pulang-siswa') ? $('set-jeda-pulang-siswa').value : 120));
+  const jedaGuru = Math.round(Number($('set-jeda-pulang-guru') ? $('set-jeda-pulang-guru').value : 30));
+  if (!isFinite(jedaSiswa) || jedaSiswa < 15 || jedaSiswa > 480) {
+    toast('Jeda minimal pulang Siswa harus antara 15 sampai 480 menit.', true);
+    return;
+  }
+  if (!isFinite(jedaGuru) || jedaGuru < 5 || jedaGuru > 480) {
+    toast('Jeda minimal pulang Guru harus antara 5 sampai 480 menit.', true);
+    return;
+  }
   const zk = Number($('set-zona-kuning').value) || 0;
   const zo = Number($('set-zona-oranye').value) || 0;
   const zm = Number($('set-zona-merah').value) || 0;
@@ -4997,9 +5087,11 @@ $('btn-simpan-pengaturan').addEventListener('click', async () => {
     toast('Jika Bot Telegram diaktifkan, Bot Token & Chat ID Grup Pimpinan wajib diisi.', true);
     return;
   }
-  const payload = {
+  const payload = Object.assign({
     jam_masuk: jm, jam_pulang: jp,
     toleransi_menit: $('set-toleransi').value,
+    jeda_pulang_siswa_menit: String(jedaSiswa),
+    jeda_pulang_guru_menit: String(jedaGuru),
     jam_subuh: $('set-subuh').value, jam_dzuhur: $('set-dzuhur').value,
     jam_ashar: $('set-ashar').value, jam_maghrib: $('set-maghrib').value, jam_isya: $('set-isya').value,
     nama_sekolah: $('set-nama-sekolah').value, nama_yayasan: $('set-nama-yayasan').value,
@@ -5020,7 +5112,7 @@ $('btn-simpan-pengaturan').addEventListener('click', async () => {
     tg_perintah_aktif: ($('set-tg-perintah') && $('set-tg-perintah').checked) ? 'YA' : 'TIDAK',
     tg_validasi_aktif: ($('set-tg-validasi') && $('set-tg-validasi').checked) ? 'YA' : 'TIDAK',
     tg_validator_ids: $('set-tg-validator-ids') ? $('set-tg-validator-ids').value.trim() : ''
-  };
+  }, jamPulangPerHari);
   const btn = $('btn-simpan-pengaturan');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan…';
   try {

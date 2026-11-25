@@ -804,8 +804,46 @@
 <script>
 const API_URL = window.BKC_API_URL || 'https://script.google.com/macros/s/AKfycbzrtKQLgECnB1PqFm9Tl9QpA79-y7XQFB5G96mfiXPwXupLAyucnqc16kKrYDjEYR1E/exec';
 const MODUL = 'gerbang';
-const MIN_JEDA_PULANG_MENIT = 120;
+const MIN_JEDA_PULANG_SISWA_DEFAULT = 120;
+const MIN_JEDA_PULANG_GURU_DEFAULT = 30;
 const WIB_OFFSET_MS = 7 * 3600000;
+
+function getHariKeyDariTanggal(tglStr) {
+  let clean = String(tglStr || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(clean)) clean = todayWIB();
+  const p = clean.split('-').map(Number);
+  const dow = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12, 0, 0)).getUTCDay();
+  const keys = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+  return keys[dow] || 'senin';
+}
+
+function getJamPulangHari(setting, tglStr) {
+  const s = setting || {};
+  const hariKey = getHariKeyDariTanggal(tglStr);
+  const khusus = String(s['jam_pulang_' + hariKey] || '').trim().substring(0, 5);
+  if (/^\d{2}:\d{2}$/.test(khusus)) return khusus;
+  const def = String(s.jam_pulang || '15:00').trim().substring(0, 5);
+  return /^\d{2}:\d{2}$/.test(def) ? def : '15:00';
+}
+
+function getJedaPulangMenit(setting, tipe) {
+  const s = setting || {};
+  const isGuru = String(tipe || '').toUpperCase() === 'GURU';
+  const raw = isGuru ? s.jeda_pulang_guru_menit : s.jeda_pulang_siswa_menit;
+  const fallback = isGuru ? MIN_JEDA_PULANG_GURU_DEFAULT : MIN_JEDA_PULANG_SISWA_DEFAULT;
+  const minVal = isGuru ? 1 : 15;
+  if (raw === undefined || raw === null || String(raw).trim() === '') return fallback;
+  const n = Math.round(Number(raw));
+  if (!isFinite(n) || isNaN(n)) return fallback;
+  return Math.max(minVal, Math.min(480, n));
+}
+
+function formatJedaLabel(menit) {
+  const m = Math.max(1, Math.round(Number(menit) || 0));
+  if (m >= 60 && m % 60 === 0) return `${m / 60} jam`;
+  if (m > 60) return `${Math.floor(m / 60)} jam ${m % 60} menit`;
+  return `${m} menit`;
+}
 
 const state = {
   token: sessionStorage.getItem('bkc_token') || localStorage.getItem('bkc_token') || '',
@@ -1011,6 +1049,9 @@ function ensureHariIniBersih(fromClockTick = false) {
   }
 
   state.activeDay = today;
+  if (dayChanged) {
+    try { updateSettingInfo(JSON.parse(localStorage.getItem('bkc_setting') || '{}')); } catch (_) {}
+  }
   if (typeof updateDispensasiUI === 'function') updateDispensasiUI();
   const lbl = $('progress-tanggal-label');
   if (lbl) lbl.textContent = formatTanggalShort(today);
@@ -1417,7 +1458,8 @@ $('btn-tarik').addEventListener('click', () => tarikData(false));
 function updateSettingInfo(setting) {
   if (!setting) return;
   $('info-masuk').textContent = String(setting.jam_masuk || '07:15').substring(0,5);
-  $('info-pulang').textContent = String(setting.jam_pulang || '15:00').substring(0,5);
+  const jpHari = getJamPulangHari(setting, todayWIB());
+  $('info-pulang').textContent = jpHari;
   const tol = Number(setting.toleransi_menit) || 0;
   $('info-toleransi').textContent = tol > 0 ? `(+${tol}m)` : '';
 }
@@ -1560,10 +1602,11 @@ function hitungSelisihMenit(jamAwal, jamAkhir) {
   return ((p2[0] * 60) + (p2[1] || 0)) - ((p1[0] * 60) + (p1[1] || 0));
 }
 
-function formatBolehPulang(jamMasukStr) {
+function formatBolehPulang(jamMasukStr, jedaMenit) {
   const p = String(jamMasukStr || '').split(':').map(Number);
   if (isNaN(p[0])) return '-';
-  const total = (p[0] * 60) + (p[1] || 0) + MIN_JEDA_PULANG_MENIT;
+  const jeda = Number(jedaMenit) || MIN_JEDA_PULANG_SISWA_DEFAULT;
+  const total = (p[0] * 60) + (p[1] || 0) + jeda;
   return `${String(Math.floor(total / 60) % 24).padStart(2,'0')}:${String(total % 60).padStart(2,'0')}`;
 }
 
@@ -1633,16 +1676,18 @@ function prosesPresensi(kodeRaw, sumber) {
 
   const isMasuk = !rec.masuk;
 
-  // Aturan Jeda Minimal 2 Jam untuk SISWA DAN GURU
+  // Aturan Jeda Minimal Pulang (bisa berbeda untuk Siswa & Guru sesuai Pengaturan)
+  const jedaPulangMenit = getJedaPulangMenit(setting, tipe);
   if (!isMasuk && rec.masuk) {
     const selisih = hitungSelisihMenit(rec.masuk, jamNow);
-    if (selisih < MIN_JEDA_PULANG_MENIT) {
-      const jamBoleh = formatBolehPulang(rec.masuk);
+    if (selisih < jedaPulangMenit) {
+      const jamBoleh = formatBolehPulang(rec.masuk, jedaPulangMenit);
+      const labelJeda = formatJedaLabel(jedaPulangMenit);
       setStatusBox(
         'warn',
         'Sudah Absen Masuk',
         `${orang.nama} baru masuk pukul ${rec.masuk} WIB. Tap pulang minimal pukul ${jamBoleh} WIB.`,
-        'JEDA MINIMAL 2 JAM'
+        `JEDA MINIMAL ${labelJeda.toUpperCase()}`
       );
       bunyiScanner('gagal');
       jadwalkanResetStatusBox();
@@ -1682,9 +1727,9 @@ function prosesPresensi(kodeRaw, sumber) {
     }
   }
 
-  // Cek Pulang Awal vs Pulang Normal (Siswa Pulang setelah jeda >= 2 jam)
+  // Cek Pulang Awal vs Pulang Normal (mengikuti jadwal pulang hari ini)
   if (!isMasuk && tipe === 'Siswa') {
-    const jp = String(setting.jam_pulang || '15:00').substring(0, 5);
+    const jp = getJamPulangHari(setting, todayWIB());
     if (jamNow < jp) {
       statusTeks = 'Pulang Awal';
       isPeringatan = true;
